@@ -238,8 +238,6 @@ pwFs.then(
     
     
     
-    
-    
 
 
    
@@ -2227,58 +2225,6 @@ pwFs.then(
     
       
             
-#### Class channelTransactionModule
-
-
-
-
-
-   
-    
-    
-
-
-   
-      
-            
-#### Class _channelTransaction
-
-
-- [_classFactory](README.md#_channelTransaction__classFactory)
-- [execute](README.md#_channelTransaction_execute)
-- [rollBack](README.md#_channelTransaction_rollBack)
-
-
-
-   
-    
-##### trait _dataTrait
-
-- [guid](README.md#_dataTrait_guid)
-- [isArray](README.md#_dataTrait_isArray)
-- [isFunction](README.md#_dataTrait_isFunction)
-- [isObject](README.md#_dataTrait_isObject)
-
-
-    
-    
-
-
-   
-      
-    
-
-
-
-      
-    
-
-
-
-      
-    
-      
-            
 #### Class channelPolicyModule
 
 
@@ -2369,8 +2315,6 @@ The class has following internal singleton variables:
 
 
    
-    
-    
     
     
     
@@ -12634,7 +12578,9 @@ if(me._serverState.upgrade) {
         
         if(me._serverState.upgrade.hasOwnProperty(n)) {
             var info = me._serverState.upgrade[n];
+            
             if(info.socket) {
+                debugger;
                 // do we need a full update or partial update?
                 if(info.version != me._serverState.version || (info.askFull)) {
                     var fullData = me._serverState.data.getData();
@@ -12947,7 +12893,7 @@ this._model.readBuildTree( ).then( function(r) {
         me._acl = nfs4_acl( data.__acl );
     }
     
-    me._tManager = _channelTransaction(channelId + fileSystem.id(), dataTest);
+    // me._tManager = _channelTransaction(channelId + fileSystem.id(), dataTest);
     
     // The channel policy might replace the transaction manager...
     me._policy = _chPolicy();
@@ -21570,222 +21516,6 @@ if(createFrom) {
 
 
    
-
-
-
-      
-    
-
-
-
-      
-    
-      
-            
-# Class channelTransactionModule
-
-
-The class has following internal singleton variables:
-        
-        
-### channelTransactionModule::constructor( t )
-
-```javascript
-
-```
-        
-
-
-   
-    
-    
-
-
-   
-      
-            
-# Class _channelTransaction
-
-
-The class has following internal singleton variables:
-        
-* _instanceCache
-        
-        
-### <a name="_channelTransaction__classFactory"></a>_channelTransaction::_classFactory(id)
-
-
-```javascript
-
-if(!_instanceCache) _instanceCache = {};
-
-if(_instanceCache[id]) return _instanceCache[id];
-
-_instanceCache[id] = this;
-```
-
-### <a name="_channelTransaction_execute"></a>_channelTransaction::execute(changeFrame)
-
-
-```javascript
-// The result of the transaction
-var res = {
-    id : changeFrame.id,
-    from : changeFrame.from,
-    result : false, 
-    rollBack : false,
-    failed : []
-};
-
-if(!changeFrame.id) return res;
-
-if(this._done[changeFrame.id]) return res;
-
-this._done[changeFrame.id] = true;
-
-try {
-
-    var line = this._channel.getJournalLine();
-    if(changeFrame.from != line) {
-        res.invalidStart = true;
-        res.result = false;
-        res.correctStart = changeFrame.from;
-        res.correctLines = [];
-        for(var i=changeFrame.from; i<line; i++ ) {
-            res.correctLines.push( this._channel._journal[i] );
-        }
-        return res;
-    }
-    
-    var okCnt = 0, failCnt = 0;
-    // the list of commands
-    for(var i=0; i<changeFrame.commands.length; i++) {
-        var c = changeFrame.commands[i];
-        var cmdRes=this._channel.execCmd(c);
-        if( cmdRes === true ) {
-            // the command was OK
-            okCnt++;
-        } else {
-            // if command fails, ask the client to roll back 
-            if(changeFrame.fail_tolastok) {
-                //res.rollBack   = true;
-                res.validCnt   = okCnt;
-                //res.rollBackTo = okCnt + res.from;
-                
-                var line = this._channel.getJournalLine();
-                res.correctStart = changeFrame.from;
-                res.correctLines = [];
-                for(var i=changeFrame.from; i<line; i++ ) {
-                    res.correctLines.push( this._channel._journal[i] );
-                }                
-                
-            } else {            
-                //res.rollBack   = true;
-                res.validCnt   = 0;
-                //res.rollBackTo =  res.from;
-                this._channel.undo( okCnt ); // UNDO all the commands
-                
-                var line = this._channel.getJournalLine();
-                res.correctStart = changeFrame.from;
-                res.correctLines = [];
-                for(var i=changeFrame.from; i<line; i++ ) {
-                    res.correctLines.push( this._channel._journal[i] );
-                }                 
-                
-            }           
-            return res;
-        }
-    }
-    if( res.failed.length == 0 ) res.result = true;
-
-    var line = this._channel.getJournalLine();
-    res.correctStart = changeFrame.from;
-    res.correctLines = [];
-    for(var i=changeFrame.from; i<line; i++ ) {
-        res.correctLines.push( this._channel._journal[i] );
-    }      
-    
-    res.validCnt = okCnt;
-    return res;
-} catch(e) {
-    res.result = false;
-    return res;
-}
-```
-
-### _channelTransaction::constructor( channelId, channelData )
-
-```javascript
-
-this._channelId = channelId;
-this._channel = channelData;
-
-this._done = {};
-
-```
-        
-### <a name="_channelTransaction_rollBack"></a>_channelTransaction::rollBack(channelData, res)
-`channelData` a _channelData -object to roll back
- 
-`res` The response from transaction
- 
-
-a convenience / example method to help clients to roll the response back
-```javascript
-if( channelData && res && res.rollBack ) {
-    // res.rollBackTo has the index to roll back to
-    channelData.reverseToLine( res.rollBackTo  );
-}
-
-```
-
-
-
-   
-    
-## trait _dataTrait
-
-The class has following internal singleton variables:
-        
-        
-### <a name="_dataTrait_guid"></a>_dataTrait::guid(t)
-
-
-```javascript
-return Math.random().toString(36).substring(2, 15) +
-        Math.random().toString(36).substring(2, 15);
-
-```
-
-### <a name="_dataTrait_isArray"></a>_dataTrait::isArray(t)
-
-
-```javascript
-return t instanceof Array;
-```
-
-### <a name="_dataTrait_isFunction"></a>_dataTrait::isFunction(fn)
-
-
-```javascript
-return Object.prototype.toString.call(fn) == '[object Function]';
-```
-
-### <a name="_dataTrait_isObject"></a>_dataTrait::isObject(t)
-
-
-```javascript
-return t === Object(t);
-```
-
-
-    
-    
-
-
-   
-      
-    
 
 
 

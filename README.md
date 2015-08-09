@@ -6624,6 +6624,11 @@ var me = this;
 this._initOptions = options;
 
 if(typeof( data ) == "string") {
+    
+    if(!data.match("://")) {
+        return;
+    }
+
     var req = this._parseURL(data);
     this._request = req;
     
@@ -6694,6 +6699,10 @@ if(typeof( data ) == "string") {
         var me = this;
         this._client.then( function(resp) {
             var rawData = me._client.getData();
+            if(!rawData) {
+                me.resolve(true);
+                return;
+            }
             me._initializeData(rawData);
             me.addToCache( rawData.__id, me ); 
 
@@ -6824,6 +6833,8 @@ if(this.isArray()) {
 
 
 ```javascript
+
+if(!docData) return;
 
 // pointer to the docUp data
 this._data = docData.data;
@@ -7313,7 +7324,7 @@ return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
 
 ```javascript
 
-if(typeof( this._docData.data[name]) != "undefined" ) {
+if(typeof( this._docData.data[name]) != "undefined" && ( this[name]) ) {
     return true;
 }
 return false;
@@ -7628,6 +7639,15 @@ return o;
 
 
 ```javascript
+
+if(this.isFunction(value)) {
+    var me = this;
+    this.then( function() {
+        return me.set(name, value(me.get(name)) );
+    });
+    return this;
+}
+
 if(this.isObject(value)) {
  
     var data, newData = value;
@@ -7652,6 +7672,9 @@ if(this.isObject(value)) {
     
     return this;    
 } else {
+    
+
+
     this._client.set(this._docData.__id, name, value);
     this.createPropertyUpdateFn( name, value );
     return this;

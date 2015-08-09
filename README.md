@@ -26,7 +26,7 @@ d.then( function() {
 Stream of data is then persisted to server and will be syncronized between multiple clients.
 
 1. Wraps socket.io to deliver data automatically when modified, like `obj.color("red")`
-2. Suports `Objects`, `Object value properties`, `Object Array properties`, `Arrays of Objects` - Arrays of values like [1,2,3] because they do not have reference ID
+2. Suports `Objects`, `Object value properties`, `Object Array properties`, `Arrays of Objects` - not supported are Arrays of values like [1,2,3] because they do not have reference ID
 3. Data recovery after sync or connection failure
 4. Authentication system with `sha3` password hashing
 5. Server data can be stored in-memory or filesystem

@@ -2352,6 +2352,8 @@ The class has following internal singleton variables:
         
 * _framers
         
+* _localCnt
+        
         
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
@@ -2377,7 +2379,7 @@ if(thisObj || args) {
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "aft7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -2402,7 +2404,7 @@ this.add(fn);
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "t7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -2416,7 +2418,8 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-    
+
+   _localCnt=1;
    this.polyfill();
  
    var frame, cancelFrame;
@@ -3831,6 +3834,8 @@ The class has following internal singleton variables:
         
 * _framers
         
+* _localCnt
+        
         
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
@@ -3856,7 +3861,7 @@ if(thisObj || args) {
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "aft7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -3881,7 +3886,7 @@ this.add(fn);
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "t7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -3895,7 +3900,8 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-    
+
+   _localCnt=1;
    this.polyfill();
  
    var frame, cancelFrame;
@@ -5146,6 +5152,8 @@ The class has following internal singleton variables:
         
 * _framers
         
+* _localCnt
+        
         
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
@@ -5171,7 +5179,7 @@ if(thisObj || args) {
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "aft7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -5196,7 +5204,7 @@ this.add(fn);
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "t7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -5210,7 +5218,8 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-    
+
+   _localCnt=1;
    this.polyfill();
  
    var frame, cancelFrame;
@@ -5375,6 +5384,8 @@ The class has following internal singleton variables:
         
 * _framers
         
+* _localCnt
+        
         
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
@@ -5400,7 +5411,7 @@ if(thisObj || args) {
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "aft7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -5425,7 +5436,7 @@ this.add(fn);
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "t7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -5439,7 +5450,8 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-    
+
+   _localCnt=1;
    this.polyfill();
  
    var frame, cancelFrame;
@@ -18297,6 +18309,8 @@ The class has following internal singleton variables:
         
 * _framers
         
+* _localCnt
+        
         
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
@@ -18322,7 +18336,7 @@ if(thisObj || args) {
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "aft7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -18347,7 +18361,7 @@ this.add(fn);
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "t7491_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -18361,7 +18375,8 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-    
+
+   _localCnt=1;
    this.polyfill();
  
    var frame, cancelFrame;

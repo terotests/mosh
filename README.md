@@ -13562,6 +13562,8 @@ var _frameFn = function() {
     if(!me._policy) return;
     if(me._disconnected) return;    // in case disconnected, don't send data
     
+    if(!me._connected) return;
+    
     if(me._clientState.needsRefresh) {
         // *** if refresh is required, out of sync client **
         
@@ -13855,6 +13857,9 @@ console.log("channelClient init");
 
 this._connCnt = 0;
 
+socket.on("disconnet", function() {
+    me._connected = false;
+})
 socket.on("connect", function() {
     
     console.log("Socket sent connected");
@@ -13890,10 +13895,19 @@ socket.on("connect", function() {
                 
                 if(me._connCnt > 1) {
                     
-                    // do not start again..
-                    console.log("Already connected, asking upgrade");
+                    // first, send the data we have to server, hope it get's through...
+                    var packet = me._policy.constructClientToServer( me._clientState );
+                    if(packet) {
+                        socket.send("channelCommand", {
+                                    channelId : channelId,
+                                    cmd : "c2s",
+                                    data : packet
+                            }).then( function(res) {
+
+                            })    
+                    }               
+                    // then, ask upgrade...
                     me.askUpgrade();
-                    
                     return false;
                 }
 
@@ -14677,6 +14691,10 @@ if(realSocket) {
             socketId : myId
         });        
     };
+    var me = this;
+    realSocket.on("disconnect", function() {
+        me.trigger("disconnect");
+    })
 
     if(realSocket.connected) {
         console.log("realSocket was connected");
@@ -21131,11 +21149,19 @@ if(!clientState.last_sent) {
 var start = clientState.last_sent[1] || 0;
 var end = chData._journal.length;
 
+// --- do not re-send
+
+
 // last_update[]
 // clientState.last_update
 
 // problems here??
 if(clientState.last_update) {
+
+    if(start < clientState.last_update[1]) {
+        start = clientState.last_update[1];
+    }    
+    
     var fromServer = clientState.last_update[1] || 0;
     if(fromServer >= end) {
         //console.log(" fromServer >= end ");
@@ -21152,6 +21178,7 @@ if( start == end ) {
 console.log("clientToServer");
 console.log(clientState.last_update);
 console.log(start,end);
+
 
 // [2,4]
 // 0 
@@ -21375,11 +21402,55 @@ for(var i=updateFrame.start; i<updateFrame.end; i++) {
     
     var bSame = true;
     if(myJ) {
-        for(var j=0; j<=4; j++) {
-            if(myJ[j] != serverCmd[j]) {
+        
+        if(myJ[0]==13 && serverCmd[0] ==13 && (myJ[4]== serverCmd[4]) && (myJ[1]== serverCmd[1])) {
+            var mainArray1 = myJ[2],  
+                mainArray2 = serverCmd[2];
+            if(mainArray1.length != mainArray2.length) {
                 bSame = false;
-                console.log("was not the same");
-                console.log(serverCmd[j], "vs", myJ[j] );
+            } else {
+                for(var mi=0; mi<mainArray1.length;mi++) {
+                    if(!bSame) break;
+                    var arr1 = mainArray1[mi],
+                        arr2 = mainArray2[mi];
+                    for(var ai=0; ai<5; ai++) {
+                        if(arr1[ai]!=arr2[ai]) {
+                            console.log("not same ", ai, arr1[ai], arr2[ai]);
+                            bSame = false;
+                            break;
+                        }
+                    }
+                    if(bSame) {
+                        if(this.isArray(arr1[5])) {
+                            var arr1 = arr1[5],  
+                                arr2 = arr2[5];
+                            var len = Math.max( arr1.length || 0, arr2.length || 0);
+                            for(var ai=0; ai<len; ai++) {
+                                if(arr1[ai]!=arr2[ai]) {
+                                    console.log("not same array ", ai);
+                                    bSame = false;
+                                    break;
+                                }
+                            }                    
+                        } else {
+                           if(arr1[5]!=arr2[5]) {
+                                bSame = false;
+                            } 
+                        }
+                    }
+                    if(!bSame) {
+                        console.log("was not the same");
+                        console.log(serverCmd, "vs", myJ );           
+                    }
+                }
+            }
+        } else {
+            for(var j=0; j<=4; j++) {
+                if(myJ[j] != serverCmd[j]) {
+                    bSame = false;
+                    console.log("was not the same");
+                    console.log(serverCmd[j], "vs", myJ[j] );
+                }
             }
         }
     } else {

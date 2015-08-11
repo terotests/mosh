@@ -8,7 +8,10 @@ Basicly, you can just create a _data -object like this:
 
 ```javascript
 var d = _data({ color : "blue" });
-d.color("red"); // sets the value
+d.then(
+  function() {
+     d.color("red"); // sets the value
+  });
 ```
 But the primary use of this module is to create buch of models to interconnect using data streaming.
 

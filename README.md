@@ -13857,7 +13857,7 @@ console.log("channelClient init");
 
 this._connCnt = 0;
 
-socket.on("disconnet", function() {
+socket.on("disconnect", function() {
     me._connected = false;
 })
 socket.on("connect", function() {

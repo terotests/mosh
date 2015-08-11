@@ -1,5 +1,9 @@
 # Mosh - the Model Object Stream Handler
 
+In-browser demo
+
+ * http://jsfiddle.net/vudje24t/
+
 Basicly, you can just create a _data -object like this:
 
 ```javascript

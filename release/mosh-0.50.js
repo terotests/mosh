@@ -1,25 +1,10 @@
-// The code template begins here
 "use strict";
 
 (function () {
 
   var __amdDefs__ = {};
 
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -252,22 +237,13 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
   };
   later.prototype = new later_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var lokki_prototype = function lokki_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -632,7 +608,6 @@
       }
     } else return new lokki(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   lokki._classInfo = {
     name: "lokki"
@@ -651,7 +626,6 @@
   }).call(new Function("return this")());
 
   var lokkiLoki_prototype = function lokkiLoki_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -687,7 +661,6 @@
       }
     } else return new lokkiLoki(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   lokkiLoki._classInfo = {
     name: "lokkiLoki"
@@ -705,18 +678,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var testFs_prototype = function testFs_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _instanceCache;
@@ -753,7 +715,6 @@
       }
     } else return new testFs(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   testFs._classInfo = {
     name: "testFs"
@@ -772,7 +733,6 @@
   }).call(new Function("return this")());
 
   var channelTesting_prototype = function channelTesting_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -1001,7 +961,6 @@
       }
     } else return new channelTesting(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   channelTesting._classInfo = {
     name: "channelTesting"
@@ -1019,18 +978,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -1263,7 +1211,6 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
@@ -1271,9 +1218,6 @@
   later.prototype = new later_prototype();
 
   var _promise_prototype = function _promise_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -1886,30 +1830,13 @@
       }
     } else return new _promise(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _promise._classInfo = {
     name: "_promise"
   };
   _promise.prototype = new _promise_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -2142,7 +2069,6 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
@@ -2150,9 +2076,6 @@
   later.prototype = new later_prototype();
 
   var _promise_prototype = function _promise_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -2765,20 +2688,13 @@
       }
     } else return new _promise(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _promise._classInfo = {
     name: "_promise"
   };
   _promise.prototype = new _promise_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -3011,22 +2927,13 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
   };
   later.prototype = new later_prototype();
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
 
   var sequenceStepper_prototype = function sequenceStepper_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -3227,22 +3134,13 @@
       }
     } else return new sequenceStepper(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   sequenceStepper._classInfo = {
     name: "sequenceStepper"
   };
   sequenceStepper.prototype = new sequenceStepper_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var streamProcessor_prototype = function streamProcessor_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -3584,7 +3482,6 @@
       }
     } else return new streamProcessor(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   streamProcessor_prototype.prototype = _promise.prototype;
 
@@ -3594,9 +3491,6 @@
   streamProcessor.prototype = new streamProcessor_prototype();
 
   var simpleStream_prototype = function simpleStream_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -4048,22 +3942,13 @@
       }
     } else return new simpleStream(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   simpleStream._classInfo = {
     name: "simpleStream"
   };
   simpleStream.prototype = new simpleStream_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _data_prototype = function _data_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -5019,8 +4904,6 @@
       };
     })(this);
 
-    // trait comes here...
-
     (function (_myTrait_) {
       var _eventOn;
 
@@ -5702,7 +5585,6 @@
       }
     } else return new _data(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   _data_prototype.prototype = _promise.prototype;
 
@@ -5722,18 +5604,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var aceCmdConvert_prototype = function aceCmdConvert_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -6120,22 +5991,13 @@
       }
     } else return new aceCmdConvert(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   aceCmdConvert._classInfo = {
     name: "aceCmdConvert"
   };
   aceCmdConvert.prototype = new aceCmdConvert_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var diffEngine_prototype = function diffEngine_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -6860,22 +6722,13 @@
       }
     } else return new diffEngine(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   diffEngine._classInfo = {
     name: "diffEngine"
   };
   diffEngine.prototype = new diffEngine_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _channelData_prototype = function _channelData_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -6909,8 +6762,6 @@
         return t === Object(t);
       };
     })(this);
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _listeners;
@@ -8350,7 +8201,6 @@
       }
     } else return new _channelData(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _channelData._classInfo = {
     name: "_channelData"
@@ -8369,7 +8219,6 @@
   }).call(new Function("return this")());
 
   var channelObjects_prototype = function channelObjects_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -8405,25 +8254,13 @@
       }
     } else return new channelObjects(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   channelObjects._classInfo = {
     name: "channelObjects"
   };
   channelObjects.prototype = new channelObjects_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -8627,22 +8464,13 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
   };
   later.prototype = new later_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _promise_prototype = function _promise_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -9102,22 +8930,13 @@
       }
     } else return new _promise(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _promise._classInfo = {
     name: "_promise"
   };
   _promise.prototype = new _promise_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var sequenceStepper_prototype = function sequenceStepper_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -9296,20 +9115,13 @@
       }
     } else return new sequenceStepper(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   sequenceStepper._classInfo = {
     name: "sequenceStepper"
   };
   sequenceStepper.prototype = new sequenceStepper_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _serverChannelMgr_prototype = function _serverChannelMgr_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _channelIndex;
@@ -9496,7 +9308,6 @@
       }
     } else return new _serverChannelMgr(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _serverChannelMgr._classInfo = {
     name: "_serverChannelMgr"
@@ -9514,15 +9325,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _localChannelModel_prototype = function _localChannelModel_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -10192,7 +9995,6 @@
       }
     } else return new _localChannelModel(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   _localChannelModel_prototype.prototype = _promise.prototype;
 
@@ -10212,13 +10014,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _channelController_prototype = function _channelController_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _instances;
@@ -10698,7 +10494,6 @@
       }
     } else return new _channelController(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   _channelController_prototype.prototype = _promise.prototype;
 
@@ -10719,7 +10514,6 @@
   }).call(new Function("return this")());
 
   var _channels_prototype = function _channels_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -10755,25 +10549,13 @@
       }
     } else return new _channels(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _channels._classInfo = {
     name: "_channels"
   };
   _channels.prototype = new _channels_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -10977,22 +10759,13 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
   };
   later.prototype = new later_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _promise_prototype = function _promise_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -11452,22 +11225,13 @@
       }
     } else return new _promise(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _promise._classInfo = {
     name: "_promise"
   };
   _promise.prototype = new _promise_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var channelClient_prototype = function channelClient_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -11501,8 +11265,6 @@
         return t === Object(t);
       };
     })(this);
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _cmdNsMap;
@@ -12570,7 +12332,6 @@
       }
     } else return new channelClient(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   channelClient_prototype.prototype = _promise.prototype;
 
@@ -12591,7 +12352,6 @@
   }).call(new Function("return this")());
 
   var channelClientModule_prototype = function channelClientModule_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -12627,27 +12387,13 @@
       }
     } else return new channelClientModule(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   channelClientModule._classInfo = {
     name: "channelClientModule"
   };
   channelClientModule.prototype = new channelClientModule_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _clientSocket_prototype = function _clientSocket_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -12684,8 +12430,6 @@
         return t === Object(t);
       };
     })(this);
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -12924,7 +12668,6 @@
       }
     } else return new _clientSocket(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _clientSocket._classInfo = {
     name: "_clientSocket"
@@ -12942,15 +12685,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _serverSocket_prototype = function _serverSocket_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -13116,7 +12851,6 @@
       }
     } else return new _serverSocket(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _serverSocket._classInfo = {
     name: "_serverSocket"
@@ -13134,15 +12868,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _tcpEmu_prototype = function _tcpEmu_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -13179,8 +12905,6 @@
         return this;
       };
     })(this);
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -13381,20 +13105,13 @@
       }
     } else return new _tcpEmu(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _tcpEmu._classInfo = {
     name: "_tcpEmu"
   };
   _tcpEmu.prototype = new _tcpEmu_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -13598,22 +13315,13 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
   };
   later.prototype = new later_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _serverSocketWrap_prototype = function _serverSocketWrap_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -13923,7 +13631,6 @@
       }
     } else return new _serverSocketWrap(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _serverSocketWrap._classInfo = {
     name: "_serverSocketWrap"
@@ -13931,9 +13638,6 @@
   _serverSocketWrap.prototype = new _serverSocketWrap_prototype();
 
   var socketEmulator_prototype = function socketEmulator_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -14006,20 +13710,13 @@
       }
     } else return new socketEmulator(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   socketEmulator._classInfo = {
     name: "socketEmulator"
   };
   socketEmulator.prototype = new socketEmulator_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var nfs4_acl_prototype = function nfs4_acl_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -14434,7 +14131,6 @@
       }
     } else return new nfs4_acl(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   nfs4_acl._classInfo = {
     name: "nfs4_acl"
@@ -14452,18 +14148,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -14667,22 +14352,13 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
   };
   later.prototype = new later_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _promise_prototype = function _promise_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -15142,22 +14818,13 @@
       }
     } else return new _promise(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _promise._classInfo = {
     name: "_promise"
   };
   _promise.prototype = new _promise_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var authFuzz_prototype = function authFuzz_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -15576,7 +15243,6 @@
       }
     } else return new authFuzz(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   authFuzz_prototype.prototype = _promise.prototype;
 
@@ -15596,13 +15262,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _sha3_prototype = function _sha3_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var HEX_CHARS;
@@ -16032,7 +15692,6 @@
       }
     } else return new _sha3(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _sha3._classInfo = {
     name: "_sha3"
@@ -16051,9 +15710,6 @@
   }).call(new Function("return this")());
 
   var authModule_prototype = function authModule_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -16124,30 +15780,13 @@
       }
     } else return new authModule(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   authModule._classInfo = {
     name: "authModule"
   };
   authModule.prototype = new authModule_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var later_prototype = function later_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _initDone;
@@ -16380,7 +16019,6 @@
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   later._classInfo = {
     name: "later"
@@ -16388,9 +16026,6 @@
   later.prototype = new later_prototype();
 
   var _promise_prototype = function _promise_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -16850,27 +16485,13 @@
       }
     } else return new _promise(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _promise._classInfo = {
     name: "_promise"
   };
   _promise.prototype = new _promise_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var dbTable_prototype = function dbTable_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -17190,7 +16811,6 @@
       }
     } else return new dbTable(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   dbTable._classInfo = {
     name: "dbTable"
@@ -17198,9 +16818,6 @@
   dbTable.prototype = new dbTable_prototype();
 
   var _localDB_prototype = function _localDB_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -17378,7 +16995,6 @@
       }
     } else return new _localDB(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   _localDB_prototype.prototype = _promise.prototype;
 
@@ -17387,15 +17003,7 @@
   };
   _localDB.prototype = new _localDB_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var memoryFsFolder_prototype = function memoryFsFolder_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -17878,7 +17486,6 @@
       }
     } else return new memoryFsFolder(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   memoryFsFolder._classInfo = {
     name: "memoryFsFolder"
@@ -17896,13 +17503,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var fsServerMemory_prototype = function fsServerMemory_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _servers;
@@ -17962,7 +17563,6 @@
       }
     } else return new fsServerMemory(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   fsServerMemory_prototype.prototype = _promise.prototype;
 
@@ -17982,15 +17582,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var nodeFsFolder_prototype = function nodeFsFolder_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -18555,7 +18147,6 @@
       }
     } else return new nodeFsFolder(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   nodeFsFolder._classInfo = {
     name: "nodeFsFolder"
@@ -18573,15 +18164,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var indexedDBFsFolder_prototype = function indexedDBFsFolder_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
       var _eventOn;
@@ -19484,7 +19067,6 @@
       }
     } else return new indexedDBFsFolder(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   indexedDBFsFolder._classInfo = {
     name: "indexedDBFsFolder"
@@ -19502,15 +19084,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var fsServerIndexedDB_prototype = function fsServerIndexedDB_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -19697,7 +19271,6 @@
       }
     } else return new fsServerIndexedDB(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   fsServerIndexedDB_prototype.prototype = _promise.prototype;
 
@@ -19717,13 +19290,7 @@
     }
   }).call(new Function("return this")());
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var fsServerNode_prototype = function fsServerNode_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
       var _servers;
@@ -19803,7 +19370,6 @@
       }
     } else return new fsServerNode(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _promise
 
   fsServerNode_prototype.prototype = _promise.prototype;
 
@@ -19824,7 +19390,6 @@
   }).call(new Function("return this")());
 
   var localFs_prototype = function localFs_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -19860,27 +19425,13 @@
       }
     } else return new localFs(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   localFs._classInfo = {
     name: "localFs"
   };
   localFs.prototype = new localFs_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var _chPolicy_prototype = function _chPolicy_prototype() {
-    // Then create the traits and subclasses for this class here...
-
-    // trait comes here...
 
     (function (_myTrait_) {
 
@@ -20304,7 +19855,6 @@
       }
     } else return new _chPolicy(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   _chPolicy._classInfo = {
     name: "_chPolicy"
@@ -20323,7 +19873,6 @@
   }).call(new Function("return this")());
 
   var channelPolicyModule_prototype = function channelPolicyModule_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -20359,20 +19908,13 @@
       }
     } else return new channelPolicyModule(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   channelPolicyModule._classInfo = {
     name: "channelPolicyModule"
   };
   channelPolicyModule.prototype = new channelPolicyModule_prototype();
 
-  // the subclass definition comes around here then
-
-  // The class definition is here...
-  // let the private classes out
-
   var subClassTemplate_prototype = function subClassTemplate_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -20411,7 +19953,6 @@
       }
     } else return new subClassTemplate(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here _data
 
   subClassTemplate_prototype.prototype = _data.prototype;
 
@@ -20432,7 +19973,6 @@
   }).call(new Function("return this")());
 
   var moshModule_prototype = function moshModule_prototype() {
-    // Then create the traits and subclasses for this class here...
 
     (function (_myTrait_) {
 
@@ -20468,7 +20008,6 @@
       }
     } else return new moshModule(a, b, c, d, e, f, g, h);
   };
-  // inheritance is here
 
   moshModule._classInfo = {
     name: "moshModule"

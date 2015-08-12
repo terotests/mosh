@@ -774,9 +774,19 @@ pwFs.then(
 
     
     
+    
+##### trait workerShortcuts
+
+- [propWorker](README.md#workerShortcuts_propWorker)
+
+
+    
+    
 
 
    
+      
+    
       
     
       
@@ -7819,9 +7829,32 @@ if(this._events && this._events[eventName]) {
 
     
     
+    
+## trait workerShortcuts
+
+The class has following internal singleton variables:
+        
+        
+### <a name="workerShortcuts_propWorker"></a>workerShortcuts::propWorker(propName, workerName, options)
+
+
+```javascript
+
+this.createWorker(workerName,           
+   [4, propName, null, null, this.getID()],    // Condition to run worker
+   options);                                // Options for the worker
+
+return this;
+```
+
+
+    
+    
 
 
    
+      
+    
       
     
       

@@ -4986,6 +4986,24 @@
     })(this);
 
     (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float propName
+       * @param float workerName
+       * @param float options
+       */
+      _myTrait_.propWorker = function (propName, workerName, options) {
+
+        this.createWorker(workerName, [4, propName, null, null, this.getID()], // Condition to run worker
+        options); // Options for the worker
+
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
       var _up;
       var _factoryProperties;
       var _registry;

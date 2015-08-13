@@ -9624,6 +9624,7 @@
             fromVersion: settings.version,
             from: me._channelId,
             to: forkData.channelId,
+            userId: forkData._userId,
             name: forkData.name,
             utc: new Date().getTime()
           };
@@ -10220,6 +10221,7 @@
               });
               return;
             }
+            cmd.data._userId = socket.getUserId();
             me._model.fork(cmd.data).then(function (r) {
               result(r);
             });

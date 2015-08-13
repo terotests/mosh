@@ -1124,6 +1124,7 @@ pwFs.then(
 - [_textLinesToArray](README.md#_localChannelModel__textLinesToArray)
 - [_writeSettings](README.md#_localChannelModel__writeSettings)
 - [childForkTree](README.md#_localChannelModel_childForkTree)
+- [createChannel](README.md#_localChannelModel_createChannel)
 - [fork](README.md#_localChannelModel_fork)
 - [get](README.md#_localChannelModel_get)
 - [getCurrentVersion](README.md#_localChannelModel_getCurrentVersion)
@@ -1136,6 +1137,7 @@ pwFs.then(
 - [snapshot](README.md#_localChannelModel_snapshot)
 - [status](README.md#_localChannelModel_status)
 - [treeOfLife](README.md#_localChannelModel_treeOfLife)
+- [writeFile](README.md#_localChannelModel_writeFile)
 - [writeMain](README.md#_localChannelModel_writeMain)
 - [writeToJournal](README.md#_localChannelModel_writeToJournal)
 
@@ -1291,6 +1293,7 @@ pwFs.then(
 - [addCommand](README.md#channelClient_addCommand)
 - [askUpgrade](README.md#channelClient_askUpgrade)
 - [at](README.md#channelClient_at)
+- [createChannel](README.md#channelClient_createChannel)
 - [disconnect](README.md#channelClient_disconnect)
 - [fork](README.md#channelClient_fork)
 - [get](README.md#channelClient_get)
@@ -9469,15 +9472,16 @@ if(!this._objectHash) {
 var me = this;
 this._channelId = channelId;
 this._data = mainData;
-if(!this._data.__orphan) {
-    this._data.__orphan = [];
-}
 this._workers = {};
 this._journal = journalCmds || [];
 this._journalPointer = this._journal.length;
 
 var newData = this._findObjects(mainData);
 if(newData != mainData ) this._data = newData;
+
+if(!this._data.__orphan) {
+    this._data.__orphan = [];
+}
 
 // Then, the journal commands should be run on the object
 
@@ -11798,6 +11802,87 @@ return _promise(
     });
 ```
 
+### <a name="_localChannelModel_createChannel"></a>_localChannelModel::createChannel(chSettings, notUsed)
+
+Creates a new channel with pre-initialized data. 
+```javascript
+var local = this._folder, me = this, chData;
+return _promise( 
+    function(response) {
+        
+        chData = chSettings.chData;
+        if(!chData) {
+            chData = {
+                data : {
+                    
+                },
+                __id : me.guid(),
+                __acl : chSettings.__acl
+            }
+        }
+        if(chData && !chData.__acl) {
+            chData.__acl = chSettings.__acl;
+        }
+        
+        if(!chSettings.channelId || !chSettings._userId ) {
+            response({
+                result : false,
+                text : "Could not create the channel, missing information"
+            });             
+            return;
+        }
+        
+        var obj = {
+            version : 2,    // with pre-initialized data, the first version is 2
+            channelId : chSettings.channelId,
+            userId : chSettings._userId,
+            name : chSettings.name || "",
+            utc : (new Date()).getTime()
+        };
+        console.log("Creating new channel with");
+        console.log(obj);
+        
+        // got to check first if the channel is free to be forked
+        me._isFreeToFork(chSettings.channelId).then( function(yesNo) {
+            if(yesNo==true) {
+                var newChann = _localChannelModel( chSettings.channelId, me._fs );
+                newChann.then( function() {
+                    return newChann.writeFile("file.2", JSON.stringify(chData));
+                }).then( function() {
+                    return newChann.set(obj);  
+                }).then( function() {
+                    response({result: true, channelId : chSettings.channelId}); 
+                }).fail( function(e) {
+                    var msg = "";
+                    if(e && e.message) msg = e.message;
+                    response({
+                        result : false,
+                        text : "Failed to create channel "+msg
+                    });                     
+                });
+
+            } else {
+                console.error("Channel already created");
+                response({
+                    result : false,
+                    text : "Channel is already in use"
+                }); 
+            }
+            
+        }).fail( function(e) {
+                console.error(e);
+                response({
+                    result : false,
+                    text : "Creating the new channel failed"
+                });             
+        })
+
+    });
+
+
+
+```
+
 ### <a name="_localChannelModel_fork"></a>_localChannelModel::fork(forkData)
 `forkData` Object with { channelId : &quot;path/to/the/challe&quot;,  name:&quot;name&quot;}
  
@@ -11826,7 +11911,6 @@ return _promise(
         if(typeof( forkData.journalLine ) != "undefined" ) {
             fromLine = forkData.journalLine;
         }
-        
         
         var obj = {
             fromJournalLine : fromLine,
@@ -12162,6 +12246,18 @@ return _promise(
     });
 ```
 
+### <a name="_localChannelModel_writeFile"></a>_localChannelModel::writeFile(fileName, fileData)
+
+
+```javascript
+// NOTE: this function should not be used in typical situations
+var local = this._folder;
+
+if(typeof(fileData) != "string") fileData = JSON.stringify(fileData);
+
+return local.writeFile( fileName, fileData);
+```
+
 ### <a name="_localChannelModel_writeMain"></a>_localChannelModel::writeMain(data, version)
 
 
@@ -12440,6 +12536,25 @@ this._cmds = {
             result( null );
         }
     },     
+    createChannel : function(cmd, result, socket) {
+        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!cmd.data) {
+            result({ ok : false }); 
+            return;
+        }
+        if(!cmd.data.__acl) {
+            var fullData = me._serverState.data.getData();
+            if(!fullData || !fullData.__acl) {
+                result({ ok : false }); 
+                return;                
+            }
+            cmd.data.__acl = fullData.__acl;
+        }
+        cmd.data._userId = socket.getUserId();
+        me._model.createChannel( cmd.data ).then( function(r) {
+            result(r); 
+        });        
+    }, 
     fork : function(cmd, result, socket) {
         if(!me._groupACL(socket, "w")) { result(null); return; }
         if(!cmd.data) {
@@ -13714,6 +13829,48 @@ var obj = this._data._find( ns_id );
 if(obj) {
     return obj.data[index];
 }
+```
+
+### <a name="channelClient_createChannel"></a>channelClient::createChannel(name, description, baseData)
+
+
+```javascript
+
+if(this._isLocal) return;
+
+debugger;
+
+// a fresh copy of the base data
+var copyOf = JSON.parse( JSON.stringify( baseData ) );
+var chData = _channelData( this.guid(), copyOf, [] );
+
+copyOf = chData.getData();
+copyOf = this._transformObjFromNs( copyOf );
+
+// The command to be sent to the server-side
+var forkCmd = {
+    channelId : name,
+    name : description,
+    chData : copyOf
+};
+
+// the fork is being processed, the response is going to be ready after the promise completes
+var me = this;
+return _promise(
+    function(results) {
+        me._socket.send("channelCommand", {
+                    channelId : me._channelId,
+                    cmd : "createChannel",
+                    data : forkCmd
+            }).then( function(resp) {
+                results(resp);
+            })          
+    });
+
+
+
+
+
 ```
 
 ### <a name="channelClient_disconnect"></a>channelClient::disconnect(t)

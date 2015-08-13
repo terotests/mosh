@@ -10221,6 +10221,8 @@
               });
               return;
             }
+            debugger;
+            console.log("Fork with UserId", socket.getUserId());
             cmd.data._userId = socket.getUserId();
             me._model.fork(cmd.data).then(function (r) {
               result(r);

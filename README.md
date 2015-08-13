@@ -6496,7 +6496,7 @@ if(id) {
 return this._client;
 ```
 
-### <a name="_data_createChannel"></a>_data::createChannel(name, description, baseData)
+### <a name="_data_createChannel"></a>_data::createChannel(newChannelId, description, baseData)
 
 
 ```javascript
@@ -6506,7 +6506,7 @@ var me = this;
 return _promise( function(result) {
     
     if(!baseData) baseData = {};
-    me._client.createChannel(name, description, baseData).then( function(res) {
+    me._client.createChannel(newChannelId, description, baseData).then( function(res) {
         if(res.result === false) {
             result(res);
             return;

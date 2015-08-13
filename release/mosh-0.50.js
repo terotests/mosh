@@ -5306,18 +5306,18 @@
       };
 
       /**
-       * @param float name
+       * @param float newChannelId
        * @param float description
        * @param float baseData
        */
-      _myTrait_.createChannel = function (name, description, baseData) {
+      _myTrait_.createChannel = function (newChannelId, description, baseData) {
 
         var me = this;
 
         return _promise(function (result) {
 
           if (!baseData) baseData = {};
-          me._client.createChannel(name, description, baseData).then(function (res) {
+          me._client.createChannel(newChannelId, description, baseData).then(function (res) {
             if (res.result === false) {
               result(res);
               return;

@@ -5306,6 +5306,35 @@
       };
 
       /**
+       * @param float name
+       * @param float description
+       * @param float baseData
+       */
+      _myTrait_.createChannel = function (name, description, baseData) {
+
+        var me = this;
+
+        return _promise(function (result) {
+
+          if (!baseData) baseData = {};
+          me._client.createChannel(name, description, baseData).then(function (res) {
+            if (res.result === false) {
+              result(res);
+              return;
+            }
+            var req = me._request;
+            var myD = _data(req.protocol + "://" + req.ip + ":" + req.port + "/" + newChannelId, me._initOptions);
+            myD.then(function () {
+              result({
+                result: true,
+                channel: myD
+              });
+            });
+          });
+        });
+      };
+
+      /**
        * @param float propertyName
        * @param float className
        * @param float classConstructor

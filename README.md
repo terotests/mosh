@@ -689,6 +689,7 @@ pwFs.then(
 - [_parseURL](README.md#_data__parseURL)
 - [addToCache](README.md#_data_addToCache)
 - [channel](README.md#_data_channel)
+- [createChannel](README.md#_data_createChannel)
 - [createSubClass](README.md#_data_createSubClass)
 - [diff](README.md#_data_diff)
 - [disconnect](README.md#_data_disconnect)
@@ -6493,6 +6494,34 @@ if(id) {
 
 ```javascript
 return this._client;
+```
+
+### <a name="_data_createChannel"></a>_data::createChannel(name, description, baseData)
+
+
+```javascript
+
+var me = this;
+
+return _promise( function(result) {
+    
+    if(!baseData) baseData = {};
+    me._client.createChannel(name, description, baseData).then( function(res) {
+        if(res.result === false) {
+            result(res);
+            return;
+        }        
+        var req = me._request;
+        var myD = _data( req.protocol+"://"+req.ip+":"+req.port+"/"+newChannelId, me._initOptions);
+        myD.then( function() {
+            result( {
+                    result : true,
+                    channel : myD
+                } ); 
+        });
+    });  
+});
+
 ```
 
 ### <a name="_data_createSubClass"></a>_data::createSubClass(propertyName, className, classConstructor)

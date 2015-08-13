@@ -3,32 +3,57 @@
 In-browser demo
 
  * http://jsfiddle.net/vudje24t/
+ 
+
+# Objects without the data channel
 
 Basicly, you can just create a _data -object like this:
 
 ```javascript
-var d = _data({ color : "blue" });
-d.then(
+var myObj = _data({ color : "blue" });
+myObj.then(
   function() {
-     d.color("red"); // sets the value
+     myObj.color("red"); // sets the value
   });
 ```
 But the primary use of this module is to create buch of models to interconnect using data streaming.
 
+# Connecting to a channel
 To connect to data stream you have to authenticate with the server and provide a socket.io socket to use for the virtual connections
 
 ```javascript
-var d = _data("http://localhost:1234/my/new/channel", {
+var myObj = _data("http://localhost:1234/my/new/channel", {
     auth : {
         username : "username",
         password : "password"
     },
     ioLib : realSocket
 });
-d.then( function() {
+myObj.then( function() {
     // start using the data
+    myObj.set("color", "blue");
 });
 ```
+
+# Creating a new channel 
+
+Once you have connected to a channel, you can create new channels
+
+```javascript
+
+myObj.createChannel("my/new/channel/url",   // url
+                    "Description",          // text describing channel
+                    { 
+                        name : "Martin"       // the first object at the channel
+                    }
+                    ).then( function(r) {
+	if(r.channel) {
+		r.channel.set("name", "Martin Smith");
+	}
+});
+```
+
+# Information about the data-stream and storage
 
 Stream of data is then persisted to server and will be syncronized between multiple clients.
 

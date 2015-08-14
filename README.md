@@ -6314,7 +6314,9 @@ if(!_workersDone) {
         "_to_ch" : function(cmd, options) {
             // new object has been inserted to this channel
             // if this is a broadcast channel, create a new _data for the object
-            debugger;
+            
+            // note both _cmd_setPropertyObject and and 
+            //    _cmd_pushToArray have the new object at cmd[2]
             var me = options.target;
             if(me._client && !me._client._isLocal) {
                 // if not a local client, then create the sub object
@@ -6948,6 +6950,10 @@ dataCh.createWorker("_d_ins",                                  // worker ID
 dataCh.createWorker("_to_ch",                       // worker ID
                       [7, "*", null, null, ns_id],  // filter
                       { target : this});                       
+
+dataCh.createWorker("_to_ch",                       // worker ID
+                      [5, "*", null, null, ns_id],  // filter
+                      { target : this});  
                       
 dataCh.createWorker("_d_mv",                                  // worker ID
                       [12, "*", null, null, ns_id],  // filter

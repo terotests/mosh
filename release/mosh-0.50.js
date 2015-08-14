@@ -4050,6 +4050,12 @@
           target: this
         });
 
+        dataCh.createWorker("_to_ch", // worker ID
+        [5, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
         dataCh.createWorker("_d_mv", // worker ID
         [12, "*", null, null, ns_id], // filter
         {
@@ -4908,6 +4914,15 @@
 
         return this;
       };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.upgradeVersion = function (t) {
+
+        this._client.upgradeVersion();
+        return this;
+      };
     })(this);
 
     (function (_myTrait_) {
@@ -5106,7 +5121,9 @@
             "_to_ch": function _to_ch(cmd, options) {
               // new object has been inserted to this channel
               // if this is a broadcast channel, create a new _data for the object
-              debugger;
+
+              // note both _cmd_setPropertyObject and and
+              //    _cmd_pushToArray have the new object at cmd[2]
               var me = options.target;
               if (me._client && !me._client._isLocal) {
                 // if not a local client, then create the sub object
@@ -6062,6 +6079,17 @@
     name: "aceCmdConvert"
   };
   aceCmdConvert.prototype = new aceCmdConvert_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["aceCmdConvert"] = aceCmdConvert;
+      this.aceCmdConvert = aceCmdConvert;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["aceCmdConvert"] = aceCmdConvert;
+    } else {
+      this.aceCmdConvert = aceCmdConvert;
+    }
+  }).call(new Function("return this")());
 
   var diffEngine_prototype = function diffEngine_prototype() {
 

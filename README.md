@@ -6311,6 +6311,20 @@ if(!_workersDone) {
         "_d_rem" : function(cmd, options) {        
             options.target.trigger("remove", cmd[1]);
         },
+        "_to_ch" : function(cmd, options) {
+            // new object has been inserted to this channel
+            // if this is a broadcast channel, create a new _data for the object
+            debugger;
+            var me = options.target;
+            if(me._client && !me._client._isLocal) {
+                // if not a local client, then create the sub object
+                var objData = me._client._fetch( cmd[2] );
+                if(objData) {
+                    _data(objData, null, me._client);
+                }
+            }
+            
+        },
         "_d_ins" : function(cmd, options) {        
             options.target.trigger("insert", cmd[1]);
         },        
@@ -6929,7 +6943,11 @@ dataCh.createWorker("_d_rem",                                  // worker ID
 
 dataCh.createWorker("_d_ins",                                  // worker ID
                       [7, "*", null, null, ns_id],  // filter
-                      { target : this});           
+                      { target : this});       
+                      
+dataCh.createWorker("_to_ch",                       // worker ID
+                      [7, "*", null, null, ns_id],  // filter
+                      { target : this});                       
                       
 dataCh.createWorker("_d_mv",                                  // worker ID
                       [12, "*", null, null, ns_id],  // filter
@@ -7775,7 +7793,7 @@ return data;
 
 ```javascript
 
-return this.getChannelData().toPlainData();
+return this.getChannelData().toPlainData(this._docData);
 ```
 
 ### <a name="_dataTrait_undo"></a>_dataTrait::undo(cnt)

@@ -4044,6 +4044,12 @@
           target: this
         });
 
+        dataCh.createWorker("_to_ch", // worker ID
+        [7, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
         dataCh.createWorker("_d_mv", // worker ID
         [12, "*", null, null, ns_id], // filter
         {
@@ -4882,7 +4888,7 @@
        */
       _myTrait_.toPlainData = function (nonRecursive) {
 
-        return this.getChannelData().toPlainData();
+        return this.getChannelData().toPlainData(this._docData);
       };
 
       /**
@@ -5096,6 +5102,19 @@
             },
             "_d_rem": function _d_rem(cmd, options) {
               options.target.trigger("remove", cmd[1]);
+            },
+            "_to_ch": function _to_ch(cmd, options) {
+              // new object has been inserted to this channel
+              // if this is a broadcast channel, create a new _data for the object
+              debugger;
+              var me = options.target;
+              if (me._client && !me._client._isLocal) {
+                // if not a local client, then create the sub object
+                var objData = me._client._fetch(cmd[2]);
+                if (objData) {
+                  _data(objData, null, me._client);
+                }
+              }
             },
             "_d_ins": function _d_ins(cmd, options) {
               options.target.trigger("insert", cmd[1]);

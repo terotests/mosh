@@ -7584,7 +7584,7 @@
             if (forceWrite || ms - hoot.ms > _settings.hotMs) {
               // => one should write this command now
 
-              console.log("writing the hot " + JSON.stringify(hoot));
+              console.log("writing the hot ");
               if (hoot.lastCmd) {
                 var a = hoot.firstCmd,
                     b = hoot.lastCmd;

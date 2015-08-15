@@ -12731,8 +12731,8 @@ this._cmds = {
         
         var fullData = me._serverState.data.getData();
         
-        if(fullData.__orphans) {
-            fullData.__orphans.length=0;
+        if(fullData.__orphan) {
+            fullData.__orphan.length=0;
         }
         
         // first, save all the unsaved changes and refresh the clients with unsent data

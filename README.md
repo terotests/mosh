@@ -10430,7 +10430,7 @@ for(var n in _hotObjs) {
         if(forceWrite || ( (ms - hoot.ms) > _settings.hotMs) ) {
             // => one should write this command now
             
-            console.log("writing the hot "+JSON.stringify(hoot));
+            console.log("writing the hot ");
             if(hoot.lastCmd) {
                 var a = hoot.firstCmd,
                     b = hoot.lastCmd;
@@ -10458,9 +10458,7 @@ try {
         if((rv===true) && !isRedo) {
             // there is the hot buffer possibility for the object
             if(!isRemote) {
-                if(a[0]==13 && _settings.hotMs) {
-                    this._updateHotBuffer(true); 
-                }
+
                 if(a[0]==4 && _settings.hotMs) {
                     var objid = a[4];
                     var key = objid+":"+a[1];
@@ -10476,6 +10474,7 @@ try {
                     }
                     console.log(JSON.stringify(hot));
                 } else {
+                    this._updateHotBuffer(true);
                     this.writeLocalJournal( a );
                 }
             } else {

@@ -7614,9 +7614,7 @@
             if (rv === true && !isRedo) {
               // there is the hot buffer possibility for the object
               if (!isRemote) {
-                if (a[0] == 13 && _settings.hotMs) {
-                  this._updateHotBuffer(true);
-                }
+
                 if (a[0] == 4 && _settings.hotMs) {
                   var objid = a[4];
                   var key = objid + ":" + a[1];
@@ -7632,6 +7630,7 @@
                   }
                   console.log(JSON.stringify(hot));
                 } else {
+                  this._updateHotBuffer(true);
                   this.writeLocalJournal(a);
                 }
               } else {

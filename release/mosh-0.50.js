@@ -6863,6 +6863,8 @@
       var _doingRemote;
       var _cmds;
       var _reverseCmds;
+      var _settings;
+      var _hotObjs;
 
       // Initialize static variables here...
 
@@ -6891,7 +6893,7 @@
           this._cmd(a, obj, null);
         }
         _doingRemote = false;
-        this._fireListener(obj, prop);
+        // this._fireListener(obj, prop);
 
         return true;
       };
@@ -6924,9 +6926,7 @@
         // it is orphan object...
         this._data.__orphan.push(newObj);
 
-        if (!isRemote) {
-          this.writeCommand(a, newObj);
-        }
+        if (!isRemote) {}
         return true;
       };
 
@@ -6963,9 +6963,7 @@
 
         // --- adding to the data object...
 
-        if (!isRemote) {
-          this.writeCommand(a, newObj);
-        }
+        if (!isRemote) {}
         return true;
       };
 
@@ -7042,9 +7040,6 @@
         obj.data.splice(targetIndex, 0, targetObj);
         this._cmd(a, null, a[1]);
 
-        if (!isRemote) {
-          this.writeCommand(a);
-        }
         return true;
       };
 
@@ -7111,9 +7106,7 @@
         // this._moveCmdListToParent(insertedObj);
 
         // Saving the write to root document
-        if (!isRemote) {
-          this.writeCommand(a);
-        }
+        if (!isRemote) {}
 
         return true;
       };
@@ -7177,9 +7170,7 @@
         }
 
         // Saving the write to root document
-        if (!isRemote) {
-          this.writeCommand(a);
-        }
+        if (!isRemote) {}
 
         return true;
       };
@@ -7260,10 +7251,8 @@
         this._cmd(a, obj, null);
 
         // Saving the write to root document
-        if (!isRemote) {
-          this.writeCommand(a);
-        }
-        this._fireListener(obj, prop);
+        if (!isRemote) {}
+        //this._fireListener(obj, prop);
 
         return true;
       };
@@ -7316,7 +7305,7 @@
 
         if (!isRemote) {
           this._moveCmdListToParent(setObj);
-          this.writeCommand(a);
+          // this.writeCommand(a);
         }
         return true;
       };
@@ -7348,7 +7337,7 @@
         };
 
         delete obj.data[prop];
-        if (!isRemote) this.writeCommand(a);
+        // if(!isRemote) this.writeCommand(a);
 
         return true;
       };
@@ -7583,6 +7572,31 @@
       };
 
       /**
+       * @param bool forceWrite
+       */
+      _myTrait_._updateHotBuffer = function (forceWrite) {
+        var me = this;
+        var ms = new Date().getTime();
+        for (var n in _hotObjs) {
+          if (_hotObjs.hasOwnProperty(n)) {
+            var hoot = _hotObjs[n];
+
+            if (forceWrite || ms - hoot.ms > _settings.hotMs) {
+              // => one should write this command now
+              if (hoot.lastCmd) {
+                var a = hoot.firstCmd,
+                    b = hoot.lastCmd;
+                me.writeLocalJournal([4, a[1], b[2], a[3], a[4]]);
+              } else {
+                me.writeLocalJournal(hoot.firstCmd);
+              }
+              delete _hotObjs[n];
+            }
+          }
+        }
+      };
+
+      /**
        * @param float a
        * @param float isRemote
        * @param float isRedo
@@ -7594,7 +7608,28 @@
           var c = _cmds[a[0]];
           if (c) {
             var rv = c.apply(this, [a, isRemote]);
-            if (rv === true && !isRedo) this.writeLocalJournal(a);
+
+            if (rv === true && !isRedo) {
+              // there is the hot buffer possibility for the object
+              if (a[0] == 13 && _settings.hotMs) {
+                this._updateHotBuffer(true);
+              }
+              if (a[0] == 4 && _settings.hotMs) {
+                var objid = a[4];
+                var key = objid + ":" + a[1];
+                var hot = _hotObjs[key];
+                if (!hot) {
+                  _hotObjs[key] = {
+                    ms: new Date().getTime(),
+                    firstCmd: a
+                  };
+                } else {
+                  hot.lastCmd = a;
+                }
+              } else {
+                this.writeLocalJournal(a);
+              }
+            }
             return rv;
           } else {
             return {
@@ -7641,6 +7676,8 @@
         if (!_listeners) {
           _listeners = {};
           _execInfo = {};
+          _settings = {};
+          _hotObjs = {};
         }
 
         if (!_cmds) {
@@ -7669,6 +7706,11 @@
           _reverseCmds[12] = this._reverse_moveToIndex;
           _reverseCmds[13] = this._reverse_aceCmd;
           // _reverse_setPropertyObject
+
+          var me = this;
+          later().every(0.5, function () {
+            me._updateHotBuffer();
+          });
         }
       });
 
@@ -7739,6 +7781,14 @@
       };
 
       /**
+       * Hotbuffer delay in ms. The property sets will be throttled by this amount.
+       * @param float t
+       */
+      _myTrait_.setHotMs = function (t) {
+        _settings.hotMs = t;
+      };
+
+      /**
        * @param int n
        */
       _myTrait_.undo = function (n) {
@@ -7748,6 +7798,11 @@
 
         this.reverseNLines(n);
       };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.writeCommand = function (t) {};
 
       /**
        * @param Array cmd
@@ -8260,14 +8315,6 @@
         }
 
         return plain;
-      };
-
-      /**
-       * @param float a
-       */
-      _myTrait_.writeCommand = function (a) {
-        if (!this._cmdBuffer) this._cmdBuffer = [];
-        this._cmdBuffer.push(a);
       };
     })(this);
   };
@@ -20287,6 +20334,16 @@
 // objectCache[data.__id] = this;
 
 // skip, if next should be taken instead
+
+// this.writeCommand(a, newObj);
+
+// this.writeCommand(a, newObj);
+
+// this.writeCommand(a);
+
+// this.writeCommand(a);
+
+//    this.writeCommand(a);
 
 // --- let's not ---
 

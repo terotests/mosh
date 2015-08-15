@@ -7613,22 +7613,26 @@
 
             if (rv === true && !isRedo) {
               // there is the hot buffer possibility for the object
-              if (a[0] == 13 && _settings.hotMs) {
-                this._updateHotBuffer(true);
-              }
-              if (a[0] == 4 && _settings.hotMs) {
-                var objid = a[4];
-                var key = objid + ":" + a[1];
-                var hot = _hotObjs[key];
-                if (!hot) {
-                  _hotObjs[key] = {
-                    ms: new Date().getTime(),
-                    firstCmd: a
-                  };
-                } else {
-                  hot.lastCmd = a;
+              if (!isRemote) {
+                if (a[0] == 13 && _settings.hotMs) {
+                  this._updateHotBuffer(true);
                 }
-                console.log(JSON.stringify(hot));
+                if (a[0] == 4 && _settings.hotMs) {
+                  var objid = a[4];
+                  var key = objid + ":" + a[1];
+                  var hot = _hotObjs[key];
+                  if (!hot) {
+                    _hotObjs[key] = {
+                      ms: new Date().getTime(),
+                      firstCmd: a
+                    };
+                  } else {
+                    hot.lastCmd = a;
+                  }
+                  console.log(JSON.stringify(hot));
+                } else {
+                  this.writeLocalJournal(a);
+                }
               } else {
                 this.writeLocalJournal(a);
               }

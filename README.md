@@ -786,6 +786,7 @@ pwFs.then(
 - [toPlainData](README.md#_dataTrait_toPlainData)
 - [undo](README.md#_dataTrait_undo)
 - [unset](README.md#_dataTrait_unset)
+- [upgradeVersion](README.md#_dataTrait_upgradeVersion)
 
 
     
@@ -922,7 +923,6 @@ pwFs.then(
 - [indexOf](README.md#_channelData_indexOf)
 - [setWorkerCommands](README.md#_channelData_setWorkerCommands)
 - [toPlainData](README.md#_channelData_toPlainData)
-- [writeCommand](README.md#_channelData_writeCommand)
 
 
 
@@ -962,6 +962,7 @@ pwFs.then(
 - [_reverse_setProperty](README.md#commad_trait__reverse_setProperty)
 - [_reverse_setPropertyObject](README.md#commad_trait__reverse_setPropertyObject)
 - [_reverse_unsetProperty](README.md#commad_trait__reverse_unsetProperty)
+- [_updateHotBuffer](README.md#commad_trait__updateHotBuffer)
 - [execCmd](README.md#commad_trait_execCmd)
 - [getJournalCmd](README.md#commad_trait_getJournalCmd)
 - [getJournalLine](README.md#commad_trait_getJournalLine)
@@ -970,7 +971,9 @@ pwFs.then(
 - [reverseCmd](README.md#commad_trait_reverseCmd)
 - [reverseNLines](README.md#commad_trait_reverseNLines)
 - [reverseToLine](README.md#commad_trait_reverseToLine)
+- [setHotMs](README.md#commad_trait_setHotMs)
 - [undo](README.md#commad_trait_undo)
+- [writeCommand](README.md#commad_trait_writeCommand)
 - [writeLocalJournal](README.md#commad_trait_writeLocalJournal)
 
 
@@ -7822,6 +7825,15 @@ return this;
 
 ```
 
+### <a name="_dataTrait_upgradeVersion"></a>_dataTrait::upgradeVersion(t)
+
+
+```javascript
+
+this._client.upgradeVersion();
+return this;
+```
+
 
     
     
@@ -9621,15 +9633,6 @@ if(this.isArray(obj.data)) {
 return plain;
 ```
 
-### <a name="_channelData_writeCommand"></a>_channelData::writeCommand(a)
-
-
-```javascript
-if(!this._cmdBuffer) this._cmdBuffer = [];
-this._cmdBuffer.push(a);
-
-```
-
 
 
    
@@ -9687,6 +9690,10 @@ The class has following internal singleton variables:
         
 * _reverseCmds
         
+* _settings
+        
+* _hotObjs
+        
         
 ### <a name="commad_trait__cmd_aceCmd"></a>commad_trait::_cmd_aceCmd(a, isRemote)
 
@@ -9712,7 +9719,7 @@ if(!isRemote) {
     this._cmd(a, obj, null);
 }
 _doingRemote = false;
-this._fireListener(obj, prop);
+// this._fireListener(obj, prop);
 
 return true;
 
@@ -9743,7 +9750,7 @@ hash[newObj.__id] = newObj;
 this._data.__orphan.push(newObj);
 
 if(!(isRemote)) {
-    this.writeCommand(a, newObj);
+    // this.writeCommand(a, newObj);
 } 
 return true;
 ```
@@ -9778,7 +9785,7 @@ this._data.__orphan.push(newObj);
 // --- adding to the data object...
 
 if(!(isRemote)) {
-    this.writeCommand(a, newObj);
+    // this.writeCommand(a, newObj);
 } 
 return true;
 ```
@@ -9857,9 +9864,6 @@ obj.data.splice(i, 1);
 obj.data.splice(targetIndex, 0, targetObj);
 this._cmd(a, null, a[1]);
 
-if(!(isRemote)) {
-    this.writeCommand(a);
-}           
 return true;
 
 
@@ -9928,7 +9932,7 @@ if(ii>=0) {
 
 // Saving the write to root document
 if(!isRemote) {
-    this.writeCommand(a);
+    // this.writeCommand(a);
 }  
 
 return true;
@@ -9995,7 +9999,7 @@ if(ii < 0) {
 
 // Saving the write to root document
 if(!isRemote) {
-    this.writeCommand(a);
+    // this.writeCommand(a);
 }        
 
 return true;
@@ -10078,9 +10082,9 @@ this._cmd(a, obj, null);
 
 // Saving the write to root document
 if(!isRemote) {
-    this.writeCommand(a);
+//    this.writeCommand(a);
 } 
-this._fireListener(obj, prop);
+//this._fireListener(obj, prop);
 
 return true;
 
@@ -10136,7 +10140,7 @@ if(ii>=0) {
 
 if(!isRemote) {
     this._moveCmdListToParent(setObj);
-    this.writeCommand(a);
+    // this.writeCommand(a);
 } 
 return true;
 ```
@@ -10167,7 +10171,7 @@ if(this.isArray( obj.data[prop] ) ) return {
     };
 
 delete obj.data[prop];
-if(!isRemote) this.writeCommand(a);
+// if(!isRemote) this.writeCommand(a);
          
 
 return true;
@@ -10413,6 +10417,33 @@ if(obj && prop && removedObj) {
 }      
 ```
 
+### <a name="commad_trait__updateHotBuffer"></a>commad_trait::_updateHotBuffer(forceWrite)
+
+
+```javascript
+var me = this;
+var ms = (new Date()).getTime();
+for(var n in _hotObjs) {
+    if(_hotObjs.hasOwnProperty(n)) {
+        var hoot = _hotObjs[n];
+        
+        if(forceWrite || ( (ms - hoot.ms) > _settings.hotMs) ) {
+            // => one should write this command now
+            
+            console.log("writing the hot "+JSON.stringify(hoot));
+            if(hoot.lastCmd) {
+                var a = hoot.firstCmd,
+                    b = hoot.lastCmd;
+                me.writeLocalJournal( [4, a[1], b[2], a[3], a[4] ] );
+            } else {
+                me.writeLocalJournal( hoot.firstCmd );
+            }
+            delete _hotObjs[n];
+        }
+    }
+} 
+```
+
 ### <a name="commad_trait_execCmd"></a>commad_trait::execCmd(a, isRemote, isRedo)
 
 
@@ -10423,7 +10454,29 @@ try {
     var c = _cmds[a[0]];
     if(c) {
         var rv =  c.apply(this, [a, isRemote]);
-        if((rv===true) && !isRedo) this.writeLocalJournal( a );
+        
+        if((rv===true) && !isRedo) {
+            // there is the hot buffer possibility for the object
+            if(a[0]==13 && _settings.hotMs) {
+                this._updateHotBuffer(true); 
+            }
+            if(a[0]==4 && _settings.hotMs) {
+                var objid = a[4];
+                var key = objid+":"+a[1];
+                var hot = _hotObjs[key];
+                if(!hot) {
+                    _hotObjs[key] = {
+                        ms : (new Date()).getTime(),
+                        firstCmd : a
+                    };
+                } else {
+                    hot.lastCmd = a;
+                }
+                console.log(JSON.stringify(hot));
+            } else {
+                this.writeLocalJournal( a );
+            }
+        }
         return rv;
     } else {
         return {
@@ -10470,6 +10523,8 @@ return this._journal;
 if(!_listeners) {
     _listeners = {};
     _execInfo = {};
+    _settings = {};
+    _hotObjs = {};
 }
 
 
@@ -10499,6 +10554,11 @@ if(!_cmds) {
     _reverseCmds[12] = this._reverse_moveToIndex;
     _reverseCmds[13] = this._reverse_aceCmd;
     // _reverse_setPropertyObject
+    
+    var me = this;
+    later().every(0.5, function() {
+        me._updateHotBuffer(); 
+    });
     
 }
 ```
@@ -10567,6 +10627,13 @@ while( ( line - 1 )  >= 0 &&  line > ( index  ) ) {
 }
 ```
 
+### <a name="commad_trait_setHotMs"></a>commad_trait::setHotMs(t)
+
+Hotbuffer delay in ms. The property sets will be throttled by this amount.
+```javascript
+_settings.hotMs = t;
+```
+
 ### <a name="commad_trait_undo"></a>commad_trait::undo(n)
 
 
@@ -10576,6 +10643,13 @@ if(n===0) return;
 if(typeof(n)=="undefined") n = 1;
 
 this.reverseNLines( n );
+
+```
+
+### <a name="commad_trait_writeCommand"></a>commad_trait::writeCommand(t)
+
+
+```javascript
 
 ```
 

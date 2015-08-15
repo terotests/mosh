@@ -7588,9 +7588,9 @@
               if (hoot.lastCmd) {
                 var a = hoot.firstCmd,
                     b = hoot.lastCmd;
-                me.writeLocalJournal([4, a[1], b[2], a[3], a[4]]);
+                hoot.chObj.writeLocalJournal([4, a[1], b[2], a[3], a[4]]);
               } else {
-                me.writeLocalJournal(hoot.firstCmd);
+                hoot.chObj.writeLocalJournal(hoot.firstCmd);
               }
               delete _hotObjs[n];
             }
@@ -7624,7 +7624,8 @@
                   if (!hot) {
                     _hotObjs[key] = {
                       ms: new Date().getTime(),
-                      firstCmd: a
+                      firstCmd: a,
+                      chObj: this
                     };
                   } else {
                     hot.lastCmd = a;

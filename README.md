@@ -12717,8 +12717,6 @@ this._cmds = {
             result({ ok : false }); 
             return;
         }
-        debugger;
-        console.log("Fork with UserId", socket.getUserId());
         cmd.data._userId = socket.getUserId();
         me._model.fork( cmd.data ).then( function(r) {
             result(r); 
@@ -12732,6 +12730,10 @@ this._cmds = {
         if(!me._groupACL(socket, "w")) { result(null); return; }
         
         var fullData = me._serverState.data.getData();
+        
+        if(fullData.__orphans) {
+            fullData.__orphans.length=0;
+        }
         
         // first, save all the unsaved changes and refresh the clients with unsent data
         me._doClientUpdate();
@@ -12747,8 +12749,8 @@ this._cmds = {
             me._serverState.last_update[0] = 0;
             me._serverState.last_update[1] = 0;
             
-            console.log("After snapshot ");
-            console.log(me._serverState);
+            //console.log("After snapshot ");
+            //console.log(me._serverState);
             
             // ask channels to upgrade to the latest version of data
             me._askChUpgrade(me._channelId);

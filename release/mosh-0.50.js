@@ -4484,13 +4484,30 @@
        */
       _myTrait_.getData = function (stripNamespace) {
 
-        var data = this._client.getData();
+        if (!this._docData) {
+          if (this._client) {
+            var data = this._client.getData();
+          } else {
+            return;
+          }
+        } else {
+          var data = this._client._fetch(this._docData.__id);
+        }
         if (stripNamespace) {
           // got to create a new object out of this...
           var newData = JSON.parse(JSON.stringify(data));
           data = this._client._transformObjFromNs(newData);
         }
         return data;
+        /*
+        var data = this._client.getData();
+        if(stripNamespace) {
+        // got to create a new object out of this...
+        var newData = JSON.parse( JSON.stringify(data ));
+        data = this._client._transformObjFromNs(newData);
+        }
+        return data;
+        */
       };
 
       /**
@@ -4720,9 +4737,12 @@
 
         if (!this.isArray()) return this;
 
-        var data;
+        var data,
+            bOldData = false;
         if (newData._wrapToData) {
           newData = newData.getData();
+          var dd = this._client._fetch(newData.__id);
+          if (dd) bOldData = true;
         }
 
         // is raw data
@@ -4732,9 +4752,12 @@
         } else {
           data = this._wrapToData(newData);
         }
-        var cmds = this._objectCreateCmds(data);
-        for (var i = 0; i < cmds.length; i++) {
-          this._client.addCommand(cmds[i]);
+
+        if (!bOldData) {
+          var cmds = this._objectCreateCmds(data);
+          for (var i = 0; i < cmds.length; i++) {
+            this._client.addCommand(cmds[i]);
+          }
         }
         var index;
         if (typeof toIndex != "undefined") {
@@ -4745,8 +4768,6 @@
           var dd = this._client._fetch(this._docData.__id);
           index = dd.data.length;
         }
-
-        console.log("push ", newData.__id, " to index ", index);
 
         this._client.addCommand([7, index, data.__id, null, this._docData.__id]);
 

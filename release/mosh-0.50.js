@@ -5041,7 +5041,9 @@
           n = n.trim();
           if (!n) return;
           me.on(n, function () {
-            reactComp.forceUpdate();
+            setTimeout(function () {
+              reactComp.forceUpdate();
+            }, 0);
           });
         });
         return this;

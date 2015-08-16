@@ -4026,6 +4026,18 @@
 
         var ns_id = this._client._idToNs(this._docData.__id, this._client._ns);
 
+        dataCh.createWorker("_to_ch", // worker ID
+        [7, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
+        dataCh.createWorker("_to_ch", // worker ID
+        [5, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
         dataCh.createWorker("_d_set", // worker ID
         [4, "*", null, null, ns_id], // filter
         {
@@ -4040,18 +4052,6 @@
 
         dataCh.createWorker("_d_ins", // worker ID
         [7, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        dataCh.createWorker("_to_ch", // worker ID
-        [7, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        dataCh.createWorker("_to_ch", // worker ID
-        [5, "*", null, null, ns_id], // filter
         {
           target: this
         });
@@ -7096,8 +7096,6 @@
 
         insertedObj.__p = parentObj.__id;
 
-        this._cmd(a, null, a[2]);
-
         // remove from orphans
         var ii = this._data.__orphan.indexOf(insertedObj);
         if (ii >= 0) {
@@ -7107,6 +7105,7 @@
 
         // Saving the write to root document
         if (!isRemote) {}
+        this._cmd(a, null, a[2]);
 
         return true;
       };

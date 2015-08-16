@@ -5025,6 +5025,28 @@
     })(this);
 
     (function (_myTrait_) {
+      var _eventOn;
+
+      // Initialize static variables here...
+
+      /**
+       * @param String events
+       * @param float reactComp
+       */
+      _myTrait_.bindToReact = function (events, reactComp) {
+        if (!this.isArray(events)) events = events.split(",");
+
+        var me = this;
+        events.forEach(function (n) {
+          me.on(n, function () {
+            reactComp.forceUpdate();
+          });
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
       var _up;
       var _factoryProperties;
       var _registry;

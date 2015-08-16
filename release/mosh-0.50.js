@@ -5038,6 +5038,8 @@
 
         var me = this;
         events.forEach(function (n) {
+          n = n.trim();
+          if (!n) return;
           me.on(n, function () {
             reactComp.forceUpdate();
           });

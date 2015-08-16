@@ -3,6 +3,10 @@
 In-browser demo
 
  * http://jsfiddle.net/vudje24t/
+
+Testing with React
+
+ * http://jsfiddle.net/jxzj7b6n/1/
  
 
 # Objects without the data channel
@@ -809,9 +813,19 @@ pwFs.then(
 
     
     
+    
+##### trait reactBinds
+
+- [bindToReact](README.md#reactBinds_bindToReact)
+
+
+    
+    
 
 
    
+      
+    
       
     
       
@@ -6938,6 +6952,15 @@ var dataCh = this._client.getChannelData();
 
 var ns_id = this._client._idToNs( this._docData.__id, this._client._ns ); 
 
+dataCh.createWorker("_to_ch",                       // worker ID
+                      [7, "*", null, null, ns_id],  // filter
+                      { target : this});                       
+
+dataCh.createWorker("_to_ch",                       // worker ID
+                      [5, "*", null, null, ns_id],  // filter
+                      { target : this}); 
+                      
+
 dataCh.createWorker("_d_set",                                  // worker ID
                       [4, "*", null, null, ns_id],  // filter
                       { target : this});
@@ -6950,13 +6973,7 @@ dataCh.createWorker("_d_ins",                                  // worker ID
                       [7, "*", null, null, ns_id],  // filter
                       { target : this});       
                       
-dataCh.createWorker("_to_ch",                       // worker ID
-                      [7, "*", null, null, ns_id],  // filter
-                      { target : this});                       
-
-dataCh.createWorker("_to_ch",                       // worker ID
-                      [5, "*", null, null, ns_id],  // filter
-                      { target : this});  
+ 
                       
 dataCh.createWorker("_d_mv",                                  // worker ID
                       [12, "*", null, null, ns_id],  // filter
@@ -7943,9 +7960,44 @@ return this;
 
     
     
+    
+## trait reactBinds
+
+The class has following internal singleton variables:
+        
+* _eventOn
+        
+        
+### <a name="reactBinds_bindToReact"></a>reactBinds::bindToReact(events, reactComp)
+
+
+```javascript
+if(!this.isArray(events)) events = events.split(",");
+
+var me = this;
+events.forEach(
+        function(n) {
+            n = n.trim();
+            if(!n) return;
+            me.on(n, function() {
+                setTimeout(
+                    function() {
+                        reactComp.forceUpdate();
+                    },0);
+            });
+        }   
+    );
+return this;
+```
+
+
+    
+    
 
 
    
+      
+    
       
     
       
@@ -9921,7 +9973,7 @@ parentObj.data.splice( toIndex, 0, insertedObj );
 
 insertedObj.__p = parentObj.__id;
 
-this._cmd(a, null, a[2]);
+
 
 // remove from orphans
 var ii = this._data.__orphan.indexOf(insertedObj);
@@ -9934,6 +9986,7 @@ if(ii>=0) {
 if(!isRemote) {
     // this.writeCommand(a);
 }  
+this._cmd(a, null, a[2]);
 
 return true;
 ```

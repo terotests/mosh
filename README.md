@@ -8,6 +8,11 @@ Testing with React
 
  * http://jsfiddle.net/jxzj7b6n/1/
  
+ES7 Object.observe testing
+
+ * http://jsfiddle.net/pekyLrqn/
+ 
+ 
 
 # Objects without the data channel
 

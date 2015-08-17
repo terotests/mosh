@@ -5072,6 +5072,90 @@
     })(this);
 
     (function (_myTrait_) {
+      var _eventOn;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float dataObj
+       * @param float obj
+       */
+      _myTrait_._es7Observe = function (dataObj, obj) {
+
+        if (!dataObj.getData) return dataObj;
+
+        var obj = dataObj.getData();
+
+        if (!this.isObject(obj)) return obj;
+
+        var plain,
+            me = this;
+        var dataCh = dataObj._client.getChannelData();
+
+        if (this.isArray(obj.data)) {
+
+          // The new array to observe
+          plain = [];
+          var len = obj.data.length;
+          for (var i = 0; i < len; i++) {
+            plain[i] = this._es7Observe(dataObj.at(i));
+          }
+        } else {
+          // The new object to observe
+          plain = {};
+          for (var n in obj.data) {
+            if (obj.data.hasOwnProperty(n)) {
+              plain[n] = this._es7Observe(obj.data[n]);
+              // "_obs_4"
+              dataCh.createWorker("_obs_4", // worker ID
+              [4, n, null, null, dataObj.getID()], // filter
+              {
+                target: plain
+              });
+            }
+          }
+          Object.observe(plain, function (changes) {
+            var bLock = false;
+            changes.forEach(function (ch) {
+              if (bLock) return;
+              bLock = true;
+              if (ch.type == "add") {
+                var newValue = ch.object[ch.name];
+                dataObj.set(ch.name, newValue);
+              }
+              if (ch.type == "update") {
+                var newValue = ch.object[ch.name];
+                dataObj.set(ch.name, newValue);
+              }
+              if (ch.type == "delete") {
+                dataObj.unset(ch.name);
+              }
+              bLock = false;
+            });
+          });
+          /*
+          obj.baz = 2;
+          // [{name: 'baz', object: <obj>, type: 'add'}]
+          obj.foo = 'hello';
+          // [{name: 'foo', object: <obj>, type: 'update', oldValue: 0}]
+          delete obj.baz;
+          // [{name: 'baz', object: <obj>, type: 'delete', oldValue: 2}]    
+          */
+        }
+
+        return plain;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.toObservable = function (t) {
+
+        return this._es7Observe(this);
+      };
+    })(this);
+
+    (function (_myTrait_) {
       var _up;
       var _factoryProperties;
       var _registry;
@@ -5140,6 +5224,10 @@
         if (!_workersDone) {
           var dataCh = me._client.getChannelData();
           dataCh.setWorkerCommands({
+            "_obs_4": function _obs_4(cmd, options) {
+              // Object.observe - set value to object
+              options.target[cmd[1]] = cmd[2];
+            },
             "_d_set": function _d_set(cmd, options) {
               // for example, trigger .on("x", value);
               options.target.trigger(cmd[1], cmd[2]);

@@ -712,6 +712,7 @@ pwFs.then(
 
 
 - [_addFactoryProperty](README.md#_data__addFactoryProperty)
+- [_atObserveEvent](README.md#_data__atObserveEvent)
 - [_classFactory](README.md#_data__classFactory)
 - [_initWorkers](README.md#_data__initWorkers)
 - [_objEventWorker](README.md#_data__objEventWorker)
@@ -821,9 +822,21 @@ pwFs.then(
 
     
     
+    
+##### trait es7Binds
+
+- [_es7Observe](README.md#es7Binds__es7Observe)
+- [_setBindLock](README.md#es7Binds__setBindLock)
+- [toObservable](README.md#es7Binds_toObservable)
+
+
+    
+    
 
 
    
+      
+    
       
     
       
@@ -6235,6 +6248,8 @@ The class has following internal singleton variables:
         
 * _workersDone
         
+* _atObserve
+        
         
 ### <a name="_data__addFactoryProperty"></a>_data::_addFactoryProperty(name)
 
@@ -6242,6 +6257,13 @@ The class has following internal singleton variables:
 ```javascript
 if(!_factoryProperties) _factoryProperties = [];
 _factoryProperties.push(name);
+```
+
+### <a name="_data__atObserveEvent"></a>_data::_atObserveEvent(t)
+
+
+```javascript
+_atObserve = t;
 ```
 
 ### <a name="_data__classFactory"></a>_data::_classFactory(data)
@@ -6303,6 +6325,50 @@ var me = this;
 if(!_workersDone) {
     var dataCh = me._client.getChannelData();
     dataCh.setWorkerCommands({
+        "_obs_4" : function(cmd, options) {        
+            if(_atObserve) return;
+            // Object.observe - set value to object
+            options.target[cmd[1]] = cmd[2];
+        },
+        "_obs_7" : function(cmd, options) {        
+            if(_atObserve) return;
+            var toIndex = cmd[1];
+            var dataObj = _data(cmd[2]);
+            if(dataObj.isFulfilled()) {
+                Array.unobserve( options.target, options.parentObserver );
+                options.target[toIndex] = dataObj.toObservable(options.target, options.parentObserver);
+                Array.observe( options.target, options.parentObserver );
+            }
+        },   
+        "_obs_8" : function(cmd, options) {   
+            if(_atObserve) {
+                console.log("Was at the observe event");
+                return;
+            }
+            console.log("_obs_8");
+            debugger;
+            var toIndex = cmd[1];
+            Array.unobserve( options.target, options.parentObserver );
+            options.target.splice(toIndex, 1); //  = dataObj.toObservable();
+            Array.observe( options.target, options.parentObserver );
+        }, 
+        "_obs_12" : function(cmd, options) {    
+            if(_atObserve) return;
+            
+            // move the item inside the array...a bit trickier than the rest
+            var fromIndex = parseInt(cmd[3]);
+            var targetIndex = parseInt(cmd[2]);
+            var data = options.target;
+            var targetObj = data[fromIndex];
+            
+            Array.unobserve( data, options.parentObserver );
+            // how to temporarily disable the observing ? 
+            data.splice(fromIndex, 1);
+            data.splice(targetIndex, 0, targetObj);       
+            
+            Array.observe( data, options.parentObserver );
+            // options.target.splice(toIndex, 1); //  = dataObj.toObservable();
+        },         
         "_d_set" : function(cmd, options) {        
             // for example, trigger .on("x", value);
             options.target.trigger(cmd[1], cmd[2]);
@@ -7136,8 +7202,13 @@ if(data.__id && data.data) {
 
 if(newObj.data && this.isObject(newObj.data)) {
     for( var n in newObj.data  ) {
+        if(n=="__oid") {
+            delete newObj.data[n];
+            continue;
+        }
         if(newObj.data.hasOwnProperty(n)) {
             var o = newObj.data[n];  
+            if(this.isFunction(o)) continue;
             if(this.isObject(o)) {
                 newObj.data[n] = this._wrapToData( o );
             }
@@ -7401,6 +7472,22 @@ return this._client.get(this._docData.__id, name);
 
 ```javascript
 
+if(!this._docData) {
+    if(this._client) {
+        var data = this._client.getData();
+    } else {
+        return;
+    }
+} else {
+    var data = this._client._fetch( this._docData.__id );
+}
+if(stripNamespace) {
+    // got to create a new object out of this...
+    var newData = JSON.parse( JSON.stringify(data ));
+    data = this._client._transformObjFromNs(newData);
+}
+return data;
+/*
 var data = this._client.getData();
 if(stripNamespace) {
     // got to create a new object out of this...
@@ -7408,6 +7495,7 @@ if(stripNamespace) {
     data = this._client._transformObjFromNs(newData);
 }
 return data;
+*/
 ```
 
 ### <a name="_dataTrait_getID"></a>_dataTrait::getID(t)
@@ -7643,9 +7731,11 @@ if(len) {
 
 if(!this.isArray()) return this;
 
-var data;
+var data, bOldData = false;
 if(newData._wrapToData) {
     newData = newData.getData();
+    var dd = this._client._fetch( newData.__id );
+    if(dd) bOldData = true;
 }
 
 // is raw data
@@ -7655,9 +7745,12 @@ if(newData.__id && newData.data ) {
 } else {
     data = this._wrapToData( newData );
 }
-var cmds = this._objectCreateCmds( data );
-for(var i=0; i<cmds.length; i++) {
-    this._client.addCommand( cmds[i] );
+
+if(!bOldData) {
+    var cmds = this._objectCreateCmds( data );
+    for(var i=0; i<cmds.length; i++) {
+        this._client.addCommand( cmds[i] );
+    }
 }
 var index;
 if(typeof(toIndex) != "undefined") {
@@ -7668,8 +7761,6 @@ if(typeof(toIndex) != "undefined") {
     var dd = this._client._fetch( this._docData.__id );
     index = dd.data.length;
 }
-
-console.log("push ",newData.__id, " to index ", index );
 
 this._client.addCommand( [7, index, data.__id, null, this._docData.__id ] );
 
@@ -7993,9 +8084,204 @@ return this;
 
     
     
+    
+## trait es7Binds
+
+The class has following internal singleton variables:
+        
+* _eventOn
+        
+* _bindLock
+        
+        
+### <a name="es7Binds__es7Observe"></a>es7Binds::_es7Observe(dataObj, obj, parentPlain, parentObserver)
+
+
+```javascript
+
+
+if(!dataObj.getData) return dataObj;
+
+var obj = dataObj.getData();
+
+if(!this.isObject(obj) && !this.isArray(obj)) return obj;
+
+var plain, me = this;
+var dataCh = dataObj._client.getChannelData();
+
+var moshId = Symbol("_mosh_id_");
+
+if(dataObj.isArray()) {
+
+    // The new array to observe
+    plain = [];
+
+    var myObserver = function(changes) {
+        var bLock = false;
+        
+        changes.forEach( function(ch) {
+            if(bLock) return;
+            bLock = true;
+            if(ch.type=="update") {
+                // The update type is not supported
+            }
+            if(ch.type=="splice") {
+                // TODO: handle removes
+                ch.removed.forEach( function(oldObj) {
+                    if(!oldObj[moshId]) {
+                        return;
+                    }
+                    try {
+                        var id = oldObj[moshId];
+                        var dataObj = _data(id);
+                        // we should have this object
+                        if(dataObj.isFulfilled()) {
+                            if(!dataObj.parent())  {
+                                return;
+                            }
+                            me._atObserveEvent( true );
+                            dataObj.remove(); 
+                            me._atObserveEvent( false );
+                        }
+                    } catch(e) {
+                        
+                    }
+                    
+                });
+                // inserts
+                var objCnt = ch.addedCount;
+                var i = ch.index;
+                while(objCnt--) {
+                    var newObj = ch.object[i];
+                    /*
+                    if(newObj.__oid && plain[i].__oid && ( newObj.__oid() ==  plain[i].__oid()) ) {
+                        i++;
+                        continue;
+                    }
+                    */
+                    dataObj.push( newObj, i );
+                    i++;
+                }
+            }            
+            bLock = false;
+        });         
+        
+    };    
+    
+    
+    var len = obj.data.length;
+    for(var i=0; i<len; i++) {
+        var o = dataObj.at(i);
+        // console.log("item ", o );
+        (function(o) {
+            plain[i] = me._es7Observe( o, null, plain, myObserver );
+            plain[moshId] = o.getID();
+        }(o));
+    }
+
+    dataCh.createWorker("_obs_7",                       // worker ID
+                          [7, "*", null, null, dataObj.getID()],  // filter
+                          { target : plain,  parentObserver : myObserver });       
+                          
+
+                           
+    Array.observe( plain, myObserver  );
+/*
+var arr = ['a', 'b', 'c'];
+Array.observe(arr, function(changes) {
+  console.log(changes);
+});
+arr[1] = 'B';
+// [{type: 'update', object: <arr>, name: '1', oldValue: 'b'}]
+arr[3] = 'd';
+// [{type: 'splice', object: <arr>, index: 3, removed: [], addedCount: 1}]
+arr.splice(1, 2, 'beta', 'gamma', 'delta');
+// [{type: 'splice', object: <arr>, index: 1, removed: ['B', 'c', 'd'], addedCount: 3}]
+*/
+    
+} else {
+    // The new object to observe
+    plain = {};
+    plain[moshId] = dataObj.getID();
+    
+    dataCh.createWorker("_obs_8",                       // worker ID
+                          [8, "*", null, null, dataObj.getID()],  // filter
+                          { target : parentPlain, parentObserver : parentObserver});        
+    dataCh.createWorker("_obs_12",                       // worker ID
+                          [12, "*", null, null, dataObj.getID()],  // filter
+                          { target : parentPlain, parentObserver : parentObserver});                             
+    for( var n in obj.data) {
+        if(obj.data.hasOwnProperty(n)) {
+            if(this.isObject(obj.data[n])) {
+                plain[n] = this._es7Observe(dataObj[n], null, plain);
+            } else {
+                plain[n] = obj.data[n];
+            }
+            // "_obs_4"
+            dataCh.createWorker("_obs_4",                       // worker ID
+                                  [4, n, null, null, dataObj.getID()],  // filter
+                                  { target : plain});               
+        }
+    }
+    Object.observe(plain, function(changes) {
+        
+        var bLock = false;
+        changes.forEach( function(ch) {
+            if(bLock) return;
+            bLock = true;
+            if(ch.type=="add") {
+                var newValue = ch.object[ch.name];
+                dataObj.set(ch.name, newValue);
+            }
+            if(ch.type=="update") {
+                var newValue = ch.object[ch.name];
+                dataObj.set(ch.name, newValue);
+            }            
+            if(ch.type=="delete") {
+                dataObj.unset(ch.name);
+            }      
+            bLock = false;
+        });
+        
+    });
+    /*
+obj.baz = 2;
+// [{name: 'baz', object: <obj>, type: 'add'}]
+
+obj.foo = 'hello';
+// [{name: 'foo', object: <obj>, type: 'update', oldValue: 0}]
+
+delete obj.baz;
+// [{name: 'baz', object: <obj>, type: 'delete', oldValue: 2}]    
+    */
+}
+
+return plain;
+```
+
+### <a name="es7Binds__setBindLock"></a>es7Binds::_setBindLock(t)
+
+
+```javascript
+_bindLock = t;
+```
+
+### <a name="es7Binds_toObservable"></a>es7Binds::toObservable(parentPlain, parentObserver)
+
+
+```javascript
+
+return this._es7Observe( this, null, parentPlain, parentObserver );
+```
+
+
+    
+    
 
 
    
+      
+    
       
     
       
@@ -9660,12 +9946,15 @@ for(var i in cmdObject) {
 
 ```javascript
 
+
 if(typeof( obj ) == "undefined" ) obj = this._data;
 
+if(this.isFunction(obj) ||  typeof(obj)=="function") {
+    return;
+}
 if(!this.isObject(obj)) return obj;
 
 var plain;
-
 
 if(this.isArray(obj.data)) {
     plain = [];

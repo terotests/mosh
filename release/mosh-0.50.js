@@ -4220,8 +4220,13 @@
 
         if (newObj.data && this.isObject(newObj.data)) {
           for (var n in newObj.data) {
+            if (n == "__oid") {
+              delete newObj.data[n];
+              continue;
+            }
             if (newObj.data.hasOwnProperty(n)) {
               var o = newObj.data[n];
+              if (this.isFunction(o)) continue;
               if (this.isObject(o)) {
                 newObj.data[n] = this._wrapToData(o);
               }
@@ -5073,39 +5078,135 @@
 
     (function (_myTrait_) {
       var _eventOn;
+      var _bindLock;
 
       // Initialize static variables here...
 
       /**
        * @param float dataObj
        * @param float obj
+       * @param float parentPlain
+       * @param float parentObserver
        */
-      _myTrait_._es7Observe = function (dataObj, obj) {
+      _myTrait_._es7Observe = function (dataObj, obj, parentPlain, parentObserver) {
 
         if (!dataObj.getData) return dataObj;
 
         var obj = dataObj.getData();
 
-        if (!this.isObject(obj)) return obj;
+        if (!this.isObject(obj) && !this.isArray(obj)) return obj;
 
         var plain,
             me = this;
         var dataCh = dataObj._client.getChannelData();
 
-        if (this.isArray(obj.data)) {
+        var moshId = Symbol("_mosh_id_");
+
+        if (dataObj.isArray()) {
 
           // The new array to observe
           plain = [];
+
+          var myObserver = function myObserver(changes) {
+            var bLock = false;
+
+            changes.forEach(function (ch) {
+              if (bLock) return;
+              bLock = true;
+              if (ch.type == "update") {}
+              if (ch.type == "splice") {
+                // TODO: handle removes
+                ch.removed.forEach(function (oldObj) {
+                  if (!oldObj[moshId]) {
+                    return;
+                  }
+                  try {
+                    var id = oldObj[moshId];
+                    var dataObj = _data(id);
+                    // we should have this object
+                    if (dataObj.isFulfilled()) {
+                      if (!dataObj.parent()) {
+                        return;
+                      }
+                      me._atObserveEvent(true);
+                      dataObj.remove();
+                      me._atObserveEvent(false);
+                    }
+                  } catch (e) {}
+                });
+                // inserts
+                var objCnt = ch.addedCount;
+                var i = ch.index;
+                while (objCnt--) {
+                  var newObj = ch.object[i];
+                  /*
+                    if(newObj.__oid && plain[i].__oid && ( newObj.__oid() ==  plain[i].__oid()) ) {
+                        i++;
+                        continue;
+                    }
+                    */
+                  dataObj.push(newObj, i);
+                  i++;
+                }
+              }
+              bLock = false;
+            });
+          };
+
           var len = obj.data.length;
           for (var i = 0; i < len; i++) {
-            plain[i] = this._es7Observe(dataObj.at(i));
+            var o = dataObj.at(i);
+            // console.log("item ", o );
+            (function (o) {
+              plain[i] = me._es7Observe(o, null, plain, myObserver);
+              plain[moshId] = o.getID();
+            })(o);
           }
+
+          dataCh.createWorker("_obs_7", // worker ID
+          [7, "*", null, null, dataObj.getID()], // filter
+          {
+            target: plain,
+            parentObserver: myObserver
+          });
+
+          Array.observe(plain, myObserver);
+          /*
+          var arr = ['a', 'b', 'c'];
+          Array.observe(arr, function(changes) {
+          console.log(changes);
+          });
+          arr[1] = 'B';
+          // [{type: 'update', object: <arr>, name: '1', oldValue: 'b'}]
+          arr[3] = 'd';
+          // [{type: 'splice', object: <arr>, index: 3, removed: [], addedCount: 1}]
+          arr.splice(1, 2, 'beta', 'gamma', 'delta');
+          // [{type: 'splice', object: <arr>, index: 1, removed: ['B', 'c', 'd'], addedCount: 3}]
+          */
         } else {
           // The new object to observe
           plain = {};
+          plain[moshId] = dataObj.getID();
+
+          dataCh.createWorker("_obs_8", // worker ID
+          [8, "*", null, null, dataObj.getID()], // filter
+          {
+            target: parentPlain,
+            parentObserver: parentObserver
+          });
+          dataCh.createWorker("_obs_12", // worker ID
+          [12, "*", null, null, dataObj.getID()], // filter
+          {
+            target: parentPlain,
+            parentObserver: parentObserver
+          });
           for (var n in obj.data) {
             if (obj.data.hasOwnProperty(n)) {
-              plain[n] = this._es7Observe(obj.data[n]);
+              if (this.isObject(obj.data[n])) {
+                plain[n] = this._es7Observe(dataObj[n], null, plain);
+              } else {
+                plain[n] = obj.data[n];
+              }
               // "_obs_4"
               dataCh.createWorker("_obs_4", // worker ID
               [4, n, null, null, dataObj.getID()], // filter
@@ -5115,6 +5216,7 @@
             }
           }
           Object.observe(plain, function (changes) {
+
             var bLock = false;
             changes.forEach(function (ch) {
               if (bLock) return;
@@ -5149,9 +5251,17 @@
       /**
        * @param float t
        */
-      _myTrait_.toObservable = function (t) {
+      _myTrait_._setBindLock = function (t) {
+        _bindLock = t;
+      };
 
-        return this._es7Observe(this);
+      /**
+       * @param float parentPlain
+       * @param float parentObserver
+       */
+      _myTrait_.toObservable = function (parentPlain, parentObserver) {
+
+        return this._es7Observe(this, null, parentPlain, parentObserver);
       };
     })(this);
 
@@ -5161,6 +5271,7 @@
       var _registry;
       var _objectCache;
       var _workersDone;
+      var _atObserve;
 
       // Initialize static variables here...
 
@@ -5170,6 +5281,13 @@
       _myTrait_._addFactoryProperty = function (name) {
         if (!_factoryProperties) _factoryProperties = [];
         _factoryProperties.push(name);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._atObserveEvent = function (t) {
+        _atObserve = t;
       };
 
       if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
@@ -5225,8 +5343,48 @@
           var dataCh = me._client.getChannelData();
           dataCh.setWorkerCommands({
             "_obs_4": function _obs_4(cmd, options) {
+              if (_atObserve) return;
               // Object.observe - set value to object
               options.target[cmd[1]] = cmd[2];
+            },
+            "_obs_7": function _obs_7(cmd, options) {
+              if (_atObserve) return;
+              var toIndex = cmd[1];
+              var dataObj = _data(cmd[2]);
+              if (dataObj.isFulfilled()) {
+                Array.unobserve(options.target, options.parentObserver);
+                options.target[toIndex] = dataObj.toObservable(options.target, options.parentObserver);
+                Array.observe(options.target, options.parentObserver);
+              }
+            },
+            "_obs_8": function _obs_8(cmd, options) {
+              if (_atObserve) {
+                console.log("Was at the observe event");
+                return;
+              }
+              console.log("_obs_8");
+              debugger;
+              var toIndex = cmd[1];
+              Array.unobserve(options.target, options.parentObserver);
+              options.target.splice(toIndex, 1); //  = dataObj.toObservable();
+              Array.observe(options.target, options.parentObserver);
+            },
+            "_obs_12": function _obs_12(cmd, options) {
+              if (_atObserve) return;
+
+              // move the item inside the array...a bit trickier than the rest
+              var fromIndex = parseInt(cmd[3]);
+              var targetIndex = parseInt(cmd[2]);
+              var data = options.target;
+              var targetObj = data[fromIndex];
+
+              Array.unobserve(data, options.parentObserver);
+              // how to temporarily disable the observing ?
+              data.splice(fromIndex, 1);
+              data.splice(targetIndex, 0, targetObj);
+
+              Array.observe(data, options.parentObserver);
+              // options.target.splice(toIndex, 1); //  = dataObj.toObservable();
             },
             "_d_set": function _d_set(cmd, options) {
               // for example, trigger .on("x", value);
@@ -8436,6 +8594,9 @@
 
         if (typeof obj == "undefined") obj = this._data;
 
+        if (this.isFunction(obj) || typeof obj == "function") {
+          return;
+        }
         if (!this.isObject(obj)) return obj;
 
         var plain;
@@ -20473,6 +20634,8 @@
 // --- let's not ---
 
 // console.log("Strange... no emit value in ", this._parent);
+
+// The update type is not supported
 
 // objectCache[data.__id] = this;
 

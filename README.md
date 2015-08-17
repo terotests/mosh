@@ -6345,8 +6345,6 @@ if(!_workersDone) {
                 console.log("Was at the observe event");
                 return;
             }
-            console.log("_obs_8");
-            debugger;
             var toIndex = cmd[1];
             Array.unobserve( options.target, options.parentObserver );
             options.target.splice(toIndex, 1); //  = dataObj.toObservable();
@@ -8182,23 +8180,9 @@ if(dataObj.isArray()) {
     dataCh.createWorker("_obs_7",                       // worker ID
                           [7, "*", null, null, dataObj.getID()],  // filter
                           { target : plain,  parentObserver : myObserver });       
-                          
 
-                           
     Array.observe( plain, myObserver  );
-/*
-var arr = ['a', 'b', 'c'];
-Array.observe(arr, function(changes) {
-  console.log(changes);
-});
-arr[1] = 'B';
-// [{type: 'update', object: <arr>, name: '1', oldValue: 'b'}]
-arr[3] = 'd';
-// [{type: 'splice', object: <arr>, index: 3, removed: [], addedCount: 1}]
-arr.splice(1, 2, 'beta', 'gamma', 'delta');
-// [{type: 'splice', object: <arr>, index: 1, removed: ['B', 'c', 'd'], addedCount: 3}]
-*/
-    
+
 } else {
     // The new object to observe
     plain = {};
@@ -8244,16 +8228,6 @@ arr.splice(1, 2, 'beta', 'gamma', 'delta');
         });
         
     });
-    /*
-obj.baz = 2;
-// [{name: 'baz', object: <obj>, type: 'add'}]
-
-obj.foo = 'hello';
-// [{name: 'foo', object: <obj>, type: 'update', oldValue: 0}]
-
-delete obj.baz;
-// [{name: 'baz', object: <obj>, type: 'delete', oldValue: 2}]    
-    */
 }
 
 return plain;

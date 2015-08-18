@@ -6916,9 +6916,8 @@ return this;
 
 // playback
 var data = this.getChannelData();
-data.playback(options);
+return data.playback(options);
 
-return this;
 ```
 
 ### <a name="_data_reconnect"></a>_data::reconnect(t)
@@ -10908,6 +10907,7 @@ if(!_cmds) {
 // NOTE: playback requires later() library to work
 
 options = options || {};
+var deferMe = _promise();
 
 var firstMs = this._journal[0][5];
 if(!firstMs) {
@@ -10966,11 +10966,12 @@ var frameFn = function() {
     journal_index = i;
     if(journal_index == len) {
         later().removeFrameFn( frameFn );
+        deferMe.resolve(true);
     }
 }
 
 later().onFrame( frameFn );
-
+return deferMe;
 
 
 ```

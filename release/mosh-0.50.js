@@ -5896,9 +5896,7 @@
 
         // playback
         var data = this.getChannelData();
-        data.playback(options);
-
-        return this;
+        return data.playback(options);
       };
 
       /**
@@ -8009,6 +8007,7 @@
         // NOTE: playback requires later() library to work
 
         options = options || {};
+        var deferMe = _promise();
 
         var firstMs = this._journal[0][5];
         if (!firstMs) {
@@ -8066,10 +8065,12 @@
           journal_index = i;
           if (journal_index == len) {
             later().removeFrameFn(frameFn);
+            deferMe.resolve(true);
           }
         };
 
         later().onFrame(frameFn);
+        return deferMe;
       };
 
       /**

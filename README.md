@@ -732,6 +732,7 @@ pwFs.then(
 - [getChannelClient](README.md#_data_getChannelClient)
 - [getChannelData](README.md#_data_getChannelData)
 - [patch](README.md#_data_patch)
+- [playback](README.md#_data_playback)
 - [reconnect](README.md#_data_reconnect)
 - [registerComponent](README.md#_data_registerComponent)
 
@@ -999,6 +1000,7 @@ pwFs.then(
 - [getJournalCmd](README.md#commad_trait_getJournalCmd)
 - [getJournalLine](README.md#commad_trait_getJournalLine)
 - [getLocalJournal](README.md#commad_trait_getLocalJournal)
+- [playback](README.md#commad_trait_playback)
 - [redo](README.md#commad_trait_redo)
 - [reverseCmd](README.md#commad_trait_reverseCmd)
 - [reverseNLines](README.md#commad_trait_reverseNLines)
@@ -6347,7 +6349,6 @@ if(!_workersDone) {
         },   
         "_obs_8" : function(cmd, options) {   
             if(_atObserve) {
-                console.log("Was at the observe event");
                 return;
             }
             var toIndex = cmd[1];
@@ -6905,6 +6906,18 @@ cmds.forEach( function(c, index) {
     var tc = me._client._transformCmdToNs( c );
     me._client.addCommand( tc, true );
 });
+return this;
+```
+
+### <a name="_data_playback"></a>_data::playback(options)
+
+
+```javascript
+
+// playback
+var data = this.getChannelData();
+data.playback(options);
+
 return this;
 ```
 
@@ -10751,7 +10764,6 @@ for(var n in _hotObjs) {
         if(forceWrite || ( (ms - hoot.ms) > _settings.hotMs) ) {
             // => one should write this command now
             
-            console.log("writing the hot ");
             if(hoot.lastCmd) {
                 var a = hoot.firstCmd,
                     b = hoot.lastCmd;
@@ -10793,7 +10805,7 @@ try {
                     } else {
                         hot.lastCmd = a;
                     }
-                    console.log(JSON.stringify(hot));
+                    // console.log(JSON.stringify(hot));
                 } else {
                     this._updateHotBuffer(true);
                     this.writeLocalJournal( a );
@@ -10888,6 +10900,81 @@ if(!_cmds) {
 }
 ```
         
+### <a name="commad_trait_playback"></a>commad_trait::playback(options)
+
+
+```javascript
+
+// NOTE: playback requires later() library to work
+
+options = options || {};
+
+var firstMs = this._journal[0][5];
+if(!firstMs) {
+    console.error("journal does not have timestamps");
+    return;
+}
+
+var maxDelay = options.ms || 2000; // max delay on the playback, if the ms loop has some delays
+
+// then start the playback using the current journal buffer
+
+this.reverseToLine(0); // start from the beginning :)
+
+var msStart = (new Date()).getTime();
+
+// onFrame
+// removeFrameFn
+
+var journal_index = 0,
+    me = this,
+    baseMs = firstMs;
+
+var frameFn = function() {
+    
+    var msNow = (new Date()).getTime();
+    var delta = msNow - msStart; // <- time elapsed from beginng
+    var len = me._journal.length;
+    var lastCmdTime;
+    
+    for(var i=journal_index; i<len; ) {
+    
+        var jTime = me._journal[i][5], // ms,
+            jDelta = jTime - baseMs;
+        
+        
+        if(lastCmdTime && ( jTime - lastCmdTime) > maxDelay) {
+            // if there is a long delay in the stream, we move the virtual starting
+            // point of the "stream time" relative to the elapsed time now
+            var newStartTime = jTime - delta - parseInt(maxDelay/2);
+            baseMs = newStartTime;
+            jDelta = jTime - baseMs;
+        }
+        console.log(jTime, msNow, jDelta, delta);
+        // test if the command should have been executd
+        if(jDelta < delta) {
+            // then should be executed
+            me.redo(1);
+            console.log("doing redo");
+        } else {
+            break;
+        }
+        i++;
+        lastCmdTime = jTime;
+        
+    }
+    journal_index = i;
+    if(journal_index == len) {
+        later().removeFrameFn( frameFn );
+    }
+}
+
+later().onFrame( frameFn );
+
+
+
+```
+
 ### <a name="commad_trait_redo"></a>commad_trait::redo(n)
 
 
@@ -10910,9 +10997,7 @@ while( (n--) > 0 ) {
 
 This function reverses a given command. There may be cases when the command parameters make the command itself non-reversable. It is the responsibility of the framework to make sure all commands remain reversable.
 ```javascript
-console.log("reversing command ", a);
 if(!a) {
-    console.error("reversing undefined command ");
     return;
 }
 var c = _reverseCmds[a[0]];
@@ -10984,10 +11069,15 @@ this.reverseNLines( n );
 ```javascript
 
 if(this._journal) {
+    
     // truncate on write if length > journalPointer
+    
     if(this._journal.length > this._journalPointer) {
         this._journal.length = this._journalPointer;
     }
+    
+    if(!cmd[5]) cmd[5] = (new Date()).getTime();
+    
     this._journal.push(cmd);
     this._journalPointer++;
 }

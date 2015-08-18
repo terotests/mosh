@@ -5339,7 +5339,6 @@
             },
             "_obs_8": function _obs_8(cmd, options) {
               if (_atObserve) {
-                console.log("Was at the observe event");
                 return;
               }
               var toIndex = cmd[1];
@@ -5887,6 +5886,18 @@
           var tc = me._client._transformCmdToNs(c);
           me._client.addCommand(tc, true);
         });
+        return this;
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.playback = function (options) {
+
+        // playback
+        var data = this.getChannelData();
+        data.playback(options);
+
         return this;
       };
 
@@ -7854,7 +7865,6 @@
             if (forceWrite || ms - hoot.ms > _settings.hotMs) {
               // => one should write this command now
 
-              console.log("writing the hot ");
               if (hoot.lastCmd) {
                 var a = hoot.firstCmd,
                     b = hoot.lastCmd;
@@ -7898,7 +7908,7 @@
                   } else {
                     hot.lastCmd = a;
                   }
-                  console.log(JSON.stringify(hot));
+                  // console.log(JSON.stringify(hot));
                 } else {
                   this._updateHotBuffer(true);
                   this.writeLocalJournal(a);
@@ -7992,6 +8002,77 @@
       });
 
       /**
+       * @param float options
+       */
+      _myTrait_.playback = function (options) {
+
+        // NOTE: playback requires later() library to work
+
+        options = options || {};
+
+        var firstMs = this._journal[0][5];
+        if (!firstMs) {
+          console.error("journal does not have timestamps");
+          return;
+        }
+
+        var maxDelay = options.ms || 2000; // max delay on the playback, if the ms loop has some delays
+
+        // then start the playback using the current journal buffer
+
+        this.reverseToLine(0); // start from the beginning :)
+
+        var msStart = new Date().getTime();
+
+        // onFrame
+        // removeFrameFn
+
+        var journal_index = 0,
+            me = this,
+            baseMs = firstMs;
+
+        var frameFn = function frameFn() {
+
+          var msNow = new Date().getTime();
+          var delta = msNow - msStart; // <- time elapsed from beginng
+          var len = me._journal.length;
+          var lastCmdTime;
+
+          for (var i = journal_index; i < len;) {
+
+            var jTime = me._journal[i][5],
+                // ms,
+            jDelta = jTime - baseMs;
+
+            if (lastCmdTime && jTime - lastCmdTime > maxDelay) {
+              // if there is a long delay in the stream, we move the virtual starting
+              // point of the "stream time" relative to the elapsed time now
+              var newStartTime = jTime - delta - parseInt(maxDelay / 2);
+              baseMs = newStartTime;
+              jDelta = jTime - baseMs;
+            }
+            console.log(jTime, msNow, jDelta, delta);
+            // test if the command should have been executd
+            if (jDelta < delta) {
+              // then should be executed
+              me.redo(1);
+              console.log("doing redo");
+            } else {
+              break;
+            }
+            i++;
+            lastCmdTime = jTime;
+          }
+          journal_index = i;
+          if (journal_index == len) {
+            later().removeFrameFn(frameFn);
+          }
+        };
+
+        later().onFrame(frameFn);
+      };
+
+      /**
        * @param float n
        */
       _myTrait_.redo = function (n) {
@@ -8014,9 +8095,7 @@
        * @param float a
        */
       _myTrait_.reverseCmd = function (a) {
-        console.log("reversing command ", a);
         if (!a) {
-          console.error("reversing undefined command ");
           return;
         }
         var c = _reverseCmds[a[0]];
@@ -8087,10 +8166,15 @@
       _myTrait_.writeLocalJournal = function (cmd) {
 
         if (this._journal) {
+
           // truncate on write if length > journalPointer
+
           if (this._journal.length > this._journalPointer) {
             this._journal.length = this._journalPointer;
           }
+
+          if (!cmd[5]) cmd[5] = new Date().getTime();
+
           this._journal.push(cmd);
           this._journalPointer++;
         }

@@ -7930,6 +7930,12 @@
         try {
           if (!this.isArray(a)) return false;
           var c = _cmds[a[0]];
+
+          if (this._playBackOnFn && !isRedo) {
+            // do not allow commands when playback is on
+            return false;
+          }
+
           if (c) {
             var rv = c.apply(this, [a, isRemote]);
 
@@ -8066,21 +8072,17 @@
 
         var journalLen = this._journal.length;
         var journal = this._journal.slice();
-        console.log(JSON.stringify(journal));
 
         this.reverseToLine(0); // start from the beginning :)
 
         var msStart = new Date().getTime();
-
-        // onFrame
-        // removeFrameFn
 
         var journal_index = 0,
             me = this,
             baseMs = firstMs;
 
         var rCnt = 0;
-        console.log("playback : journalLen ", journalLen);
+
         var frameFn = function frameFn() {
 
           var msNow = new Date().getTime();
@@ -8106,7 +8108,6 @@
             if (jDelta < delta) {
               // then should be executed
               try {
-                console.log(" calling redo ... ");
                 me.redo(1, journal);
               } catch (e) {
                 console.error(e);
@@ -8114,24 +8115,21 @@
               rCnt++;
               // console.log("doing redo");
             } else {
-              console.log("jDelta < delta ", i);
               break;
             }
 
             i++;
             lastCmdTime = jTime;
-            console.log(jTime, jDelta, delta, i);
           }
           journal_index = i;
           if (journal_index == len) {
             later().removeFrameFn(frameFn);
-            console.log("** playback done **");
-            console.log("playback : redo cnt ", rCnt);
             me._journal = journal;
+            me._playBackOnFn = null;
             deferMe.resolve(true);
           }
         };
-
+        this._playBackOnFn = frameFn;
         later().onFrame(frameFn);
         return deferMe;
       };
@@ -8154,7 +8152,6 @@
           }
           if (!cmd) return;
 
-          console.log("REDO " + JSON.stringify(cmd));
           var res = this.execCmd(cmd, false, true);
           if (res !== true) {
             console.error(res);

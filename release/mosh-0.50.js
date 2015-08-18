@@ -5771,6 +5771,16 @@
         return this._client.getChannelData();
       };
 
+      /**
+       * @param float t
+       */
+      _myTrait_.getJournal = function (t) {
+        var d = this.getChannelData();
+
+        // make a copy of the journal, just in case
+        return d._journal.slice();
+      };
+
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (data, options, client) {
@@ -8069,10 +8079,15 @@
         var maxDelay = options.ms || 2000; // max delay on the playback, if the ms loop has some delays
 
         // then start the playback using the current journal buffer
+        var journal;
+        if (options.journal) {
+          journal = options.journal;
+        } else {
+          journal = this._journal.slice();
+        }
+        var journalLen = journal.length;
 
-        var journalLen = this._journal.length;
-        var journal = this._journal.slice();
-
+        // starting from beginning may change in the future
         this.reverseToLine(0); // start from the beginning :)
 
         var msStart = new Date().getTime();

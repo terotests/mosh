@@ -731,6 +731,7 @@ pwFs.then(
 - [fork](README.md#_data_fork)
 - [getChannelClient](README.md#_data_getChannelClient)
 - [getChannelData](README.md#_data_getChannelData)
+- [getJournal](README.md#_data_getJournal)
 - [patch](README.md#_data_patch)
 - [playback](README.md#_data_playback)
 - [reconnect](README.md#_data_reconnect)
@@ -6787,6 +6788,16 @@ return this._client;
 return this._client.getChannelData();
 ```
 
+### <a name="_data_getJournal"></a>_data::getJournal(t)
+
+
+```javascript
+var d = this.getChannelData();
+
+// make a copy of the journal, just in case
+return d._journal.slice();
+```
+
 ### _data::constructor( data, options, client )
 
 ```javascript
@@ -10983,10 +10994,15 @@ if(!firstMs) {
 var maxDelay = options.ms || 2000; // max delay on the playback, if the ms loop has some delays
 
 // then start the playback using the current journal buffer
+var journal;
+if(options.journal) {
+    journal = options.journal;
+} else {
+    journal = this._journal.slice();
+}
+var journalLen = journal.length;
 
-var journalLen = this._journal.length;
-var journal = this._journal.slice();
-
+// starting from beginning may change in the future
 this.reverseToLine(0); // start from the beginning :)
 
 var msStart = (new Date()).getTime();
@@ -10994,7 +11010,6 @@ var msStart = (new Date()).getTime();
 var journal_index = 0,
     me = this,
     baseMs = firstMs;
-
 
 var rCnt = 0;
 

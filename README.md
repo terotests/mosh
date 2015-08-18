@@ -948,6 +948,7 @@ pwFs.then(
 - [_find](README.md#_channelData__find)
 - [_findObjects](README.md#_channelData__findObjects)
 - [_getObjectHash](README.md#_channelData__getObjectHash)
+- [_getRemovedHash](README.md#_channelData__getRemovedHash)
 - [_prepareData](README.md#_channelData__prepareData)
 - [_wCmd](README.md#_channelData__wCmd)
 - [_wrapData](README.md#_channelData__wrapData)
@@ -987,6 +988,7 @@ pwFs.then(
 - [_fireListener](README.md#commad_trait__fireListener)
 - [_moveCmdListToParent](README.md#commad_trait__moveCmdListToParent)
 - [_reverse_aceCmd](README.md#commad_trait__reverse_aceCmd)
+- [_reverse_createArray](README.md#commad_trait__reverse_createArray)
 - [_reverse_createObject](README.md#commad_trait__reverse_createObject)
 - [_reverse_moveToIndex](README.md#commad_trait__reverse_moveToIndex)
 - [_reverse_pushToArray](README.md#commad_trait__reverse_pushToArray)
@@ -6282,6 +6284,7 @@ if(!_objectCache) _objectCache = {};
 
 if(this.isObject(data)) {
     if(data.data && data.__id) {
+        
         var oo = _objectCache[data.__id];
         if(oo) {
             // console.log("did find object "+data.__id+" from cache");
@@ -6395,8 +6398,11 @@ if(!_workersDone) {
                 }
             }            
         },        
-        "_d_rem" : function(cmd, options) {        
+        "_d_rem" : function(cmd, options) {      
+            
             options.target.trigger("remove", cmd[1]);
+            // delete _objectCache[cmd[1]]; 
+            // remove the object from the object cache
         },
         "_to_ch" : function(cmd, options) {
             // new object has been inserted to this channel
@@ -9664,7 +9670,10 @@ var newObj = {
 
 
 ```javascript
-return this._objectHash[id];
+var o = this._objectHash[id];
+if(o) return o;
+return this._removedHash[id];
+
 ```
 
 ### <a name="_channelData__findObjects"></a>_channelData::_findObjects(data, parentId, whenReady)
@@ -9707,6 +9716,13 @@ return data;
 
 ```javascript
 return this._objectHash;
+```
+
+### <a name="_channelData__getRemovedHash"></a>_channelData::_getRemovedHash(t)
+
+
+```javascript
+return this._removedHash;
 ```
 
 ### <a name="_channelData__prepareData"></a>_channelData::_prepareData(data)
@@ -9886,6 +9902,7 @@ The format of the main data is as follows :
 */
 if(!this._objectHash) {
     this._objectHash = {};
+    this._removedHash = {};
 }
 
 var me = this;
@@ -10075,7 +10092,16 @@ if(hash[objId]) return {
     text  : "Object with same ID ("+objId+") was alredy created"
 };
 
-var newObj = { data : [], __id : objId };
+var newObj;
+var _removedHash = this._getRemovedHash();
+
+if(_removedHash[objId]) {
+    newObj = _removedHash[objId];
+    newObj.__p = null;
+} else {
+    newObj = { data : [], __id : objId };
+}
+// var newObj = { data : [], __id : objId };
 hash[newObj.__id] = newObj;
 
 // it is orphan object...
@@ -10107,8 +10133,15 @@ if(hash[objId]) return {
     cmd   : a,
     text  : "Object with same ID ("+objId+") was alredy created"
 };
+var newObj;
+var _removedHash = this._getRemovedHash();
 
-var newObj = { data : {}, __id : objId };
+if(_removedHash[objId]) {
+    newObj = _removedHash[objId];
+    newObj.__p = null;
+} else {
+    newObj = { data : {}, __id : objId };
+}
 hash[newObj.__id] = newObj;
 
 // it is orphan object...
@@ -10313,6 +10346,8 @@ if( oldPosition  != index ) return {
         text  : "oldPosition was not same as current position"
     };
 
+var _removedHash = this._getRemovedHash();
+_removedHash[a[2]] = removedItem;
 // now the object is in the array...
 parentObj.data.splice( index, 1 );
 
@@ -10558,6 +10593,27 @@ this._cmd(tmpCmd2);
 
 ```
 
+### <a name="commad_trait__reverse_createArray"></a>commad_trait::_reverse_createArray(a)
+
+
+```javascript
+var objId =  a[1];
+var hash = this._getObjectHash();
+
+var o = hash[objId];
+var _removedHash = this._getRemovedHash();
+_removedHash[objId] = o;
+
+delete hash[objId];
+
+var ii = this._data.__orphan.indexOf(o);
+
+if(ii>=0) {
+    this._data.__orphan.splice(ii,1);
+}
+
+```
+
 ### <a name="commad_trait__reverse_createObject"></a>commad_trait::_reverse_createObject(a)
 
 
@@ -10566,6 +10622,8 @@ var objId =  a[1];
 var hash = this._getObjectHash();
 
 var o = hash[objId];
+var _removedHash = this._getRemovedHash();
+_removedHash[objId] = o;
 
 delete hash[objId];
 
@@ -10881,6 +10939,7 @@ if(!_cmds) {
     _cmds[13] = this._cmd_aceCmd;
     
     _reverseCmds[1] = this._reverse_createObject;
+    _reverseCmds[2] = this._reverse_createArray;
     _reverseCmds[3] = this._reverse_setMeta;
     _reverseCmds[4] = this._reverse_setProperty;
     _reverseCmds[5] = this._reverse_setPropertyObject;
@@ -10919,6 +10978,10 @@ var maxDelay = options.ms || 2000; // max delay on the playback, if the ms loop 
 
 // then start the playback using the current journal buffer
 
+var journalLen = this._journal.length;
+var journal = this._journal.slice();
+console.log(JSON.stringify(journal));
+
 this.reverseToLine(0); // start from the beginning :)
 
 var msStart = (new Date()).getTime();
@@ -10930,16 +10993,19 @@ var journal_index = 0,
     me = this,
     baseMs = firstMs;
 
+
+var rCnt = 0;
+console.log("playback : journalLen ", journalLen);
 var frameFn = function() {
     
     var msNow = (new Date()).getTime();
     var delta = msNow - msStart; // <- time elapsed from beginng
-    var len = me._journal.length;
+    var len = journalLen;
     var lastCmdTime;
     
     for(var i=journal_index; i<len; ) {
     
-        var jTime = me._journal[i][5], // ms,
+        var jTime = journal[i][5], // ms,
             jDelta = jTime - baseMs;
         
         
@@ -10950,22 +11016,34 @@ var frameFn = function() {
             baseMs = newStartTime;
             jDelta = jTime - baseMs;
         }
-        console.log(jTime, msNow, jDelta, delta);
+        // console.log(jTime, msNow, jDelta, delta);
         // test if the command should have been executd
         if(jDelta < delta) {
             // then should be executed
-            me.redo(1);
-            console.log("doing redo");
+            try {
+                console.log(" calling redo ... ");
+                me.redo(1, journal);
+            } catch(e) {
+                console.error(e);
+            }
+            rCnt++;
+            // console.log("doing redo");
         } else {
+            console.log("jDelta < delta ", i);
             break;
         }
+        
         i++;
         lastCmdTime = jTime;
+        console.log(jTime, jDelta, delta, i);
         
     }
     journal_index = i;
     if(journal_index == len) {
         later().removeFrameFn( frameFn );
+        console.log("** playback done **")
+        console.log("playback : redo cnt ", rCnt);
+        me._journal = journal;
         deferMe.resolve(true);
     }
 }
@@ -10976,7 +11054,7 @@ return deferMe;
 
 ```
 
-### <a name="commad_trait_redo"></a>commad_trait::redo(n)
+### <a name="commad_trait_redo"></a>commad_trait::redo(n, journal)
 
 
 ```javascript
@@ -10985,10 +11063,19 @@ var line = this.getJournalLine();
 n = n || 1;
 while( (n--) > 0 ) {
     
-    var cmd = this._journal[line];
+    var cmd;
+    if(journal) {
+        cmd = journal[line];
+    } else {
+        cmd = this._journal[line];
+    }
     if(!cmd) return;
     
-    this.execCmd( cmd, false, true );
+    console.log("REDO "+JSON.stringify(cmd));
+    var res = this.execCmd( cmd, false, true );
+    if(res !== true) {
+        console.error(res);
+    }
     line++;
     this._journalPointer++;
 }

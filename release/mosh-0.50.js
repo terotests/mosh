@@ -5277,6 +5277,7 @@
 
         if (this.isObject(data)) {
           if (data.data && data.__id) {
+
             var oo = _objectCache[data.__id];
             if (oo) {
               // console.log("did find object "+data.__id+" from cache");
@@ -5386,7 +5387,10 @@
               }
             },
             "_d_rem": function _d_rem(cmd, options) {
+
               options.target.trigger("remove", cmd[1]);
+              // delete _objectCache[cmd[1]];
+              // remove the object from the object cache
             },
             "_to_ch": function _to_ch(cmd, options) {
               // new object has been inserted to this channel
@@ -7197,10 +7201,19 @@
           text: "Object with same ID (" + objId + ") was alredy created"
         };
 
-        var newObj = {
-          data: [],
-          __id: objId
-        };
+        var newObj;
+        var _removedHash = this._getRemovedHash();
+
+        if (_removedHash[objId]) {
+          newObj = _removedHash[objId];
+          newObj.__p = null;
+        } else {
+          newObj = {
+            data: [],
+            __id: objId
+          };
+        }
+        // var newObj = { data : [], __id : objId };
         hash[newObj.__id] = newObj;
 
         // it is orphan object...
@@ -7231,11 +7244,18 @@
           cmd: a,
           text: "Object with same ID (" + objId + ") was alredy created"
         };
+        var newObj;
+        var _removedHash = this._getRemovedHash();
 
-        var newObj = {
-          data: {},
-          __id: objId
-        };
+        if (_removedHash[objId]) {
+          newObj = _removedHash[objId];
+          newObj.__p = null;
+        } else {
+          newObj = {
+            data: {},
+            __id: objId
+          };
+        }
         hash[newObj.__id] = newObj;
 
         // it is orphan object...
@@ -7432,6 +7452,8 @@
           text: "oldPosition was not same as current position"
         };
 
+        var _removedHash = this._getRemovedHash();
+        _removedHash[a[2]] = removedItem;
         // now the object is in the array...
         parentObj.data.splice(index, 1);
 
@@ -7668,11 +7690,33 @@
       /**
        * @param float a
        */
+      _myTrait_._reverse_createArray = function (a) {
+        var objId = a[1];
+        var hash = this._getObjectHash();
+
+        var o = hash[objId];
+        var _removedHash = this._getRemovedHash();
+        _removedHash[objId] = o;
+
+        delete hash[objId];
+
+        var ii = this._data.__orphan.indexOf(o);
+
+        if (ii >= 0) {
+          this._data.__orphan.splice(ii, 1);
+        }
+      };
+
+      /**
+       * @param float a
+       */
       _myTrait_._reverse_createObject = function (a) {
         var objId = a[1];
         var hash = this._getObjectHash();
 
         var o = hash[objId];
+        var _removedHash = this._getRemovedHash();
+        _removedHash[objId] = o;
 
         delete hash[objId];
 
@@ -7982,6 +8026,7 @@
           _cmds[13] = this._cmd_aceCmd;
 
           _reverseCmds[1] = this._reverse_createObject;
+          _reverseCmds[2] = this._reverse_createArray;
           _reverseCmds[3] = this._reverse_setMeta;
           _reverseCmds[4] = this._reverse_setProperty;
           _reverseCmds[5] = this._reverse_setPropertyObject;
@@ -8019,6 +8064,10 @@
 
         // then start the playback using the current journal buffer
 
+        var journalLen = this._journal.length;
+        var journal = this._journal.slice();
+        console.log(JSON.stringify(journal));
+
         this.reverseToLine(0); // start from the beginning :)
 
         var msStart = new Date().getTime();
@@ -8030,16 +8079,18 @@
             me = this,
             baseMs = firstMs;
 
+        var rCnt = 0;
+        console.log("playback : journalLen ", journalLen);
         var frameFn = function frameFn() {
 
           var msNow = new Date().getTime();
           var delta = msNow - msStart; // <- time elapsed from beginng
-          var len = me._journal.length;
+          var len = journalLen;
           var lastCmdTime;
 
           for (var i = journal_index; i < len;) {
 
-            var jTime = me._journal[i][5],
+            var jTime = journal[i][5],
                 // ms,
             jDelta = jTime - baseMs;
 
@@ -8050,21 +8101,33 @@
               baseMs = newStartTime;
               jDelta = jTime - baseMs;
             }
-            console.log(jTime, msNow, jDelta, delta);
+            // console.log(jTime, msNow, jDelta, delta);
             // test if the command should have been executd
             if (jDelta < delta) {
               // then should be executed
-              me.redo(1);
-              console.log("doing redo");
+              try {
+                console.log(" calling redo ... ");
+                me.redo(1, journal);
+              } catch (e) {
+                console.error(e);
+              }
+              rCnt++;
+              // console.log("doing redo");
             } else {
+              console.log("jDelta < delta ", i);
               break;
             }
+
             i++;
             lastCmdTime = jTime;
+            console.log(jTime, jDelta, delta, i);
           }
           journal_index = i;
           if (journal_index == len) {
             later().removeFrameFn(frameFn);
+            console.log("** playback done **");
+            console.log("playback : redo cnt ", rCnt);
+            me._journal = journal;
             deferMe.resolve(true);
           }
         };
@@ -8075,17 +8138,27 @@
 
       /**
        * @param float n
+       * @param float journal
        */
-      _myTrait_.redo = function (n) {
+      _myTrait_.redo = function (n, journal) {
         // if one line in buffer line == 1
         var line = this.getJournalLine();
         n = n || 1;
         while (n-- > 0) {
 
-          var cmd = this._journal[line];
+          var cmd;
+          if (journal) {
+            cmd = journal[line];
+          } else {
+            cmd = this._journal[line];
+          }
           if (!cmd) return;
 
-          this.execCmd(cmd, false, true);
+          console.log("REDO " + JSON.stringify(cmd));
+          var res = this.execCmd(cmd, false, true);
+          if (res !== true) {
+            console.error(res);
+          }
           line++;
           this._journalPointer++;
         }
@@ -8386,7 +8459,9 @@
        * @param float id
        */
       _myTrait_._find = function (id) {
-        return this._objectHash[id];
+        var o = this._objectHash[id];
+        if (o) return o;
+        return this._removedHash[id];
       };
 
       /**
@@ -8431,6 +8506,13 @@
        */
       _myTrait_._getObjectHash = function (t) {
         return this._objectHash;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._getRemovedHash = function (t) {
+        return this._removedHash;
       };
 
       /**
@@ -8609,6 +8691,7 @@
         */
         if (!this._objectHash) {
           this._objectHash = {};
+          this._removedHash = {};
         }
 
         var me = this;

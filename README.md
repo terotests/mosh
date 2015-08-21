@@ -11127,12 +11127,14 @@ var pulseMs = options.ms || 400;
 
 var idx = this.getJournalLine(); 
 
-var firstMs = this._journal[idx-1][5]; 
+if(!this._journal[idx]) return;
+
+var firstMs = this._journal[idx][5]; 
 var stepCnt = 0;
 
 // stepping the problem forward...
-while(this._journal[idx-1]) {
-    var ms = this._journal[idx-1][5]; 
+while(this._journal[idx]) {
+    var ms = this._journal[idx][5]; 
     var diff = Math.abs( ms - firstMs );
     if(diff > pulseMs) break;
     idx++;

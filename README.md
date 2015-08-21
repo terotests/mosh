@@ -11,6 +11,10 @@ Testing with React
 ES7 Object.observe testing
 
  * http://jsfiddle.net/pekyLrqn/
+
+Some routing testing with _e()
+
+ * http://jsfiddle.net/30jag1uq/2/
  
  
 
@@ -797,6 +801,7 @@ pwFs.then(
 - [toData](README.md#_dataTrait_toData)
 - [toPlainData](README.md#_dataTrait_toPlainData)
 - [undo](README.md#_dataTrait_undo)
+- [undoStep](README.md#_dataTrait_undoStep)
 - [unset](README.md#_dataTrait_unset)
 - [upgradeVersion](README.md#_dataTrait_upgradeVersion)
 
@@ -1010,6 +1015,7 @@ pwFs.then(
 - [reverseToLine](README.md#commad_trait_reverseToLine)
 - [setHotMs](README.md#commad_trait_setHotMs)
 - [undo](README.md#commad_trait_undo)
+- [undoStep](README.md#commad_trait_undoStep)
 - [writeCommand](README.md#commad_trait_writeCommand)
 - [writeLocalJournal](README.md#commad_trait_writeLocalJournal)
 
@@ -1376,6 +1382,7 @@ pwFs.then(
 - [set](README.md#channelClient_set)
 - [setObject](README.md#channelClient_setObject)
 - [undo](README.md#channelClient_undo)
+- [undoStep](README.md#channelClient_undoStep)
 - [unset](README.md#channelClient_unset)
 - [upgradeVersion](README.md#channelClient_upgradeVersion)
 
@@ -7953,6 +7960,14 @@ this._client.undo(cnt);
 return this;
 ```
 
+### <a name="_dataTrait_undoStep"></a>_dataTrait::undoStep(options)
+
+
+```javascript
+this._client.undoStep(options);
+return this;
+```
+
 ### <a name="_dataTrait_unset"></a>_dataTrait::unset(name)
 
 
@@ -11153,6 +11168,32 @@ if(typeof(n)=="undefined") n = 1;
 
 this.reverseNLines( n );
 
+```
+
+### <a name="commad_trait_undoStep"></a>commad_trait::undoStep(options)
+
+
+```javascript
+
+options = options || {};
+var pulseMs = options.ms || 400;
+
+var idx = this._journal.length;
+if(idx==0) return;
+
+var firstMs = this._journal[idx-1][5]; 
+var stepCnt = 0;
+
+// stepping the problem forward...
+while((idx-1) >= 0) {
+    var ms = this._journal[idx-1][5]; 
+    var diff = Math.abs( ms - firstMs );
+    if(diff > pulseMs) break;
+    idx--;
+    stepCnt++;
+}
+
+if(stepCnt > 0 ) this.undo( stepCnt );
 ```
 
 ### <a name="commad_trait_writeCommand"></a>commad_trait::writeCommand(t)
@@ -15011,6 +15052,13 @@ if(obj && this.isObject(propObj) && propObj.__id) {
 
 ```javascript
 this._data.undo(cnt);
+```
+
+### <a name="channelClient_undoStep"></a>channelClient::undoStep(options)
+
+
+```javascript
+this._data.undoStep(options);
 ```
 
 ### <a name="channelClient_unset"></a>channelClient::unset(id, name)

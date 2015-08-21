@@ -4932,6 +4932,14 @@
       };
 
       /**
+       * @param float options
+       */
+      _myTrait_.undoStep = function (options) {
+        this._client.undoStep(options);
+        return this;
+      };
+
+      /**
        * @param float name
        */
       _myTrait_.unset = function (name) {
@@ -8239,6 +8247,32 @@
         if (typeof n == "undefined") n = 1;
 
         this.reverseNLines(n);
+      };
+
+      /**
+       * @param Object options
+       */
+      _myTrait_.undoStep = function (options) {
+
+        options = options || {};
+        var pulseMs = options.ms || 400;
+
+        var idx = this._journal.length;
+        if (idx == 0) return;
+
+        var firstMs = this._journal[idx - 1][5];
+        var stepCnt = 0;
+
+        // stepping the problem forward...
+        while (idx - 1 >= 0) {
+          var ms = this._journal[idx - 1][5];
+          var diff = Math.abs(ms - firstMs);
+          if (diff > pulseMs) break;
+          idx--;
+          stepCnt++;
+        }
+
+        if (stepCnt > 0) this.undo(stepCnt);
       };
 
       /**
@@ -13040,6 +13074,13 @@
        */
       _myTrait_.undo = function (cnt) {
         this._data.undo(cnt);
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.undoStep = function (options) {
+        this._data.undoStep(options);
       };
 
       /**

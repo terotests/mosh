@@ -4788,6 +4788,14 @@
       };
 
       /**
+       * @param float options
+       */
+      _myTrait_.redoStep = function (options) {
+        this._client.undoStep(options);
+        return this;
+      };
+
+      /**
        * @param float t
        */
       _myTrait_.remove = function (t) {
@@ -8185,6 +8193,30 @@
       };
 
       /**
+       * @param float options
+       */
+      _myTrait_.redoStep = function (options) {
+        options = options || {};
+        var pulseMs = options.ms || 400;
+
+        var idx = this.getJournalLine();
+
+        var firstMs = this._journal[idx - 1][5];
+        var stepCnt = 0;
+
+        // stepping the problem forward...
+        while (this._journal[idx - 1]) {
+          var ms = this._journal[idx - 1][5];
+          var diff = Math.abs(ms - firstMs);
+          if (diff > pulseMs) break;
+          idx++;
+          stepCnt++;
+        }
+
+        if (stepCnt > 0) this.redo(stepCnt);
+      };
+
+      /**
        * This function reverses a given command. There may be cases when the command parameters make the command itself non-reversable. It is the responsibility of the framework to make sure all commands remain reversable.
        * @param float a
        */
@@ -8257,7 +8289,8 @@
         options = options || {};
         var pulseMs = options.ms || 400;
 
-        var idx = this._journal.length;
+        var idx = this.getJournalLine();
+        // var idx = this._journal.length;
         if (idx == 0) return;
 
         var firstMs = this._journal[idx - 1][5];
@@ -13012,6 +13045,13 @@
        */
       _myTrait_.redo = function (cnt) {
         this._data.redo(cnt);
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.redoStep = function (options) {
+        this._data.undoStep(options);
       };
 
       /**

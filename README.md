@@ -793,6 +793,7 @@ pwFs.then(
 - [pop](README.md#_dataTrait_pop)
 - [push](README.md#_dataTrait_push)
 - [redo](README.md#_dataTrait_redo)
+- [redoStep](README.md#_dataTrait_redoStep)
 - [remove](README.md#_dataTrait_remove)
 - [removeListener](README.md#_dataTrait_removeListener)
 - [renderTemplate](README.md#_dataTrait_renderTemplate)
@@ -1010,6 +1011,7 @@ pwFs.then(
 - [getLocalJournal](README.md#commad_trait_getLocalJournal)
 - [playback](README.md#commad_trait_playback)
 - [redo](README.md#commad_trait_redo)
+- [redoStep](README.md#commad_trait_redoStep)
 - [reverseCmd](README.md#commad_trait_reverseCmd)
 - [reverseNLines](README.md#commad_trait_reverseNLines)
 - [reverseToLine](README.md#commad_trait_reverseToLine)
@@ -1378,6 +1380,7 @@ pwFs.then(
 - [moveUp](README.md#channelClient_moveUp)
 - [reconnect](README.md#channelClient_reconnect)
 - [redo](README.md#channelClient_redo)
+- [redoStep](README.md#channelClient_redoStep)
 - [remove](README.md#channelClient_remove)
 - [set](README.md#channelClient_set)
 - [setObject](README.md#channelClient_setObject)
@@ -7816,6 +7819,14 @@ this._client.redo(cnt);
 return this;
 ```
 
+### <a name="_dataTrait_redoStep"></a>_dataTrait::redoStep(options)
+
+
+```javascript
+this._client.undoStep(options);
+return this;
+```
+
 ### <a name="_dataTrait_remove"></a>_dataTrait::remove(t)
 
 
@@ -11107,6 +11118,30 @@ while( (n--) > 0 ) {
 }
 ```
 
+### <a name="commad_trait_redoStep"></a>commad_trait::redoStep(options)
+
+
+```javascript
+options = options || {};
+var pulseMs = options.ms || 400;
+
+var idx = this.getJournalLine(); 
+
+var firstMs = this._journal[idx-1][5]; 
+var stepCnt = 0;
+
+// stepping the problem forward...
+while(this._journal[idx-1]) {
+    var ms = this._journal[idx-1][5]; 
+    var diff = Math.abs( ms - firstMs );
+    if(diff > pulseMs) break;
+    idx++;
+    stepCnt++;
+}
+
+if(stepCnt > 0 ) this.redo( stepCnt );
+```
+
 ### <a name="commad_trait_reverseCmd"></a>commad_trait::reverseCmd(a)
 
 This function reverses a given command. There may be cases when the command parameters make the command itself non-reversable. It is the responsibility of the framework to make sure all commands remain reversable.
@@ -11178,7 +11213,8 @@ this.reverseNLines( n );
 options = options || {};
 var pulseMs = options.ms || 400;
 
-var idx = this._journal.length;
+var idx = this.getJournalLine(); 
+// var idx = this._journal.length;
 if(idx==0) return;
 
 var firstMs = this._journal[idx-1][5]; 
@@ -14988,6 +15024,13 @@ return this;
 
 ```javascript
 this._data.redo(cnt);
+```
+
+### <a name="channelClient_redoStep"></a>channelClient::redoStep(options)
+
+
+```javascript
+this._data.undoStep(options);
 ```
 
 ### <a name="channelClient_remove"></a>channelClient::remove(id)

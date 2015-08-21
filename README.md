@@ -16,6 +16,10 @@ Some routing testing with _e()
 
  * http://jsfiddle.net/30jag1uq/2/
  
+Undo and Redo testing with displayView
+
+ * http://jsfiddle.net/kuc9d45q/2/
+ 
  
 
 # Objects without the data channel

@@ -7823,7 +7823,7 @@ return this;
 
 
 ```javascript
-this._client.undoStep(options);
+this._client.redoStep(options);
 return this;
 ```
 
@@ -15030,7 +15030,7 @@ this._data.redo(cnt);
 
 
 ```javascript
-this._data.undoStep(options);
+this._data.redoStep(options);
 ```
 
 ### <a name="channelClient_remove"></a>channelClient::remove(id)

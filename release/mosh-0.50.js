@@ -4791,7 +4791,7 @@
        * @param float options
        */
       _myTrait_.redoStep = function (options) {
-        this._client.undoStep(options);
+        this._client.redoStep(options);
         return this;
       };
 
@@ -13051,7 +13051,7 @@
        * @param float options
        */
       _myTrait_.redoStep = function (options) {
-        this._data.undoStep(options);
+        this._data.redoStep(options);
       };
 
       /**

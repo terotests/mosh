@@ -5919,6 +5919,25 @@
       };
 
       /**
+       * @param string channelURL
+       */
+      _myTrait_.openChannel = function (channelURL) {
+        // fork
+
+        var me = this;
+        return _promise(function (result) {
+          var req = me._request;
+          var myD = _data(channelURL, me._initOptions);
+          myD.then(function () {
+            result({
+              result: true,
+              channel: myD
+            });
+          });
+        });
+      };
+
+      /**
        * @param float cmds
        */
       _myTrait_.patch = function (cmds) {

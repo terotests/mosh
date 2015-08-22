@@ -744,6 +744,7 @@ pwFs.then(
 - [getChannelData](README.md#_data_getChannelData)
 - [getJournal](README.md#_data_getJournal)
 - [localFork](README.md#_data_localFork)
+- [openChannel](README.md#_data_openChannel)
 - [patch](README.md#_data_patch)
 - [playback](README.md#_data_playback)
 - [reconnect](README.md#_data_reconnect)
@@ -6942,6 +6943,26 @@ var forkData = this.getData(true);
 
 return _data( forkData );
 
+
+```
+
+### <a name="_data_openChannel"></a>_data::openChannel(channelURL)
+
+
+```javascript
+// fork
+
+var me = this;
+return _promise( function(result) {
+    var req = me._request;
+    var myD = _data( channelURL, me._initOptions);
+    myD.then( function() {
+        result( {
+                result : true,
+                channel : myD
+            } ); 
+    });
+});
 
 ```
 

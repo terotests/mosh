@@ -5908,6 +5908,17 @@
       });
 
       /**
+       * @param float t
+       */
+      _myTrait_.localFork = function (t) {
+
+        // _transformObjFromNs
+        var forkData = this.getData(true);
+
+        return _data(forkData);
+      };
+
+      /**
        * @param float cmds
        */
       _myTrait_.patch = function (cmds) {

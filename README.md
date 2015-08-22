@@ -20,6 +20,9 @@ Undo and Redo testing with displayView
 
  * http://jsfiddle.net/kuc9d45q/2/
  
+Local forking test
+
+ * http://jsfiddle.net/wchc0y5r/
  
 
 # Objects without the data channel
@@ -740,6 +743,7 @@ pwFs.then(
 - [getChannelClient](README.md#_data_getChannelClient)
 - [getChannelData](README.md#_data_getChannelData)
 - [getJournal](README.md#_data_getJournal)
+- [localFork](README.md#_data_localFork)
 - [patch](README.md#_data_patch)
 - [playback](README.md#_data_playback)
 - [reconnect](README.md#_data_reconnect)
@@ -6928,6 +6932,19 @@ if(typeof( data ) == "string") {
 
 ```
         
+### <a name="_data_localFork"></a>_data::localFork(t)
+
+
+```javascript
+
+// _transformObjFromNs
+var forkData = this.getData(true);
+
+return _data( forkData );
+
+
+```
+
 ### <a name="_data_patch"></a>_data::patch(cmds)
 
 

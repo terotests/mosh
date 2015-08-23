@@ -5334,6 +5334,16 @@
       /**
        * @param float t
        */
+      _myTrait_._findConnOptions = function (t) {
+        if (this._connectionOptions) return this._connectionOptions;
+
+        var p = this.parent();
+        if (p) return p._findConnOptions();
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_._initWorkers = function (t) {
         var me = this;
         if (!_workersDone) {
@@ -5739,6 +5749,26 @@
       };
 
       /**
+       * @param function fn
+       */
+      _myTrait_.filter = function (fn) {
+        // ??? creating new array of the data.. ???
+
+        // => mapping the data to new array
+        var me = this;
+        var newArr = _data([]);
+        newArr.then(function () {
+          me.forEach(function (item) {
+            if (fn(item)) {
+              newArr.push(item.getData(true));
+            }
+          });
+        });
+
+        return newArr;
+      };
+
+      /**
        * @param string newChannelId
        * @param string description
        */
@@ -5828,7 +5858,7 @@
           if (options.ioLib) {
             console.log("had ioLib");
           }
-
+          this._connectionOptions = options;
           this._socket = _clientSocket(req.protocol + "://" + req.ip, req.port, options.ioLib);
           var opts = {};
           if (options.auth) {
@@ -5919,6 +5949,26 @@
       };
 
       /**
+       * This function is currently under construction
+       * @param float fn
+       */
+      _myTrait_.map = function (fn) {
+        // ??? creating new array of the data.. ???
+
+        console.error("map is not implemented");
+        return;
+
+        // => mapping the data to new array
+        var me = this;
+        return _promise(function (res) {
+          var newArr = _data([]);
+          newArr.then(function () {
+            me.forEach(function (item) {});
+          });
+        });
+      };
+
+      /**
        * @param string channelURL
        */
       _myTrait_.openChannel = function (channelURL) {
@@ -5927,7 +5977,7 @@
         var me = this;
         return _promise(function (result) {
           var req = me._request;
-          var myD = _data(channelURL, me._initOptions);
+          var myD = _data(channelURL, me._findConnOptions());
           myD.then(function () {
             result({
               result: true,

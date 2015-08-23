@@ -5749,26 +5749,6 @@
       };
 
       /**
-       * @param function fn
-       */
-      _myTrait_.filter = function (fn) {
-        // ??? creating new array of the data.. ???
-
-        // => mapping the data to new array
-        var me = this;
-        var newArr = _data([]);
-        newArr.then(function () {
-          me.forEach(function (item) {
-            if (fn(item)) {
-              newArr.push(item.getData(true));
-            }
-          });
-        });
-
-        return newArr;
-      };
-
-      /**
        * @param string newChannelId
        * @param string description
        */
@@ -5946,26 +5926,6 @@
         var forkData = this.getData(true);
 
         return _data(forkData);
-      };
-
-      /**
-       * This function is currently under construction
-       * @param float fn
-       */
-      _myTrait_.map = function (fn) {
-        // ??? creating new array of the data.. ???
-
-        console.error("map is not implemented");
-        return;
-
-        // => mapping the data to new array
-        var me = this;
-        return _promise(function (res) {
-          var newArr = _data([]);
-          newArr.then(function () {
-            me.forEach(function (item) {});
-          });
-        });
       };
 
       /**

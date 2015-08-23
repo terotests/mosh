@@ -740,13 +740,11 @@ pwFs.then(
 - [createSubClass](README.md#_data_createSubClass)
 - [diff](README.md#_data_diff)
 - [disconnect](README.md#_data_disconnect)
-- [filter](README.md#_data_filter)
 - [fork](README.md#_data_fork)
 - [getChannelClient](README.md#_data_getChannelClient)
 - [getChannelData](README.md#_data_getChannelData)
 - [getJournal](README.md#_data_getJournal)
 - [localFork](README.md#_data_localFork)
-- [map](README.md#_data_map)
 - [openChannel](README.md#_data_openChannel)
 - [patch](README.md#_data_patch)
 - [playback](README.md#_data_playback)
@@ -6771,28 +6769,6 @@ if(this._client) {
 return this;
 ```
 
-### <a name="_data_filter"></a>_data::filter(fn)
-
-
-```javascript
-// ??? creating new array of the data.. ???
-
-// => mapping the data to new array
-var me = this;
-var newArr = _data([]);
-newArr.then( function() {
-    me.forEach( function(item) {
-        if(fn(item)) {
-            newArr.push( item.getData(true));
-        }
-    })
-});
-
-return newArr;
-
-
-```
-
 ### <a name="_data_fork"></a>_data::fork(newChannelId, description)
 
 
@@ -6977,29 +6953,6 @@ if(typeof( data ) == "string") {
 var forkData = this.getData(true);
 
 return _data( forkData );
-
-
-```
-
-### <a name="_data_map"></a>_data::map(fn)
-
-This function is currently under construction
-```javascript
-// ??? creating new array of the data.. ???
-
-console.error("map is not implemented");
-return;
-
-// => mapping the data to new array
-var me = this;
-return _promise( function(res) {
-    var newArr = _data([]);
-    newArr.then( function() {
-        me.forEach( function(item) {
-        
-        })
-    })
-});
 
 
 ```

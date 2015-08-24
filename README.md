@@ -14807,8 +14807,6 @@ return -1;
 
 ```javascript
 
-console.log("channelClient init starts");
-
 if(options && options.localChannel) {
     
     this._channelId = channelId;

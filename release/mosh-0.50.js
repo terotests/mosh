@@ -12823,8 +12823,6 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (channelId, socket, options) {
 
-        console.log("channelClient init starts");
-
         if (options && options.localChannel) {
 
           this._channelId = channelId;

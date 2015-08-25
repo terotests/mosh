@@ -24,6 +24,14 @@ Local forking test
 
  * http://jsfiddle.net/wchc0y5r/
  
+Testing Filter, map, reduce
+
+ * http://jsfiddle.net/avhpau46/3/
+
+Testing iteratino protokol
+
+ * http://jsfiddle.net/qcy61sj8/1/
+ 
 
 # Objects without the data channel
 

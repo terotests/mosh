@@ -4083,6 +4083,7 @@
           for (var n in data) {
             this[n] = _data(data[n], options, this._client);
           }
+          this._initIterator();
         } else {
           for (var n in data) {
             if (data.hasOwnProperty(n)) {
@@ -5339,6 +5340,32 @@
 
         var p = this.parent();
         if (p) return p._findConnOptions();
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._initIterator = function (t) {
+        var me = this;
+        if (typeof Symbol != "undefined" && typeof Symbol.iterator != "undefined") {
+          me[Symbol.iterator] = function () {
+            var idx = 0;
+            return { // this is the iterator object, returning a single element, the string "bye"
+              next: function next() {
+                var item = me.at(idx++);
+                if (item) {
+                  return {
+                    value: item,
+                    done: false
+                  };
+                } else {
+                  return {
+                    done: true
+                  };
+                }
+              } };
+          };
+        }
       };
 
       /**

@@ -731,6 +731,7 @@ pwFs.then(
 - [_atObserveEvent](README.md#_data__atObserveEvent)
 - [_classFactory](README.md#_data__classFactory)
 - [_findConnOptions](README.md#_data__findConnOptions)
+- [_initIterator](README.md#_data__initIterator)
 - [_initWorkers](README.md#_data__initWorkers)
 - [_objEventWorker](README.md#_data__objEventWorker)
 - [_parseURL](README.md#_data__parseURL)
@@ -6361,6 +6362,28 @@ var p = this.parent();
 if(p) return p._findConnOptions();
 ```
 
+### <a name="_data__initIterator"></a>_data::_initIterator(t)
+
+
+```javascript
+var me = this;
+if(typeof(Symbol) != "undefined" &&  typeof(Symbol.iterator) != "undefined") {
+    me[Symbol.iterator] = function() {
+      var idx  = 0;
+      return { // this is the iterator object, returning a single element, the string "bye"
+        next: function() {
+          var item = me.at(idx++);
+          if (item) {
+            return { value: item, done: false };
+          } else {
+            return { done: true };
+          }
+        },
+      };
+    };
+}
+```
+
 ### <a name="_data__initWorkers"></a>_data::_initWorkers(t)
 
 
@@ -6894,6 +6917,7 @@ if(typeof( data ) == "string") {
         me.addToCache( rawData.__id, me ); 
         
         me._initWorkers();
+        
 
         /*
         if(data && data.__id) {
@@ -7201,6 +7225,7 @@ if(data instanceof Array) {
     for(var n in data) {
         this[n] = _data(data[n], options, this._client);
     }   
+    this._initIterator();
     
 } else {
     for(var n in data) {

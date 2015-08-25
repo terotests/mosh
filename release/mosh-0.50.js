@@ -5898,21 +5898,23 @@
               localData: data
             });
 
+            // test - works without the local?
+
             this._client = chClient;
             var me = this;
-            this._client.then(function (resp) {
-              var rawData = me._client.getData();
-              if (!rawData) {
-                me.resolve(true);
-                return;
-              }
-              me._initializeData(rawData);
-              me.addToCache(rawData.__id, me);
-
-              me._initWorkers();
-
+            // this._client.then( function(resp) {
+            var rawData = me._client.getData();
+            if (!rawData) {
               me.resolve(true);
-            });
+              return;
+            }
+            me._initializeData(rawData);
+            me.addToCache(rawData.__id, me);
+
+            me._initWorkers();
+
+            me.resolve(true);
+            // });      
           }
         }
       });

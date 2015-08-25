@@ -5749,6 +5749,17 @@
       };
 
       /**
+       * @param function fn
+       */
+      _myTrait_.filter = function (fn) {
+        var newArr = _data([]);
+        this.localFork().forEach(function (item) {
+          if (fn(item)) newArr.push(item.toData(true));
+        });
+        return newArr;
+      };
+
+      /**
        * @param string newChannelId
        * @param string description
        */
@@ -5898,8 +5909,6 @@
               localData: data
             });
 
-            // test - works without the local?
-
             this._client = chClient;
             var me = this;
             // this._client.then( function(resp) {
@@ -5928,6 +5937,21 @@
         var forkData = this.getData(true);
 
         return _data(forkData);
+      };
+
+      /**
+       * @param function fn
+       */
+      _myTrait_.map = function (fn) {
+        var newArr = _data([]);
+        var localF = this.localFork();
+        var idx = 0;
+        this.localFork().forEach(function (item) {
+          var newObj = fn(item, idx, localF);
+          newArr.push(newObj);
+          idx++;
+        });
+        return newArr;
       };
 
       /**
@@ -5979,6 +6003,22 @@
           this._client.reconnect();
         }
         return this;
+      };
+
+      /**
+       * @param function fn
+       * @param Object initValue
+       */
+      _myTrait_.reduce = function (fn, initValue) {
+        var newArr = _data([]);
+        var idx = 0;
+        var localF = this.localFork();
+        var currentValue = initValue;
+        localF.forEach(function (item) {
+          currentValue = fn(currentValue, item, idx, localF);
+          idx++;
+        });
+        return currentValue;
       };
 
       /**

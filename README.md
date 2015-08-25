@@ -740,15 +740,18 @@ pwFs.then(
 - [createSubClass](README.md#_data_createSubClass)
 - [diff](README.md#_data_diff)
 - [disconnect](README.md#_data_disconnect)
+- [filter](README.md#_data_filter)
 - [fork](README.md#_data_fork)
 - [getChannelClient](README.md#_data_getChannelClient)
 - [getChannelData](README.md#_data_getChannelData)
 - [getJournal](README.md#_data_getJournal)
 - [localFork](README.md#_data_localFork)
+- [map](README.md#_data_map)
 - [openChannel](README.md#_data_openChannel)
 - [patch](README.md#_data_patch)
 - [playback](README.md#_data_playback)
 - [reconnect](README.md#_data_reconnect)
+- [reduce](README.md#_data_reduce)
 - [registerComponent](README.md#_data_registerComponent)
 
 
@@ -6769,6 +6772,17 @@ if(this._client) {
 return this;
 ```
 
+### <a name="_data_filter"></a>_data::filter(fn)
+
+
+```javascript
+var newArr = _data([]);
+this.localFork().forEach( function(item) {
+    if(fn(item)) newArr.push( item.toData(true) );
+})
+return newArr;
+```
+
 ### <a name="_data_fork"></a>_data::fork(newChannelId, description)
 
 
@@ -6921,7 +6935,7 @@ if(typeof( data ) == "string") {
 
         this._client = chClient;
         var me = this;
-        this._client.then( function(resp) {
+        // this._client.then( function(resp) {
             var rawData = me._client.getData();
             if(!rawData) {
                 me.resolve(true);
@@ -6933,7 +6947,7 @@ if(typeof( data ) == "string") {
             me._initWorkers();            
             
             me.resolve(true);
-        });        
+        // });        
     }
     
     
@@ -6955,6 +6969,21 @@ var forkData = this.getData(true);
 return _data( forkData );
 
 
+```
+
+### <a name="_data_map"></a>_data::map(fn)
+
+
+```javascript
+var newArr = _data([]);
+var localF = this.localFork();
+var idx=0;
+this.localFork().forEach( function(item) {
+    var newObj = fn(item, idx, localF);
+    newArr.push( newObj );
+    idx++;
+})
+return newArr;
 ```
 
 ### <a name="_data_openChannel"></a>_data::openChannel(channelURL)
@@ -7008,6 +7037,21 @@ if(this._client) {
     this._client.reconnect();
 }
 return this;
+```
+
+### <a name="_data_reduce"></a>_data::reduce(fn, initValue)
+
+
+```javascript
+var newArr = _data([]);
+var idx=0;
+var localF = this.localFork();
+var currentValue = initValue;
+localF.forEach( function(item) {
+    currentValue = fn(currentValue, item, idx, localF);
+    idx++;
+})
+return currentValue;
 ```
 
 ### <a name="_data_registerComponent"></a>_data::registerComponent(name, classDef)

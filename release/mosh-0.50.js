@@ -4488,7 +4488,7 @@
         if (!fn) {
           fn = arrayKeys;
         } else {
-          limit = arrayKeys.split(",");
+          var limit = arrayKeys.split(",");
           limit.forEach(function (k) {
             limitFilter[k.trim()] = true;
             bLimit = true;

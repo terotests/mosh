@@ -4479,6 +4479,44 @@
       };
 
       /**
+       * @param float arrayKeys
+       * @param float fn
+       */
+      _myTrait_.forTree = function (arrayKeys, fn) {
+        var limitFilter = {},
+            bLimit = false;
+        if (!fn) {
+          fn = arrayKeys;
+        } else {
+          limit = arrayKeys.split(",");
+          limit.forEach(function (k) {
+            limitFilter[k.trim()] = true;
+            bLimit = true;
+          });
+        }
+        fn(this);
+        var me = this;
+        if (this.isArray()) {
+          this.forEach(function (item) {
+            item.forTree(fn);
+          });
+        } else {
+          this.keys(function (key) {
+            if (bLimit) {
+              if (!limitFilter[key]) return;
+            }
+            if (me[key] && me.hasOwn(key)) {
+              var o = me[key];
+              if (o.forTree) {
+                o.forTree(fn);
+              }
+            }
+          });
+        }
+        return this;
+      };
+
+      /**
        * @param float name
        */
       _myTrait_.get = function (name) {

@@ -28,7 +28,7 @@ Testing Filter, map, reduce
 
  * http://jsfiddle.net/avhpau46/3/
 
-Testing iteratino protokol
+Testing iteration protokol
 
  * http://jsfiddle.net/qcy61sj8/1/
  
@@ -792,6 +792,7 @@ pwFs.then(
 - [extendWith](README.md#_dataTrait_extendWith)
 - [find](README.md#_dataTrait_find)
 - [forEach](README.md#_dataTrait_forEach)
+- [forTree](README.md#_dataTrait_forTree)
 - [get](README.md#_dataTrait_get)
 - [getData](README.md#_dataTrait_getData)
 - [getID](README.md#_dataTrait_getID)
@@ -7627,6 +7628,45 @@ return null;
 this._docData.data.forEach( function(d) {
     fn(_data(d));
 });
+
+
+```
+
+### <a name="_dataTrait_forTree"></a>_dataTrait::forTree(arrayKeys, fn)
+
+
+```javascript
+var limitFilter = {}, bLimit = false;
+if(!fn) {
+    fn = arrayKeys;
+} else {
+    var limit = arrayKeys.split(",");
+    limit.forEach( function(k) {
+         limitFilter[k.trim()] = true;
+         bLimit = true;
+    });
+}
+fn(this);
+var me = this;
+if(this.isArray()) {
+    this.forEach(function(item) {
+        item.forTree( fn );
+    })
+} else {
+     this.keys(function(key) {
+        if(bLimit) {
+            if(!limitFilter[key]) return;
+        }
+        if(me[key] && me.hasOwn(key)) {
+            var o = me[key];
+            if(o.forTree) {
+                o.forTree(fn);
+            }
+        }
+        
+    })   
+}
+return this;
 
 
 ```

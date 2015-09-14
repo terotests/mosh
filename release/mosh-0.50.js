@@ -11515,7 +11515,8 @@
         me._model.syncData().then(function (data) {
 
           if (data) {
-
+            console.log("Sync data");
+            console.log(data);
             var connData = JSON.parse(data);
             var outConn = connData.out,
                 inConn = connData["in"];

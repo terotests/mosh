@@ -11511,88 +11511,73 @@
        */
       _myTrait_._startSync = function (t) {
         var me = this;
-        // --> test also if the channel has a master server
-        me._model.syncData().then(function (data) {
 
-          if (data) {
-            console.log("Sync data");
-            console.log(data);
-            var connData = JSON.parse(data);
-            var outConn = connData.out,
-                inConn = connData["in"];
-            // there is a slave <-> master connection, should create the sync between the two
-            // channels around here for some client which takes care of sending the data...
-            if (outConn.method == "memory.socket") {
-              var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port);
+        return _promise(function (result) {
+          // --> test also if the channel has a master server
+          me._model.syncData().then(function (data) {
+
+            if (!data) {
+              result(false);
+              return;
             }
 
-            if (outConn.method == "node.socket") {
-              var ioLib = require("socket.io-client");
-              var realSocket1 = ioLib.connect(outConn.protocol + "://" + outConn.ip + ":" + (outConn.extPort || outConn.port));
-              var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port, realSocket1);
-            }
-
-            // TODO: think about if there is need for inConn method at all? 
-            if (inConn.method == "memory.socket") {
-              var inSocket = _clientSocket(inConn.protocol + "://" + inConn.ip, inConn.port);
-            }
-
-            if (inConn.method == "node.socket") {
-              var ioLib = require("socket.io-client");
-              var realSocket2 = ioLib.connect(outConn.protocol + "://" + inConn.ip + ":" + (inConn.extPort || inConn.port));
-              var inSocket = _clientSocket(outConn.protocol + "://" + inConn.ip, inConn.port, realSocket2);
-            }
-
-            // TODO: how to make the authentication between 2 clients ?
-            var inConnection = channelClient(inConn.channelId, inSocket, {
-              auth: {
-                username: inConn.username,
-                password: inConn.password
+            if (data) {
+              console.log("Sync data");
+              console.log(data);
+              var connData = JSON.parse(data);
+              var outConn = connData.out,
+                  inConn = connData["in"];
+              // there is a slave <-> master connection, should create the sync between the two
+              // channels around here for some client which takes care of sending the data...
+              if (outConn.method == "memory.socket") {
+                var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port);
               }
-            });
 
-            // TODO: how to make the authentication between 2 clients ?
-            var outConnection = channelClient(outConn.channelId, outSocket, {
-              auth: {
-                username: outConn.username,
-                password: outConn.password
+              if (outConn.method == "node.socket") {
+                var ioLib = require("socket.io-client");
+                var realSocket1 = ioLib.connect(outConn.protocol + "://" + outConn.ip + ":" + (outConn.extPort || outConn.port));
+                var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port, realSocket1);
               }
-            });
 
-            outConnection.then(function () {
-              return inConnection;
-            }).then(function () {
-              // connections are now ready, connect them together...
-              inConnection.setMasterConnection(outConnection);
-              outConnection.setSlaveServer(inConnection);
-              console.log("sync: ---- in / out connection ready --- ");
-            });
-          }
+              // TODO: think about if there is need for inConn method at all? 
+              if (inConn.method == "memory.socket") {
+                var inSocket = _clientSocket(inConn.protocol + "://" + inConn.ip, inConn.port);
+              }
+
+              if (inConn.method == "node.socket") {
+                var ioLib = require("socket.io-client");
+                var realSocket2 = ioLib.connect(outConn.protocol + "://" + inConn.ip + ":" + (inConn.extPort || inConn.port));
+                var inSocket = _clientSocket(outConn.protocol + "://" + inConn.ip, inConn.port, realSocket2);
+              }
+
+              // TODO: how to make the authentication between 2 clients ?
+              var inConnection = channelClient(inConn.channelId, inSocket, {
+                auth: {
+                  username: inConn.username,
+                  password: inConn.password
+                }
+              });
+
+              // TODO: how to make the authentication between 2 clients ?
+              var outConnection = channelClient(outConn.channelId, outSocket, {
+                auth: {
+                  username: outConn.username,
+                  password: outConn.password
+                }
+              });
+
+              outConnection.then(function () {
+                return inConnection;
+              }).then(function () {
+                // connections are now ready, connect them together...
+                inConnection.setMasterConnection(outConnection);
+                outConnection.setSlaveServer(inConnection);
+                console.log("sync: ---- in / out connection ready --- ");
+                result(true);
+              });
+            }
+          });
         });
-        /*
-                "sync" : JSON.stringify({
-                    protocol : "http",
-                    ip : "localhost",
-                    port : "1234",
-                    method : "memory.socket"
-                }),
-                
-                 // REVERSE connection
-                // connect the slave server to the main server..
-                var ccToSlaveSock   = _clientSocket("http://localhost", 4321);  
-                reverseConnection = channelClient( "my/channel/myFork", ccToSlaveSock, {
-                    auth : {
-                        username : "Tero",
-                        password : "teropw"
-                    },
-                    manualSend : false
-                });                
-                return reverseConnection;
-             }).then( function() {
-                 reverseConnection.setMasterConnection( cc );
-                // the slave server connection for the channel client...
-                cc.setSlaveServer( reverseConnection );
-        */
       };
 
       /**
@@ -11659,13 +11644,12 @@
           me._policy = _chPolicy();
 
           me._updateLoop(); // start the update loop
-
-          // if there is a sync server, start it too
-          me._startSync();
-
-          // And, here it is finally then...
           me._chData = dataTest;
-          me.resolve(true);
+
+          // if there is a sync server, start it too before proceeding...
+          me._startSync().then(function () {
+            me.resolve(true);
+          });
         });
 
         this._initCmds();

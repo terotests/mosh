@@ -773,6 +773,7 @@
        */
       _myTrait_.serverSetup1 = function (options) {
 
+        options = options || {};
         var readyPromise = _promise();
 
         var baseData = {
@@ -866,7 +867,7 @@
           var auth = authFuzz(root);
           var fsRoot = filesystem.getRootFolder();
 
-          var server = _serverSocket("http://localhost", 1234);
+          var server = _serverSocket((options.protocol || "http") + "://" + (options.ip || "localhost"), options.port || 1234);
           var manager = _serverChannelMgr(server, filesystem.getRootFolder(), auth);
 
           readyPromise.resolve({
@@ -10427,8 +10428,6 @@
             name: chSettings.name || "",
             utc: new Date().getTime()
           };
-          console.log("Creating new channel with");
-          console.log(obj);
 
           // got to check first if the channel is free to be forked
           me._isFreeToFork(chSettings.channelId).then(function (yesNo) {
@@ -10695,6 +10694,134 @@
       };
 
       /**
+       * @param String channelId
+       * @param float version
+       * @param float list
+       */
+      _myTrait_.readCheckoutData = function (channelId, version, list) {
+
+        var flatten = function flatten(a) {
+          return [].concat.apply([], a);
+        };
+
+        // What we already have:
+        // 1. me._settings  - is holding the channel settings
+        // 2.
+
+        var local = this._folder,
+            me = this,
+            versionNumber = version || me._settings.version;
+
+        if (channelId) {
+          return _promise(function (response) {
+            var ch = _localChannelModel(channelId, me._fs);
+            ch.then(function () {
+              ch.readCheckoutData(null, version).then(function (res) {
+                response(res);
+              });
+            });
+          });
+        }
+
+        // Read main is like this:
+        /*
+        var local = this._folder, 
+        me = this,
+        versionNumber = version || me._settings.version;
+        if(versionNumber==1) {
+        return _promise(function(r) {
+        r(null);
+        });
+        }
+        return local.readFile( "file."+versionNumber);
+        */
+
+        // Read journal goes like:
+        /*
+        var local = this._folder, 
+        me = this,
+        versionNumber = version || me._settings.version;
+        return _promise(
+        function(res) {
+        local.readFile( "journal."+versionNumber).then( function(data) {
+            if(!data) {
+                res([]);
+                return;
+            }
+            res( me._textLinesToArray(data) );
+        }).fail( function() {
+            res([]);
+        })
+        });
+        */
+
+        return _promise(function (response) {
+          var repList = [],
+              mainFile,
+              journalFile,
+              myFiles = [];
+
+          me.then(function () {
+            if (versionNumber == 1) {
+              return null;
+            }
+            return local.readFile("file." + versionNumber);
+          }).then(function (mainFileRead) {
+            if (mainFileRead) {
+              mainFile = mainFileRead;
+              myFiles.push({
+                ch: channelId || me._channelId,
+                file: "file." + versionNumber,
+                data: mainFileRead
+              });
+            }
+            return local.readFile("journal." + versionNumber);
+          }).then(function (journal) {
+            if (journal) {
+              myFiles.push({
+                ch: channelId || me._channelId,
+                file: "journal." + versionNumber,
+                data: journal
+              });
+            }
+            return local.readFile("ch.settings");
+          }).then(function (data) {
+            if (data) {
+              myFiles.push({
+                ch: channelId || me._channelId,
+                file: "ch.settings",
+                data: data
+              });
+            }
+            // if a fork then read also the forked channel data
+            if (me._settings.from && !mainFile) {
+
+              var settings = me._settings;
+              me.readCheckoutData(settings.from, settings.fromVersion).then(function (resp) {
+                resp.forEach(function (r) {
+                  myFiles.push(r);
+                });
+                response(myFiles);
+              });
+            } else {
+              response(myFiles);
+            }
+          }).fail(function (msg) {
+            console.error(msg);
+          });
+        });
+      };
+
+      /**
+       * @param float fileName
+       */
+      _myTrait_.readFile = function (fileName) {
+
+        var local = this._folder;
+        return local.readFile(fileName);
+      };
+
+      /**
        * @param float version
        */
       _myTrait_.readJournal = function (version) {
@@ -10787,6 +10914,24 @@
         return _promise(function (result) {
           me.then(function () {
             result(me._settings);
+          });
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.syncData = function (t) {
+        var local = this._folder,
+            me = this;
+
+        return _promise(function (result) {
+          local.isFile("sync").then(function (is_file) {
+            if (is_file) {
+              local.readFile("sync").then(result);
+              return;
+            }
+            result(null);
           });
         });
       };
@@ -10942,7 +11087,7 @@
 
         var me = this;
         sockets.forEach(function (socket) {
-          debugger;
+
           if (!me._serverState.upgrade) me._serverState.upgrade = {};
           me._serverState.upgrade[socket.getId()] = {
             askFull: true,
@@ -10976,15 +11121,19 @@
 
         if (!me._serverState) return;
 
+        // if client has sent "upgradeRequest" command, because it notices that it has
+        // been drifted out of state. The client's request can have .askFull = true
+        // flag set to indicate that the client requires the full channelData with
+        // the whole journal to be sent to the client from server.
         if (me._serverState.upgrade) {
 
+          // me._serverState.upgrade is a hash having the socketID values as keys
           for (var n in me._serverState.upgrade) {
 
             if (me._serverState.upgrade.hasOwnProperty(n)) {
               var info = me._serverState.upgrade[n];
 
               if (info.socket) {
-                debugger;
                 // do we need a full update or partial update?
                 if (info.version != me._serverState.version || info.askFull) {
                   var fullData = me._serverState.data.getData();
@@ -11001,18 +11150,22 @@
                     partial: me._serverState.data._journal.slice(lastJournaLine)
                   });
                 }
-                delete me._serverState.upgrade[n];
+                delete me._serverState.upgrade[n]; // make sure not handled again
               }
             }
           }
         }
 
-        // sending to all the sockets if there is data to be sent
+        // construct the data to be sent to the clients, if there is any data to be sent..
         if (me._broadcastSocket && me._policy) {
           var data = me._policy.constructServerToClient(me._serverState);
           if (data) {
             if (!updObj) updObj = me._broadcastSocket.to(me._channelId);
+
+            // broadcast to the socket "room"
             updObj.emit("s2c_" + me._channelId, data);
+
+            // data.c is array of journal entries to be written to the actual journal file
             me._model.writeToJournal(data.c).then(function (r) {});
           }
         }
@@ -11057,6 +11210,40 @@
 
             me._model.treeOfLife().then(function (r) {
               result(r);
+            });
+          },
+          // here is the point to upgrade the server according to data sent from the client
+          masterUpgrade: function masterUpgrade(cmd, result, socket) {
+            if (!me._groupACL(socket, "w")) {
+              result(null);
+              return;
+            }
+            // debugger;
+            // console.log("GOT masterUpgrade");
+            // console.log(JSON.stringify(cmd));
+            result({
+              result: true
+            });
+            /*
+            // read the build tree and the status...
+            me._model.readCheckoutData( ).then( function(r) {
+            result({
+                build : r
+            });
+            });
+            */
+          },
+          checkout: function checkout(cmd, result, socket) {
+            if (!me._groupACL(socket, "r")) {
+              result(null);
+              return;
+            }
+
+            // read the build tree and the status...
+            me._model.readCheckoutData().then(function (r) {
+              result({
+                build: r
+              });
             });
           },
           readBuildTree: function readBuildTree(cmd, result, socket) {
@@ -11163,8 +11350,6 @@
             // first, save all the unsaved changes and refresh the clients with unsent data
             me._doClientUpdate();
 
-            console.log("About to call me._model.snapshot ");
-            debugger;
             // then, create new version of the main file
             me._model.snapshot(fullData).then(function (r) {
 
@@ -11324,8 +11509,93 @@
       /**
        * @param float t
        */
+      _myTrait_._startSync = function (t) {
+        var me = this;
+        // --> test also if the channel has a master server
+        me._model.syncData().then(function (data) {
+
+          if (data) {
+
+            var connData = JSON.parse(data);
+            var outConn = connData.out,
+                inConn = connData["in"];
+            // there is a slave <-> master connection, should create the sync between the two
+            // channels around here for some client which takes care of sending the data...
+            if (outConn.method == "memory.socket") {
+              var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port);
+            }
+
+            if (outConn.method == "node.socket") {
+              var ioLib = require("socket.io-client");
+              var realSocket1 = ioLib.connect(outConn.protocol + "://" + outConn.ip + ":" + (outConn.extPort || outConn.port));
+              var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port);
+            }
+
+            // TODO: think about if there is need for inConn method at all? 
+            if (inConn.method == "node.socket") {
+              var inSocket = _clientSocket(inConn.protocol + "://" + inConn.ip, inConn.port);
+            }
+
+            // TODO: how to make the authentication between 2 clients ?
+            var inConnection = channelClient(inConn.channelId, inSocket, {
+              auth: {
+                username: inConn.username,
+                password: inConn.password
+              }
+            });
+
+            // TODO: how to make the authentication between 2 clients ?
+            var outConnection = channelClient(outConn.channelId, outSocket, {
+              auth: {
+                username: outConn.username,
+                password: outConn.password
+              }
+            });
+
+            outConnection.then(function () {
+              return inConnection;
+            }).then(function () {
+              // connections are now ready, connect them together...
+              inConnection.setMasterConnection(outConnection);
+              outConnection.setSlaveServer(inConnection);
+              console.log("sync: ---- in / out connection ready --- ");
+            });
+          }
+        });
+        /*
+                "sync" : JSON.stringify({
+                    protocol : "http",
+                    ip : "localhost",
+                    port : "1234",
+                    method : "memory.socket"
+                }),
+                
+                 // REVERSE connection
+                // connect the slave server to the main server..
+                var ccToSlaveSock   = _clientSocket("http://localhost", 4321);  
+                reverseConnection = channelClient( "my/channel/myFork", ccToSlaveSock, {
+                    auth : {
+                        username : "Tero",
+                        password : "teropw"
+                    },
+                    manualSend : false
+                });                
+                return reverseConnection;
+             }).then( function() {
+                 reverseConnection.setMasterConnection( cc );
+                // the slave server connection for the channel client...
+                cc.setSlaveServer( reverseConnection );
+        */
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_._updateLoop = function (t) {
 
+        // TODO: make the update loop a setting or automatically adjusting value depending
+        // on the server load - the function is not required to be run if there is no activity
+        // and it should be removed if the client exits from the channel.
         var me = this;
         later().every(1 / 5, function () {
           me._doClientUpdate();
@@ -11382,6 +11652,9 @@
           me._policy = _chPolicy();
 
           me._updateLoop(); // start the update loop
+
+          // if there is a sync server, start it too
+          me._startSync();
 
           // And, here it is finally then...
           me._chData = dataTest;
@@ -12468,6 +12741,34 @@
 
       // Initialize static variables here...
 
+      /**
+       * @param float channelId
+       */
+      _myTrait_._checkout = function (channelId) {
+
+        var me = this,
+            socket = this._socket;
+
+        return _promise(function (result) {
+
+          if (!me._policy) return;
+          if (me._disconnected) return; // in case disconnected, don't send data
+          if (!me._connected) return;
+
+          socket.send("channelCommand", {
+            channelId: channelId,
+            cmd: "checkout",
+            data: ""
+          }).then(function (res) {
+
+            debugger;
+            console.log("Checkout tree ");
+            console.log(res);
+            result(res);
+          });
+        });
+      };
+
       if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
       _myTrait_.__factoryClass.push(function (id, socket) {
 
@@ -12633,6 +12934,12 @@
                 };
               */
             }
+            if (me._master) {
+              me._master.fromSlave(cmd);
+            }
+            if (me._slave) {
+              me._slave.fromMaster(cmd);
+            }
           }
         });
 
@@ -12642,6 +12949,12 @@
           if (me._disconnected) return;
           if (cmd) {
             var res = me._policy.deltaServerToClient(cmd, me._clientState);
+            if (me._master) {
+              me._master.fromSlave(cmd);
+            }
+            if (me._slave) {
+              me._slave.sendCommand("masterUpgrade", cmd);
+            }
           }
           // done, no other action needed???
         });
@@ -12885,6 +13198,44 @@
       };
 
       /**
+       * @param Object change
+       */
+      _myTrait_.fromMaster = function (change) {
+        console.log("from master", JSON.stringify(change));
+      };
+
+      /**
+       * @param Object change
+       */
+      _myTrait_.fromSlave = function (change) {
+        console.log("from slave", JSON.stringify(change));
+
+        if (change.cmd == "s2c") {
+
+          // --> we have server to client command coming in..
+          // this is the connection to the master, thus the commands should be run
+          // here as if they were "local" commands which are about to be sent to the
+          // remote server
+          /*
+          return {
+          cmd : "s2c",
+          c : chData._journal.slice( start, end ),
+          start : start,
+          end : end,
+          version : serverState.version
+          };    
+          */
+
+          // this channelClient is only responsible of sending the commands to the
+          // actual master server
+          var me = this;
+          change.c.forEach(function (eCmd) {
+            me.addCommand(eCmd);
+          });
+        }
+      };
+
+      /**
        * @param string id
        * @param float name
        */
@@ -12973,8 +13324,6 @@
 
         this._onFrameLoop(socket, myNamespace);
         this._incoming(socket, myNamespace);
-
-        console.log("channelClient init");
 
         this._connCnt = 0;
 
@@ -13222,6 +13571,27 @@
       };
 
       /**
+       * @param float commandName
+       * @param float packet
+       */
+      _myTrait_.sendCommand = function (commandName, packet) {
+        var me = this,
+            channelId = this._channelId,
+            socket = this._socket;
+
+        if (!me._policy) return;
+        if (me._disconnected) return; // in case disconnected, don't send data
+        if (!me._connected) return;
+        if (!socket) return;
+
+        return socket.send("channelCommand", {
+          channelId: channelId,
+          cmd: commandName,
+          data: packet
+        });
+      };
+
+      /**
        * @param float id
        * @param float name
        * @param float value
@@ -13235,6 +13605,13 @@
             this.addCommand([4, name, value, old_value, ns_id]);
           }
         }
+      };
+
+      /**
+       * @param float masterConnection
+       */
+      _myTrait_.setMasterConnection = function (masterConnection) {
+        this._master = masterConnection;
       };
 
       /**
@@ -13254,6 +13631,18 @@
             this.addCommand([5, name, propObj.__id, null, ns_id]);
           }
         }
+      };
+
+      /**
+       * Will set the slave server for this connection
+       * @param Object slaveServer
+       */
+      _myTrait_.setSlaveServer = function (slaveServer) {
+
+        if (!this._clientState.slave) this._clientState.slave = {};
+
+        this._clientState.slave.server = slaveServer;
+        this._slave = slaveServer;
       };
 
       /**
@@ -20500,9 +20889,9 @@
           return null;
         }
 
-        console.log("clientToServer");
-        console.log(clientState.last_update);
-        console.log(start, end);
+        //console.log("clientToServer");
+        //console.log(clientState.last_update);
+        //console.log(start,end);
 
         // [2,4]
         // 0
@@ -20514,6 +20903,7 @@
         clientState.last_sent[1] = end;
 
         var obj = {
+          cmd: "c2s",
           id: this.guid(),
           c: chData._journal.slice(start, end),
           start: start,
@@ -20557,6 +20947,7 @@
         serverState.last_update[1] = end;
 
         return {
+          cmd: "s2c",
           c: chData._journal.slice(start, end),
           start: start,
           end: end,

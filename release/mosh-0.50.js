@@ -13247,6 +13247,7 @@
             console.log(eCmd);
             var r = me.addCommand(eCmd);
             console.log(JSON.stringify(r));
+            console.log(JSON.stringify(me._data.getData()));
           });
         }
       };

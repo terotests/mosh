@@ -13240,7 +13240,8 @@
           var me = this;
           change.c.forEach(function (eCmd) {
             console.log(eCmd);
-            me.addCommand(eCmd);
+            var r = me.addCommand(eCmd);
+            console.log(JSON.stringify(r));
           });
         }
       };

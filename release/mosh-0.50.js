@@ -11533,7 +11533,7 @@
             }
 
             // TODO: think about if there is need for inConn method at all? 
-            if (inConn.method == "node.socket") {
+            if (inConn.method == "memory.socket") {
               var inSocket = _clientSocket(inConn.protocol + "://" + inConn.ip, inConn.port);
             }
 

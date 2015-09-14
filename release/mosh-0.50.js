@@ -13055,7 +13055,7 @@
           // local command, no frame to add commands.
           var cmdIn = this._transformCmdToNs(cmd, this._ns);
           // the local command is run immediately and if it passes then we add it to the frame
-          if (this._data.execCmd(cmdIn, dontBroadcast)) {}
+          return this._data.execCmd(cmdIn, dontBroadcast);
         }
       };
 

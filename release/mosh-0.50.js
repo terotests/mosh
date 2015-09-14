@@ -11529,7 +11529,7 @@
             if (outConn.method == "node.socket") {
               var ioLib = require("socket.io-client");
               var realSocket1 = ioLib.connect(outConn.protocol + "://" + outConn.ip + ":" + (outConn.extPort || outConn.port));
-              var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port);
+              var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port, realSocket1);
             }
 
             // TODO: think about if there is need for inConn method at all? 

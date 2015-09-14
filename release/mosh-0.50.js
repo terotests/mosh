@@ -12843,7 +12843,8 @@
           me._upgradePending = false;
           // just don't accept any msgs
           if (me._disconnected) return;
-
+          //console.log("upgrade_cmd");
+          //console.log(JSON.stringify(cmd));
           if (cmd) {
 
             if (cmd.partial) {
@@ -12981,6 +12982,7 @@
           if (me._disconnected) return; // in case disconnected, don't send data
 
           if (!me._connected) return;
+          if (!me._clientState) return;
 
           if (me._clientState.needsRefresh) {
             // *** if refresh is required, out of sync client **

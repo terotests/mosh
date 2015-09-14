@@ -13044,14 +13044,16 @@
         }
         */
 
-        if (this._currentFrame) {
+        if (0) {
           console.log("add c b 1 ");
           var cmdOut = this._transformCmdFromNs(cmd, this._ns);
           var cmdIn = this._transformCmdToNs(cmd, this._ns);
           // the local command is run immediately and if it passes then we add it to the frame
-          if (this._data.execCmd(cmdIn, dontBroadcast)) {
+          var r;
+          if (r = this._data.execCmd(cmdIn, dontBroadcast)) {
             this._currentFrame.commands.push(cmdOut);
           }
+          return r;
         } else {
           console.log("add c b 2 ");
           // local command, no frame to add commands.

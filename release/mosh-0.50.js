@@ -11537,6 +11537,12 @@
               var inSocket = _clientSocket(inConn.protocol + "://" + inConn.ip, inConn.port);
             }
 
+            if (inConn.method == "node.socket") {
+              var ioLib = require("socket.io-client");
+              var realSocket2 = ioLib.connect(outConn.protocol + "://" + inConn.ip + ":" + (inConn.extPort || inConn.port));
+              var inSocket = _clientSocket(outConn.protocol + "://" + inConn.ip, inConn.port, realSocket2);
+            }
+
             // TODO: how to make the authentication between 2 clients ?
             var inConnection = channelClient(inConn.channelId, inSocket, {
               auth: {

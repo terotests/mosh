@@ -12997,8 +12997,8 @@
           var packet = me._policy.constructClientToServer(me._clientState);
           if (packet) {
 
-            //console.log("Sending packet to server ");
-            //console.log(packet);
+            console.log("Sending packet to server ");
+            console.log(packet);
             socket.send("channelCommand", {
               channelId: channelId,
               cmd: "c2s",
@@ -13239,6 +13239,7 @@
           // actual master server
           var me = this;
           change.c.forEach(function (eCmd) {
+            console.log(eCmd);
             me.addCommand(eCmd);
           });
         }

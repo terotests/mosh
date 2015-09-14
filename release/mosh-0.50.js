@@ -13288,6 +13288,8 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (channelId, socket, options) {
 
+        if (!this._policy) this._policy = _chPolicy();
+
         if (options && options.localChannel) {
 
           this._channelId = channelId;
@@ -13447,7 +13449,6 @@
                   last_sent: [0, chData.getJournalLine()] // last range sent to the server
 
                 };
-                me._policy = _chPolicy();
 
                 me._data = chData;
                 me._createTransaction();

@@ -21243,6 +21243,8 @@
         }
         */
 
+        var goodList = [];
+
         // process the commands a long as they are the same
         for (var i = updateFrame.start; i < updateFrame.end; i++) {
 
@@ -21305,7 +21307,7 @@
           } else {
             // a new command has arrived...
 
-            var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
+            var cmdRes = data.execCmd(serverCmd); // set data ready to be broadcasted
             if (cmdRes !== true) {
               // if we get errors then we have some kind of problem
               console.log("--- setting refresh on because of ---- ");
@@ -21319,6 +21321,7 @@
               result.goodCnt++;
               result.newCnt++;
             }
+            goodList.push(serverCmd);
 
             continue;
           }
@@ -21342,7 +21345,7 @@
                 for (var i = sameUntil; i < updateFrame.end; i++) {
 
                   var serverCmd = updateFrame.c[i - updateFrame.start];
-                  var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
+                  var cmdRes = data.execCmd(serverCmd); // data ready to be broadcasted
                   if (cmdRes !== true) {
 
                     console.log("--- there is need for a bigger refersh ---- ");
@@ -21366,10 +21369,11 @@
                 serverState.last_update[0] = 0;
                 serverState.last_update[1] = sameUntil; // <- this is what matters
 
+                // --> writing to the journal is done at the client loop
                 // write the new lines to the servers journal
-                serverState.model.writeToJournal(list).then(function () {
-                  done(result);
-                });
+                //serverState.model.writeToJournal( list ).then( function() {
+                //    done(result);
+                //});
 
                 return result;
               });
@@ -21378,6 +21382,11 @@
         }
         //clientState.last_update[0] = updateFrame.start;
         //clientState.last_update[1] = updateFrame.end;
+
+        console.log("server last update " + JSON.stringify(serverState.last_update));
+
+        if (goodList.length) {}
+
         return result;
       };
 
@@ -21804,3 +21813,9 @@
 // --- let's not ---
 
 // console.log("Row ",i," written succesfully");
+
+/*
+serverState.model.writeToJournal( goodList ).then( function() {
+// done(result);
+});
+*/

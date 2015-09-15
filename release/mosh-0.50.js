@@ -10590,6 +10590,13 @@
       /**
        * @param float t
        */
+      _myTrait_.getJournalSize = function (t) {
+        return this._settings.journalSize;
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_.incrementVersion = function (t) {
         var local = this._folder,
             me = this;
@@ -10833,9 +10840,11 @@
         return _promise(function (res) {
           local.readFile("journal." + versionNumber).then(function (data) {
             if (!data) {
+              me._settings.journalSize = 0;
               res([]);
               return;
             }
+            me._settings.journalSize = data.length;
             res(me._textLinesToArray(data));
           }).fail(function () {
             res([]);
@@ -11009,6 +11018,10 @@
           });
           return _promise(function (resp) {
             local.appendFile("journal." + me._settings.version, str).then(function () {
+
+              // keep the size of the journal available for quicly truncating the server file
+              me._settings.journalSize += str.length;
+
               me._settings.journalLine += cnt;
               me._writeSettings();
               resp(true);
@@ -11017,7 +11030,12 @@
         }
 
         return _promise(function (resp) {
-          local.appendFile("journal." + me._settings.version, JSON.stringify(row) + "\n").then(function () {
+          var str = JSON.stringify(row) + "\n";
+          local.appendFile("journal." + me._settings.version, str).then(function () {
+
+            // add the journal size after the write...
+            me._settings.journalSize += str.length;
+
             me._settings.journalLine++;
             me._writeSettings();
             resp(true);
@@ -11161,6 +11179,9 @@
           var data = me._policy.constructServerToClient(me._serverState);
           if (data) {
             if (!updObj) updObj = me._broadcastSocket.to(me._channelId);
+
+            var currentJournalSize = me._model.getJournalSize();
+            data.journalSize = currentJournalSize;
 
             // broadcast to the socket "room"
             updObj.emit("s2c_" + me._channelId, data);

@@ -11489,13 +11489,9 @@
             // check that the command is valid
             var res = me._policy.deltaMasterToSlave(cmd.data, me._serverState);
 
-            // check if it's thenable = promise
-            if (res && res.then) {
-              res.then(function (r) {
-                result(r);
-              });
-              return;
-            }
+            // here is a problem, can not wait for the deltaMasterToSlave to finish
+            // because it is a thenable
+            if (res && res.then) {}
             console.log("result of master upgrade ");
             console.log(JSON.stringify(res));
             result(res);
@@ -21775,6 +21771,16 @@
 //    this.writeCommand(a);
 
 // --- let's not ---
+
+/*
+res.then( function(r) {
+  // result(r);
+});
+result({
+  
+});
+return;
+*/
 
 // --- let's not ---
 

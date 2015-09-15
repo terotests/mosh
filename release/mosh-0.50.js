@@ -11491,7 +11491,21 @@
 
             // here is a problem, can not wait for the deltaMasterToSlave to finish
             // because it is a thenable
-            if (res && res.then) {}
+            if (res && res.then) {
+              result({
+                upgradeingMaster: true
+              });
+              return;
+              /*
+              res.then( function(r) {
+                // result(r);
+              });
+              result({
+                
+              });
+              return;
+              */
+            }
             console.log("result of master upgrade ");
             console.log(JSON.stringify(res));
             result(res);
@@ -21771,16 +21785,6 @@
 //    this.writeCommand(a);
 
 // --- let's not ---
-
-/*
-res.then( function(r) {
-  // result(r);
-});
-result({
-  
-});
-return;
-*/
 
 // --- let's not ---
 

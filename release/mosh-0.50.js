@@ -11493,6 +11493,8 @@
             // check that the command is valid
             var res = me._policy.deltaMasterToSlave(cmd.data, me._serverState);
 
+            if (!me._broadcastSocket) me._broadcastSocket = socket;
+
             // here is a problem, can not wait for the deltaMasterToSlave to finish
             // because it is a thenable
             if (res && res.then) {

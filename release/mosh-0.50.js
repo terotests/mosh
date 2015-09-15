@@ -10973,6 +10973,29 @@
       };
 
       /**
+       * @param int size
+       * @param float lineNumber
+       */
+      _myTrait_.truncateJournalTo = function (size, lineNumber) {
+
+        var local = this._folder,
+            me = this;
+
+        return _promise(function (resp) {
+          var str = JSON.stringify(row) + "\n";
+          local.truncateFile("journal." + me._settings.version, size).then(function () {
+
+            // add the journal size after the write...
+            me._settings.journalSize = size;
+            me._settings.journalLine = lineNumber;
+
+            me._writeSettings();
+            resp(true);
+          });
+        });
+      };
+
+      /**
        * @param string fileName
        * @param float fileData
        */
@@ -11233,27 +11256,7 @@
               result(r);
             });
           },
-          // here is the point to upgrade the server according to data sent from the client
-          masterUpgrade: function masterUpgrade(cmd, result, socket) {
-            if (!me._groupACL(socket, "w")) {
-              result(null);
-              return;
-            }
-            // debugger;
-            // console.log("GOT masterUpgrade");
-            // console.log(JSON.stringify(cmd));
-            result({
-              result: true
-            });
-            /*
-            // read the build tree and the status...
-            me._model.readCheckoutData( ).then( function(r) {
-            result({
-                build : r
-            });
-            });
-            */
-          },
+
           checkout: function checkout(cmd, result, socket) {
             if (!me._groupACL(socket, "r")) {
               result(null);
@@ -11464,6 +11467,39 @@
 
             // TODO: socket, emit to all clients.
           },
+          // here is the point to upgrade the server according to data sent from the client
+          masterUpgrade: function masterUpgrade(cmd, result, socket) {
+            if (!me._groupACL(socket, "w")) {
+              result(null);
+              return;
+            }
+
+            console.log("creating a master upgrade with ");
+            console.log(JSON.stringify(cmd));
+
+            var uid = socket.getUserId();
+            var len = cmd.data.c.length,
+                list = cmd.data.c,
+                utc = new Date().getTime();
+            for (var i = 0; i < len; i++) {
+              list[i][5] = utc;
+              list[i][6] = uid;
+            }
+
+            // check that the command is valid
+            var res = me._policy.deltaMasterToSlave(cmd.data, me._serverState);
+
+            // check if it's thenable = promise
+            if (res && res.then) {
+              res.then(function (r) {
+                result(r);
+              });
+              return;
+            }
+            console.log("result of master upgrade ");
+            console.log(JSON.stringify(res));
+            result(res);
+          },
           changeFrame: function changeFrame(cmd, result, socket) {
 
             if (!me._groupACL(socket, "w")) {
@@ -11593,6 +11629,7 @@
                 // connections are now ready, connect them together...
                 inConnection.setMasterConnection(outConnection);
                 outConnection.setSlaveServer(inConnection);
+                outConnection.setChannelModel(me._model);
                 console.log("sync: ---- in / out connection ready --- ");
                 result(true);
               });
@@ -11648,6 +11685,7 @@
 
           // The state of the server - what should be the "last_update" ? 
           me._serverState = {
+            model: me._model, // model of the server state, if truncate needed
             data: dataTest, // The channel data object set here
             version: me._model._settings.version, // the version of the channel model
             last_update: [0, dataTest.getJournalLine()], // the range of last commands sent to the client
@@ -12966,6 +13004,9 @@
               me._master.fromSlave(cmd);
             }
             if (me._slave) {
+              //var currLen = me._serverModel.getJournalSize();
+              //var remoteLen = cmd.journalSize;
+              //console.log(" at master, journal sizes ",currLen, remoteLen);
               me._slave.sendCommand("masterUpgrade", cmd);
             }
           }
@@ -13628,6 +13669,14 @@
             this.addCommand([4, name, value, old_value, ns_id]);
           }
         }
+      };
+
+      /**
+       * @param float model
+       */
+      _myTrait_.setChannelModel = function (model) {
+
+        this._serverModel = model;
       };
 
       /**
@@ -18833,6 +18882,24 @@
       };
 
       /**
+       * @param string fileName
+       * @param float newSize
+       */
+      _myTrait_.truncateFile = function (fileName, newSize) {
+        var p,
+            me = this;
+        return _promise(function (result, fail) {
+          var fold = me._pathObj;
+          if (fold[fileName]) {
+            fold[fileName] = fold[fileName].substring(0, newSize);;
+          }
+          result({
+            result: true
+          });
+        });
+      };
+
+      /**
        * @param float fileName
        * @param float fileData
        */
@@ -19487,6 +19554,40 @@
             result(o);
           }).fail(function () {
             result({});
+          });
+        });
+      };
+
+      /**
+       * @param float fileName
+       * @param float newSize
+       */
+      _myTrait_.truncateFile = function (fileName, newSize) {
+
+        var _rootDir = this._rootDir;
+        var me = this;
+
+        return _promise(function (result, fail) {
+
+          if (typeof fileFilename != "string") {
+            // can not write anything else than strings
+            fail({
+              result: false,
+              text: "Only string filenames are accepted"
+            });
+            return;
+          }
+
+          fileName = path.basename(fileName);
+          fs.truncate(_rootDir + "/" + fileName, newSize, function (err, data) {
+            if (err) {
+              fail(err);
+              return;
+            }
+            result({
+              result: true,
+              text: "File truncated"
+            });
           });
         });
       };
@@ -21043,6 +21144,225 @@
           // in this version, NO PROBLEMO!
           return e.message;
         }
+      };
+
+      /**
+       * @param float updateFrame
+       * @param float serverState
+       */
+      _myTrait_.deltaMasterToSlave = function (updateFrame, serverState) {
+
+        // the client state
+        /*
+        {
+        data : channelData,     // The channel data object
+        version : 1,
+        last_update : [1, 30],  // last server update
+        }
+        */
+
+        // the server sends
+        /*
+        {
+        c : chData._journal.slice( start, end ),
+        start : start,
+        end : end,
+        version : serverState.version
+        }
+        */
+        // The server state
+        /*
+        {
+        data : channelData,     // The channel data object
+        version : 1,
+        last_update : [1, 30],  // version + journal line
+        lagging_sockets : {}    // hash of invalid sockets
+        }
+        */
+        // check where is our last point of action...
+
+        if (!updateFrame) return;
+
+        var data = serverState.data; // the channel data we have now
+
+        // [2,4] = [start, end]
+        // 0
+        // 1
+        // 2 *
+        // 3 *
+
+        var result = {
+          goodCnt: 0,
+          oldCnt: 0,
+          newCnt: 0,
+          reverseCnt: 0
+        };
+
+        console.log("deltaMasterToSlave");
+        var sameUntil = updateFrame.start;
+
+        if (serverState.needsRefresh) {
+          console.log("** serverState needs refresh **");
+          return;
+        }
+
+        // if the server's journal is a lot behind the sent data...
+        if (updateFrame.start > data._journal.length) {
+
+          console.log("--- setting refresh on because of ---- ");
+          console.log(" updateFrame.start > data._journal.length ");
+
+          serverState.needsRefresh = true;
+          result.fail = true;
+          return result;
+        }
+
+        // this should not be needed at the server side, because object ID's are without
+        // the namespace
+        /*
+        if(serverState.client) {
+        for(var i=updateFrame.start; i<updateFrame.end; i++) {
+        var serverCmd = updateFrame.c[i-updateFrame.start];
+        updateFrame.c[i-updateFrame.start] = serverState.client._transformCmdToNs( serverCmd );
+        }
+        }
+        */
+
+        // process the commands a long as they are the same
+        for (var i = updateFrame.start; i < updateFrame.end; i++) {
+
+          var myJ = data.getJournalCmd(i);
+          var serverCmd = updateFrame.c[i - updateFrame.start];
+
+          var bSame = true;
+          if (myJ) {
+
+            if (myJ[0] == 13 && serverCmd[0] == 13 && myJ[4] == serverCmd[4] && myJ[1] == serverCmd[1]) {
+              var mainArray1 = myJ[2],
+                  mainArray2 = serverCmd[2];
+              if (mainArray1.length != mainArray2.length) {
+                bSame = false;
+              } else {
+                for (var mi = 0; mi < mainArray1.length; mi++) {
+                  if (!bSame) break;
+                  var arr1 = mainArray1[mi],
+                      arr2 = mainArray2[mi];
+                  for (var ai = 0; ai < 5; ai++) {
+                    if (arr1[ai] != arr2[ai]) {
+                      console.log("not same ", ai, arr1[ai], arr2[ai]);
+                      bSame = false;
+                      break;
+                    }
+                  }
+                  if (bSame) {
+                    if (this.isArray(arr1[5])) {
+                      var arr1 = arr1[5],
+                          arr2 = arr2[5];
+                      var len = Math.max(arr1.length || 0, arr2.length || 0);
+                      for (var ai = 0; ai < len; ai++) {
+                        if (arr1[ai] != arr2[ai]) {
+                          console.log("not same array ", ai);
+                          bSame = false;
+                          break;
+                        }
+                      }
+                    } else {
+                      if (arr1[5] != arr2[5]) {
+                        bSame = false;
+                      }
+                    }
+                  }
+                  if (!bSame) {
+                    console.log("was not the same");
+                    console.log(serverCmd, "vs", myJ);
+                  }
+                }
+              }
+            } else {
+              for (var j = 0; j <= 4; j++) {
+                if (myJ[j] != serverCmd[j]) {
+                  bSame = false;
+                  console.log("was not the same");
+                  console.log(serverCmd[j], "vs", myJ[j]);
+                }
+              }
+            }
+          } else {
+            // a new command has arrived...
+
+            var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
+            if (cmdRes !== true) {
+              // if we get errors then we have some kind of problem
+              console.log("--- setting refresh on because of ---- ");
+              console.log(JSON.stringify(cmdRes));
+              serverState.needsRefresh = true;
+              result.fail = true;
+              result.reason = cmdRes;
+              return result;
+            } else {
+              sameUntil = i; // ??
+              result.goodCnt++;
+              result.newCnt++;
+            }
+
+            continue;
+          }
+          if (bSame) {
+            sameUntil = i;
+            result.goodCnt++;
+            result.oldCnt++;
+          } else {
+
+            return _promise(function (done) {
+              // here is the point where the data is reversed and also the server journal should be truncated:
+              data.reverseToLine(sameUntil);
+              var size = updateFrame.journalSize;
+              console.log("Truncating the journal to ", size, sameUntil);
+              // truncate server journal to certain length
+              serverState.model.truncateJournalTo(size, sameUntil).then(function () {
+
+                // and then run commands without sending them outside...
+                var list = [];
+                for (var i = sameUntil; i < updateFrame.end; i++) {
+
+                  var serverCmd = updateFrame.c[i - updateFrame.start];
+                  var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
+                  if (cmdRes !== true) {
+
+                    console.log("--- there is need for a bigger refersh ---- ");
+                    console.log(JSON.stringify(cmdRes));
+
+                    // if we get errors then we have some kind of problem
+                    serverState.needsRefresh = true;
+                    result.fail = true;
+                    result.reason = cmdRes;
+                    done(result);
+                    return result;
+                  }
+                  list.push(serverCmd);
+                  result.reverseCnt++;
+                }
+
+                // serverState.last_update[0] = updateFrame.start;
+                // serverState.last_update[1] = updateFrame.end;
+
+                // mark the new start for next update,
+                serverState.last_update[0] = 0;
+                serverState.last_update[1] = sameUntil; // <- this is what matters
+
+                // write the new lines to the servers journal
+                serverState.model.writeToJournal(list).then(function () {
+                  done(result);
+                });
+
+                return result;
+              });
+            });
+          }
+        }
+        //clientState.last_update[0] = updateFrame.start;
+        //clientState.last_update[1] = updateFrame.end;
+        return result;
       };
 
       /**

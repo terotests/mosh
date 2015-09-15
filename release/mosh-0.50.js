@@ -11201,6 +11201,10 @@
         if (me._broadcastSocket && me._policy) {
           var data = me._policy.constructServerToClient(me._serverState);
           if (data) {
+
+            console.log(" has something to sent to the clients ");
+            console.log(JSON.stringify(data));
+
             if (!updObj) updObj = me._broadcastSocket.to(me._channelId);
 
             var currentJournalSize = me._model.getJournalSize();
@@ -21384,6 +21388,7 @@
         //clientState.last_update[1] = updateFrame.end;
 
         console.log("server last update " + JSON.stringify(serverState.last_update));
+        console.log("server data length " + serverState.data._journal.length);
 
         if (goodList.length) {}
 

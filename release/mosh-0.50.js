@@ -13019,6 +13019,9 @@
               //var remoteLen = cmd.journalSize;
               //console.log(" at master, journal sizes ",currLen, remoteLen);
               console.log(" has slave -> sending masterUpgrade ");
+              for (var i = 0; i < cmd.data.c.length; i++) {
+                cmd.data.c[i] = me._transformCmdFromNs(cmd.data.c[i]);
+              }
               me._slave.sendCommand("masterUpgrade", cmd);
             }
           }

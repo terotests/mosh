@@ -10982,7 +10982,7 @@
             me = this;
 
         return _promise(function (resp) {
-          var str = JSON.stringify(row) + "\n";
+
           local.truncateFile("journal." + me._settings.version, size).then(function () {
 
             // add the journal size after the write...
@@ -21312,7 +21312,8 @@
             result.goodCnt++;
             result.oldCnt++;
           } else {
-
+            console.log("Not same ");
+            console.log(JSON.stringify(updateFrame.c));
             return _promise(function (done) {
               // here is the point where the data is reversed and also the server journal should be truncated:
               data.reverseToLine(sameUntil);

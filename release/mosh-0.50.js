@@ -13001,12 +13001,14 @@
           if (cmd) {
             var res = me._policy.deltaServerToClient(cmd, me._clientState);
             if (me._master) {
+              console.log(" has master -> sending from slave ");
               me._master.fromSlave(cmd);
             }
             if (me._slave) {
               //var currLen = me._serverModel.getJournalSize();
               //var remoteLen = cmd.journalSize;
               //console.log(" at master, journal sizes ",currLen, remoteLen);
+              console.log(" has slave -> sending masterUpgrade ");
               me._slave.sendCommand("masterUpgrade", cmd);
             }
           }

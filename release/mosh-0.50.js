@@ -10468,6 +10468,13 @@
       };
 
       /**
+       * @param float t
+       */
+      _myTrait_.folder = function (t) {
+        return this._folder;
+      };
+
+      /**
        * The forkData is object having properties &quot;channelId&quot; and &quot;name&quot;
        * @param Object forkData  - Object with { channelId : &quot;path/to/the/challe&quot;,  name:&quot;name&quot;}
        */
@@ -11709,7 +11716,7 @@
 
               outConnection.then(function () {
                 console.log("out done, checking for master-sync");
-                return me._model.isFile("master-sync");
+                return me._model.folder().isFile("master-sync");
               }).then(function (is_file) {
                 if (!is_file) {
                   console.log("master-sync missing");

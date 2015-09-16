@@ -13261,6 +13261,8 @@
 
         var me = this;
 
+        console.log("_onReconnect");
+
         // if we have a slave controller...
         if (me._slaveController) {
           console.log("_slaveController -> trying to send data ");

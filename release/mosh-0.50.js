@@ -13259,12 +13259,14 @@
           console.log("*** reconnect to the master ***");
         }
 
+        var me = this;
+
         // if we have a slave controller...
         if (me._slaveController) {
+          console.log("_slaveController -> trying to send data ");
           me._slaveController._sendUnsentToMaster();
         }
 
-        var me = this;
         // first, send the data we have to server, hope it get's through...
         var packet = me._policy.constructClientToServer(me._clientState);
         var socket = this._socket;

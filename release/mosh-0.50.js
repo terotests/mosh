@@ -14249,25 +14249,33 @@
 
         if (realSocket) {
 
+          var _hasbeenConnected = false;
+          var openConnection, connection;
+
           var whenConnected = function whenConnected() {
             console.log("whenConnected called");
-            var openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
-            var connection = _tcpEmu(ip, port, myId, "client", realSocket);
 
-            connection.on("clientMessage", function (o, v) {
-              console.log("clientMessage received ", v);
-              if (v.connected) {
-                me._socket = connection;
-                me._connected = true;
-                me.trigger("connect", connection);
-              } else {
-                me.trigger(v.name, v.data);
-              }
-            });
+            if (!_hasbeenConnected) {
+              openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
+              connection = _tcpEmu(ip, port, myId, "client", realSocket);
+
+              connection.on("clientMessage", function (o, v) {
+                console.log("clientMessage received ", v);
+                if (v.connected) {
+                  me._socket = connection;
+                  me._connected = true;
+                  me.trigger("connect", connection);
+                } else {
+                  me.trigger(v.name, v.data);
+                }
+              });
+              // should this be called again?
+              openConnection.messageTo({
+                socketId: myId
+              });
+            }
             console.log("Sending message to _tcpEmu with real socket ");
-            openConnection.messageTo({
-              socketId: myId
-            });
+            _hasbeenConnected = true;
           };
           var me = this;
           realSocket.on("disconnect", function () {

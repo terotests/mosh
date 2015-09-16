@@ -1226,14 +1226,19 @@ pwFs.then(
 - [get](README.md#_localChannelModel_get)
 - [getCurrentVersion](README.md#_localChannelModel_getCurrentVersion)
 - [getForks](README.md#_localChannelModel_getForks)
+- [getJournalSize](README.md#_localChannelModel_getJournalSize)
 - [incrementVersion](README.md#_localChannelModel_incrementVersion)
 - [readBuildTree](README.md#_localChannelModel_readBuildTree)
+- [readCheckoutData](README.md#_localChannelModel_readCheckoutData)
+- [readFile](README.md#_localChannelModel_readFile)
 - [readJournal](README.md#_localChannelModel_readJournal)
 - [readMain](README.md#_localChannelModel_readMain)
 - [set](README.md#_localChannelModel_set)
 - [snapshot](README.md#_localChannelModel_snapshot)
 - [status](README.md#_localChannelModel_status)
+- [syncData](README.md#_localChannelModel_syncData)
 - [treeOfLife](README.md#_localChannelModel_treeOfLife)
+- [truncateJournalTo](README.md#_localChannelModel_truncateJournalTo)
 - [writeFile](README.md#_localChannelModel_writeFile)
 - [writeMain](README.md#_localChannelModel_writeMain)
 - [writeToJournal](README.md#_localChannelModel_writeToJournal)
@@ -1270,8 +1275,10 @@ pwFs.then(
 - [_askChUpgrade](README.md#_channelController__askChUpgrade)
 - [_classFactory](README.md#_channelController__classFactory)
 - [_doClientUpdate](README.md#_channelController__doClientUpdate)
+- [_execCmd](README.md#_channelController__execCmd)
 - [_groupACL](README.md#_channelController__groupACL)
 - [_initCmds](README.md#_channelController__initCmds)
+- [_startSync](README.md#_channelController__startSync)
 - [_updateLoop](README.md#_channelController__updateLoop)
 - [run](README.md#_channelController_run)
 
@@ -1382,17 +1389,21 @@ pwFs.then(
 #### Class channelClient
 
 
+- [_checkout](README.md#channelClient__checkout)
 - [_classFactory](README.md#channelClient__classFactory)
 - [_createTransaction](README.md#channelClient__createTransaction)
 - [_fetch](README.md#channelClient__fetch)
 - [_incoming](README.md#channelClient__incoming)
 - [_onFrameLoop](README.md#channelClient__onFrameLoop)
+- [_onReconnect](README.md#channelClient__onReconnect)
 - [addCommand](README.md#channelClient_addCommand)
 - [askUpgrade](README.md#channelClient_askUpgrade)
 - [at](README.md#channelClient_at)
 - [createChannel](README.md#channelClient_createChannel)
 - [disconnect](README.md#channelClient_disconnect)
 - [fork](README.md#channelClient_fork)
+- [fromMaster](README.md#channelClient_fromMaster)
+- [fromSlave](README.md#channelClient_fromSlave)
 - [get](README.md#channelClient_get)
 - [getChannelData](README.md#channelClient_getChannelData)
 - [getData](README.md#channelClient_getData)
@@ -1405,8 +1416,12 @@ pwFs.then(
 - [redo](README.md#channelClient_redo)
 - [redoStep](README.md#channelClient_redoStep)
 - [remove](README.md#channelClient_remove)
+- [sendCommand](README.md#channelClient_sendCommand)
 - [set](README.md#channelClient_set)
+- [setChannelModel](README.md#channelClient_setChannelModel)
+- [setMasterConnection](README.md#channelClient_setMasterConnection)
 - [setObject](README.md#channelClient_setObject)
+- [setSlaveServer](README.md#channelClient_setSlaveServer)
 - [undo](README.md#channelClient_undo)
 - [undoStep](README.md#channelClient_undoStep)
 - [unset](README.md#channelClient_unset)
@@ -2094,6 +2109,7 @@ pwFs.then(
 - [readFile](README.md#memoryFsFolder_readFile)
 - [removeFile](README.md#memoryFsFolder_removeFile)
 - [toData](README.md#memoryFsFolder_toData)
+- [truncateFile](README.md#memoryFsFolder_truncateFile)
 - [writeFile](README.md#memoryFsFolder_writeFile)
 
 
@@ -2161,6 +2177,7 @@ pwFs.then(
 - [readFile](README.md#nodeFsFolder_readFile)
 - [removeFile](README.md#nodeFsFolder_removeFile)
 - [toData](README.md#nodeFsFolder_toData)
+- [truncateFile](README.md#nodeFsFolder_truncateFile)
 - [writeFile](README.md#nodeFsFolder_writeFile)
 
 
@@ -2329,6 +2346,7 @@ pwFs.then(
 - [constructClientToServer](README.md#_chPolicy_constructClientToServer)
 - [constructServerToClient](README.md#_chPolicy_constructServerToClient)
 - [deltaClientToServer](README.md#_chPolicy_deltaClientToServer)
+- [deltaMasterToSlave](README.md#_chPolicy_deltaMasterToSlave)
 - [deltaServerToClient](README.md#_chPolicy_deltaServerToClient)
 
 
@@ -3102,6 +3120,7 @@ return pwFiles;
 
 ```javascript
 
+options = options || {};
 var readyPromise = _promise();
 
 var baseData = {
@@ -3192,7 +3211,7 @@ pwFiles.then( function() {
         var auth = authFuzz(root);
         var fsRoot  = filesystem.getRootFolder();
 
-        var server  = _serverSocket("http://localhost", 1234);
+        var server  = _serverSocket((options.protocol || "http")+"://"+(options.ip || "localhost"), options.port || 1234);
         var manager  = _serverChannelMgr( server, filesystem.getRootFolder(), auth );
         
         readyPromise.resolve({
@@ -12754,9 +12773,7 @@ return _promise(
             name : chSettings.name || "",
             utc : (new Date()).getTime()
         };
-        console.log("Creating new channel with");
-        console.log(obj);
-        
+
         // got to check first if the channel is free to be forked
         me._isFreeToFork(chSettings.channelId).then( function(yesNo) {
             if(yesNo==true) {
@@ -12923,6 +12940,13 @@ return _promise( function(result) {
 });
 ```
 
+### <a name="_localChannelModel_getJournalSize"></a>_localChannelModel::getJournalSize(t)
+
+
+```javascript
+return this._settings.journalSize;
+```
+
 ### <a name="_localChannelModel_incrementVersion"></a>_localChannelModel::incrementVersion(t)
 
 
@@ -13035,6 +13059,138 @@ return _promise(
     });
 ```
 
+### <a name="_localChannelModel_readCheckoutData"></a>_localChannelModel::readCheckoutData(channelId, version, list)
+
+
+```javascript
+
+var flatten = function(a) {
+    return [].concat.apply([], a);
+}
+
+// What we already have:
+// 1. me._settings  - is holding the channel settings
+// 2. 
+
+var local = this._folder, me = this,
+    versionNumber = version || me._settings.version;
+
+if(channelId) {
+    return _promise( 
+         function(response) {
+             var ch = _localChannelModel(channelId, me._fs);
+             ch.then(
+                 function() {
+                     ch.readCheckoutData(null, version).then( function(res) {
+                          response(res);
+                     });
+                 });
+         });
+}
+
+// Read main is like this:
+/*
+var local = this._folder, 
+    me = this,
+    versionNumber = version || me._settings.version;
+if(versionNumber==1) {
+    return _promise(function(r) {
+        r(null);
+    });
+}
+return local.readFile( "file."+versionNumber);
+*/
+
+// Read journal goes like:
+/*
+
+var local = this._folder, 
+    me = this,
+    versionNumber = version || me._settings.version;
+
+return _promise(
+    function(res) {
+        local.readFile( "journal."+versionNumber).then( function(data) {
+            if(!data) {
+                res([]);
+                return;
+            }
+            res( me._textLinesToArray(data) );
+        }).fail( function() {
+            res([]);
+        })
+});
+*/
+
+return _promise( 
+    function(response) {
+        var repList = [],
+            mainFile,
+            journalFile,
+            myFiles = [];
+        
+        me.then( function() {
+            if(versionNumber==1) {
+                return null;
+            }
+            return local.readFile( "file."+versionNumber);
+        }).then( function(mainFileRead) {
+            if(mainFileRead) {
+                mainFile = mainFileRead;
+                myFiles.push({
+                    ch   : channelId || me._channelId,
+                    file : "file."+versionNumber,
+                    data : mainFileRead
+                });
+            }
+            return local.readFile( "journal."+versionNumber);
+            
+        }).then( function(journal)  {
+            if(journal) {
+                myFiles.push({
+                    ch   : channelId || me._channelId,
+                    file : "journal."+versionNumber,
+                    data : journal
+                });
+            }
+            return local.readFile( "ch.settings");
+        }).then( function(data)  {
+            if(data) {
+                myFiles.push({
+                    ch   : channelId || me._channelId,
+                    file : "ch.settings",
+                    data : data
+                });
+            }
+            // if a fork then read also the forked channel data
+            if(me._settings.from && !mainFile) {
+
+                var settings = me._settings;
+                me.readCheckoutData(settings.from, 
+                                   settings.fromVersion).then( function(resp) {
+                    resp.forEach( function(r) {
+                        myFiles.push(r);
+                    });
+                    response(myFiles);
+                });
+            } else {
+                response(myFiles);
+            }
+        }).fail(function(msg) {
+            console.error(msg);
+        })
+    });
+```
+
+### <a name="_localChannelModel_readFile"></a>_localChannelModel::readFile(fileName)
+
+
+```javascript
+
+var local = this._folder;
+return local.readFile( fileName);
+```
+
 ### <a name="_localChannelModel_readJournal"></a>_localChannelModel::readJournal(version)
 
 
@@ -13048,9 +13204,11 @@ return _promise(
     function(res) {
         local.readFile( "journal."+versionNumber).then( function(data) {
             if(!data) {
+                me._settings.journalSize = 0;
                 res([]);
                 return;
             }
+            me._settings.journalSize = data.length;
             res( me._textLinesToArray(data) );
         }).fail( function() {
             res([]);
@@ -13134,6 +13292,27 @@ return _promise( function(result) {
 
 ```
 
+### <a name="_localChannelModel_syncData"></a>_localChannelModel::syncData(t)
+
+
+```javascript
+var local = this._folder, 
+    me = this;
+    
+return _promise(
+    function(result) {
+        local.isFile("sync").then( function(is_file) {
+            if(is_file) {
+                local.readFile("sync").then(result);
+                return;
+            }
+            result(null);
+        });
+    });
+
+
+```
+
 ### <a name="_localChannelModel_treeOfLife"></a>_localChannelModel::treeOfLife(channelId)
 
 
@@ -13159,6 +13338,30 @@ return _promise(
             }
         })
     });
+```
+
+### <a name="_localChannelModel_truncateJournalTo"></a>_localChannelModel::truncateJournalTo(size, lineNumber)
+
+
+```javascript
+
+var local = this._folder, me = this;
+
+return _promise(
+    function(resp) {
+
+        local.truncateFile( "journal."+me._settings.version, size)
+            .then( function() {
+                
+                // add the journal size after the write...
+                me._settings.journalSize = size
+                me._settings.journalLine = lineNumber;
+                
+                me._writeSettings();
+                resp(true);
+            })
+    });
+
 ```
 
 ### <a name="_localChannelModel_writeFile"></a>_localChannelModel::writeFile(fileName, fileData)
@@ -13206,6 +13409,10 @@ if(this.isArray(row[0])) {
         function(resp) {
             local.appendFile( "journal."+me._settings.version, str)
                 .then( function() {
+                    
+                    // keep the size of the journal available for quicly truncating the server file
+                    me._settings.journalSize += str.length;
+                    
                     me._settings.journalLine+=cnt;
                     me._writeSettings();
                     resp(true);
@@ -13215,8 +13422,13 @@ if(this.isArray(row[0])) {
 
 return _promise(
     function(resp) {
-        local.appendFile( "journal."+me._settings.version, JSON.stringify(row)+"\n")
+        var str = JSON.stringify(row)+"\n";
+        local.appendFile( "journal."+me._settings.version, str)
             .then( function() {
+                
+                // add the journal size after the write...
+                me._settings.journalSize += str.length;
+                
                 me._settings.journalLine++;
                 me._writeSettings();
                 resp(true);
@@ -13300,7 +13512,7 @@ var sockets = this._chManager.getSocketsFromCh(this._channelId);
 
 var me = this;
 sockets.forEach( function(socket) {
-    debugger;
+
     if(!me._serverState.upgrade) me._serverState.upgrade = {};
      me._serverState.upgrade[socket.getId()] = {
          askFull : true,
@@ -13335,15 +13547,19 @@ var updObj, me = this;
 
 if(!me._serverState) return;
 
+// if client has sent "upgradeRequest" command, because it notices that it has
+// been drifted out of state. The client's request can have .askFull = true
+// flag set to indicate that the client requires the full channelData with
+// the whole journal to be sent to the client from server.
 if(me._serverState.upgrade) {
     
+    // me._serverState.upgrade is a hash having the socketID values as keys
     for(var n in me._serverState.upgrade) {
         
         if(me._serverState.upgrade.hasOwnProperty(n)) {
             var info = me._serverState.upgrade[n];
             
             if(info.socket) {
-                debugger;
                 // do we need a full update or partial update?
                 if(info.version != me._serverState.version || (info.askFull)) {
                     var fullData = me._serverState.data.getData();
@@ -13360,18 +13576,39 @@ if(me._serverState.upgrade) {
                         partial : me._serverState.data._journal.slice(lastJournaLine)
                     });  
                 }
-                delete me._serverState.upgrade[n];
+                delete me._serverState.upgrade[n]; // make sure not handled again
             }
         }
     }
 }
 
-// sending to all the sockets if there is data to be sent
+// construct the data to be sent to the clients, if there is any data to be sent..
 if(me._broadcastSocket && me._policy) {
     var data = me._policy.constructServerToClient( me._serverState );  
     if(data) {
+        
+        console.log(" has something to sent to the clients ");
+        console.log(JSON.stringify(data));
+        
         if(!updObj) updObj = me._broadcastSocket.to( me._channelId );
+        
+        var currentJournalSize = me._model.getJournalSize();
+        data.journalSize = currentJournalSize;
+        
+        // broadcast to the socket "room"
         updObj.emit( "s2c_"+me._channelId, data );
+        
+        // the server's connection to the remote client goes here...
+        if(me._syncConnection) {
+            console.log("--- sending data to me._syncConnection --- ");
+            if(data.c) {
+                data.c.forEach( function(eCmd) {
+                    var r = me._syncConnection.addCommand(eCmd);
+                });
+            }
+        }
+        
+        // data.c is array of journal entries to be written to the actual journal file
         me._model.writeToJournal( data.c ).then( function(r) {
             
         });               
@@ -13380,10 +13617,63 @@ if(me._broadcastSocket && me._policy) {
 
 ```
 
+### <a name="_channelController__execCmd"></a>_channelController::_execCmd(cmd, socket, options)
+`socket` not used
+ 
+`options` not used
+ 
+
+Executes command with admin priviledges wihtout socket connection
+```javascript
+// 1. selecting the command to be run here...
+var me = this;
+return _promise(
+    function(result) {
+        if(!cmd || !cmd.cmd) {
+            result(null);
+            return;
+        }        
+        var fn = me._cmds[cmd.cmd];
+        if(fn) {
+            me._commands.addCommands(function(contFn) {
+                    fn(cmd, function(r) {
+                        result(r);
+                        contFn();
+                    }, { _adminSocket : true } );
+                });
+        } else {
+            result(null);
+        }
+});
+/*
+var me = this;
+return _promise(
+    function(result) {
+        if(!cmd || ! cmd.cmd) {
+            result(null);
+            return;
+        }
+        var fn = me._cmds[cmd.cmd];
+        if(fn) {
+            fn(cmd, function(r) {
+                result(r);
+            }, socket);
+        } else {
+            result(null);
+        }
+});
+*/
+```
+
 ### <a name="_channelController__groupACL"></a>_channelController::_groupACL(socket, flags)
 
 
 ```javascript
+ 
+ // for local commands
+ if(socket._adminSocket) {
+     return true;
+ }
  
  var me = this;
  if(!me._acl) return false;
@@ -13417,6 +13707,17 @@ this._cmds = {
             result(r); 
         });        
     },
+
+    checkout : function(cmd, result, socket) {
+        if(!me._groupACL(socket, "r")) { result(null); return; }
+        
+        // read the build tree and the status...
+        me._model.readCheckoutData( ).then( function(r) {
+            result({
+                build : r
+            });
+        });        
+    },    
     readBuildTree : function(cmd, result, socket) {
         if(!me._groupACL(socket, "r")) { result(null); return; }
         
@@ -13496,9 +13797,7 @@ this._cmds = {
         
         // first, save all the unsaved changes and refresh the clients with unsent data
         me._doClientUpdate();
-        
-        console.log("About to call me._model.snapshot ");
-        debugger;
+
         // then, create new version of the main file
         me._model.snapshot( fullData ).then( function(r) {
             
@@ -13572,6 +13871,51 @@ this._cmds = {
         // TODO: socket, emit to all clients.
         
     },    
+    // here is the point to upgrade the server according to data sent from the client
+    masterUpgrade : function(cmd, result, socket) {
+        if(!me._groupACL(socket, "w")) { result(null); return; }
+
+        console.log("creating a master upgrade with ");
+        console.log(JSON.stringify( cmd));
+
+        if(socket.getUserId) {
+            var uid = socket.getUserId();
+            var len = cmd.data.c.length,
+                list = cmd.data.c,
+                utc = (new Date).getTime();
+            for(var i=0; i<len; i++) {
+                list[i][5] = utc;
+                list[i][6] = uid;
+            }
+        }
+        
+        // check that the command is valid
+        var res = me._policy.deltaMasterToSlave( cmd.data, me._serverState );
+        
+        if(! me._broadcastSocket ) me._broadcastSocket = socket;
+        
+        // here is a problem, can not wait for the deltaMasterToSlave to finish
+        // because it is a thenable
+        if(res && res.then) {
+            result({
+                upgradeingMaster : true
+            });
+            return;
+            /*
+            res.then( function(r) {
+                // result(r);
+            });
+            result({
+                
+            });
+            return;
+            */
+        }
+        console.log("result of master upgrade ");
+        console.log(JSON.stringify(res));
+        result(res);
+
+    },     
     changeFrame : function( cmd, result, socket ) {
         
         if(!me._groupACL(socket, "w")) { result(null); return; }
@@ -13622,11 +13966,107 @@ this._cmds = {
 }
 ```
 
+### <a name="_channelController__startSync"></a>_channelController::_startSync(t)
+
+
+```javascript
+var me = this;
+
+return _promise(
+    function(result) {
+        // --> test also if the channel has a master server
+        me._model.syncData().then( function(data) {
+            
+            if(!data) {
+                result(false);
+                return;
+            }
+            
+            if(data) {
+                console.log("Sync data");
+                console.log(data);
+                var connData = JSON.parse(data);
+                var outConn = connData.out;
+                
+                // inConn = connData.in;
+                // there is a slave <-> master connection, should create the sync between the two
+                // channels around here for some client which takes care of sending the data...
+                
+                if(outConn.method=="memory.socket") {
+                    var outSocket  = _clientSocket(outConn.protocol+"://"+outConn.ip, outConn.port);
+                }
+                
+                if(outConn.method=="node.socket") {
+                    var ioLib = require('socket.io-client')
+                    var realSocket1 = ioLib.connect(outConn.protocol+"://"+outConn.ip+":"+( outConn.extPort || outConn.port));            
+                    var outSocket  = _clientSocket(outConn.protocol+"://"+outConn.ip, outConn.port, realSocket1);
+                }        
+                
+                /*
+                // TODO: think about if there is need for inConn method at all?  
+                if(inConn.method=="memory.socket") {
+                    var inSocket  = _clientSocket(inConn.protocol+"://"+inConn.ip, inConn.port);
+                }
+        
+                if(inConn.method=="node.socket") {
+                    var ioLib = require('socket.io-client')
+                    var realSocket2 = ioLib.connect(outConn.protocol+"://"+inConn.ip+":"+( inConn.extPort || inConn.port));            
+                    var inSocket  = _clientSocket(outConn.protocol+"://"+inConn.ip, inConn.port, realSocket2);
+                } 
+                
+                // TODO: how to make the authentication between 2 clients ?
+                var inConnection = channelClient( inConn.channelId, inSocket, {
+                        auth : {
+                            username : inConn.username,
+                            password : inConn.password
+                        }
+                    });         
+                */
+                
+                // TODO: how to make the authentication between 2 clients ?
+                var outConnection = channelClient( outConn.channelId, outSocket, {
+                        auth : {
+                            username : outConn.username,
+                            password : outConn.password
+                        }
+                    });        
+                
+                outConnection.then( function() {
+                    return me._model.readFile("master-sync");
+                }).then( function(d) {
+                    if(!d) {
+                        d = [0,0];
+                        me._masterSync = d;
+                        return me._model.writeFile("master-sync", JSON.stringify(d));
+                    } else {
+                        me._masterSync = JSON.parse( d );
+                    }
+                }).then( function(d) {
+                    // ?? whot if there would be only the "out" connection
+                    // inConnection.setMasterConnection( outConnection );
+                    // outConnection.setSlaveServer( inConnection );     
+                    
+                    outConnection._slaveController = me;
+                    me._syncConnection = outConnection;
+                    
+                    // outConnection.setChannelModel( me._model );
+                    console.log("sync: ---- in / out connection ready --- ");
+                    result(true);
+                });
+            }
+        });
+
+});
+```
+
 ### <a name="_channelController__updateLoop"></a>_channelController::_updateLoop(t)
 
 
 ```javascript
 
+// TODO: make the update loop a setting or automatically adjusting value depending
+// on the server load - the function is not required to be run if there is no activity
+// and it should be removed if the client exits from the channel.
 var me = this;
 later().every(1/5, function() {
     me._doClientUpdate();
@@ -13648,7 +14088,6 @@ var me = this;
 
 // Then, construct the channel model from the data
 this._model.readBuildTree( ).then( function(r) {
-    
 
     // the build tree
     var mainData = r.pop();
@@ -13668,6 +14107,7 @@ this._model.readBuildTree( ).then( function(r) {
 
     // The state of the server - what should be the "last_update" ?  
     me._serverState = {
+        model :         me._model,                      // model of the server state, if truncate needed
         data :          dataTest,                       // The channel data object set here
         version :       me._model._settings.version,    // the version of the channel model
         last_update :   [0, dataTest.getJournalLine()],             // the range of last commands sent to the client
@@ -13686,10 +14126,14 @@ this._model.readBuildTree( ).then( function(r) {
     me._policy = _chPolicy();
     
     me._updateLoop(); // start the update loop
-    
-    // And, here it is finally then...
     me._chData = dataTest;
-    me.resolve(true);
+    
+    // if there is a sync server, start it too before proceeding...
+    me._startSync().then( function() {
+        me.resolve(true); 
+    })
+    
+               
     
 }); 
 
@@ -14441,6 +14885,37 @@ The class has following internal singleton variables:
 * _instanceCache
         
         
+### <a name="channelClient__checkout"></a>channelClient::_checkout(channelId)
+
+
+```javascript
+
+var me = this,
+    socket = this._socket;
+
+return _promise( 
+    function(result) {
+
+        if(!me._policy) return;
+        if(me._disconnected) return;    // in case disconnected, don't send data
+        if(!me._connected) return;
+        
+        socket.send("channelCommand", {
+                    channelId : channelId,
+                    cmd : "checkout",
+                    data : ""
+            }).then( function(res) {
+                
+                debugger;
+                console.log("Checkout tree ");
+                console.log(res);
+                result(res);
+                
+            })    
+    });
+
+```
+
 ### <a name="channelClient__classFactory"></a>channelClient::_classFactory(id, socket)
 
 
@@ -14510,7 +14985,8 @@ socket.on("upgrade_"+this._channelId, function(cmd) {
    me._upgradePending = false;
    // just don't accept any msgs 
    if(me._disconnected) return;
-
+   //console.log("upgrade_cmd");
+   //console.log(JSON.stringify(cmd));
    if(cmd) {
 
        if(cmd.partial) {
@@ -14610,6 +15086,12 @@ socket.on("upgrade_"+this._channelId, function(cmd) {
                 };
 */
        }       
+       if(me._master) {
+           me._master.fromSlave( cmd );
+       }
+       if(me._slave) {
+           me._slave.fromMaster( cmd );
+       }       
    }
 });
 
@@ -14619,6 +15101,41 @@ socket.on("s2c_"+this._channelId, function(cmd) {
    if(me._disconnected) return;
    if(cmd) {
        var res = me._policy.deltaServerToClient( cmd, me._clientState);
+       
+       // if there is a slave controller
+       if(me._slaveController) {
+
+            var newList = [];
+            for(var i=0; i<cmd.c.length;i++) {
+                var c = cmd.c[i].slice();
+                newList.push( me._transformCmdFromNs( c ) );
+            }
+            cmd.c = newList;
+
+            me._slaveController._execCmd({
+                cmd : "masterUpgrade",
+                data : cmd
+            });           
+       }
+       // --> master and slave connections
+       /*
+       me._masterController.
+       me._slave
+       if(me._master) {
+           console.log(" has master -> sending from slave ");
+           me._master.fromSlave( cmd );
+       } 
+       if(me._slave) {
+           //var currLen = me._serverModel.getJournalSize();
+           //var remoteLen = cmd.journalSize;
+           //console.log(" at master, journal sizes ",currLen, remoteLen);
+           console.log(" has slave -> sending masterUpgrade ");
+           for(var i=0; i<cmd.c.length;i++) {
+               cmd.c[i] = me._transformCmdFromNs( cmd.c[i] );
+           }
+           me._slave.sendCommand("masterUpgrade", cmd);
+       } 
+       */
    }
    // done, no other action needed???
 });
@@ -14639,6 +15156,7 @@ var _frameFn = function() {
     if(me._disconnected) return;    // in case disconnected, don't send data
     
     if(!me._connected) return;
+    if(!me._clientState) return;
     
     if(me._clientState.needsRefresh) {
         // *** if refresh is required, out of sync client **
@@ -14653,8 +15171,8 @@ var _frameFn = function() {
     var packet = me._policy.constructClientToServer( me._clientState );
     if(packet) {
 
-            //console.log("Sending packet to server ");
-            //console.log(packet);
+            console.log("Sending packet to server ");
+            console.log(packet);
             socket.send("channelCommand", {
                         channelId : channelId,
                         cmd : "c2s",
@@ -14681,6 +15199,39 @@ later().onFrame( _frameFn  );
 
 ```
 
+### <a name="channelClient__onReconnect"></a>channelClient::_onReconnect(t)
+
+Actions to do when the client reconnects to other server
+```javascript
+
+// do we have a slave connection???
+if(this._slave) {
+    console.log("*** reconnect to the master ***");
+    
+}
+
+
+var me = this;
+// first, send the data we have to server, hope it get's through...
+var packet = me._policy.constructClientToServer( me._clientState );
+var socket = this._socket;
+var channelId = this._channelId;
+
+
+
+if(packet) {
+    socket.send("channelCommand", {
+                channelId : channelId,
+                cmd : "c2s",
+                data : packet
+        }).then( function(res) {
+
+        })    
+}               
+// then, ask upgrade...
+me.askUpgrade();
+```
+
 ### <a name="channelClient_addCommand"></a>channelClient::addCommand(cmd, dontBroadcast)
 
 Add command to next change frame to be sent over the network. TODO: validate the commands against the own channelObject, for example the previous value etc.
@@ -14699,21 +15250,25 @@ Add command to next change frame to be sent over the network. TODO: validate the
     }
 */
 
-if(this._currentFrame) {
+if(0) {
+    console.log("add c b 1 ");
     var cmdOut = this._transformCmdFromNs(cmd, this._ns);
     var cmdIn  = this._transformCmdToNs(cmd, this._ns);
     // the local command is run immediately and if it passes then we add it to the frame
-    if( this._data.execCmd(cmdIn, dontBroadcast)  ) {
+    var r;
+    if( r = this._data.execCmd(cmdIn, dontBroadcast)  ) {
         this._currentFrame.commands.push( cmdOut );        
     }
+    return r;
 
 } else {
+    console.log("add c b 2 ");
     // local command, no frame to add commands.
     var cmdIn  = this._transformCmdToNs(cmd, this._ns);
+    console.log(cmdIn);
     // the local command is run immediately and if it passes then we add it to the frame
-    if( this._data.execCmd(cmdIn, dontBroadcast)  ) {
-        
-    }    
+    return this._data.execCmd(cmdIn, dontBroadcast);
+    
 }
 ```
 
@@ -14878,6 +15433,49 @@ return _promise(
 
 ```
 
+### <a name="channelClient_fromMaster"></a>channelClient::fromMaster(change)
+
+
+```javascript
+console.log("from master", JSON.stringify(change));
+```
+
+### <a name="channelClient_fromSlave"></a>channelClient::fromSlave(change)
+
+
+```javascript
+console.log("from slave", JSON.stringify(change));
+
+if(change.cmd=="s2c") {
+    
+    // --> we have server to client command coming in..
+    // this is the connection to the master, thus the commands should be run
+    // here as if they were "local" commands which are about to be sent to the
+    // remote server
+    /*
+return {
+    cmd : "s2c",
+    c : chData._journal.slice( start, end ),
+    start : start,
+    end : end,
+    version : serverState.version
+};    
+    */
+    
+    // this channelClient is only responsible of sending the commands to the
+    // actual master server
+    var me = this;
+    change.c.forEach( function(eCmd) {
+        console.log(eCmd);
+        var r = me.addCommand(eCmd);
+        console.log(JSON.stringify(r));
+       console.log(JSON.stringify( me._data.getData()));
+    });
+    
+}
+
+```
+
 ### <a name="channelClient_get"></a>channelClient::get(id, name)
 
 
@@ -14924,6 +15522,8 @@ return -1;
 
 ```javascript
 
+if(!this._policy) this._policy = _chPolicy();
+
 if(options && options.localChannel) {
     
     this._channelId = channelId;
@@ -14969,8 +15569,6 @@ var me = this;
 this._onFrameLoop( socket, myNamespace );
 this._incoming(socket, myNamespace);
 
-console.log("channelClient init");
-
 this._connCnt = 0;
 
 socket.on("disconnect", function() {
@@ -15010,20 +15608,9 @@ socket.on("connect", function() {
                 // local objects to consume
                 
                 if(me._connCnt > 1) {
-                    
-                    // first, send the data we have to server, hope it get's through...
-                    var packet = me._policy.constructClientToServer( me._clientState );
-                    if(packet) {
-                        socket.send("channelCommand", {
-                                    channelId : channelId,
-                                    cmd : "c2s",
-                                    data : packet
-                            }).then( function(res) {
-
-                            })    
-                    }               
-                    // then, ask upgrade...
-                    me.askUpgrade();
+                    // if reconnecting to the other server, ask upgrade only, not the whole
+                    // build tree...
+                    me._onReconnect();
                     return false;
                 }
 
@@ -15091,8 +15678,7 @@ socket.on("connect", function() {
                     last_sent : [0, chData.getJournalLine()]     // last range sent to the server
                 
                 };
-                me._policy = _chPolicy();
-                                
+                              
                 me._data = chData;
                 me._createTransaction();
                 me.resolve({ result : true, channelId : channelId });
@@ -15227,6 +15813,26 @@ if(obj) {
 
 ```
 
+### <a name="channelClient_sendCommand"></a>channelClient::sendCommand(commandName, packet)
+
+
+```javascript
+var me = this,
+    channelId = this._channelId,
+    socket = this._socket;
+
+if(!me._policy) return;
+if(me._disconnected) return;    // in case disconnected, don't send data
+if(!me._connected) return;
+if(!socket) return;
+    
+return socket.send("channelCommand", {
+                        channelId : channelId,
+                        cmd : commandName,
+                        data : packet
+                });
+```
+
 ### <a name="channelClient_set"></a>channelClient::set(id, name, value)
 
 
@@ -15240,6 +15846,21 @@ if(obj && !this.isObject(value)) {
     }
 }
 
+```
+
+### <a name="channelClient_setChannelModel"></a>channelClient::setChannelModel(model)
+
+
+```javascript
+
+this._serverModel = model;
+```
+
+### <a name="channelClient_setMasterConnection"></a>channelClient::setMasterConnection(masterConnection)
+
+
+```javascript
+this._master = masterConnection;
 ```
 
 ### <a name="channelClient_setObject"></a>channelClient::setObject(id, name, propObj)
@@ -15258,6 +15879,14 @@ if(obj && this.isObject(propObj) && propObj.__id) {
     }
 }
 
+```
+
+### <a name="channelClient_setSlaveServer"></a>channelClient::setSlaveServer(slaveServer)
+
+Will set the slave server for this connection
+```javascript
+
+this._slave = slaveServer;
 ```
 
 ### <a name="channelClient_undo"></a>channelClient::undo(cnt)
@@ -20419,6 +21048,22 @@ return _promise(
 });
 ```
 
+### <a name="memoryFsFolder_truncateFile"></a>memoryFsFolder::truncateFile(fileName, newSize)
+
+
+```javascript
+var p, me = this;
+return _promise(
+    function(result, fail) {
+        var fold = me._pathObj;
+        if(fold[fileName]) {
+            fold[fileName] = fold[fileName].substring(0, newSize);;
+        } 
+        result({result : true});
+    } );
+
+```
+
 ### <a name="memoryFsFolder_writeFile"></a>memoryFsFolder::writeFile(fileName, fileData)
 
 
@@ -21023,6 +21668,36 @@ return _promise(
             result({}); 
         });
 });
+```
+
+### <a name="nodeFsFolder_truncateFile"></a>nodeFsFolder::truncateFile(fileName, newSize)
+
+
+```javascript
+
+var _rootDir = this._rootDir;
+var me = this;
+
+return _promise(
+    function(result, fail) {
+        
+        if(typeof(fileFilename) != "string") {
+            // can not write anything else than strings
+            fail({result : false, text : "Only string filenames are accepted"});
+            return;
+        } 
+        
+        fileName = path.basename(fileName);
+        fs.truncate(_rootDir+"/"+fileName, newSize, function (err, data) {
+            if (err) {
+               fail( err );
+               return;
+            }
+            result({result:true, text:"File truncated"});
+        });
+});
+    
+    
 ```
 
 ### <a name="nodeFsFolder_writeFile"></a>nodeFsFolder::writeFile(fileName, fileData, fn)
@@ -22305,9 +22980,9 @@ if( start == end ) {
     return null;
 }
 
-console.log("clientToServer");
-console.log(clientState.last_update);
-console.log(start,end);
+//console.log("clientToServer");
+//console.log(clientState.last_update);
+//console.log(start,end);
 
 
 // [2,4]
@@ -22320,6 +22995,7 @@ clientState.last_sent[0] = start;
 clientState.last_sent[1] = end;
 
 var obj = {
+    cmd : "c2s",
     id : this.guid(),
     c : chData._journal.slice( start, end ),
     start : start,
@@ -22364,6 +23040,7 @@ serverState.last_update[0] = start;
 serverState.last_update[1] = end;
 
 return {
+    cmd : "s2c",
     c : chData._journal.slice( start, end ),
     start : start,
     end : end,
@@ -22444,6 +23121,246 @@ try {
     return e.message;
 }
 
+
+
+```
+
+### <a name="_chPolicy_deltaMasterToSlave"></a>_chPolicy::deltaMasterToSlave(updateFrame, serverState)
+
+
+```javascript
+
+// the client state
+/*
+{
+    data : channelData,     // The channel data object
+    version : 1,
+    last_update : [1, 30],  // last server update
+}
+*/
+
+// the server sends
+/*
+{
+    c : chData._journal.slice( start, end ),
+    start : start,
+    end : end,
+    version : serverState.version
+}
+*/
+// The server state
+/*
+{
+    data : channelData,     // The channel data object
+    version : 1,
+    last_update : [1, 30],  // version + journal line
+    lagging_sockets : {}    // hash of invalid sockets
+}
+*/
+// check where is our last point of action...
+
+if(!updateFrame) return;
+
+var data = serverState.data; // the channel data we have now
+
+
+// [2,4] = [start, end]
+// 0 
+// 1
+// 2 *
+// 3 *
+
+var result = {
+    goodCnt : 0,
+    oldCnt : 0,
+    newCnt : 0,
+    reverseCnt : 0
+};
+
+console.log("deltaMasterToSlave");
+var sameUntil = updateFrame.start;
+
+if(serverState.needsRefresh) {
+    console.log("** serverState needs refresh **");
+    return;
+}
+
+// if the server's journal is a lot behind the sent data...
+if(updateFrame.start > data._journal.length ) {
+    
+    console.log("--- setting refresh on because of ---- ");
+    console.log(" updateFrame.start > data._journal.length ");  
+    
+    serverState.needsRefresh = true;
+    result.fail = true;
+    return result;
+}
+
+// this should not be needed at the server side, because object ID's are without
+// the namespace
+/*
+if(serverState.client) {
+    for(var i=updateFrame.start; i<updateFrame.end; i++) {
+        var serverCmd = updateFrame.c[i-updateFrame.start];
+        updateFrame.c[i-updateFrame.start] = serverState.client._transformCmdToNs( serverCmd );
+    }
+}
+*/
+
+var goodList = [];
+
+// process the commands a long as they are the same
+for(var i=updateFrame.start; i<updateFrame.end; i++) {
+    
+    var myJ = data.getJournalCmd(i);    
+    var serverCmd = updateFrame.c[i-updateFrame.start];
+    
+    var bSame = true;
+    if(myJ) {
+        
+        if(myJ[0]==13 && serverCmd[0] ==13 && (myJ[4]== serverCmd[4]) && (myJ[1]== serverCmd[1])) {
+            var mainArray1 = myJ[2],  
+                mainArray2 = serverCmd[2];
+            if(mainArray1.length != mainArray2.length) {
+                bSame = false;
+            } else {
+                for(var mi=0; mi<mainArray1.length;mi++) {
+                    if(!bSame) break;
+                    var arr1 = mainArray1[mi],
+                        arr2 = mainArray2[mi];
+                    for(var ai=0; ai<5; ai++) {
+                        if(arr1[ai]!=arr2[ai]) {
+                            console.log("not same ", ai, arr1[ai], arr2[ai]);
+                            bSame = false;
+                            break;
+                        }
+                    }
+                    if(bSame) {
+                        if(this.isArray(arr1[5])) {
+                            var arr1 = arr1[5],  
+                                arr2 = arr2[5];
+                            var len = Math.max( arr1.length || 0, arr2.length || 0);
+                            for(var ai=0; ai<len; ai++) {
+                                if(arr1[ai]!=arr2[ai]) {
+                                    console.log("not same array ", ai);
+                                    bSame = false;
+                                    break;
+                                }
+                            }                    
+                        } else {
+                           if(arr1[5]!=arr2[5]) {
+                                bSame = false;
+                            } 
+                        }
+                    }
+                    if(!bSame) {
+                        console.log("was not the same");
+                        console.log(serverCmd, "vs", myJ );           
+                    }
+                }
+            }
+        } else {
+            for(var j=0; j<=4; j++) {
+                if(myJ[j] != serverCmd[j]) {
+                    bSame = false;
+                    console.log("was not the same");
+                    console.log(serverCmd[j], "vs", myJ[j] );
+                }
+            }
+        }
+    } else {
+        // a new command has arrived...
+        
+        var cmdRes = data.execCmd(serverCmd); // set data ready to be broadcasted
+        if( cmdRes !== true ) {
+            // if we get errors then we have some kind of problem
+                console.log("--- setting refresh on because of ---- ");
+                console.log(JSON.stringify(cmdRes));  
+            serverState.needsRefresh = true;
+            result.fail = true;
+            result.reason = cmdRes;
+            return result;             
+        } else {         
+            sameUntil = i; // ??
+            result.goodCnt++;
+            result.newCnt++;
+        }
+        goodList.push( serverCmd );
+        
+        continue;
+    }
+    if(bSame) {
+        sameUntil = i;
+        result.goodCnt++;
+        result.oldCnt++;
+    } else {
+        console.log("Not same ");
+        console.log(JSON.stringify(  updateFrame.c ));
+        return _promise(
+            function(done) {
+                // here is the point where the data is reversed and also the server journal should be truncated:
+                data.reverseToLine( sameUntil  );
+                var size = updateFrame.journalSize;
+                console.log("Truncating the journal to ", size, sameUntil);
+                // truncate server journal to certain length
+                serverState.model.truncateJournalTo( size, sameUntil ).then(
+                    function() {
+                
+                        // and then run commands without sending them outside...
+                        var list = [];
+                        for(var i=sameUntil; i<updateFrame.end; i++) {
+                            
+                            var serverCmd = updateFrame.c[i-updateFrame.start];    
+                            var cmdRes = data.execCmd(serverCmd); // data ready to be broadcasted
+                            if( cmdRes !== true ) {
+                    
+                                console.log("--- there is need for a bigger refersh ---- ");
+                                console.log(JSON.stringify(cmdRes));                
+                                
+                                // if we get errors then we have some kind of problem
+                                serverState.needsRefresh = true;
+                                result.fail = true;
+                                result.reason = cmdRes;
+                                done(result);
+                                return result;             
+                            }        
+                            list.push( serverCmd );
+                            result.reverseCnt++;
+                        }
+                        
+                        // serverState.last_update[0] = updateFrame.start;
+                        // serverState.last_update[1] = updateFrame.end;
+                        
+                        // mark the new start for next update, 
+                        serverState.last_update[0] = 0;
+                        serverState.last_update[1] = sameUntil; // <- this is what matters
+                        
+                        // --> writing to the journal is done at the client loop
+                        // write the new lines to the servers journal
+                        //serverState.model.writeToJournal( list ).then( function() {
+                        //    done(result);
+                        //});
+                        
+                        return result;
+                    });
+            });
+    }
+}
+//clientState.last_update[0] = updateFrame.start;
+//clientState.last_update[1] = updateFrame.end;
+
+console.log("server last update "+JSON.stringify( serverState.last_update) );
+console.log("server data length "+serverState.data._journal.length);
+
+if(goodList.length) {
+    /*
+    serverState.model.writeToJournal( goodList ).then( function() {
+        // done(result);
+    });
+    */
+}
+
+return result;
 
 
 ```

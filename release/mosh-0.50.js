@@ -11708,15 +11708,21 @@
               });
 
               outConnection.then(function () {
+                console.log("out done, checking for master-sync");
+                return me._model.isFile("master-sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  console.log("master-sync missing");
+                  return me._model.writeFile("master-sync", JSON.stringify([0, 0]));
+                }
+                return 0;
+              }).then(function () {
+                console.log("reading master-sync missing");
                 return me._model.readFile("master-sync");
               }).then(function (d) {
-                if (!d) {
-                  d = [0, 0];
-                  me._masterSync = d;
-                  return me._model.writeFile("master-sync", JSON.stringify(d));
-                } else {
-                  me._masterSync = JSON.parse(d);
-                }
+                console.log(d);
+                me._masterSync = JSON.parse(d);
+                return d;
               }).then(function (d) {
                 // ?? whot if there would be only the "out" connection
                 // inConnection.setMasterConnection( outConnection );

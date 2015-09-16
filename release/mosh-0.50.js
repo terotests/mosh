@@ -14273,8 +14273,12 @@
               openConnection.messageTo({
                 socketId: myId
               });
+            } else {
+              // does this kind of connection work...
+              console.log("Triggering connect again");
+              me.trigger("connect", me._socket);
             }
-            console.log("Sending message to _tcpEmu with real socket ");
+            // console.log("Sending message to _tcpEmu with real socket ");
             _hasbeenConnected = true;
           };
           var me = this;

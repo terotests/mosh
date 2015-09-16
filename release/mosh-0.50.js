@@ -13563,6 +13563,8 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (channelId, socket, options) {
 
+        console.log("*** channel init called for " + channelId + " *** ");
+
         if (!this._policy) this._policy = _chPolicy();
 
         if (options && options.localChannel) {
@@ -13616,7 +13618,8 @@
         });
         socket.on("connect", function () {
 
-          console.log("Socket sent connected");
+          console.log("*** socket reconnect for " + channelId + " *** ");
+          console.log("Connection count " + me._connCnt);
 
           me._connCnt++;
 

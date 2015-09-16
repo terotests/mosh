@@ -13089,6 +13089,14 @@
 
             // if there is a slave controller
             if (me._slaveController) {
+
+              var newList = [];
+              for (var i = 0; i < cmd.c.length; i++) {
+                var c = cmd.c[i].slice();
+                newList.push(me._transformCmdFromNs(c));
+              }
+              cmd.c = newList;
+
               me._slaveController._execCmd({
                 cmd: "masterUpgrade",
                 data: cmd

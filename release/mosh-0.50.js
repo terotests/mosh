@@ -11792,9 +11792,9 @@
           me._chData = dataTest;
 
           // if there is a sync server, start it too before proceeding...
-          me._syncPromise = me._startSync();
-
-          me.resolve(true);
+          me._startSync().then(function () {
+            me.resolve(true);
+          });
         });
 
         this._initCmds();

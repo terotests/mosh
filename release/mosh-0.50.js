@@ -11229,7 +11229,7 @@
                 });
               }
               // the last lines sent to the server
-              me._masterSync = [0, me._serverState.data.getJournalLine()];
+              me._masterSync = [me._serverState.version, me._serverState.data.getJournalLine()];
               me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));
             }
 
@@ -11460,14 +11460,21 @@
               me._serverState.last_update[0] = 0;
               me._serverState.last_update[1] = 0;
 
-              //console.log("After snapshot ");
-              //console.log(me._serverState);
-
-              // ask channels to upgrade to the latest version of data
-              me._askChUpgrade(me._channelId);
-              result({
-                ok: true
-              });
+              if (me._masterSync) {
+                me._masterSync = [me._serverState.version, 0];
+                me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync)).then(function () {
+                  me._askChUpgrade(me._channelId);
+                  result({
+                    ok: true
+                  });
+                });
+              } else {
+                // ask channels to upgrade to the latest version of data
+                me._askChUpgrade(me._channelId);
+                result({
+                  ok: true
+                });
+              }
             });
           },
           writeMain: function writeMain(cmd, result, socket) {
@@ -11659,6 +11666,33 @@
       /**
        * @param float t
        */
+      _myTrait_._sendUnsentToMaster = function (t) {
+        // the server's connection to the remote client goes here...
+        var me = this;
+        if (me._syncConnection && me._syncConnection.isConnected() && me._masterSync) {
+
+          var lastSent = me._masterSync[1];
+          var currLine = me._serverState.data.getJournalLine();
+
+          if (currLine > lastSent) {
+
+            console.log("--- _sendUnsentToMaster --- ");
+            var cmds = me._serverState.data._journal.slice(lastSent, currLine);
+
+            cmds.forEach(function (eCmd) {
+              var r = me._syncConnection.addCommand(eCmd);
+            });
+
+            // the last lines sent to the server
+            me._masterSync = [0, currLine];
+            me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));
+          }
+        }
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_._startSync = function (t) {
         var me = this;
 
@@ -11725,7 +11759,8 @@
               }).then(function (is_file) {
                 if (!is_file) {
                   console.log("master-sync missing");
-                  return me._model.writeFile("master-sync", JSON.stringify([0, 0]));
+                  // me._masterSync = [me._serverState.version, 0];
+                  return me._model.writeFile("master-sync", JSON.stringify([me._serverState.version, 0]));
                 }
                 return 0;
               }).then(function () {
@@ -11742,6 +11777,9 @@
 
                 outConnection._slaveController = me;
                 me._syncConnection = outConnection;
+
+                // <- when sync starts, send first all unsent data
+                me._sendUnsentToMaster();
 
                 // outConnection.setChannelModel( me._model );
                 console.log("sync: ---- in / out connection ready --- ");
@@ -13221,6 +13259,11 @@
           console.log("*** reconnect to the master ***");
         }
 
+        // if we have a slave controller...
+        if (me._slaveController) {
+          me._slaveController._sendUnsentToMaster();
+        }
+
         var me = this;
         // first, send the data we have to server, hope it get's through...
         var packet = me._policy.constructClientToServer(me._clientState);
@@ -13236,6 +13279,10 @@
         }
         // then, ask upgrade...
         me.askUpgrade();
+
+        // -->
+
+        // me._sendUnsentToMaster();
       };
 
       /**

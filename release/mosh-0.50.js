@@ -11708,6 +11708,16 @@
               });
 
               outConnection.then(function () {
+                return me._model.readFile("master-sync");
+              }).then(function (d) {
+                if (!d) {
+                  d = [0, 0];
+                  me._masterSync = d;
+                  return me._model.writeFile("master-sync", JSON.stringify(d));
+                } else {
+                  me._masterSync = JSON.parse(d);
+                }
+              }).then(function (d) {
                 // ?? whot if there would be only the "out" connection
                 // inConnection.setMasterConnection( outConnection );
                 // outConnection.setSlaveServer( inConnection );    

@@ -14279,7 +14279,7 @@
               me.trigger("connect", me._socket);
             }
             // console.log("Sending message to _tcpEmu with real socket ");
-            _hasbeenConnected = true;
+            // _hasbeenConnected = true;
           };
           var me = this;
           realSocket.on("disconnect", function () {

@@ -11246,7 +11246,7 @@
           var fn = me._cmds[cmd.cmd];
           if (fn) {
             me._commands.addCommands(function (contFn) {
-              fn(cmd.data, function (r) {
+              fn(cmd, function (r) {
                 result(r);
                 contFn();
               }, {

@@ -13092,6 +13092,28 @@
       };
 
       /**
+       * Actions to do when the client reconnects to other server
+       * @param float t
+       */
+      _myTrait_._onReconnect = function (t) {
+        var me = this;
+        // first, send the data we have to server, hope it get's through...
+        var packet = me._policy.constructClientToServer(me._clientState);
+        var socket = this._socket;
+        var channelId = this._channelId;
+
+        if (packet) {
+          socket.send("channelCommand", {
+            channelId: channelId,
+            cmd: "c2s",
+            data: packet
+          }).then(function (res) {});
+        }
+        // then, ask upgrade...
+        me.askUpgrade();
+      };
+
+      /**
        * Add command to next change frame to be sent over the network. TODO: validate the commands against the own channelObject, for example the previous value etc.
        * @param Array cmd
        * @param float dontBroadcast
@@ -13451,17 +13473,7 @@
 
                 if (me._connCnt > 1) {
 
-                  // first, send the data we have to server, hope it get's through...
-                  var packet = me._policy.constructClientToServer(me._clientState);
-                  if (packet) {
-                    socket.send("channelCommand", {
-                      channelId: channelId,
-                      cmd: "c2s",
-                      data: packet
-                    }).then(function (res) {});
-                  }
-                  // then, ask upgrade...
-                  me.askUpgrade();
+                  me._onReconnect();
                   return false;
                 }
 

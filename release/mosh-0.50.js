@@ -11221,13 +11221,16 @@
             updObj.emit("s2c_" + me._channelId, data);
 
             // the server's connection to the remote client goes here...
-            if (me._syncConnection) {
+            if (me._syncConnection && me._syncConnection.isConnected()) {
               console.log("--- sending data to me._syncConnection --- ");
               if (data.c) {
                 data.c.forEach(function (eCmd) {
                   var r = me._syncConnection.addCommand(eCmd);
                 });
               }
+              // the last lines sent to the server
+              me._masterSync = [0, me._serverState.data.getJournalLine()];
+              me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));
             }
 
             // data.c is array of journal entries to be written to the actual journal file
@@ -13676,6 +13679,16 @@
           }
         });
       });
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isConnected = function (t) {
+        if (this._disconnected) return false;
+        if (this._connCnt && this._connected) return true;
+
+        return false;
+      };
 
       /**
        * @param float id

@@ -1222,6 +1222,7 @@ pwFs.then(
 - [_writeSettings](README.md#_localChannelModel__writeSettings)
 - [childForkTree](README.md#_localChannelModel_childForkTree)
 - [createChannel](README.md#_localChannelModel_createChannel)
+- [folder](README.md#_localChannelModel_folder)
 - [fork](README.md#_localChannelModel_fork)
 - [get](README.md#_localChannelModel_get)
 - [getCurrentVersion](README.md#_localChannelModel_getCurrentVersion)
@@ -1408,6 +1409,7 @@ pwFs.then(
 - [getChannelData](README.md#channelClient_getChannelData)
 - [getData](README.md#channelClient_getData)
 - [indexOf](README.md#channelClient_indexOf)
+- [isConnected](README.md#channelClient_isConnected)
 - [length](README.md#channelClient_length)
 - [moveDown](README.md#channelClient_moveDown)
 - [moveTo](README.md#channelClient_moveTo)
@@ -12815,6 +12817,13 @@ return _promise(
 
 ```
 
+### <a name="_localChannelModel_folder"></a>_localChannelModel::folder(t)
+
+
+```javascript
+return this._folder;
+```
+
 ### <a name="_localChannelModel_fork"></a>_localChannelModel::fork(forkData)
 `forkData` Object with { channelId : &quot;path/to/the/challe&quot;,  name:&quot;name&quot;}
  
@@ -13599,14 +13608,18 @@ if(me._broadcastSocket && me._policy) {
         updObj.emit( "s2c_"+me._channelId, data );
         
         // the server's connection to the remote client goes here...
-        if(me._syncConnection) {
+        if(me._syncConnection && me._syncConnection.isConnected()) {
             console.log("--- sending data to me._syncConnection --- ");
             if(data.c) {
                 data.c.forEach( function(eCmd) {
                     var r = me._syncConnection.addCommand(eCmd);
                 });
             }
+            // the last lines sent to the server
+            me._masterSync = [0, me._serverState.data.getJournalLine()];
+            me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));            
         }
+
         
         // data.c is array of journal entries to be written to the actual journal file
         me._model.writeToJournal( data.c ).then( function(r) {
@@ -14032,15 +14045,21 @@ return _promise(
                     });        
                 
                 outConnection.then( function() {
+                    console.log("out done, checking for master-sync");
+                    return me._model.folder().isFile("master-sync");
+                }).then( function(is_file) {
+                    if(!is_file) {
+                        console.log("master-sync missing");
+                        return me._model.writeFile("master-sync", JSON.stringify([0,0]));
+                    } 
+                    return 0;
+                }).then( function() {
+                    console.log("reading master-sync missing");
                     return me._model.readFile("master-sync");
                 }).then( function(d) {
-                    if(!d) {
-                        d = [0,0];
-                        me._masterSync = d;
-                        return me._model.writeFile("master-sync", JSON.stringify(d));
-                    } else {
-                        me._masterSync = JSON.parse( d );
-                    }
+                    console.log(d);
+                    me._masterSync = JSON.parse( d );
+                    return d;
                 }).then( function(d) {
                     // ?? whot if there would be only the "out" connection
                     // inConnection.setMasterConnection( outConnection );
@@ -15693,6 +15712,17 @@ socket.on("connect", function() {
 
 ```
         
+### <a name="channelClient_isConnected"></a>channelClient::isConnected(t)
+
+
+```javascript
+if(this._disconnected) return false;
+if(this._connCnt && this._connected) return true;
+
+return false;
+
+```
+
 ### <a name="channelClient_length"></a>channelClient::length(id)
 
 

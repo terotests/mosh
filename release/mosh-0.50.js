@@ -11213,6 +11213,16 @@
             // broadcast to the socket "room"
             updObj.emit("s2c_" + me._channelId, data);
 
+            // the server's connection to the remote client goes here...
+            if (me._syncConnection) {
+              console.log("--- sending data to me._syncConnection --- ");
+              if (data.c) {
+                data.c.forEach(function (eCmd) {
+                  var r = me._syncConnection.addCommand(eCmd);
+                });
+              }
+            }
+
             // data.c is array of journal entries to be written to the actual journal file
             me._model.writeToJournal(data.c).then(function (r) {});
           }
@@ -11220,10 +11230,63 @@
       };
 
       /**
+       * Executes command with admin priviledges wihtout socket connection
+       * @param float cmd
+       * @param float socket  - not used
+       * @param float options  - not used
+       */
+      _myTrait_._execCmd = function (cmd, socket, options) {
+        // 1. selecting the command to be run here...
+        var me = this;
+        return _promise(function (result) {
+          if (!cmd || !cmd.cmd) {
+            result(null);
+            return;
+          }
+          var fn = me._cmds[cmd.cmd];
+          if (fn) {
+            me._commands.addCommands(function (contFn) {
+              fn(cmd, function (r) {
+                result(r);
+                contFn();
+              }, {
+                _adminSocket: true
+              });
+            });
+          } else {
+            result(null);
+          }
+        });
+        /*
+        var me = this;
+        return _promise(
+        function(result) {
+        if(!cmd || ! cmd.cmd) {
+            result(null);
+            return;
+        }
+        var fn = me._cmds[cmd.cmd];
+        if(fn) {
+            fn(cmd, function(r) {
+                result(r);
+            }, socket);
+        } else {
+            result(null);
+        }
+        });
+        */
+      };
+
+      /**
        * @param float socket
        * @param float flags
        */
       _myTrait_._groupACL = function (socket, flags) {
+
+        // for local commands
+        if (socket._adminSocket) {
+          return true;
+        }
 
         var me = this;
         if (!me._acl) return false;
@@ -11481,13 +11544,15 @@
             console.log("creating a master upgrade with ");
             console.log(JSON.stringify(cmd));
 
-            var uid = socket.getUserId();
-            var len = cmd.data.c.length,
-                list = cmd.data.c,
-                utc = new Date().getTime();
-            for (var i = 0; i < len; i++) {
-              list[i][5] = utc;
-              list[i][6] = uid;
+            if (socket.getUserId) {
+              var uid = socket.getUserId();
+              var len = cmd.data.c.length,
+                  list = cmd.data.c,
+                  utc = new Date().getTime();
+              for (var i = 0; i < len; i++) {
+                list[i][5] = utc;
+                list[i][6] = uid;
+              }
             }
 
             // check that the command is valid
@@ -11598,10 +11663,12 @@
               console.log("Sync data");
               console.log(data);
               var connData = JSON.parse(data);
-              var outConn = connData.out,
-                  inConn = connData["in"];
+              var outConn = connData.out;
+
+              // inConn = connData.in;
               // there is a slave <-> master connection, should create the sync between the two
               // channels around here for some client which takes care of sending the data...
+
               if (outConn.method == "memory.socket") {
                 var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port);
               }
@@ -11612,24 +11679,25 @@
                 var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port, realSocket1);
               }
 
-              // TODO: think about if there is need for inConn method at all? 
-              if (inConn.method == "memory.socket") {
-                var inSocket = _clientSocket(inConn.protocol + "://" + inConn.ip, inConn.port);
+              /*
+              // TODO: think about if there is need for inConn method at all?  
+              if(inConn.method=="memory.socket") {
+                  var inSocket  = _clientSocket(inConn.protocol+"://"+inConn.ip, inConn.port);
               }
-
-              if (inConn.method == "node.socket") {
-                var ioLib = require("socket.io-client");
-                var realSocket2 = ioLib.connect(outConn.protocol + "://" + inConn.ip + ":" + (inConn.extPort || inConn.port));
-                var inSocket = _clientSocket(outConn.protocol + "://" + inConn.ip, inConn.port, realSocket2);
-              }
-
+                       if(inConn.method=="node.socket") {
+                  var ioLib = require('socket.io-client')
+                  var realSocket2 = ioLib.connect(outConn.protocol+"://"+inConn.ip+":"+( inConn.extPort || inConn.port));            
+                  var inSocket  = _clientSocket(outConn.protocol+"://"+inConn.ip, inConn.port, realSocket2);
+              } 
+              
               // TODO: how to make the authentication between 2 clients ?
-              var inConnection = channelClient(inConn.channelId, inSocket, {
-                auth: {
-                  username: inConn.username,
-                  password: inConn.password
-                }
-              });
+              var inConnection = channelClient( inConn.channelId, inSocket, {
+                      auth : {
+                          username : inConn.username,
+                          password : inConn.password
+                      }
+                  });         
+              */
 
               // TODO: how to make the authentication between 2 clients ?
               var outConnection = channelClient(outConn.channelId, outSocket, {
@@ -11640,12 +11708,14 @@
               });
 
               outConnection.then(function () {
-                return inConnection;
-              }).then(function () {
-                // connections are now ready, connect them together...
-                inConnection.setMasterConnection(outConnection);
-                outConnection.setSlaveServer(inConnection);
-                outConnection.setChannelModel(me._model);
+                // ?? whot if there would be only the "out" connection
+                // inConnection.setMasterConnection( outConnection );
+                // outConnection.setSlaveServer( inConnection );    
+
+                outConnection._slaveController = me;
+                me._syncConnection = outConnection;
+
+                // outConnection.setChannelModel( me._model );
                 console.log("sync: ---- in / out connection ready --- ");
                 result(true);
               });
@@ -13016,20 +13086,33 @@
           if (me._disconnected) return;
           if (cmd) {
             var res = me._policy.deltaServerToClient(cmd, me._clientState);
-            if (me._master) {
-              console.log(" has master -> sending from slave ");
-              me._master.fromSlave(cmd);
+
+            // if there is a slave controller
+            if (me._slaveController) {
+              me._slaveController._execCmd({
+                cmd: "masterUpgrade",
+                data: cmd
+              });
             }
-            if (me._slave) {
-              //var currLen = me._serverModel.getJournalSize();
-              //var remoteLen = cmd.journalSize;
-              //console.log(" at master, journal sizes ",currLen, remoteLen);
-              console.log(" has slave -> sending masterUpgrade ");
-              for (var i = 0; i < cmd.c.length; i++) {
-                cmd.c[i] = me._transformCmdFromNs(cmd.c[i]);
-              }
-              me._slave.sendCommand("masterUpgrade", cmd);
+            // --> master and slave connections
+            /*
+            me._masterController.
+            me._slave
+            if(me._master) {
+            console.log(" has master -> sending from slave ");
+            me._master.fromSlave( cmd );
+            } 
+            if(me._slave) {
+            //var currLen = me._serverModel.getJournalSize();
+            //var remoteLen = cmd.journalSize;
+            //console.log(" at master, journal sizes ",currLen, remoteLen);
+            console.log(" has slave -> sending masterUpgrade ");
+            for(var i=0; i<cmd.c.length;i++) {
+               cmd.c[i] = me._transformCmdFromNs( cmd.c[i] );
             }
+            me._slave.sendCommand("masterUpgrade", cmd);
+            } 
+            */
           }
           // done, no other action needed???
         });
@@ -13096,6 +13179,12 @@
        * @param float t
        */
       _myTrait_._onReconnect = function (t) {
+
+        // do we have a slave connection???
+        if (this._slave) {
+          console.log("*** reconnect to the master ***");
+        }
+
         var me = this;
         // first, send the data we have to server, hope it get's through...
         var packet = me._policy.constructClientToServer(me._clientState);
@@ -13472,7 +13561,8 @@
                 // local objects to consume
 
                 if (me._connCnt > 1) {
-
+                  // if reconnecting to the other server, ask upgrade only, not the whole
+                  // build tree...
                   me._onReconnect();
                   return false;
                 }
@@ -13744,9 +13834,6 @@
        */
       _myTrait_.setSlaveServer = function (slaveServer) {
 
-        if (!this._clientState.slave) this._clientState.slave = {};
-
-        this._clientState.slave.server = slaveServer;
         this._slave = slaveServer;
       };
 

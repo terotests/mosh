@@ -11524,19 +11524,21 @@
               return;
             }
 
-            var uid = socket.getUserId();
-            var len = cmd.data.c.length,
-                list = cmd.data.c,
-                utc = new Date().getTime();
-            for (var i = 0; i < len; i++) {
-              list[i][5] = utc;
-              list[i][6] = uid;
+            if (socket.getUserId) {
+              var uid = socket.getUserId();
+              var len = cmd.data.c.length,
+                  list = cmd.data.c,
+                  utc = new Date().getTime();
+              for (var i = 0; i < len; i++) {
+                list[i][5] = utc;
+                list[i][6] = uid;
+              }
             }
 
             var res = me._policy.deltaClientToServer(cmd.data, me._serverState);
 
             // pick one socket so that we can broadcast if necessary...
-            if (!me._broadcastSocket) me._broadcastSocket = socket;
+            if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
 
             // in this case we do not write immediately to all clients, just return
             // the result to the client
@@ -11568,7 +11570,7 @@
             // check that the command is valid
             var res = me._policy.deltaMasterToSlave(cmd.data, me._serverState);
 
-            if (!me._broadcastSocket) me._broadcastSocket = socket;
+            if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
 
             // here is a problem, can not wait for the deltaMasterToSlave to finish
             // because it is a thenable

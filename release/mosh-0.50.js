@@ -14765,7 +14765,7 @@
         if (this._pumpListener) {
           socket.removeListener(this._dbName, this._pumpListener);
         }
-        if (this._memoryFn._release) this._memoryFn._release();
+        if (this._memoryFn && this._memoryFn._release) this._memoryFn._release();
       };
 
       /**

@@ -14256,6 +14256,10 @@
             console.log("whenConnected called");
 
             if (!_hasbeenConnected) {
+
+              if (openConnection) openConnection.release();
+              if (connection) connection.release();
+
               openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
               connection = _tcpEmu(ip, port, myId, "client", realSocket);
 
@@ -14560,6 +14564,13 @@
       // Initialize static variables here...
 
       /**
+       * @param float t
+       */
+      _myTrait_.clearEvents = function (t) {
+        delete this._ev;
+      };
+
+      /**
        * Binds event name to event function
        * @param string en  - Event name
        * @param float ef
@@ -14703,6 +14714,7 @@
             });
           }
         };
+        this._memoryFn = _mfn;
         later().every(1 / 10, _mfn);
       };
 
@@ -14742,6 +14754,21 @@
       };
 
       /**
+       * Should be called after reconnecting with new socket
+       * @param float t
+       */
+      _myTrait_.release = function (t) {
+        this.clearEvents();
+
+        var socket = this._socket;
+
+        if (this._pumpListener) {
+          socket.removeListener(this._dbName, this._pumpListener);
+        }
+        if (this._memoryFn._release) this._memoryFn._release();
+      };
+
+      /**
        * The socket transform layer implementation.
        * @param float role
        */
@@ -14749,18 +14776,20 @@
         var me = this;
 
         var socket = this._socket;
-        if (role == "server") {
 
-          _log.log("initializing the socketPump for server");
-          socket.on(this._dbName, function (data) {
+        if (role == "server") {
+          this._pumpListener = function (data) {
             _log.log("socketPump", me._dbName);
             me.trigger("serverMessage", data);
-          });
+          };
+          socket.on(this._dbName, this._pumpListener);
         }
+
         if (role == "client") {
-          socket.on(this._dbName, function (data) {
+          this._pumpListener = function (data) {
             me.trigger("clientMessage", data);
-          });
+          };
+          socket.on(this._dbName, this._pumpListener);
         }
       };
     })(this);
@@ -14804,6 +14833,7 @@
       var _oneTimers;
       var _everies;
       var _framers;
+      var _cnt;
 
       // Initialize static variables here...
 
@@ -14842,7 +14872,7 @@
       _myTrait_.every = function (seconds, fn, name) {
 
         if (!name) {
-          name = "time" + new Date().getTime() + Math.random(10000000);
+          name = "t" + _cnt++ + "_" + new Date().getTime() + Math.random(10000000);
         }
 
         _everies[name] = {
@@ -14850,13 +14880,17 @@
           fn: fn,
           nextTime: 0
         };
+
+        fn._release = function () {
+          delete _everies[name];
+        };
       };
 
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (interval, fn) {
         if (!_initDone) {
-
+          _cnt = 1;
           var frame, cancelFrame;
 
           this.polyfill();

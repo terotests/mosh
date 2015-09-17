@@ -1279,6 +1279,7 @@ pwFs.then(
 - [_execCmd](README.md#_channelController__execCmd)
 - [_groupACL](README.md#_channelController__groupACL)
 - [_initCmds](README.md#_channelController__initCmds)
+- [_sendUnsentToMaster](README.md#_channelController__sendUnsentToMaster)
 - [_startSync](README.md#_channelController__startSync)
 - [_updateLoop](README.md#_channelController__updateLoop)
 - [run](README.md#_channelController_run)
@@ -1600,6 +1601,7 @@ pwFs.then(
 - [memoryPump](README.md#_tcpEmu_memoryPump)
 - [messageFrom](README.md#_tcpEmu_messageFrom)
 - [messageTo](README.md#_tcpEmu_messageTo)
+- [release](README.md#_tcpEmu_release)
 - [socketPump](README.md#_tcpEmu_socketPump)
 
 
@@ -1608,6 +1610,7 @@ pwFs.then(
     
 ##### trait events
 
+- [clearEvents](README.md#_clearEvents)
 - [on](README.md#_on)
 - [trigger](README.md#_trigger)
 
@@ -13616,7 +13619,7 @@ if(me._broadcastSocket && me._policy) {
                 });
             }
             // the last lines sent to the server
-            me._masterSync = [0, me._serverState.data.getJournalLine()];
+            me._masterSync = [me._serverState.version, me._serverState.data.getJournalLine()];
             me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));            
         }
 
@@ -13819,13 +13822,19 @@ this._cmds = {
             me._serverState.data._journal.length = 0;
             me._serverState.last_update[0] = 0;
             me._serverState.last_update[1] = 0;
-            
-            //console.log("After snapshot ");
-            //console.log(me._serverState);
-            
-            // ask channels to upgrade to the latest version of data
-            me._askChUpgrade(me._channelId);
-            result({ ok : true }); 
+    
+            if(me._masterSync) {        
+                me._masterSync = [me._serverState.version, 0];
+                me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync))
+                    .then( function() {
+                        me._askChUpgrade(me._channelId);
+                        result({ ok : true });                         
+                    });
+            } else {
+                // ask channels to upgrade to the latest version of data
+                me._askChUpgrade(me._channelId);
+                result({ ok : true }); 
+            }
         });        
     },
     writeMain : function( cmd, result, socket ) {
@@ -13863,19 +13872,21 @@ this._cmds = {
 
         if(!me._groupACL(socket, "w")) { result(null); return; }
         
-        var uid = socket.getUserId();
-        var len = cmd.data.c.length,
-            list = cmd.data.c,
-            utc = (new Date).getTime();
-        for(var i=0; i<len; i++) {
-            list[i][5] = utc;
-            list[i][6] = uid;
+        if(socket.getUserId) {
+            var uid = socket.getUserId();
+            var len = cmd.data.c.length,
+                list = cmd.data.c,
+                utc = (new Date).getTime();
+            for(var i=0; i<len; i++) {
+                list[i][5] = utc;
+                list[i][6] = uid;
+            }
         }
         
         var res = me._policy.deltaClientToServer( cmd.data, me._serverState );
         
         // pick one socket so that we can broadcast if necessary...
-        if(! me._broadcastSocket ) me._broadcastSocket = socket;
+        if(! me._broadcastSocket && socket.getUserId ) me._broadcastSocket = socket;
         
         // in this case we do not write immediately to all clients, just return
         // the result to the client
@@ -13905,7 +13916,7 @@ this._cmds = {
         // check that the command is valid
         var res = me._policy.deltaMasterToSlave( cmd.data, me._serverState );
         
-        if(! me._broadcastSocket ) me._broadcastSocket = socket;
+        if(! me._broadcastSocket && socket.getUserId ) me._broadcastSocket = socket;
         
         // here is a problem, can not wait for the deltaMasterToSlave to finish
         // because it is a thenable
@@ -13976,6 +13987,36 @@ this._cmds = {
             result(r); 
         });
     }
+}
+```
+
+### <a name="_channelController__sendUnsentToMaster"></a>_channelController::_sendUnsentToMaster(t)
+
+
+```javascript
+// the server's connection to the remote client goes here...
+var me = this;
+if(me._syncConnection && me._syncConnection.isConnected() && me._masterSync) {
+    
+    var lastSent = me._masterSync[1];
+    var currLine = me._serverState.data.getJournalLine();
+    
+    if(currLine > lastSent) {
+
+        console.log("--- _sendUnsentToMaster --- ");
+        var cmds = me._serverState.data._journal.slice(lastSent, currLine);
+        
+        cmds.forEach( function(eCmd) {
+            var r = me._syncConnection.addCommand(eCmd);
+        });
+        
+        // the last lines sent to the server
+        me._masterSync = [0, currLine];
+        me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));      
+        
+    }
+    
+      
 }
 ```
 
@@ -14050,7 +14091,8 @@ return _promise(
                 }).then( function(is_file) {
                     if(!is_file) {
                         console.log("master-sync missing");
-                        return me._model.writeFile("master-sync", JSON.stringify([0,0]));
+                        // me._masterSync = [me._serverState.version, 0];
+                        return me._model.writeFile("master-sync", JSON.stringify([me._serverState.version,0]));
                     } 
                     return 0;
                 }).then( function() {
@@ -14067,6 +14109,9 @@ return _promise(
                     
                     outConnection._slaveController = me;
                     me._syncConnection = outConnection;
+                    
+                    // <- when sync starts, send first all unsent data
+                    me._sendUnsentToMaster(); 
                     
                     // outConnection.setChannelModel( me._model );
                     console.log("sync: ---- in / out connection ready --- ");
@@ -15229,14 +15274,21 @@ if(this._slave) {
     
 }
 
-
 var me = this;
+
+console.log("_onReconnect");
+
+// if we have a slave controller...
+if(me._slaveController) {
+    console.log("_slaveController -> trying to send data ");
+    me._slaveController._sendUnsentToMaster(); 
+}
+
+
 // first, send the data we have to server, hope it get's through...
 var packet = me._policy.constructClientToServer( me._clientState );
 var socket = this._socket;
 var channelId = this._channelId;
-
-
 
 if(packet) {
     socket.send("channelCommand", {
@@ -15249,6 +15301,11 @@ if(packet) {
 }               
 // then, ask upgrade...
 me.askUpgrade();
+
+// -->
+
+
+// me._sendUnsentToMaster(); 
 ```
 
 ### <a name="channelClient_addCommand"></a>channelClient::addCommand(cmd, dontBroadcast)
@@ -15541,6 +15598,8 @@ return -1;
 
 ```javascript
 
+console.log("*** channel init called for "+channelId+" *** ");
+
 if(!this._policy) this._policy = _chPolicy();
 
 if(options && options.localChannel) {
@@ -15595,7 +15654,8 @@ socket.on("disconnect", function() {
 })
 socket.on("connect", function() {
     
-    console.log("Socket sent connected");
+    console.log("*** socket reconnect for "+channelId+" *** ");
+    console.log("Connection count "+me._connCnt);
     
     me._connCnt++;
     
@@ -16460,25 +16520,41 @@ if(!_socketIndex[this.socketId]) {
 
 if(realSocket) {
 
+    var _hasbeenConnected = false;
+    var openConnection, connection;
+    
     var whenConnected = function() {
         console.log("whenConnected called");
-        var openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
-        var connection = _tcpEmu(ip, port, myId, "client", realSocket);
         
-        connection.on("clientMessage", function(o,v) {
-            console.log("clientMessage received ", v);
-            if(v.connected) {
-                me._socket = connection;
-                me._connected = true;
-                me.trigger("connect", connection);
-            } else {
-                me.trigger(v.name, v.data);
-            }
-        })
-        console.log("Sending message to _tcpEmu with real socket ");
-        openConnection.messageTo({
-            socketId : myId
-        });        
+        if(!_hasbeenConnected) {
+            
+            if(openConnection) openConnection.release();
+            if(connection) connection.release();
+            
+            openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
+            connection = _tcpEmu(ip, port, myId, "client", realSocket);
+            
+            connection.on("clientMessage", function(o,v) {
+                console.log("clientMessage received ", v);
+                if(v.connected) {
+                    me._socket = connection;
+                    me._connected = true;
+                    me.trigger("connect", connection);
+                } else {
+                    me.trigger(v.name, v.data);
+                }
+            })
+            // should this be called again?
+            openConnection.messageTo({
+                socketId : myId
+            });            
+        } else {
+            // does this kind of connection work...
+            console.log("Triggering connect again");
+            me.trigger("connect", me._socket);
+        }
+        // console.log("Sending message to _tcpEmu with real socket ");
+        // _hasbeenConnected = true;
     };
     var me = this;
     realSocket.on("disconnect", function() {
@@ -16889,6 +16965,7 @@ var _mfn = function() {
         });   
     }
 };
+this._memoryFn = _mfn;
 later().every(1/10, _mfn);
 ```
 
@@ -16928,6 +17005,21 @@ _msgBuffer[bn].push( msg );
 
 ```
 
+### <a name="_tcpEmu_release"></a>_tcpEmu::release(t)
+
+Should be called after reconnecting with new socket
+```javascript
+this.clearEvents();
+
+var socket = this._socket;
+
+if(this._pumpListener) {
+    socket.removeListener(this._dbName, this._pumpListener);
+}
+if( this._memoryFn && this._memoryFn._release ) this._memoryFn._release();
+
+```
+
 ### <a name="_tcpEmu_socketPump"></a>_tcpEmu::socketPump(role)
 
 The socket transform layer implementation.
@@ -16935,18 +17027,20 @@ The socket transform layer implementation.
 var me = this;
 
 var socket = this._socket;
+
 if(role=="server") {
-    
-    _log.log("initializing the socketPump for server");
-    socket.on(this._dbName, function(data) {
+    this._pumpListener = function(data) {
         _log.log("socketPump", me._dbName);
         me.trigger("serverMessage", data);
-    });
+    };
+    socket.on(this._dbName, this._pumpListener );
 }
+
 if(role=="client") {
-    socket.on(this._dbName, function(data) {
+    this._pumpListener = function(data) {
         me.trigger("clientMessage", data);
-    });
+    }
+    socket.on(this._dbName, this._pumpListener);
 }
 
 ```
@@ -16960,6 +17054,13 @@ if(role=="client") {
 The class has following internal singleton variables:
         
         
+### <a name="_clearEvents"></a>::clearEvents(t)
+
+
+```javascript
+delete this._ev;
+```
+
 ### <a name="_on"></a>::on(en, ef)
 `en` Event name
  
@@ -17062,6 +17163,8 @@ The class has following internal singleton variables:
         
 * _framers
         
+* _cnt
+        
         
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
@@ -17095,7 +17198,7 @@ this.add(fn);
 ```javascript
 
 if(!name) {
-    name = "time"+(new Date()).getTime()+Math.random(10000000);
+    name = "t"+(_cnt++)+"_"+(new Date()).getTime()+Math.random(10000000);
 }
 
 _everies[name] = {
@@ -17103,13 +17206,17 @@ _everies[name] = {
     fn : fn,
     nextTime : 0
 };
+
+fn._release = function() {
+    delete _everies[name];
+}
 ```
 
 ### later::constructor( interval, fn )
 
 ```javascript
 if(!_initDone) {
-
+   _cnt = 1;
    var frame, cancelFrame;
    
    this.polyfill();

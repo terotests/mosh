@@ -738,6 +738,39 @@
 
       // Initialize static variables here...
 
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (t) {});
@@ -841,7 +874,7 @@
           fsData = options.fileSystemData;
         }
 
-        var filesystem = fsServerMemory("memoryServer1", fsData);
+        var filesystem = fsServerMemory("ms" + this.guid(), fsData);
 
         // The password and user infra, in the simulation environment:
         var pwData = {
@@ -857,7 +890,7 @@
           }
         };
 
-        var pwFiles = fsServerMemory("passWordServer", pwData);
+        var pwFiles = fsServerMemory("pw" + this.guid(), pwData);
         pwFiles.then(function () {
           return filesystem;
         }).then(function () {
@@ -9965,6 +9998,13 @@
       };
 
       /**
+       * @param float t
+       */
+      _myTrait_.getServerSocket = function (t) {
+        return this._server;
+      };
+
+      /**
        * @param float chId
        */
       _myTrait_.getSocketsFromCh = function (chId) {
@@ -10079,6 +10119,8 @@
               });
               return;
             }
+
+            console.log("Command " + JSON.stringify(cmd));
 
             // the command for the channel controller...
             ctrl.run(cmd, function (resp) {
@@ -10468,6 +10510,132 @@
       };
 
       /**
+       * @param float cmd
+       */
+      _myTrait_.createSyncedModel = function (cmd) {
+        var me = this;
+        var cc = null; // <-- connect to the channel
+
+        // master-sync file contents
+        // [2,621]
+
+        // The sync file contents
+        /*
+        {
+        "out" : {
+        "channelId" : "sync/test1",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7778",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        },
+        "in" : {
+        "channelId" : "sync/test2",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7779",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        }
+        }
+        */
+
+        console.log("** startin createSyncedModel with data **");
+        console.log(JSON.stringify(cmd));
+
+        return _promise(function (syncReady, syncFail) {
+
+          // -> channel to checkout...
+          var sync = cmd.sync; // <-- the sync file contents
+          var outSocket;
+
+          if (sync.out.method == "memory.socket") {
+            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port);
+          }
+
+          if (sync.out.method == "node.socket") {
+            var ioLib = require("socket.io-client");
+            var realSocket1 = ioLib.connect(sync.out.protocol + "://" + sync.out.ip + ":" + (sync.out.extPort || sync.out.port));
+            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port, realSocket1);
+          }
+
+          // cc = HERE the slave connection which the server1 has to server2
+          // slave <-> master connection
+          var cc = channelClient(sync.out.channelId, outSocket, {
+            auth: {
+              username: sync.out.username,
+              password: sync.out.password
+            }
+          });
+
+          cc.then(function () {
+            cc._checkout(sync.out.channelId).then(function (r) {
+
+              debugger;
+              console.log("Checkout returned ");
+              console.log(JSON.stringify(r));
+
+              // the channel has been now checked out
+              /*
+              {"ch":"my/channel",
+              "file":"ch.settings",
+              "data":"{\"version\":2,\"channelId\":\"my/channel\",\"journalLine\":1,\"utc\":14839287897}"}        
+              */
+              var wait = _promise();
+              var start = wait;
+
+              var fileSystem = me.getFilesystem(); // <- the root filesystem for the checkout process
+
+              // TODO: this is all overriding sync, what if the channel already does exist?
+              if (r.build) r.build.forEach(function (fileData) {
+                var m;
+                wait = wait.then(function () {
+                  m = _localChannelModel(fileData.ch, fileSystem);
+                  return m;
+                }).then(function () {
+                  return m.folder().isFile(fileData.ch);
+                }).then(function (is_file) {
+                  // if the local file already does exist then do not write it
+                  if (!is_file) {
+                    return m.writeFile(fileData.file, fileData.data);
+                  } else {
+                    return is_file;
+                  }
+                });
+              });
+
+              // after this has been done, the data should be loaded and the checkout is ready to be used by any
+              // connection which opens it
+              var folder = me.folder();
+              wait.then(function () {
+                return folder.isFile("sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  return folder.writeFile("sync", JSON.stringify(sync));
+                }
+              }).then(function (is_file) {
+                return folder.isFile("master-sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  var ms = [cc._clientState.version, cc._clientState.data.getJournalLine()];
+                  return folder.writeFile("master-sync", JSON.stringify(ms));
+                }
+              }).then(function () {
+                syncReady(sync);
+              }).fail(syncFail);
+
+              start.resolve(true);
+            }).fail(syncFail);
+          }).fail(syncFail);
+        });
+      };
+
+      /**
        * @param float t
        */
       _myTrait_.folder = function (t) {
@@ -10570,6 +10738,13 @@
         return _promise(function (result) {
           result(me._settings.version);
         });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getFilesystem = function (t) {
+        return this._fs;
       };
 
       /**
@@ -11160,6 +11335,130 @@
       });
 
       /**
+       * @param Object cmd
+       */
+      _myTrait_._createSyncCh = function (cmd) {
+        var me = this;
+        var cc = null; // <-- connect to the channel
+
+        // master-sync file contents
+        // [2,621]
+
+        // The sync file contents
+        /*
+        {
+        "out" : {
+        "channelId" : "sync/test1",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7778",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        },
+        "in" : {
+        "channelId" : "sync/test2",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7779",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        }
+        }
+        */
+
+        console.log("** startin _createSyncCh with data **");
+        console.log(JSON.stringify(cmd));
+
+        return _promise(function (syncReady, syncFail) {
+
+          // -> channel to checkout...
+          var sync = cmd.sync; // <-- the sync file contents
+          var outSocket;
+
+          if (sync.out.method == "memory.socket") {
+            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port);
+          }
+
+          if (sync.out.method == "node.socket") {
+            var ioLib = require("socket.io-client");
+            var realSocket1 = ioLib.connect(sync.out.protocol + "://" + sync.out.ip + ":" + (sync.out.extPort || sync.out.port));
+            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port, realSocket1);
+          }
+
+          // cc = HERE the slave connection which the server1 has to server2
+          // slave <-> master connection
+          var cc = channelClient(sync.out.channelId, outSocket, {
+            auth: {
+              username: sync.out.username,
+              password: sync.out.password
+            }
+          });
+
+          cc.then(function () {
+            cc._checkout(sync.out.channelId).then(function (r) {
+
+              // the channel has been now checked out
+              /*
+              {"ch":"my/channel",
+              "file":"ch.settings",
+              "data":"{\"version\":2,\"channelId\":\"my/channel\",\"journalLine\":1,\"utc\":14839287897}"}        
+              */
+              var wait = _promise();
+              var start = wait;
+
+              var fileSystem = me._model.getFilesystem(); // <- the root filesystem for the checkout process
+
+              // TODO: this is all overriding sync, what if the channel already does exist?
+              if (r.build) r.build.forEach(function (fileData) {
+                var m;
+                wait = wait.then(function () {
+                  m = _localChannelModel(fileData.ch, fileSystem);
+                  return m;
+                }).then(function () {
+                  return m.folder().isFile(fileData.ch);
+                }).then(function (is_file) {
+                  // if the local file already does exist then do not write it
+                  if (!is_file) {
+                    return m.writeFile(fileData.file, fileData.data);
+                  } else {
+                    return is_file;
+                  }
+                });
+              });
+
+              // after this has been done, the data should be loaded and the checkout is ready to be used by any
+              // connection which opens it
+              var folder = me._model.folder();
+              wait = wait.then(function () {
+                // TODO:
+                // - create masterSync NOTE : good to write so that it does not start from [0,0]
+                // - create sync file
+                //
+                return folder.isFile("sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  return folder.writeFile("sync", JSON.stringify(sync));
+                }
+              }).then(function (is_file) {
+                return folder.isFile("master-sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  var ms = [cc._clientState.version, cc._clientState.data.getJournalLine()];
+                  return folder.writeFile("master-sync", JSON.stringify(ms));
+                }
+              }).then(function () {
+                syncReady(sync);
+              }).fail(syncFail);
+            }).fail(syncFail);
+          }).fail(syncFail);
+        });
+      };
+
+      /**
        * @param float t
        */
       _myTrait_._doClientUpdate = function (t) {
@@ -11333,7 +11632,69 @@
               result(r);
             });
           },
+          // -- perhaps a bit hard command here...
+          sync: function sync(cmd, result, socket) {
+            if (!me._groupACL(socket, "w")) {
+              result(null);
+              return;
+            }
 
+            debugger;
+            // can you check that the local port is not the same as the out port
+
+            if (!cmd || !cmd.data || !cmd.data.sync || !cmd.data.sync.out || !cmd.data.sync["in"]) {
+              console.log("ERROR: Sync failed");
+              console.log(JSON.stringify(cmd));
+              result({
+                success: false
+              });
+              return;
+            }
+            var out = cmd.data.sync.out;
+            var serverSocket = socket;
+            /*
+            this._ip = ip;
+            this._port = port;
+            this._ioLib = ioLib;
+            */
+            if (serverSocket._ip == out.ip) {
+              if (serverSocket._ioLib) {
+                var ss = serverSocket._ioLib;
+                if (ss.handshake) {
+                  var address = ss.handshake.address;
+                  if (address && address.port == out.extPort) {
+                    result({
+                      success: false
+                    });
+                    return;
+                  }
+                }
+                // console.log("New connection from " + address.address + ":" + address.port);       
+              }
+            }
+            // --> can you just create a new channel based on the data..
+            //me._model.createChannel( cmd.data ).then( function(r) {
+            //    result(r);
+            // });
+
+            var localModel = _localChannelModel(cmd.data.sync["in"].channelId, me._model.getFilesystem());
+
+            // must create the channel controller...
+            // var ctrl = _channelController( cmd.data.sync["in"].channelId, me._model.getFilesystem(), me._chManager );
+
+            localModel.then(function () {
+              return localModel.createSyncedModel(cmd.data); // <-- should create the sync
+            }).then(function () {
+              alert("Model done!!!");
+              result({
+                success: true
+              });
+            }).fail(function () {
+              result({
+                success: false
+              });
+            });
+          },
           checkout: function checkout(cmd, result, socket) {
             if (!me._groupACL(socket, "r")) {
               result(null);
@@ -11348,6 +11709,7 @@
             });
           },
           readBuildTree: function readBuildTree(cmd, result, socket) {
+
             if (!me._groupACL(socket, "r")) {
               result(null);
               return;
@@ -11759,7 +12121,8 @@
               }).then(function (is_file) {
                 if (!is_file) {
                   console.log("master-sync missing");
-                  // me._masterSync = [me._serverState.version, 0];
+
+                  // TODO: is there a problem here, [0,0] may not be a valid start for the channel...
                   return me._model.writeFile("master-sync", JSON.stringify([me._serverState.version, 0]));
                 }
                 return 0;
@@ -13938,6 +14301,59 @@
       };
 
       /**
+       * Create a new syncable channel...
+       * @param Object syncData
+       */
+      _myTrait_.sync = function (syncData) {
+        /*
+        {
+        "out" : {
+        "channelId" : "sync/test1",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7778",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        },
+        "in" : {
+        "channelId" : "sync/test2",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7779",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        }
+        }
+        */
+        var socket = this._socket,
+            me = this,
+            channelId = this._channelId;
+        return _promise(function (result) {
+
+          if (!me.isConnected() || !syncData || !syncData.out || !syncData.out.channelId) {
+            result({
+              success: false
+            });
+            return;
+          }
+
+          socket.send("channelCommand", {
+            channelId: channelId,
+            cmd: "sync",
+            data: {
+              sync: syncData
+            }
+          }).then(function (res) {
+            result(res);
+          });
+        });
+      };
+
+      /**
        * @param int cnt
        */
       _myTrait_.undo = function (cnt) {
@@ -14449,6 +14865,7 @@
 
         this._ip = ip;
         this._port = port;
+        this._ioLib = ioLib;
 
         if (ioLib) {
           ioLib.on("connection", function (socket) {
@@ -22049,6 +22466,11 @@
 //    this.writeCommand(a);
 
 // --- let's not ---
+/*
+this._channelId = channelId;
+this._commands = sequenceStepper(channelId);
+this._chManager = chManager;
+*/
 
 // --- let's not ---
 

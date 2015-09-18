@@ -7356,6 +7356,7 @@
       var _reverseCmds;
       var _settings;
       var _hotObjs;
+      var _dmp;
 
       // Initialize static variables here...
 
@@ -7375,7 +7376,7 @@
 
         _doingRemote = isRemote;
 
-        var tmpCmd = [4, prop, obj.data[prop], null, a[4]];
+        var tmpCmd = [4, prop, obj.data[prop], null, a[4], a[5], a[6]];
         this._cmd(tmpCmd, obj, null);
 
         if (!isRemote) {
@@ -7471,6 +7472,83 @@
         // --- adding to the data object...
 
         if (!isRemote) {}
+        return true;
+      };
+
+      /**
+       * @param float a
+       * @param float isRemote
+       */
+      _myTrait_._cmd_diffPatch = function (a, isRemote) {
+
+        if (!_dmp) return {
+          error: 141,
+          cmd: a,
+          text: "diff-match-patch not initialized"
+        };
+
+        var obj = this._find(a[4]),
+            prop = a[1];
+
+        if (!obj) return {
+          error: 41,
+          cmd: a,
+          text: "Did not find object with ID (" + a[4] + ") "
+        };
+
+        if (!prop) return {
+          error: 42,
+          cmd: a,
+          text: "The property was not defined (" + a[1] + ") "
+        };
+
+        var oldValue = obj.data[prop];
+        if (this.isObject(oldValue) || this.isArray(oldValue)) return {
+          error: 145,
+          cmd: a,
+          text: "Trying to apply text diff/patch to  Object or Array"
+        };
+
+        // TODO: data -integrity problem, can you verify the reverse diff, this might cause problems...
+        // a[2] -> the patch as text
+        // a[3] -> the reverse patch as text
+
+        var patch = _dmp.patch_fromText(a[2]);
+        // TODO: error condition?
+
+        var newValue = _dmp.patch_apply(patch, oldValue);
+        if (!this.isArray(newValue)) return {
+          error: 146,
+          cmd: a,
+          text: "patch_apply failed"
+        };
+        var list = newValue[1];
+        if (!list) return {
+          error: 146,
+          cmd: a,
+          text: "patch_apply failed"
+        };
+        for (var i = 0; i < list.length; i++) {
+          if (!list[i]) return {
+            error: 146,
+            cmd: a,
+            text: "patch_apply failed"
+          };
+        }
+        obj.data[prop] = newValue[0]; // the new value for the data property
+        _doingRemote = isRemote;
+
+        // from the listeners point of view this is only object property change
+        var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6]];
+        this._cmd(tmpCmd, obj, null);
+
+        if (!isRemote) {
+          this.writeCommand(a);
+        } else {
+          this._cmd(a, obj, null);
+        }
+        _doingRemote = false;
+
         return true;
       };
 
@@ -7937,6 +8015,78 @@
       /**
        * @param float a
        */
+      _myTrait_._reverse_diffPatch = function (a) {
+
+        if (!_dmp) return {
+          error: 141,
+          cmd: a,
+          text: "diff-match-patch not initialized"
+        };
+
+        var obj = this._find(a[4]),
+            prop = a[1];
+
+        if (!obj) return {
+          error: 41,
+          cmd: a,
+          text: "Did not find object with ID (" + a[4] + ") "
+        };
+
+        if (!prop) return {
+          error: 42,
+          cmd: a,
+          text: "The property was not defined (" + a[1] + ") "
+        };
+
+        var oldValue = obj.data[prop];
+        if (this.isObject(oldValue) || this.isArray(oldValue)) return {
+          error: 145,
+          cmd: a,
+          text: "Trying to apply text diff/patch to  Object or Array"
+        };
+
+        // the reverse command...
+        var patch = _dmp.patch_fromText(a[3]);
+
+        var newValue = _dmp.patch_apply(patch, oldValue);
+        if (!this.isArray(newValue)) return {
+          error: 146,
+          cmd: a,
+          text: "patch_apply failed"
+        };
+        var list = newValue[1];
+        if (!list) return {
+          error: 146,
+          cmd: a,
+          text: "patch_apply failed"
+        };
+        for (var i = 0; i < list.length; i++) {
+          if (!list[i]) return {
+            error: 146,
+            cmd: a,
+            text: "patch_apply failed"
+          };
+        }
+        obj.data[prop] = newValue[0]; // the new value for the data property
+        _doingRemote = isRemote;
+
+        // from the listeners point of view this is only object property change
+        var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6]];
+        this._cmd(tmpCmd, obj, null);
+
+        if (!isRemote) {
+          this.writeCommand(a);
+        } else {
+          this._cmd(a, obj, null);
+        }
+        _doingRemote = false;
+
+        return true;
+      };
+
+      /**
+       * @param float a
+       */
       _myTrait_._reverse_moveToIndex = function (a) {
         var obj = this._find(a[4]),
             prop = "*",
@@ -8220,6 +8370,18 @@
           _execInfo = {};
           _settings = {};
           _hotObjs = {};
+
+          if (!_dmp) {
+            if (typeof diff_match_patch != "undefined") {
+              _dmp = new diff_match_patch();
+            } else {
+              // if in node.js try to require the module
+              if (typeof global != "undefined") {
+                var DiffMatchPatch = require("diff-match-patch");
+                var _dmp = new DiffMatchPatch();
+              }
+            }
+          }
         }
 
         if (!_cmds) {
@@ -8237,6 +8399,7 @@
           _cmds[10] = this._cmd_unsetProperty;
           _cmds[12] = this._cmd_moveToIndex;
           _cmds[13] = this._cmd_aceCmd;
+          _cmds[14] = this._cmd_diffPatch;
 
           _reverseCmds[1] = this._reverse_createObject;
           _reverseCmds[2] = this._reverse_createArray;
@@ -8248,6 +8411,7 @@
           _reverseCmds[10] = this._reverse_unsetProperty;
           _reverseCmds[12] = this._reverse_moveToIndex;
           _reverseCmds[13] = this._reverse_aceCmd;
+          _reverseCmds[14] = this._reverse_diffPatch;
           // _reverse_setPropertyObject
 
           var me = this;

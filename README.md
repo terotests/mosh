@@ -12484,6 +12484,7 @@ this._server.on("connect", function( socket ) {
     var ctrl; // the channel controller
 
     socket.on("requestChannel", function(cData, responseFn) {
+        debugger;
         fileSystem.findPath(cData.channelId).then( function(fold) {
             if(fold) {
                 
@@ -12685,7 +12686,7 @@ return _promise( function(result) {
            bIsNew = true;
            return folder.writeFile("ch.settings", JSON.stringify({
                version : 1,
-               name : "Initial version",
+               name : "Automatic first version",
                utc : (new Date()).getTime(),
                channelId : me._channelId,
                journalLine : 0
@@ -12976,16 +12977,29 @@ return _promise(
                     var m;
                     wait = wait.then(
                         function() {
-                            m = _localChannelModel( fileData.ch,  fileSystem );
+                            
+                            var chName = fileData.ch;
+                            if(fileData.ch == sync.out.channelId) {
+                                chName = sync["in"].channelId;
+                            }
+                            
+                            m = _localChannelModel( chName,  fileSystem );
                             return m;
                         }).then( function() {
-                            return m.folder().isFile( fileData.ch );
+                            return m.folder().isFile( fileData.file );
                         }).then( function(is_file) {
-                            // if the local file already does exist then do not write it
-                            if(!is_file) {
-                                return m.writeFile(fileData.file, fileData.data);
+                            
+                            if(fileData.file =="ch.settings") {
+                                var data = JSON.parse(fileData.data);
+                                data.channelId = sync["in"].channelId;
+                                return m.writeFile(fileData.file, JSON.stringify(data));
                             } else {
-                                return is_file;
+                                // if the local file already does exist then do not write it
+                                if(!is_file) {
+                                    return m.writeFile(fileData.file, fileData.data);
+                                } else {
+                                    return is_file;
+                                }
                             }
                         });
                 });
@@ -13006,6 +13020,8 @@ return _promise(
                         var ms = [cc._clientState.version, cc._clientState.data.getJournalLine()];
                         return folder.writeFile("master-sync", JSON.stringify(ms));
                     }
+                }).then(function() {
+                   return me._createChannelSettings();  
                 }).then( function() {
                     syncReady(sync);
                 }).fail( syncFail );
@@ -13192,11 +13208,10 @@ return _promise( function(result) {
 this._channelId = channelId;
 this._latestVersion = 1;
 
-this._fs = fileSystem; // store the filesystem into "fs" variable
+this._fs = fileSystem; 
 
 var me = this;
 
-// make sure the channel directory is there, then we are ready almost at least to go...
 me._createChannelDir(channelId).then( function() {
     return me._createChannelSettings();
 }).then( function() {
@@ -14100,7 +14115,6 @@ this._ioLib = ioLib;
         localModel.then( function() {
             return localModel.createSyncedModel( cmd.data ); // <-- should create the sync
         }).then( function() {
-            alert("Model done!!!");
             result({ success : true});
         }).fail( function() {
             result({ success : false});
@@ -14423,7 +14437,7 @@ return _promise(
                 result(false);
                 return;
             }
-            
+            debugger;
             if(data) {
                 console.log("Sync data");
                 console.log(data);
@@ -14531,7 +14545,7 @@ later().every(1/5, function() {
 ```javascript
 
 this._channelId = channelId;
-this._commands = sequenceStepper(channelId);
+this._commands = sequenceStepper(channelId + fileSystem.id());
 this._chManager = chManager;
 
 // important point: the file system is passed here to the local channel model

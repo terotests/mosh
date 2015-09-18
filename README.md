@@ -801,6 +801,7 @@ pwFs.then(
 - [createObjectField](README.md#_dataTrait_createObjectField)
 - [createPropertyUpdateFn](README.md#_dataTrait_createPropertyUpdateFn)
 - [createWorker](README.md#_dataTrait_createWorker)
+- [diff_set](README.md#_dataTrait_diff_set)
 - [emitValue](README.md#_dataTrait_emitValue)
 - [extendWith](README.md#_dataTrait_extendWith)
 - [find](README.md#_dataTrait_find)
@@ -1021,6 +1022,7 @@ pwFs.then(
 - [_cmd_aceCmd](README.md#commad_trait__cmd_aceCmd)
 - [_cmd_createArray](README.md#commad_trait__cmd_createArray)
 - [_cmd_createObject](README.md#commad_trait__cmd_createObject)
+- [_cmd_diffPatch](README.md#commad_trait__cmd_diffPatch)
 - [_cmd_moveToIndex](README.md#commad_trait__cmd_moveToIndex)
 - [_cmd_pushToArray](README.md#commad_trait__cmd_pushToArray)
 - [_cmd_removeObject](README.md#commad_trait__cmd_removeObject)
@@ -1033,6 +1035,7 @@ pwFs.then(
 - [_reverse_aceCmd](README.md#commad_trait__reverse_aceCmd)
 - [_reverse_createArray](README.md#commad_trait__reverse_createArray)
 - [_reverse_createObject](README.md#commad_trait__reverse_createObject)
+- [_reverse_diffPatch](README.md#commad_trait__reverse_diffPatch)
 - [_reverse_moveToIndex](README.md#commad_trait__reverse_moveToIndex)
 - [_reverse_pushToArray](README.md#commad_trait__reverse_pushToArray)
 - [_reverse_removeObject](README.md#commad_trait__reverse_removeObject)
@@ -1419,6 +1422,7 @@ pwFs.then(
 - [askUpgrade](README.md#channelClient_askUpgrade)
 - [at](README.md#channelClient_at)
 - [createChannel](README.md#channelClient_createChannel)
+- [diffSet](README.md#channelClient_diffSet)
 - [disconnect](README.md#channelClient_disconnect)
 - [fork](README.md#channelClient_fork)
 - [fromMaster](README.md#channelClient_fromMaster)
@@ -7626,6 +7630,24 @@ if(!_workersDone) {
 */
 ```
 
+### <a name="_dataTrait_diff_set"></a>_dataTrait::diff_set(name, value)
+
+
+```javascript
+
+// functions are not handled too...
+
+if(this.isObject(value)) {
+    // objects are not to be set...
+    return this;    
+} else {
+    this._client.diffSet(this._docData.__id, name, value);
+    this.createPropertyUpdateFn( name, value );
+    return this;
+}
+
+```
+
 ### <a name="_dataTrait_emitValue"></a>_dataTrait::emitValue(scope, data)
 
 
@@ -10333,6 +10355,8 @@ The class has following internal singleton variables:
         
 * _hotObjs
         
+* _dmp
+        
         
 ### <a name="commad_trait__cmd_aceCmd"></a>commad_trait::_cmd_aceCmd(a, isRemote)
 
@@ -10349,7 +10373,7 @@ obj.data[prop] = conv.runToString( obj.data[prop], a[2]);
 
 _doingRemote = isRemote;
 
-var tmpCmd = [4, prop, obj.data[prop], null, a[4] ];
+var tmpCmd = [4, prop, obj.data[prop], null, a[4], a[5], a[6] ];
 this._cmd(tmpCmd, obj, null);      
 
 if(!isRemote) {
@@ -10443,6 +10467,83 @@ if(!(isRemote)) {
     // this.writeCommand(a, newObj);
 } 
 return true;
+```
+
+### <a name="commad_trait__cmd_diffPatch"></a>commad_trait::_cmd_diffPatch(a, isRemote)
+
+
+```javascript
+
+if(!_dmp) return {
+        error : 141,
+        cmd   : a,
+        text  : "diff-match-patch not initialized"
+    };
+
+var obj = this._find( a[4] ),
+    prop = a[1];
+    
+if(!obj) return {
+        error : 41,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!prop) return {
+        error : 42,
+        cmd   : a,
+        text  : "The property was not defined ("+a[1]+") "
+    };
+
+var oldValue = obj.data[prop];
+if( this.isObject(oldValue) || this.isArray(oldValue) ) return {
+    error : 145,
+    cmd   : a,
+    text  : "Trying to apply text diff/patch to  Object or Array"
+};
+
+// TODO: data -integrity problem, can you verify the reverse diff, this might cause problems...
+// a[2] -> the patch as text
+// a[3] -> the reverse patch as text
+
+var patch = _dmp.patch_fromText( a[2] );
+// TODO: error condition? 
+
+var newValue = _dmp.patch_apply(patch, oldValue);
+if(!this.isArray(newValue)) return {
+    error : 146,
+    cmd   : a,
+    text  : "patch_apply failed"
+};
+var list = newValue[1];
+if(!list) return {
+    error : 146,
+    cmd   : a,
+    text  : "patch_apply failed"
+};
+for(var i=0; i<list.length;i++) {
+    if(!list[i]) return {
+        error : 146,
+        cmd   : a,
+        text  : "patch_apply failed"
+    };
+}
+obj.data[prop] = newValue[0]; // the new value for the data property
+_doingRemote = isRemote;
+
+// from the listeners point of view this is only object property change
+var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6] ];
+this._cmd(tmpCmd, obj, null);      
+
+if(!isRemote) {
+    this.writeCommand(a); 
+} else {
+    this._cmd(a, obj, null);
+}
+_doingRemote = false;
+
+return true;
+
 ```
 
 ### <a name="commad_trait__cmd_moveToIndex"></a>commad_trait::_cmd_moveToIndex(a, isRemote)
@@ -10925,6 +11026,79 @@ if(ii>=0) {
 
 ```
 
+### <a name="commad_trait__reverse_diffPatch"></a>commad_trait::_reverse_diffPatch(a, isRemote)
+
+
+```javascript
+
+if(!_dmp) return {
+        error : 141,
+        cmd   : a,
+        text  : "diff-match-patch not initialized"
+    };
+
+var obj = this._find( a[4] ),
+    prop = a[1];
+    
+if(!obj) return {
+        error : 41,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!prop) return {
+        error : 42,
+        cmd   : a,
+        text  : "The property was not defined ("+a[1]+") "
+    };
+
+var oldValue = obj.data[prop];
+if( this.isObject(oldValue) || this.isArray(oldValue) ) return {
+    error : 145,
+    cmd   : a,
+    text  : "Trying to apply text diff/patch to  Object or Array"
+};
+
+// the reverse command...
+var patch = _dmp.patch_fromText( a[3] );
+
+var newValue = _dmp.patch_apply(patch, oldValue);
+if(!this.isArray(newValue)) return {
+    error : 146,
+    cmd   : a,
+    text  : "patch_apply failed"
+};
+var list = newValue[1];
+if(!list) return {
+    error : 146,
+    cmd   : a,
+    text  : "patch_apply failed"
+};
+for(var i=0; i<list.length;i++) {
+    if(!list[i]) return {
+        error : 146,
+        cmd   : a,
+        text  : "patch_apply failed"
+    };
+}
+obj.data[prop] = newValue[0]; // the new value for the data property
+_doingRemote = isRemote;
+
+// from the listeners point of view this is only object property change
+var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6] ];
+this._cmd(tmpCmd, obj, null);      
+
+if(!isRemote) {
+    this.writeCommand(a); 
+} else {
+    this._cmd(a, obj, null);
+}
+_doingRemote = false;
+
+return true;
+
+```
+
 ### <a name="commad_trait__reverse_moveToIndex"></a>commad_trait::_reverse_moveToIndex(a)
 
 
@@ -11219,6 +11393,18 @@ if(!_listeners) {
 
 
 if(!_cmds) {
+
+    if(!_dmp) {
+        if(typeof(diff_match_patch) != "undefined") {
+            _dmp = new diff_match_patch();
+        } else {
+            // if in node.js try to require the module
+            if(typeof(global) != "undefined") {
+                var DiffMatchPatch = require('diff-match-patch');
+                _dmp = new DiffMatchPatch();        
+            }
+        }
+    }
     
     _reverseCmds = new Array(30);
     _cmds = new Array(30);
@@ -11233,6 +11419,7 @@ if(!_cmds) {
     _cmds[10] = this._cmd_unsetProperty;
     _cmds[12] = this._cmd_moveToIndex;
     _cmds[13] = this._cmd_aceCmd;
+    _cmds[14] = this._cmd_diffPatch;
     
     _reverseCmds[1] = this._reverse_createObject;
     _reverseCmds[2] = this._reverse_createArray;
@@ -11244,6 +11431,7 @@ if(!_cmds) {
     _reverseCmds[10] = this._reverse_unsetProperty;
     _reverseCmds[12] = this._reverse_moveToIndex;
     _reverseCmds[13] = this._reverse_aceCmd;
+    _reverseCmds[14] = this._reverse_diffPatch;
     // _reverse_setPropertyObject
     
     var me = this;
@@ -12988,7 +13176,7 @@ return _promise(
                         }).then( function() {
                             return m.folder().isFile( fileData.file );
                         }).then( function(is_file) {
-                            
+
                             if(fileData.file =="ch.settings") {
                                 var data = JSON.parse(fileData.data);
                                 data.channelId = sync["in"].channelId;
@@ -13457,7 +13645,6 @@ var local = this._folder,
     versionNumber = version || me._settings.version;
 
 if(versionNumber==1) {
-
     return _promise(function(r) {
         r(null);
     });
@@ -15351,6 +15538,8 @@ The class has following internal singleton variables:
         
 * _instanceCache
         
+* _dmp
+        
         
 ### <a name="channelClient__checkout"></a>channelClient::_checkout(channelId)
 
@@ -15824,6 +16013,37 @@ return _promise(
 
 ```
 
+### <a name="channelClient_diffSet"></a>channelClient::diffSet(id, name, value)
+
+
+```javascript
+
+if(!_dmp) return;
+
+var ns_id = this._idToNs( id, this._ns ); // is this too slow?
+var obj = this._data._find( ns_id );
+if(obj && !this.isObject(value)) {
+    var old_value = obj.data[name];
+    if( old_value != value) {
+        
+        // this.addCommand([4, name, value, old_value, ns_id ]);
+        var diff1 = _dmp.diff_main(old_value, value);
+        var diff2 = _dmp.diff_main(value, old_value);
+        
+        _dmp.diff_cleanupEfficiency(diff1);
+        _dmp.diff_cleanupEfficiency(diff2);
+        
+        var t1 = _dmp.patch_toText(_dmp.patch_make(old_value, diff1) );
+        var t2 = _dmp.patch_toText(_dmp.patch_make(value, diff2) );
+        
+        this.addCommand([14, name, t1, t2, ns_id ]);
+        
+    }
+}
+
+
+```
+
 ### <a name="channelClient_disconnect"></a>channelClient::disconnect(t)
 
 
@@ -16000,6 +16220,18 @@ return -1;
 ### channelClient::constructor( channelId, socket, options )
 
 ```javascript
+
+if(!_dmp) {
+    if(typeof(diff_match_patch) != "undefined") {
+        _dmp = new diff_match_patch();
+    } else {
+        // if in node.js try to require the module
+        if(typeof(global) != "undefined") {
+            var DiffMatchPatch = require('diff-match-patch');
+            _dmp = new DiffMatchPatch();        
+        }
+    }
+}
 
 console.log("*** channel init called for "+channelId+" *** ");
 

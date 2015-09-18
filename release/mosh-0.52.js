@@ -4428,6 +4428,24 @@
       };
 
       /**
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.diff_set = function (name, value) {
+
+        // functions are not handled too...
+
+        if (this.isObject(value)) {
+          // objects are not to be set...
+          return this;
+        } else {
+          this._client.diffSet(this._docData.__id, name, value);
+          this.createPropertyUpdateFn(name, value);
+          return this;
+        }
+      };
+
+      /**
        * @param float scope
        * @param float data
        */
@@ -8014,8 +8032,9 @@
 
       /**
        * @param float a
+       * @param float isRemote
        */
-      _myTrait_._reverse_diffPatch = function (a) {
+      _myTrait_._reverse_diffPatch = function (a, isRemote) {
 
         if (!_dmp) return {
           error: 141,
@@ -8370,6 +8389,9 @@
           _execInfo = {};
           _settings = {};
           _hotObjs = {};
+        }
+
+        if (!_cmds) {
 
           if (!_dmp) {
             if (typeof diff_match_patch != "undefined") {
@@ -8378,13 +8400,10 @@
               // if in node.js try to require the module
               if (typeof global != "undefined") {
                 var DiffMatchPatch = require("diff-match-patch");
-                var _dmp = new DiffMatchPatch();
+                _dmp = new DiffMatchPatch();
               }
             }
           }
-        }
-
-        if (!_cmds) {
 
           _reverseCmds = new Array(30);
           _cmds = new Array(30);
@@ -13480,6 +13499,7 @@
 
     (function (_myTrait_) {
       var _instanceCache;
+      var _dmp;
 
       // Initialize static variables here...
 
@@ -13938,6 +13958,36 @@
       };
 
       /**
+       * @param float id
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.diffSet = function (id, name, value) {
+
+        if (!_dmp) return;
+
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && !this.isObject(value)) {
+          var old_value = obj.data[name];
+          if (old_value != value) {
+
+            // this.addCommand([4, name, value, old_value, ns_id ]);
+            var diff1 = _dmp.diff_main(old_value, value);
+            var diff2 = _dmp.diff_main(value, old_value);
+
+            _dmp.diff_cleanupEfficiency(diff1);
+            _dmp.diff_cleanupEfficiency(diff2);
+
+            var t1 = _dmp.patch_toText(_dmp.patch_make(old_value, diff1));
+            var t2 = _dmp.patch_toText(_dmp.patch_make(value, diff2));
+
+            this.addCommand([14, name, t1, t2, ns_id]);
+          }
+        }
+      };
+
+      /**
        * @param float t
        */
       _myTrait_.disconnect = function (t) {
@@ -14102,6 +14152,18 @@
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (channelId, socket, options) {
+
+        if (!_dmp) {
+          if (typeof diff_match_patch != "undefined") {
+            _dmp = new diff_match_patch();
+          } else {
+            // if in node.js try to require the module
+            if (typeof global != "undefined") {
+              var DiffMatchPatch = require("diff-match-patch");
+              _dmp = new DiffMatchPatch();
+            }
+          }
+        }
 
         console.log("*** channel init called for " + channelId + " *** ");
 

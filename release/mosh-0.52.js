@@ -10216,7 +10216,6 @@
           var ctrl; // the channel controller
 
           socket.on("requestChannel", function (cData, responseFn) {
-            debugger;
             fileSystem.findPath(cData.channelId).then(function (fold) {
               if (fold) {
 
@@ -11700,7 +11699,10 @@
           }
         }
 
-        // construct the data to be sent to the clients, if there is any data to be sent..
+        // This is the "business as usual" data from server to the clients.
+        // If server has received commands which have been added to the journal and
+        // these lines have not been yet sent to the clients, _policy will construct
+        // the packet to be sent to listeners.
         if (me._broadcastSocket && me._policy) {
           var data = me._policy.constructServerToClient(me._serverState);
           if (data) {
@@ -11721,6 +11723,9 @@
               console.log("--- sending data to me._syncConnection --- ");
               if (data.c) {
                 data.c.forEach(function (eCmd) {
+                  // Note: the addCommand is just fine because it will run the command against the
+                  // client -> server connection state, if the command fails, then it will not be
+                  // sent over the network to the remote server at all
                   var r = me._syncConnection.addCommand(eCmd);
                 });
               }
@@ -11836,7 +11841,6 @@
               return;
             }
 
-            debugger;
             // can you check that the local port is not the same as the out port
 
             if (!cmd || !cmd.data || !cmd.data.sync || !cmd.data.sync.out || !cmd.data.sync["in"]) {
@@ -12158,6 +12162,107 @@
             console.log(JSON.stringify(res));
             result(res);
           },
+          masterJournalUpgrade: function masterJournalUpgrade(cmd, result, socket) {
+
+            console.log("masterJournalUpgrade " + JSON.stringify(cmd));
+            result({
+              ok: true
+            });
+
+            // PARTIAL update:
+            // {"cmd":"masterJournalUpgrade","data":{"partialFrom":2,"partialEnds":2,"partial":[]}}
+
+            // FULL update is something like this:
+            /*
+            info.socket.emit("upgrade_"+me._channelId, {
+                version : me._serverState.version,
+                journal : me._serverState.data._journal,
+                data : fullData
+            });          
+            */
+            // QUESTIONS:
+            // 1. how to emulate the behaviour
+            // 2. how to update _doClientUpdate to send the new data, perhaps the client
+            //    update must request upgrade if status for clients which have been dramatically changed
+
+            /*
+            if(cmd.partial) {
+                       // should be reversing perhaps first to some line...
+            var dd = me._clientState.data;
+            dd.reverseToLine(cmd.partialFrom);
+            console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
+            var errCnt=0;
+            cmd.partial.forEach( function(c) {
+               if(errCnt > 0 ) return;
+               var r;
+               var cmdIn  = me._transformCmdToNs(c);
+               if(! ((r=dd.execCmd(cmdIn,true))===true ) ) {
+                   console.error("Partial ", r);
+                   errCnt++;
+               }
+            });
+            if(errCnt==0) {
+               me._clientState.needsRefresh = false;
+               me._clientState.needsFullRefresh = false;
+               
+               dd._journal.length = cmd.partialEnds;
+               
+               // The correct position 
+               me._clientState.last_update[0] = 0;
+               me._clientState.last_update[1] = dd._journal.length;
+               me._clientState.last_sent[0] = 0;
+               me._clientState.last_sent[1] = dd._journal.length;               
+            } else {
+               me._clientState.needsFullRefresh = true;
+            }
+                   }
+            if(cmd.data) {
+                       // full upgrade coming here, must also replace the journal
+                       var myData = me._clientState.data.getData(); // <- the data
+            me._transformObjToNs(cmd.data);
+                       var diff = diffEngine().compareFiles(myData, cmd.data );
+            console.log("The diff ", JSON.stringify(diff));
+            // run the commands for the local data
+            var dd = me._clientState.data;
+            var errCnt = 0;
+            diff.cmds.forEach(function(c) {
+               console.log("Diff cmd ", c);
+               if(errCnt > 0 ) return;
+               var r;
+               /// dd.execCmd(c, true); // the point is just to change the data to something else
+               if(! ((r=dd.execCmd(c,true))===true ) ) {
+                   console.error("Full error ", r);
+                   errCnt++;
+               }               
+            });
+                       // and now the hard part, upgrade the local client data.
+            if(errCnt==0) {
+               
+               me._clientState.needsRefresh = false;
+               me._clientState.needsFullRefresh = false;               
+               
+               console.log("** full update should have gone ok ** ");
+               dd._journal.length = 0;
+               dd._journal.push.apply(dd._journal, cmd.journal);
+               me._clientState.needsRefresh = false;
+               me._clientState.version = cmd.version;
+               
+               // dd._journal.length = cmd.updateEnds;
+               
+               me._clientState.last_update[0] = 0;
+               me._clientState.last_update[1] = dd._journal.length;
+               me._clientState.last_sent[0] = 0;
+               me._clientState.last_sent[1] = dd._journal.length;    
+               
+               console.log("Version ", me._clientState.version);
+               
+            } else {
+               console.error("** errors with the full update ** ");
+               me._clientState.needsFullRefresh = true;
+            }
+            }       
+            */
+          },
           changeFrame: function changeFrame(cmd, result, socket) {
 
             if (!me._groupACL(socket, "w")) {
@@ -12262,7 +12367,7 @@
               result(false);
               return;
             }
-            debugger;
+
             if (data) {
               console.log("Sync data");
               console.log(data);
@@ -13698,11 +13803,12 @@
                 };
               */
             }
-            if (me._master) {
-              me._master.fromSlave(cmd);
-            }
-            if (me._slave) {
-              me._slave.fromMaster(cmd);
+
+            if (me._slaveController) {
+              me._slaveController._execCmd({
+                cmd: "masterJournalUpgrade",
+                data: cmd
+              });
             }
           }
         });
@@ -13712,44 +13818,28 @@
           // just don't accept any msgs
           if (me._disconnected) return;
           if (cmd) {
+
             var res = me._policy.deltaServerToClient(cmd, me._clientState);
 
-            // if there is a slave controller
+            // if there is a slave controller, send this command as masterUpgrade to
+            // the slave server so that the slave can update it's own data state
             if (me._slaveController) {
+
+              // --> then try slave to master command building...
 
               var newList = [];
               for (var i = 0; i < cmd.c.length; i++) {
                 var c = cmd.c[i].slice();
                 newList.push(me._transformCmdFromNs(c));
               }
-              cmd.c = newList;
 
+              cmd.c = newList;
               me._slaveController._execCmd({
                 cmd: "masterUpgrade",
                 data: cmd
               });
             }
-            // --> master and slave connections
-            /*
-            me._masterController.
-            me._slave
-            if(me._master) {
-            console.log(" has master -> sending from slave ");
-            me._master.fromSlave( cmd );
-            } 
-            if(me._slave) {
-            //var currLen = me._serverModel.getJournalSize();
-            //var remoteLen = cmd.journalSize;
-            //console.log(" at master, journal sizes ",currLen, remoteLen);
-            console.log(" has slave -> sending masterUpgrade ");
-            for(var i=0; i<cmd.c.length;i++) {
-               cmd.c[i] = me._transformCmdFromNs( cmd.c[i] );
-            }
-            me._slave.sendCommand("masterUpgrade", cmd);
-            } 
-            */
           }
-          // done, no other action needed???
         });
       };
 
@@ -13856,38 +13946,8 @@
        * @param float dontBroadcast
        */
       _myTrait_.addCommand = function (cmd, dontBroadcast) {
-        /*
-        data : {
-            id   : "t2",                   // unique ID for transaction
-            version : 1,                    // channel version
-            from : 1,                      // journal line to start the change
-            to   : 2,                      // the last line ( optionsl, I guess )
-            fail_tolastok : true,           // fail until last ok command
-            // fail_all : true,
-            commands : [
-                [4, "fill", "black", "blue", "id1"]
-            ]                               
-        }
-        */
-
-        if (0) {
-          console.log("add c b 1 ");
-          var cmdOut = this._transformCmdFromNs(cmd, this._ns);
-          var cmdIn = this._transformCmdToNs(cmd, this._ns);
-          // the local command is run immediately and if it passes then we add it to the frame
-          var r;
-          if (r = this._data.execCmd(cmdIn, dontBroadcast)) {
-            this._currentFrame.commands.push(cmdOut);
-          }
-          return r;
-        } else {
-          console.log("add c b 2 ");
-          // local command, no frame to add commands.
-          var cmdIn = this._transformCmdToNs(cmd, this._ns);
-          console.log(cmdIn);
-          // the local command is run immediately and if it passes then we add it to the frame
-          return this._data.execCmd(cmdIn, dontBroadcast);
-        }
+        var cmdIn = this._transformCmdToNs(cmd, this._ns);
+        return this._data.execCmd(cmdIn, dontBroadcast);
       };
 
       /**

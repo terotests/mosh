@@ -14226,8 +14226,6 @@
           }
         }
 
-        console.log("*** channel init called for " + channelId + " *** ");
-
         if (!this._policy) this._policy = _chPolicy();
 
         if (options && options.localChannel) {

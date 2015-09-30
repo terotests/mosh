@@ -9176,10 +9176,14 @@
 
       /**
        * @param float obj
+       * @param float recursive
        */
-      _myTrait_.toPlainData = function (obj) {
+      _myTrait_.toPlainData = function (obj, recursive) {
 
-        if (typeof obj == "undefined") obj = this._data;
+        if (typeof obj == "undefined") {
+          if (recursive) return obj;
+          return obj = this._data;
+        }
 
         if (this.isFunction(obj) || typeof obj == "function") {
           return;
@@ -9192,13 +9196,13 @@
           plain = [];
           var len = obj.data.length;
           for (var i = 0; i < len; i++) {
-            plain[i] = this.toPlainData(obj.data[i]);
+            plain[i] = this.toPlainData(obj.data[i], true);
           }
         } else {
           plain = {};
           for (var n in obj.data) {
             if (obj.data.hasOwnProperty(n)) {
-              plain[n] = this.toPlainData(obj.data[n]);
+              plain[n] = this.toPlainData(obj.data[n], true);
             }
           }
         }

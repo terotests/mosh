@@ -7574,8 +7574,7 @@
         var obj = this._find(a[4]),
             prop = "*",
             len = obj.data.length,
-            targetObj,
-            i = 0;
+            targetObj;
 
         if (!obj) return {
           error: 2,
@@ -7586,7 +7585,7 @@
         var oldIndex = null;
 
         var targetObj = this._find(a[1]);
-        var oldIndex = obj.data.indexOf(targetObj);
+        var i = oldIndex = obj.data.indexOf(targetObj);
 
         /*
         for(i=0; i< len; i++) {

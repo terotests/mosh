@@ -8304,63 +8304,61 @@
       _myTrait_.execCmd = function (a, isRemote, isRedo) {
 
         // --- this time no try... catch ...
-        // try {
+        try {
 
-        if (!this.isArray(a)) return false;
-        var c = _cmds[a[0]];
+          if (!this.isArray(a)) return false;
+          var c = _cmds[a[0]];
 
-        if (this._playBackOnFn && !isRedo) {
-          // do not allow commands when playback is on
-          return false;
-        }
+          if (this._playBackOnFn && !isRedo) {
+            // do not allow commands when playback is on
+            return false;
+          }
 
-        if (c) {
-          var rv = c.apply(this, [a, isRemote]);
+          if (c) {
+            var rv = c.apply(this, [a, isRemote]);
 
-          if (rv === true && !isRedo) {
-            // there is the hot buffer possibility for the object
-            if (!isRemote) {
+            if (rv === true && !isRedo) {
+              // there is the hot buffer possibility for the object
+              if (!isRemote) {
 
-              if (a[0] == 4 && _settings.hotMs) {
-                var objid = a[4];
-                var key = objid + ":" + a[1];
-                var hot = _hotObjs[key];
-                if (!hot) {
-                  _hotObjs[key] = {
-                    ms: new Date().getTime(),
-                    firstCmd: a,
-                    chObj: this
-                  };
+                if (a[0] == 4 && _settings.hotMs) {
+                  var objid = a[4];
+                  var key = objid + ":" + a[1];
+                  var hot = _hotObjs[key];
+                  if (!hot) {
+                    _hotObjs[key] = {
+                      ms: new Date().getTime(),
+                      firstCmd: a,
+                      chObj: this
+                    };
+                  } else {
+                    hot.lastCmd = a;
+                  }
+                  // console.log(JSON.stringify(hot));
                 } else {
-                  hot.lastCmd = a;
+                  this._updateHotBuffer(true);
+                  this.writeLocalJournal(a);
                 }
-                // console.log(JSON.stringify(hot));
               } else {
-                this._updateHotBuffer(true);
                 this.writeLocalJournal(a);
               }
-            } else {
-              this.writeLocalJournal(a);
             }
+            return rv;
+          } else {
+            return {
+              error: 199,
+              text: "Invalid command"
+            };
           }
-          return rv;
-        } else {
+        } catch (e) {
+          var txt = "";
+          if (e && e.message) txt = e.message;
           return {
             error: 199,
-            text: "Invalid command"
+            cmd: a,
+            text: "Exception raised " + txt
           };
         }
-        /*    
-        } catch(e) {
-        var txt = "";
-        if(e && e.message) txt = e.message;
-        return {
-            error : 199,
-            cmd : a,
-            text  : "Exception raised " + txt
-        };
-        }
-        */
       };
 
       /**

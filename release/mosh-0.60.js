@@ -7586,7 +7586,7 @@
         var oldIndex = null;
 
         var targetObj = this._find(a[1]);
-        var oldIndex = obj.data.indexOf(oldObj);
+        var oldIndex = obj.data.indexOf(targetObj);
 
         /*
         for(i=0; i< len; i++) {

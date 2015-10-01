@@ -7585,14 +7585,19 @@
 
         var oldIndex = null;
 
-        for (i = 0; i < len; i++) {
-          var m = obj.data[i];
-          if (m.__id == a[1]) {
-            targetObj = m;
-            oldIndex = i;
-            break;
-          }
+        var targetObj = this._find(a[1]);
+        var oldIndex = obj.data.indexOf(oldObj);
+
+        /*
+        for(i=0; i< len; i++) {
+        var m = obj.data[i];
+        if(m.__id == a[1]) {
+        targetObj = m;
+        oldIndex = i;
+        break;
         }
+        }
+        */
 
         if (oldIndex != a[3]) {
           return {

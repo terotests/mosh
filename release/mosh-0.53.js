@@ -1868,17 +1868,6 @@
   };
   _promise.prototype = new _promise_prototype();
 
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_promise"] = _promise;
-      this._promise = _promise;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_promise"] = _promise;
-    } else {
-      this._promise = _promise;
-    }
-  }).call(new Function("return this")());
-
   var later_prototype = function later_prototype() {
 
     (function (_myTrait_) {
@@ -7585,8 +7574,7 @@
         var obj = this._find(a[4]),
             prop = "*",
             len = obj.data.length,
-            targetObj,
-            i = 0;
+            targetObj;
 
         if (!obj) return {
           error: 2,
@@ -7594,16 +7582,22 @@
           text: "Object with ID (" + a[4] + ") did not exist"
         };
 
-        var oldIndex = null;
+        var oldIndex = null,
+            i;
 
-        for (i = 0; i < len; i++) {
-          var m = obj.data[i];
-          if (m.__id == a[1]) {
-            targetObj = m;
-            oldIndex = i;
-            break;
-          }
+        var targetObj = this._find(a[1]);
+        i = oldIndex = obj.data.indexOf(targetObj);
+
+        /*
+        for(i=0; i< len; i++) {
+        var m = obj.data[i];
+        if(m.__id == a[1]) {
+        targetObj = m;
+        oldIndex = i;
+        break;
         }
+        }
+        */
 
         if (oldIndex != a[3]) {
           return {

@@ -7520,6 +7520,7 @@
         this._cmd(tmpCmd, obj, null);
 
         if (!isRemote) {
+          this._cmd(a, obj, null); // - fire the listeners anyway
           this.writeCommand(a);
         } else {
           this._cmd(a, obj, null);

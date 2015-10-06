@@ -1868,6 +1868,17 @@
   };
   _promise.prototype = new _promise_prototype();
 
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_promise"] = _promise;
+      this._promise = _promise;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_promise"] = _promise;
+    } else {
+      this._promise = _promise;
+    }
+  }).call(new Function("return this")());
+
   var later_prototype = function later_prototype() {
 
     (function (_myTrait_) {
@@ -2723,6 +2734,17 @@
     name: "_promise"
   };
   _promise.prototype = new _promise_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_promise"] = _promise;
+      this._promise = _promise;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_promise"] = _promise;
+    } else {
+      this._promise = _promise;
+    }
+  }).call(new Function("return this")());
 
   var later_prototype = function later_prototype() {
 

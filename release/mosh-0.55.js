@@ -6094,6 +6094,17 @@
       };
 
       /**
+       * Merges object, which was forked from this object into this object.
+       * @param Object forkedObject  - Object which was forked
+       */
+      _myTrait_.merge = function (forkedObject) {
+        var patchCmds = this.diff(forkedObject);
+        this.patch(patchCmds);
+
+        return this;
+      };
+
+      /**
        * @param string channelURL
        */
       _myTrait_.openChannel = function (channelURL) {
@@ -7520,7 +7531,7 @@
         this._cmd(tmpCmd, obj, null);
 
         if (!isRemote) {
-          this._cmd(a, obj, null); // - fire the listeners anyway
+          this._cmd(a, obj, null); // this is the problematic.
           this.writeCommand(a);
         } else {
           this._cmd(a, obj, null);

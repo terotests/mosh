@@ -6221,13 +6221,22 @@
   var aceCmdConvert_prototype = function aceCmdConvert_prototype() {
 
     (function (_myTrait_) {
+      var _newAce;
 
       // Initialize static variables here...
 
       /**
-       * @param float cmdList
+       * @param Array cmdList
        */
       _myTrait_.fromAce = function (cmdList) {
+
+        if (cmdList && cmdList[0]) {
+          if (!cmdList[0].range) {
+            _newAce = true;
+          }
+        }
+
+        if (_newAce) return this.fromAce2(cmdList);
 
         var newList = [];
 
@@ -6244,6 +6253,49 @@
             newList.push([3, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines]);
           }
           if (cmd.action == "removeLines") {
+            newList.push([4, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines, cmd.nl]);
+          }
+        });
+
+        return newList;
+
+        /*
+        {"action":"insertText","range":{"start":{"row":0,"column":0},
+        "end":{"row":0,"column":1}},"text":"d"}
+        */
+      };
+
+      /**
+       * @param Array cmdList
+       */
+      _myTrait_.fromAce2 = function (cmdList) {
+
+        var newList = [];
+        /*
+        cmdList: Array[1]
+        0: Object
+        action: "insert"
+        end: Object
+        lines: Array[1]
+        start: Object
+        __proto__: Object
+        length: 1
+        __proto__: Array[0]
+        */
+
+        cmdList.forEach(function (cmd) {
+
+          var range = cmd.range;
+          if (cmd.action == "insert" && cmd.lines.length == 1) {
+            newList.push([1, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines[0]]);
+          }
+          if (cmd.action == "remove" && cmd.lines.length == 1) {
+            newList.push([2, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines[0]]);
+          }
+          if (cmd.action == "insert" && cmd.lines.length > 1) {
+            newList.push([3, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines]);
+          }
+          if (cmd.action == "remove" && cmd.lines.length > 1) {
             newList.push([4, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines, cmd.nl]);
           }
         });
@@ -6319,11 +6371,12 @@
        */
       _myTrait_.runToAce = function (cmdList) {
 
+        if (_newAce) return this.runToAce2(cmdList);
+
         var newList = [],
             _convert = ["", "insertText", "removeText", "insertLines", "removeLines"];
 
         cmdList.forEach(function (cmd) {
-
           var c = {
             action: _convert[cmd[0]],
             range: {
@@ -6345,13 +6398,53 @@
           if (cmd[0] == 4) c.nl = cmd[6] || "\n";
           newList.push(c);
         });
-
         return newList;
 
         /*
         {"action":"insertText","range":{"start":{"row":0,"column":0},
         "end":{"row":0,"column":1}},"text":"d"}
         */
+      };
+
+      /**
+       * @param float cmdList
+       */
+      _myTrait_.runToAce2 = function (cmdList) {
+        var newList = [],
+            _convert = ["", "insert", "remove", "insert", "remove"];
+        /*
+        0: Object
+        action: "insert"
+        end: Object
+        lines: Array[1]
+        0: "d"
+        length: 1
+        __proto__: Array[0]
+        start: Object
+        __proto__: Objec
+        */
+
+        cmdList.forEach(function (cmd) {
+          var c = {
+            action: _convert[cmd[0]],
+            start: {
+              row: cmd[1],
+              column: cmd[2]
+            },
+            end: {
+              row: cmd[3],
+              column: cmd[4]
+            }
+          };
+          if (cmd[0] < 3) {
+            c.lines = [cmd[5]];
+          } else {
+            c.lines = cmd[5];
+          }
+          if (cmd[0] == 4) c.nl = cmd[6] || "\n";
+          newList.push(c);
+        });
+        return newList;
       };
 
       /**
@@ -6531,6 +6624,13 @@
         });
 
         return lines.join("\n");
+      };
+
+      /**
+       * @param String version  - Just setting this makes it apply for the new command format
+       */
+      _myTrait_.setAceVersion = function (version) {
+        _newAce = version;
       };
 
       /**

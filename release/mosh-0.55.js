@@ -6285,7 +6285,7 @@
 
         cmdList.forEach(function (cmd) {
 
-          var range = cmd.range;
+          var range = cmd;
           if (cmd.action == "insert" && cmd.lines.length == 1) {
             newList.push([1, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines[0]]);
           }

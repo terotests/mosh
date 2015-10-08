@@ -6242,7 +6242,7 @@
       _myTrait_.fromAce = function (cmdList) {
 
         if (cmdList && cmdList[0]) {
-          if (!cmdList[0].range || !cmdList[0].data) {
+          if (!cmdList[0].range && !cmdList[0].data) {
             _newAce = true;
           }
         }
@@ -6254,7 +6254,7 @@
         cmdList.forEach(function (theCmd) {
 
           var cmd;
-          if (cmd.data) {
+          if (theCmd.data) {
             cmd = theCmd.data;
           } else {
             cmd = theCmd;

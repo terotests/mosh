@@ -7531,7 +7531,7 @@
         this._cmd(tmpCmd, obj, null);
 
         if (!isRemote) {
-          this._cmd(a, obj, null); // this is the problematic.
+          // this._cmd(a, obj, null); // this is the problematic.
           this.writeCommand(a);
         } else {
           this._cmd(a, obj, null);

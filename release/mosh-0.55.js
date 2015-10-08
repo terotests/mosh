@@ -6242,7 +6242,7 @@
       _myTrait_.fromAce = function (cmdList) {
 
         if (cmdList && cmdList[0]) {
-          if (!cmdList[0].range) {
+          if (!cmdList[0].range || !cmdList[0].data) {
             _newAce = true;
           }
         }
@@ -6251,7 +6251,14 @@
 
         var newList = [];
 
-        cmdList.forEach(function (cmd) {
+        cmdList.forEach(function (theCmd) {
+
+          var cmd;
+          if (cmd.data) {
+            cmd = theCmd.data;
+          } else {
+            cmd = theCmd;
+          }
 
           var range = cmd.range;
           if (cmd.action == "insertText") {
@@ -7531,7 +7538,7 @@
         this._cmd(tmpCmd, obj, null);
 
         if (!isRemote) {
-          // this._cmd(a, obj, null); // this is the problematic.
+          this._cmd(a, obj, null); // this is the problematic.
           this.writeCommand(a);
         } else {
           this._cmd(a, obj, null);

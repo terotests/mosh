@@ -13,8 +13,54 @@
       var _everies;
       var _framers;
       var _localCnt;
+      var _easings;
+      var _easeFns;
 
       // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_._easeFns = function (t) {
+        _easings = {
+          bounceOut: function bounceOut(t) {
+            if (t < 1 / 2.75) {
+              return 7.5625 * t * t;
+            } else if (t < 2 / 2.75) {
+              return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+            } else if (t < 2.5 / 2.75) {
+              return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+            } else {
+              return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+            }
+          },
+          easeIn: function easeIn(t) {
+            return t * t;
+          },
+          easeOut: function easeOut(t) {
+            return -1 * t * (t - 2);
+          },
+          easeInOut: function easeInOut(t) {
+            if (t < 0.5) return t * t;
+            return -1 * t * (t - 2);
+          },
+          easeInCirc: function easeInCirc(t) {
+            return -1 * (Math.sqrt(1 - t * t) - 1);
+          },
+          easeInCubic: function easeInCubic(t) {
+            return t * t * t;
+          },
+          easeOutCubic: function easeOutCubic(t) {
+            return (1 - t) * (1 - t) * (1 - t) + 1;
+          },
+          pow: function pow(t) {
+            return Math.pow(t, parseFloat(1.5 - t));
+          },
+          linear: function linear(t) {
+            return t;
+          }
+        };
+      };
 
       /**
        * @param function fn
@@ -34,6 +80,14 @@
         } else {
           _callers.push(fn);
         }
+      };
+
+      /**
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.addEasingFn = function (name, fn) {
+        _easings[name] = fn;
       };
 
       /**
@@ -63,6 +117,25 @@
       };
 
       /**
+       * @param String name  - Name of the easing to use
+       * @param int delay  - Delay of the transformation in ms
+       * @param function callback  - Callback to set the values
+       * @param function over  - When animation is over
+       */
+      _myTrait_.ease = function (name, delay, callback, over) {
+
+        var fn = _easings[name];
+        if (!fn) fn = _easings.pow;
+        var id_name = "e_" + _localCnt++;
+        _easeFns[id_name] = {
+          easeFn: fn,
+          duration: delay,
+          cb: callback,
+          over: over
+        };
+      };
+
+      /**
        * @param float seconds
        * @param float fn
        * @param float name
@@ -84,7 +157,7 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (interval, fn) {
         if (!_initDone) {
-
+          this._easeFns();
           _localCnt = 1;
           this.polyfill();
 
@@ -112,10 +185,14 @@
           _oneTimers = {};
           _everies = {};
           _framers = [];
+          _easeFns = {};
           var lastMs = 0;
 
           var _callQueQue = function _callQueQue() {
-            var ms = new Date().getTime();
+            var ms = new Date().getTime(),
+                elapsed = lastMs - ms;
+
+            if (lastMs == 0) elapsed = 0;
             var fn;
             while (fn = _callers.shift()) {
               if (Object.prototype.toString.call(fn) === "[object Array]") {
@@ -128,6 +205,27 @@
             for (var i = 0; i < _framers.length; i++) {
               var fFn = _framers[i];
               fFn();
+            }
+            /*
+            _easeFns.push({
+            easeFn : fn,
+            duration : delay,
+            cb : callback
+            });
+               */
+            for (var n in _easeFns) {
+              if (_easeFns.hasOwnProperty(n)) {
+                var v = _easeFns[n];
+                if (!v.start) v.start = ms;
+                var delta = ms - v.start,
+                    dt = delta / v.duration;
+                if (dt >= 1) {
+                  dt = 1;
+                  delete _easeFns[n];
+                }
+                v.cb(v.easeFn(dt));
+                if (dt == 1 && v.over) v.over();
+              }
             }
 
             for (var n in _oneTimers) {
@@ -242,6 +340,17 @@
     name: "later"
   };
   later.prototype = new later_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["later"] = later;
+      this.later = later;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["later"] = later;
+    } else {
+      this.later = later;
+    }
+  }).call(new Function("return this")());
 
   var lokki_prototype = function lokki_prototype() {
 
@@ -1021,8 +1130,54 @@
       var _everies;
       var _framers;
       var _localCnt;
+      var _easings;
+      var _easeFns;
 
       // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_._easeFns = function (t) {
+        _easings = {
+          bounceOut: function bounceOut(t) {
+            if (t < 1 / 2.75) {
+              return 7.5625 * t * t;
+            } else if (t < 2 / 2.75) {
+              return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+            } else if (t < 2.5 / 2.75) {
+              return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+            } else {
+              return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+            }
+          },
+          easeIn: function easeIn(t) {
+            return t * t;
+          },
+          easeOut: function easeOut(t) {
+            return -1 * t * (t - 2);
+          },
+          easeInOut: function easeInOut(t) {
+            if (t < 0.5) return t * t;
+            return -1 * t * (t - 2);
+          },
+          easeInCirc: function easeInCirc(t) {
+            return -1 * (Math.sqrt(1 - t * t) - 1);
+          },
+          easeInCubic: function easeInCubic(t) {
+            return t * t * t;
+          },
+          easeOutCubic: function easeOutCubic(t) {
+            return (1 - t) * (1 - t) * (1 - t) + 1;
+          },
+          pow: function pow(t) {
+            return Math.pow(t, parseFloat(1.5 - t));
+          },
+          linear: function linear(t) {
+            return t;
+          }
+        };
+      };
 
       /**
        * @param function fn
@@ -1042,6 +1197,14 @@
         } else {
           _callers.push(fn);
         }
+      };
+
+      /**
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.addEasingFn = function (name, fn) {
+        _easings[name] = fn;
       };
 
       /**
@@ -1071,6 +1234,25 @@
       };
 
       /**
+       * @param String name  - Name of the easing to use
+       * @param int delay  - Delay of the transformation in ms
+       * @param function callback  - Callback to set the values
+       * @param function over  - When animation is over
+       */
+      _myTrait_.ease = function (name, delay, callback, over) {
+
+        var fn = _easings[name];
+        if (!fn) fn = _easings.pow;
+        var id_name = "e_" + _localCnt++;
+        _easeFns[id_name] = {
+          easeFn: fn,
+          duration: delay,
+          cb: callback,
+          over: over
+        };
+      };
+
+      /**
        * @param float seconds
        * @param float fn
        * @param float name
@@ -1092,7 +1274,7 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (interval, fn) {
         if (!_initDone) {
-
+          this._easeFns();
           _localCnt = 1;
           this.polyfill();
 
@@ -1120,10 +1302,14 @@
           _oneTimers = {};
           _everies = {};
           _framers = [];
+          _easeFns = {};
           var lastMs = 0;
 
           var _callQueQue = function _callQueQue() {
-            var ms = new Date().getTime();
+            var ms = new Date().getTime(),
+                elapsed = lastMs - ms;
+
+            if (lastMs == 0) elapsed = 0;
             var fn;
             while (fn = _callers.shift()) {
               if (Object.prototype.toString.call(fn) === "[object Array]") {
@@ -1136,6 +1322,27 @@
             for (var i = 0; i < _framers.length; i++) {
               var fFn = _framers[i];
               fFn();
+            }
+            /*
+            _easeFns.push({
+            easeFn : fn,
+            duration : delay,
+            cb : callback
+            });
+               */
+            for (var n in _easeFns) {
+              if (_easeFns.hasOwnProperty(n)) {
+                var v = _easeFns[n];
+                if (!v.start) v.start = ms;
+                var delta = ms - v.start,
+                    dt = delta / v.duration;
+                if (dt >= 1) {
+                  dt = 1;
+                  delete _easeFns[n];
+                }
+                v.cb(v.easeFn(dt));
+                if (dt == 1 && v.over) v.over();
+              }
             }
 
             for (var n in _oneTimers) {
@@ -1250,6 +1457,17 @@
     name: "later"
   };
   later.prototype = new later_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["later"] = later;
+      this.later = later;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["later"] = later;
+    } else {
+      this.later = later;
+    }
+  }).call(new Function("return this")());
 
   var _promise_prototype = function _promise_prototype() {
 
@@ -1888,8 +2106,54 @@
       var _everies;
       var _framers;
       var _localCnt;
+      var _easings;
+      var _easeFns;
 
       // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_._easeFns = function (t) {
+        _easings = {
+          bounceOut: function bounceOut(t) {
+            if (t < 1 / 2.75) {
+              return 7.5625 * t * t;
+            } else if (t < 2 / 2.75) {
+              return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+            } else if (t < 2.5 / 2.75) {
+              return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+            } else {
+              return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+            }
+          },
+          easeIn: function easeIn(t) {
+            return t * t;
+          },
+          easeOut: function easeOut(t) {
+            return -1 * t * (t - 2);
+          },
+          easeInOut: function easeInOut(t) {
+            if (t < 0.5) return t * t;
+            return -1 * t * (t - 2);
+          },
+          easeInCirc: function easeInCirc(t) {
+            return -1 * (Math.sqrt(1 - t * t) - 1);
+          },
+          easeInCubic: function easeInCubic(t) {
+            return t * t * t;
+          },
+          easeOutCubic: function easeOutCubic(t) {
+            return (1 - t) * (1 - t) * (1 - t) + 1;
+          },
+          pow: function pow(t) {
+            return Math.pow(t, parseFloat(1.5 - t));
+          },
+          linear: function linear(t) {
+            return t;
+          }
+        };
+      };
 
       /**
        * @param function fn
@@ -1909,6 +2173,14 @@
         } else {
           _callers.push(fn);
         }
+      };
+
+      /**
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.addEasingFn = function (name, fn) {
+        _easings[name] = fn;
       };
 
       /**
@@ -1938,6 +2210,25 @@
       };
 
       /**
+       * @param String name  - Name of the easing to use
+       * @param int delay  - Delay of the transformation in ms
+       * @param function callback  - Callback to set the values
+       * @param function over  - When animation is over
+       */
+      _myTrait_.ease = function (name, delay, callback, over) {
+
+        var fn = _easings[name];
+        if (!fn) fn = _easings.pow;
+        var id_name = "e_" + _localCnt++;
+        _easeFns[id_name] = {
+          easeFn: fn,
+          duration: delay,
+          cb: callback,
+          over: over
+        };
+      };
+
+      /**
        * @param float seconds
        * @param float fn
        * @param float name
@@ -1959,7 +2250,7 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (interval, fn) {
         if (!_initDone) {
-
+          this._easeFns();
           _localCnt = 1;
           this.polyfill();
 
@@ -1987,10 +2278,14 @@
           _oneTimers = {};
           _everies = {};
           _framers = [];
+          _easeFns = {};
           var lastMs = 0;
 
           var _callQueQue = function _callQueQue() {
-            var ms = new Date().getTime();
+            var ms = new Date().getTime(),
+                elapsed = lastMs - ms;
+
+            if (lastMs == 0) elapsed = 0;
             var fn;
             while (fn = _callers.shift()) {
               if (Object.prototype.toString.call(fn) === "[object Array]") {
@@ -2003,6 +2298,27 @@
             for (var i = 0; i < _framers.length; i++) {
               var fFn = _framers[i];
               fFn();
+            }
+            /*
+            _easeFns.push({
+            easeFn : fn,
+            duration : delay,
+            cb : callback
+            });
+               */
+            for (var n in _easeFns) {
+              if (_easeFns.hasOwnProperty(n)) {
+                var v = _easeFns[n];
+                if (!v.start) v.start = ms;
+                var delta = ms - v.start,
+                    dt = delta / v.duration;
+                if (dt >= 1) {
+                  dt = 1;
+                  delete _easeFns[n];
+                }
+                v.cb(v.easeFn(dt));
+                if (dt == 1 && v.over) v.over();
+              }
             }
 
             for (var n in _oneTimers) {
@@ -2117,6 +2433,17 @@
     name: "later"
   };
   later.prototype = new later_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["later"] = later;
+      this.later = later;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["later"] = later;
+    } else {
+      this.later = later;
+    }
+  }).call(new Function("return this")());
 
   var _promise_prototype = function _promise_prototype() {
 
@@ -2755,8 +3082,54 @@
       var _everies;
       var _framers;
       var _localCnt;
+      var _easings;
+      var _easeFns;
 
       // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_._easeFns = function (t) {
+        _easings = {
+          bounceOut: function bounceOut(t) {
+            if (t < 1 / 2.75) {
+              return 7.5625 * t * t;
+            } else if (t < 2 / 2.75) {
+              return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+            } else if (t < 2.5 / 2.75) {
+              return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+            } else {
+              return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+            }
+          },
+          easeIn: function easeIn(t) {
+            return t * t;
+          },
+          easeOut: function easeOut(t) {
+            return -1 * t * (t - 2);
+          },
+          easeInOut: function easeInOut(t) {
+            if (t < 0.5) return t * t;
+            return -1 * t * (t - 2);
+          },
+          easeInCirc: function easeInCirc(t) {
+            return -1 * (Math.sqrt(1 - t * t) - 1);
+          },
+          easeInCubic: function easeInCubic(t) {
+            return t * t * t;
+          },
+          easeOutCubic: function easeOutCubic(t) {
+            return (1 - t) * (1 - t) * (1 - t) + 1;
+          },
+          pow: function pow(t) {
+            return Math.pow(t, parseFloat(1.5 - t));
+          },
+          linear: function linear(t) {
+            return t;
+          }
+        };
+      };
 
       /**
        * @param function fn
@@ -2776,6 +3149,14 @@
         } else {
           _callers.push(fn);
         }
+      };
+
+      /**
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.addEasingFn = function (name, fn) {
+        _easings[name] = fn;
       };
 
       /**
@@ -2805,6 +3186,25 @@
       };
 
       /**
+       * @param String name  - Name of the easing to use
+       * @param int delay  - Delay of the transformation in ms
+       * @param function callback  - Callback to set the values
+       * @param function over  - When animation is over
+       */
+      _myTrait_.ease = function (name, delay, callback, over) {
+
+        var fn = _easings[name];
+        if (!fn) fn = _easings.pow;
+        var id_name = "e_" + _localCnt++;
+        _easeFns[id_name] = {
+          easeFn: fn,
+          duration: delay,
+          cb: callback,
+          over: over
+        };
+      };
+
+      /**
        * @param float seconds
        * @param float fn
        * @param float name
@@ -2826,7 +3226,7 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (interval, fn) {
         if (!_initDone) {
-
+          this._easeFns();
           _localCnt = 1;
           this.polyfill();
 
@@ -2854,10 +3254,14 @@
           _oneTimers = {};
           _everies = {};
           _framers = [];
+          _easeFns = {};
           var lastMs = 0;
 
           var _callQueQue = function _callQueQue() {
-            var ms = new Date().getTime();
+            var ms = new Date().getTime(),
+                elapsed = lastMs - ms;
+
+            if (lastMs == 0) elapsed = 0;
             var fn;
             while (fn = _callers.shift()) {
               if (Object.prototype.toString.call(fn) === "[object Array]") {
@@ -2870,6 +3274,27 @@
             for (var i = 0; i < _framers.length; i++) {
               var fFn = _framers[i];
               fFn();
+            }
+            /*
+            _easeFns.push({
+            easeFn : fn,
+            duration : delay,
+            cb : callback
+            });
+               */
+            for (var n in _easeFns) {
+              if (_easeFns.hasOwnProperty(n)) {
+                var v = _easeFns[n];
+                if (!v.start) v.start = ms;
+                var delta = ms - v.start,
+                    dt = delta / v.duration;
+                if (dt >= 1) {
+                  dt = 1;
+                  delete _easeFns[n];
+                }
+                v.cb(v.easeFn(dt));
+                if (dt == 1 && v.over) v.over();
+              }
             }
 
             for (var n in _oneTimers) {
@@ -2984,6 +3409,17 @@
     name: "later"
   };
   later.prototype = new later_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["later"] = later;
+      this.later = later;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["later"] = later;
+    } else {
+      this.later = later;
+    }
+  }).call(new Function("return this")());
 
   var sequenceStepper_prototype = function sequenceStepper_prototype() {
 
@@ -4542,9 +4978,9 @@
        * @param float fn
        */
       _myTrait_.forEach = function (fn) {
-
+        var me = this;
         this._docData.data.forEach(function (d) {
-          fn(_data(d));
+          fn(_data(d, null, me._client));
         });
       };
 
@@ -14558,6 +14994,13 @@
       };
 
       /**
+       * @param float t
+       */
+      _myTrait_.isLocal = function (t) {
+        return this._isLocal;
+      };
+
+      /**
        * @param float id
        */
       _myTrait_.length = function (id) {
@@ -18379,8 +18822,54 @@
       var _everies;
       var _framers;
       var _localCnt;
+      var _easings;
+      var _easeFns;
 
       // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_._easeFns = function (t) {
+        _easings = {
+          bounceOut: function bounceOut(t) {
+            if (t < 1 / 2.75) {
+              return 7.5625 * t * t;
+            } else if (t < 2 / 2.75) {
+              return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+            } else if (t < 2.5 / 2.75) {
+              return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+            } else {
+              return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+            }
+          },
+          easeIn: function easeIn(t) {
+            return t * t;
+          },
+          easeOut: function easeOut(t) {
+            return -1 * t * (t - 2);
+          },
+          easeInOut: function easeInOut(t) {
+            if (t < 0.5) return t * t;
+            return -1 * t * (t - 2);
+          },
+          easeInCirc: function easeInCirc(t) {
+            return -1 * (Math.sqrt(1 - t * t) - 1);
+          },
+          easeInCubic: function easeInCubic(t) {
+            return t * t * t;
+          },
+          easeOutCubic: function easeOutCubic(t) {
+            return (1 - t) * (1 - t) * (1 - t) + 1;
+          },
+          pow: function pow(t) {
+            return Math.pow(t, parseFloat(1.5 - t));
+          },
+          linear: function linear(t) {
+            return t;
+          }
+        };
+      };
 
       /**
        * @param function fn
@@ -18400,6 +18889,14 @@
         } else {
           _callers.push(fn);
         }
+      };
+
+      /**
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.addEasingFn = function (name, fn) {
+        _easings[name] = fn;
       };
 
       /**
@@ -18429,6 +18926,25 @@
       };
 
       /**
+       * @param String name  - Name of the easing to use
+       * @param int delay  - Delay of the transformation in ms
+       * @param function callback  - Callback to set the values
+       * @param function over  - When animation is over
+       */
+      _myTrait_.ease = function (name, delay, callback, over) {
+
+        var fn = _easings[name];
+        if (!fn) fn = _easings.pow;
+        var id_name = "e_" + _localCnt++;
+        _easeFns[id_name] = {
+          easeFn: fn,
+          duration: delay,
+          cb: callback,
+          over: over
+        };
+      };
+
+      /**
        * @param float seconds
        * @param float fn
        * @param float name
@@ -18450,7 +18966,7 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (interval, fn) {
         if (!_initDone) {
-
+          this._easeFns();
           _localCnt = 1;
           this.polyfill();
 
@@ -18478,10 +18994,14 @@
           _oneTimers = {};
           _everies = {};
           _framers = [];
+          _easeFns = {};
           var lastMs = 0;
 
           var _callQueQue = function _callQueQue() {
-            var ms = new Date().getTime();
+            var ms = new Date().getTime(),
+                elapsed = lastMs - ms;
+
+            if (lastMs == 0) elapsed = 0;
             var fn;
             while (fn = _callers.shift()) {
               if (Object.prototype.toString.call(fn) === "[object Array]") {
@@ -18494,6 +19014,27 @@
             for (var i = 0; i < _framers.length; i++) {
               var fFn = _framers[i];
               fFn();
+            }
+            /*
+            _easeFns.push({
+            easeFn : fn,
+            duration : delay,
+            cb : callback
+            });
+               */
+            for (var n in _easeFns) {
+              if (_easeFns.hasOwnProperty(n)) {
+                var v = _easeFns[n];
+                if (!v.start) v.start = ms;
+                var delta = ms - v.start,
+                    dt = delta / v.duration;
+                if (dt >= 1) {
+                  dt = 1;
+                  delete _easeFns[n];
+                }
+                v.cb(v.easeFn(dt));
+                if (dt == 1 && v.over) v.over();
+              }
             }
 
             for (var n in _oneTimers) {
@@ -18608,6 +19149,17 @@
     name: "later"
   };
   later.prototype = new later_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["later"] = later;
+      this.later = later;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["later"] = later;
+    } else {
+      this.later = later;
+    }
+  }).call(new Function("return this")());
 
   var _promise_prototype = function _promise_prototype() {
 

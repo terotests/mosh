@@ -8985,7 +8985,7 @@
               _dmp = new diff_match_patch();
             } else {
               // if in node.js try to require the module
-              if (typeof global != "undefined") {
+              if (require) {
                 var DiffMatchPatch = require("diff-match-patch");
                 _dmp = new DiffMatchPatch();
               }
@@ -14874,7 +14874,7 @@
             _dmp = new diff_match_patch();
           } else {
             // if in node.js try to require the module
-            if (typeof global != "undefined") {
+            if (require) {
               var DiffMatchPatch = require("diff-match-patch");
               _dmp = new DiffMatchPatch();
             }

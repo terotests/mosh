@@ -10863,8 +10863,7 @@
                 _authExtension(cData, function (success, userid, groups) {
                   if (success === true) {
                     var UID = userid;
-                    var groups = groups;
-                    console.log("custom authentication into ", res.groups);
+                    console.log("custom authentication into ", groups);
                     socket.setAuthInfo(UID, groups);
                     responseFn({
                       success: true,
@@ -10884,31 +10883,32 @@
                   userId: null
                 });
               }
-            }
-            if (authManager) {
-              authManager.login(cData.userId, cData.password).then(function (res) {
-                if (res.result === true) {
-                  var UID = res.userId;
-                  var groups = res.groups;
-                  console.log("AUTH groups ", res.groups);
-                  socket.setAuthInfo(UID, groups);
-                  responseFn({
-                    success: true,
-                    userId: socket.getUserId(),
-                    groups: res.groups
-                  });
-                } else {
-                  responseFn({
-                    success: false,
-                    userId: null
-                  });
-                }
-              });
             } else {
-              responseFn({
-                success: false,
-                userId: null
-              });
+              if (authManager) {
+                authManager.login(cData.userId, cData.password).then(function (res) {
+                  if (res.result === true) {
+                    var UID = res.userId;
+                    var groups = res.groups;
+                    console.log("AUTH groups ", res.groups);
+                    socket.setAuthInfo(UID, groups);
+                    responseFn({
+                      success: true,
+                      userId: socket.getUserId(),
+                      groups: res.groups
+                    });
+                  } else {
+                    responseFn({
+                      success: false,
+                      userId: null
+                    });
+                  }
+                });
+              } else {
+                responseFn({
+                  success: false,
+                  userId: null
+                });
+              }
             }
           });
 

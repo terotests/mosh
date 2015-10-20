@@ -10869,7 +10869,7 @@
                     responseFn({
                       success: true,
                       userId: socket.getUserId(),
-                      groups: res.groups
+                      groups: groups
                     });
                   } else {
                     responseFn({

@@ -10756,6 +10756,7 @@
       var _socketRooms;
       var _authExtension;
       var _accessManager;
+      var _autoCreateFn;
 
       // Initialize static variables here...
 
@@ -10817,6 +10818,9 @@
           var ctrl; // the channel controller
 
           socket.on("requestChannel", function (cData, responseFn) {
+
+            // Request channel -> possible also autocreate channels, if they don't exist
+
             fileSystem.findPath(cData.channelId).then(function (fold) {
               if (fold) {
 
@@ -10839,10 +10843,77 @@
                   }
                 });
               } else {
-                responseFn({
-                  success: false,
-                  channelId: null
-                });
+                /*
+                if(chData && !chData.__acl) {
+                chData.__acl = chSettings.__acl;
+                }
+                 if(!chSettings.channelId || !chSettings._userId ) {
+                response({
+                result : false,
+                text : "Could not create the channel, missing information"
+                });             
+                return;
+                }
+                 var obj = {
+                version : 2,    // with pre-initialized data, the first version is 2
+                channelId : chSettings.channelId,
+                userId : chSettings._userId,
+                name : chSettings.name || "",
+                utc : (new Date()).getTime()
+                };                
+                */
+                if (_autoCreateFn) {
+                  // ---
+                  console.log("** Starting to autocreate channel **" + cData.channelId);
+                  _autoCreateFn(cData, socket, function (shouldCreate, withData) {
+                    if (shouldCreate && withData) {
+                      // --> creates a new channel...
+                      var model = _localChannelModel(null, fileSystem);
+                      model.createChannel({
+                        chData: withData,
+                        _userId: socket.getUserId(),
+                        name: "autocreated",
+                        channelId: cData.channelId
+                      }).then(function (r) {
+                        if (!r.result) {
+                          responseFn({
+                            success: false,
+                            channelId: null
+                          });
+                          return;
+                        }
+                        ctrl = _channelController(cData.channelId, fileSystem, me);
+                        ctrl.then(function () {
+                          if (ctrl._groupACL(socket, "r")) {
+                            console.log("** autocreated a channel **" + cData.channelId);
+                            socket.join(cData.channelId);
+                            me.addSocketToCh(cData.channelId, socket);
+                            _socketChannels.push(cData.channelId);
+                            responseFn({
+                              success: true,
+                              channelId: cData.channelId
+                            });
+                          } else {
+                            responseFn({
+                              success: false,
+                              channelId: null
+                            });
+                          }
+                        });
+                      });
+                    } else {
+                      responseFn({
+                        success: false,
+                        channelId: null
+                      });
+                    }
+                  });
+                } else {
+                  responseFn({
+                    success: false,
+                    channelId: null
+                  });
+                }
               }
             });
           });
@@ -10966,6 +11037,13 @@
        */
       _myTrait_.setAuthExtension = function (fn) {
         _authExtension = fn;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.setAutoCreateFn = function (fn) {
+        _autoCreateFn = fn;
       };
     })(this);
   };
@@ -11648,13 +11726,16 @@
 
         var me = this;
 
-        me._createChannelDir(channelId).then(function () {
-          return me._createChannelSettings();
-        }).then(function () {
-          me.resolve(true);
-        }).fail(function (e) {
-          console.error(e);
-        });
+        // create channel directory only if channel is defined
+        if (channelId) {
+          me._createChannelDir(channelId).then(function () {
+            return me._createChannelSettings();
+          }).then(function () {
+            me.resolve(true);
+          }).fail(function (e) {
+            console.error(e);
+          });
+        }
       });
 
       /**
@@ -14643,8 +14724,6 @@
       _myTrait_.createChannel = function (name, description, baseData) {
 
         if (this._isLocal) return;
-
-        debugger;
 
         // a fresh copy of the base data
         var copyOf = JSON.parse(JSON.stringify(baseData));

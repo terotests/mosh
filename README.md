@@ -298,9 +298,29 @@ pwFs.then(
     
     
     
+    
+    
 
 
    
+      
+            
+#### Class moshEnv
+
+
+- [isNode](README.md#moshEnv_isNode)
+
+
+
+   
+
+
+   
+
+
+
+      
+    
       
             
 #### Class lokkiLoki
@@ -322,9 +342,12 @@ pwFs.then(
 #### Class later
 
 
+- [_easeFns](README.md#later__easeFns)
 - [add](README.md#later_add)
+- [addEasingFn](README.md#later_addEasingFn)
 - [after](README.md#later_after)
 - [asap](README.md#later_asap)
+- [ease](README.md#later_ease)
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
@@ -487,9 +510,12 @@ pwFs.then(
 #### Class later
 
 
+- [_easeFns](README.md#later__easeFns)
 - [add](README.md#later_add)
+- [addEasingFn](README.md#later_addEasingFn)
 - [after](README.md#later_after)
 - [asap](README.md#later_asap)
+- [ease](README.md#later_ease)
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
@@ -609,9 +635,12 @@ pwFs.then(
 #### Class later
 
 
+- [_easeFns](README.md#later__easeFns)
 - [add](README.md#later_add)
+- [addEasingFn](README.md#later_addEasingFn)
 - [after](README.md#later_after)
 - [asap](README.md#later_asap)
+- [ease](README.md#later_ease)
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
@@ -641,9 +670,12 @@ pwFs.then(
 #### Class later
 
 
+- [_easeFns](README.md#later__easeFns)
 - [add](README.md#later_add)
+- [addEasingFn](README.md#later_addEasingFn)
 - [after](README.md#later_after)
 - [asap](README.md#later_asap)
+- [ease](README.md#later_ease)
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
@@ -769,6 +801,7 @@ pwFs.then(
 - [getJournal](README.md#_data_getJournal)
 - [localFork](README.md#_data_localFork)
 - [map](README.md#_data_map)
+- [merge](README.md#_data_merge)
 - [openChannel](README.md#_data_openChannel)
 - [patch](README.md#_data_patch)
 - [playback](README.md#_data_playback)
@@ -924,10 +957,13 @@ pwFs.then(
 
 
 - [fromAce](README.md#aceCmdConvert_fromAce)
+- [fromAce2](README.md#aceCmdConvert_fromAce2)
 - [reverse](README.md#aceCmdConvert_reverse)
 - [runToAce](README.md#aceCmdConvert_runToAce)
+- [runToAce2](README.md#aceCmdConvert_runToAce2)
 - [runToLineObj](README.md#aceCmdConvert_runToLineObj)
 - [runToString](README.md#aceCmdConvert_runToString)
+- [setAceVersion](README.md#aceCmdConvert_setAceVersion)
 - [simplify](README.md#aceCmdConvert_simplify)
 
 
@@ -1211,9 +1247,13 @@ pwFs.then(
 
 
 - [addSocketToCh](README.md#_serverChannelMgr_addSocketToCh)
+- [getAccessManager](README.md#_serverChannelMgr_getAccessManager)
 - [getServerSocket](README.md#_serverChannelMgr_getServerSocket)
 - [getSocketsFromCh](README.md#_serverChannelMgr_getSocketsFromCh)
 - [removeSocketFromCh](README.md#_serverChannelMgr_removeSocketFromCh)
+- [setAccessManager](README.md#_serverChannelMgr_setAccessManager)
+- [setAuthExtension](README.md#_serverChannelMgr_setAuthExtension)
+- [setAutoCreateFn](README.md#_serverChannelMgr_setAutoCreateFn)
 
 
 
@@ -1302,6 +1342,7 @@ pwFs.then(
 - [_sendUnsentToMaster](README.md#_channelController__sendUnsentToMaster)
 - [_startSync](README.md#_channelController__startSync)
 - [_updateLoop](README.md#_channelController__updateLoop)
+- [channelId](README.md#_channelController_channelId)
 - [run](README.md#_channelController_run)
 
 
@@ -1432,6 +1473,7 @@ pwFs.then(
 - [getData](README.md#channelClient_getData)
 - [indexOf](README.md#channelClient_indexOf)
 - [isConnected](README.md#channelClient_isConnected)
+- [isLocal](README.md#channelClient_isLocal)
 - [length](README.md#channelClient_length)
 - [moveDown](README.md#channelClient_moveDown)
 - [moveTo](README.md#channelClient_moveTo)
@@ -2012,9 +2054,12 @@ pwFs.then(
 #### Class later
 
 
+- [_easeFns](README.md#later__easeFns)
 - [add](README.md#later_add)
+- [addEasingFn](README.md#later_addEasingFn)
 - [after](README.md#later_after)
 - [asap](README.md#later_asap)
+- [ease](README.md#later_ease)
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
@@ -2472,9 +2517,43 @@ The class has following internal singleton variables:
     
     
     
+    
+    
 
 
    
+      
+            
+# Class moshEnv
+
+
+The class has following internal singleton variables:
+        
+        
+### moshEnv::constructor( options )
+
+```javascript
+
+```
+        
+### <a name="moshEnv_isNode"></a>moshEnv::isNode(t)
+
+
+```javascript
+return (new Function("try { return this === global; } catch(e) { return false; }"))();
+```
+
+
+
+   
+
+
+   
+
+
+
+      
+    
       
             
 # Class lokkiLoki
@@ -2518,7 +2597,56 @@ The class has following internal singleton variables:
         
 * _localCnt
         
+* _easings
         
+* _easeFns
+        
+        
+### <a name="later__easeFns"></a>later::_easeFns(t)
+
+
+```javascript
+_easings = { 
+    bounceOut : function(t){
+        if (t < 1/2.75) {
+            return (7.5625*t*t);
+        } else if (t < 2/2.75) {
+            return (7.5625*(t-=1.5/2.75)*t+0.75);
+        } else if (t < 2.5/2.75) {
+            return (7.5625*(t-=2.25/2.75)*t+0.9375);
+        } else {
+            return (7.5625*(t-=2.625/2.75)*t +0.984375);
+        }
+    },
+    easeIn : function(t) {
+        return t*t;
+    },
+    easeOut : function(t) {
+        return -1*t*(t-2);
+    },   
+    easeInOut : function(t) {
+        if(t < 0.5) return t*t;
+        return -1*t*(t-2);
+    },
+    easeInCirc : function(t) {
+        return -1*(Math.sqrt(1 -t*t) - 1);
+    },
+    easeInCubic : function(t) {
+        return t*t*t;
+    },
+    easeOutCubic : function(t) {
+        return (1-t)*(1-t)*(1-t) + 1;
+    },    
+    pow : function(t) {
+        return Math.pow(t,parseFloat(1.5-t));
+    },
+    linear : function(t) {
+        return t;
+    }
+}
+
+```
+
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
 
@@ -2535,6 +2663,13 @@ if(thisObj || args) {
 } else {
     _callers.push(fn);
 }
+```
+
+### <a name="later_addEasingFn"></a>later::addEasingFn(name, fn)
+
+
+```javascript
+_easings[name] = fn;
 ```
 
 ### <a name="later_after"></a>later::after(seconds, fn, name)
@@ -2562,6 +2697,33 @@ this.add(fn);
 
 ```
 
+### <a name="later_ease"></a>later::ease(name, delay, callback, over)
+`name` Name of the easing to use
+ 
+`delay` Delay of the transformation in ms
+ 
+`callback` Callback to set the values
+ 
+`over` When animation is over
+ 
+
+
+```javascript
+
+var fn = _easings[name];
+if(!fn) fn = _easings.pow;
+var id_name = "e_"+(_localCnt++);
+_easeFns[id_name] = {
+    easeFn : fn,
+    duration : delay,
+    cb : callback,
+    over : over
+};
+
+
+
+```
+
 ### <a name="later_every"></a>later::every(seconds, fn, name)
 
 
@@ -2582,7 +2744,7 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-
+   this._easeFns();
    _localCnt=1;
    this.polyfill();
  
@@ -2599,10 +2761,19 @@ if(!_initDone) {
         });
    }
  
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   
+   if(is_node_js) {
+       frame= function(cb) {
+            return setTimeout(cb,1);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }
  
     if (!cancelFrame)
         cancelFrame = function(id) {
@@ -2613,10 +2784,14 @@ if(!_initDone) {
     _oneTimers = {};
     _everies = {};
     _framers = [];
+    _easeFns = {};
     var lastMs = 0;
     
     var _callQueQue = function() {
-       var ms = (new Date()).getTime();
+       var ms = (new Date()).getTime(),
+           elapsed = lastMs - ms;
+       
+       if(lastMs==0) elapsed = 0;
        var fn;
        while(fn=_callers.shift()) {
           if(Object.prototype.toString.call( fn ) === '[object Array]' ) {
@@ -2631,7 +2806,29 @@ if(!_initDone) {
            var fFn = _framers[i];
            fFn();
        }
+       /*
+_easeFns.push({
+    easeFn : fn,
+    duration : delay,
+    cb : callback
+});
        
+       */
+       for(var n in _easeFns) {
+           if(_easeFns.hasOwnProperty(n)) {
+               var v = _easeFns[n];
+               if(!v.start) v.start = ms;
+               var delta = ms - v.start,
+                   dt = delta / v.duration;
+               if(dt>=1) {
+                   dt = 1;
+                   delete _easeFns[n];
+               }
+               v.cb(v.easeFn(dt));
+               if((dt == 1) && v.over) v.over();
+           }
+       }   
+
        for(var n in _oneTimers) {
            if(_oneTimers.hasOwnProperty(n)) {
                var v = _oneTimers[n];
@@ -3601,13 +3798,9 @@ if(this.isFunction(onRejected))
     this._onReject = onRejected;
     
 if(!onRejected && this.isFunction(onFulfilled) ) {
-    
-    
-    
     var me = this;
     later().asap(
         function() {
-            console.log("--- calling the onFulfilled ");
             onFulfilled( function(v) {
                 me.resolve(v)
             }, function(v) {
@@ -4042,7 +4235,56 @@ The class has following internal singleton variables:
         
 * _localCnt
         
+* _easings
         
+* _easeFns
+        
+        
+### <a name="later__easeFns"></a>later::_easeFns(t)
+
+
+```javascript
+_easings = { 
+    bounceOut : function(t){
+        if (t < 1/2.75) {
+            return (7.5625*t*t);
+        } else if (t < 2/2.75) {
+            return (7.5625*(t-=1.5/2.75)*t+0.75);
+        } else if (t < 2.5/2.75) {
+            return (7.5625*(t-=2.25/2.75)*t+0.9375);
+        } else {
+            return (7.5625*(t-=2.625/2.75)*t +0.984375);
+        }
+    },
+    easeIn : function(t) {
+        return t*t;
+    },
+    easeOut : function(t) {
+        return -1*t*(t-2);
+    },   
+    easeInOut : function(t) {
+        if(t < 0.5) return t*t;
+        return -1*t*(t-2);
+    },
+    easeInCirc : function(t) {
+        return -1*(Math.sqrt(1 -t*t) - 1);
+    },
+    easeInCubic : function(t) {
+        return t*t*t;
+    },
+    easeOutCubic : function(t) {
+        return (1-t)*(1-t)*(1-t) + 1;
+    },    
+    pow : function(t) {
+        return Math.pow(t,parseFloat(1.5-t));
+    },
+    linear : function(t) {
+        return t;
+    }
+}
+
+```
+
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
 
@@ -4059,6 +4301,13 @@ if(thisObj || args) {
 } else {
     _callers.push(fn);
 }
+```
+
+### <a name="later_addEasingFn"></a>later::addEasingFn(name, fn)
+
+
+```javascript
+_easings[name] = fn;
 ```
 
 ### <a name="later_after"></a>later::after(seconds, fn, name)
@@ -4086,6 +4335,33 @@ this.add(fn);
 
 ```
 
+### <a name="later_ease"></a>later::ease(name, delay, callback, over)
+`name` Name of the easing to use
+ 
+`delay` Delay of the transformation in ms
+ 
+`callback` Callback to set the values
+ 
+`over` When animation is over
+ 
+
+
+```javascript
+
+var fn = _easings[name];
+if(!fn) fn = _easings.pow;
+var id_name = "e_"+(_localCnt++);
+_easeFns[id_name] = {
+    easeFn : fn,
+    duration : delay,
+    cb : callback,
+    over : over
+};
+
+
+
+```
+
 ### <a name="later_every"></a>later::every(seconds, fn, name)
 
 
@@ -4106,7 +4382,7 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-
+   this._easeFns();
    _localCnt=1;
    this.polyfill();
  
@@ -4123,10 +4399,19 @@ if(!_initDone) {
         });
    }
  
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   
+   if(is_node_js) {
+       frame= function(cb) {
+            return setImmediate(cb);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }
  
     if (!cancelFrame)
         cancelFrame = function(id) {
@@ -4137,10 +4422,14 @@ if(!_initDone) {
     _oneTimers = {};
     _everies = {};
     _framers = [];
+    _easeFns = {};
     var lastMs = 0;
     
     var _callQueQue = function() {
-       var ms = (new Date()).getTime();
+       var ms = (new Date()).getTime(),
+           elapsed = lastMs - ms;
+       
+       if(lastMs==0) elapsed = 0;
        var fn;
        while(fn=_callers.shift()) {
           if(Object.prototype.toString.call( fn ) === '[object Array]' ) {
@@ -4155,7 +4444,29 @@ if(!_initDone) {
            var fFn = _framers[i];
            fFn();
        }
+       /*
+_easeFns.push({
+    easeFn : fn,
+    duration : delay,
+    cb : callback
+});
        
+       */
+       for(var n in _easeFns) {
+           if(_easeFns.hasOwnProperty(n)) {
+               var v = _easeFns[n];
+               if(!v.start) v.start = ms;
+               var delta = ms - v.start,
+                   dt = delta / v.duration;
+               if(dt>=1) {
+                   dt = 1;
+                   delete _easeFns[n];
+               }
+               v.cb(v.easeFn(dt));
+               if((dt == 1) && v.over) v.over();
+           }
+       }   
+
        for(var n in _oneTimers) {
            if(_oneTimers.hasOwnProperty(n)) {
                var v = _oneTimers[n];
@@ -4919,13 +5230,9 @@ if(this.isFunction(onRejected))
     this._onReject = onRejected;
     
 if(!onRejected && this.isFunction(onFulfilled) ) {
-    
-    
-    
     var me = this;
     later().asap(
         function() {
-            console.log("--- calling the onFulfilled ");
             onFulfilled( function(v) {
                 me.resolve(v)
             }, function(v) {
@@ -5360,7 +5667,56 @@ The class has following internal singleton variables:
         
 * _localCnt
         
+* _easings
         
+* _easeFns
+        
+        
+### <a name="later__easeFns"></a>later::_easeFns(t)
+
+
+```javascript
+_easings = { 
+    bounceOut : function(t){
+        if (t < 1/2.75) {
+            return (7.5625*t*t);
+        } else if (t < 2/2.75) {
+            return (7.5625*(t-=1.5/2.75)*t+0.75);
+        } else if (t < 2.5/2.75) {
+            return (7.5625*(t-=2.25/2.75)*t+0.9375);
+        } else {
+            return (7.5625*(t-=2.625/2.75)*t +0.984375);
+        }
+    },
+    easeIn : function(t) {
+        return t*t;
+    },
+    easeOut : function(t) {
+        return -1*t*(t-2);
+    },   
+    easeInOut : function(t) {
+        if(t < 0.5) return t*t;
+        return -1*t*(t-2);
+    },
+    easeInCirc : function(t) {
+        return -1*(Math.sqrt(1 -t*t) - 1);
+    },
+    easeInCubic : function(t) {
+        return t*t*t;
+    },
+    easeOutCubic : function(t) {
+        return (1-t)*(1-t)*(1-t) + 1;
+    },    
+    pow : function(t) {
+        return Math.pow(t,parseFloat(1.5-t));
+    },
+    linear : function(t) {
+        return t;
+    }
+}
+
+```
+
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
 
@@ -5377,6 +5733,13 @@ if(thisObj || args) {
 } else {
     _callers.push(fn);
 }
+```
+
+### <a name="later_addEasingFn"></a>later::addEasingFn(name, fn)
+
+
+```javascript
+_easings[name] = fn;
 ```
 
 ### <a name="later_after"></a>later::after(seconds, fn, name)
@@ -5404,6 +5767,33 @@ this.add(fn);
 
 ```
 
+### <a name="later_ease"></a>later::ease(name, delay, callback, over)
+`name` Name of the easing to use
+ 
+`delay` Delay of the transformation in ms
+ 
+`callback` Callback to set the values
+ 
+`over` When animation is over
+ 
+
+
+```javascript
+
+var fn = _easings[name];
+if(!fn) fn = _easings.pow;
+var id_name = "e_"+(_localCnt++);
+_easeFns[id_name] = {
+    easeFn : fn,
+    duration : delay,
+    cb : callback,
+    over : over
+};
+
+
+
+```
+
 ### <a name="later_every"></a>later::every(seconds, fn, name)
 
 
@@ -5424,7 +5814,7 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-
+   this._easeFns();
    _localCnt=1;
    this.polyfill();
  
@@ -5441,10 +5831,19 @@ if(!_initDone) {
         });
    }
  
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   
+   if(is_node_js) {
+       frame= function(cb) {
+            return setTimeout(cb,1);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }
  
     if (!cancelFrame)
         cancelFrame = function(id) {
@@ -5455,10 +5854,14 @@ if(!_initDone) {
     _oneTimers = {};
     _everies = {};
     _framers = [];
+    _easeFns = {};
     var lastMs = 0;
     
     var _callQueQue = function() {
-       var ms = (new Date()).getTime();
+       var ms = (new Date()).getTime(),
+           elapsed = lastMs - ms;
+       
+       if(lastMs==0) elapsed = 0;
        var fn;
        while(fn=_callers.shift()) {
           if(Object.prototype.toString.call( fn ) === '[object Array]' ) {
@@ -5473,7 +5876,29 @@ if(!_initDone) {
            var fFn = _framers[i];
            fFn();
        }
+       /*
+_easeFns.push({
+    easeFn : fn,
+    duration : delay,
+    cb : callback
+});
        
+       */
+       for(var n in _easeFns) {
+           if(_easeFns.hasOwnProperty(n)) {
+               var v = _easeFns[n];
+               if(!v.start) v.start = ms;
+               var delta = ms - v.start,
+                   dt = delta / v.duration;
+               if(dt>=1) {
+                   dt = 1;
+                   delete _easeFns[n];
+               }
+               v.cb(v.easeFn(dt));
+               if((dt == 1) && v.over) v.over();
+           }
+       }   
+
        for(var n in _oneTimers) {
            if(_oneTimers.hasOwnProperty(n)) {
                var v = _oneTimers[n];
@@ -5592,7 +6017,56 @@ The class has following internal singleton variables:
         
 * _localCnt
         
+* _easings
         
+* _easeFns
+        
+        
+### <a name="later__easeFns"></a>later::_easeFns(t)
+
+
+```javascript
+_easings = { 
+    bounceOut : function(t){
+        if (t < 1/2.75) {
+            return (7.5625*t*t);
+        } else if (t < 2/2.75) {
+            return (7.5625*(t-=1.5/2.75)*t+0.75);
+        } else if (t < 2.5/2.75) {
+            return (7.5625*(t-=2.25/2.75)*t+0.9375);
+        } else {
+            return (7.5625*(t-=2.625/2.75)*t +0.984375);
+        }
+    },
+    easeIn : function(t) {
+        return t*t;
+    },
+    easeOut : function(t) {
+        return -1*t*(t-2);
+    },   
+    easeInOut : function(t) {
+        if(t < 0.5) return t*t;
+        return -1*t*(t-2);
+    },
+    easeInCirc : function(t) {
+        return -1*(Math.sqrt(1 -t*t) - 1);
+    },
+    easeInCubic : function(t) {
+        return t*t*t;
+    },
+    easeOutCubic : function(t) {
+        return (1-t)*(1-t)*(1-t) + 1;
+    },    
+    pow : function(t) {
+        return Math.pow(t,parseFloat(1.5-t));
+    },
+    linear : function(t) {
+        return t;
+    }
+}
+
+```
+
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
 
@@ -5609,6 +6083,13 @@ if(thisObj || args) {
 } else {
     _callers.push(fn);
 }
+```
+
+### <a name="later_addEasingFn"></a>later::addEasingFn(name, fn)
+
+
+```javascript
+_easings[name] = fn;
 ```
 
 ### <a name="later_after"></a>later::after(seconds, fn, name)
@@ -5636,6 +6117,33 @@ this.add(fn);
 
 ```
 
+### <a name="later_ease"></a>later::ease(name, delay, callback, over)
+`name` Name of the easing to use
+ 
+`delay` Delay of the transformation in ms
+ 
+`callback` Callback to set the values
+ 
+`over` When animation is over
+ 
+
+
+```javascript
+
+var fn = _easings[name];
+if(!fn) fn = _easings.pow;
+var id_name = "e_"+(_localCnt++);
+_easeFns[id_name] = {
+    easeFn : fn,
+    duration : delay,
+    cb : callback,
+    over : over
+};
+
+
+
+```
+
 ### <a name="later_every"></a>later::every(seconds, fn, name)
 
 
@@ -5656,7 +6164,7 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-
+   this._easeFns();
    _localCnt=1;
    this.polyfill();
  
@@ -5673,10 +6181,19 @@ if(!_initDone) {
         });
    }
  
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   
+   if(is_node_js) {
+       frame= function(cb) {
+            return setTimeout(cb,1);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }
  
     if (!cancelFrame)
         cancelFrame = function(id) {
@@ -5687,10 +6204,14 @@ if(!_initDone) {
     _oneTimers = {};
     _everies = {};
     _framers = [];
+    _easeFns = {};
     var lastMs = 0;
     
     var _callQueQue = function() {
-       var ms = (new Date()).getTime();
+       var ms = (new Date()).getTime(),
+           elapsed = lastMs - ms;
+       
+       if(lastMs==0) elapsed = 0;
        var fn;
        while(fn=_callers.shift()) {
           if(Object.prototype.toString.call( fn ) === '[object Array]' ) {
@@ -5705,7 +6226,29 @@ if(!_initDone) {
            var fFn = _framers[i];
            fFn();
        }
+       /*
+_easeFns.push({
+    easeFn : fn,
+    duration : delay,
+    cb : callback
+});
        
+       */
+       for(var n in _easeFns) {
+           if(_easeFns.hasOwnProperty(n)) {
+               var v = _easeFns[n];
+               if(!v.start) v.start = ms;
+               var delta = ms - v.start,
+                   dt = delta / v.duration;
+               if(dt>=1) {
+                   dt = 1;
+                   delete _easeFns[n];
+               }
+               v.cb(v.easeFn(dt));
+               if((dt == 1) && v.over) v.over();
+           }
+       }   
+
        for(var n in _oneTimers) {
            if(_oneTimers.hasOwnProperty(n)) {
                var v = _oneTimers[n];
@@ -6404,6 +6947,9 @@ _atObserve = t;
 if(!_objectCache) _objectCache = {};
 
 if(this.isObject(data)) {
+    
+    if(data._objEventWorker) return data;
+    
     if(data.data && data.__id) {
         
         var oo = _objectCache[data.__id];
@@ -6908,6 +7454,10 @@ return newArr;
 ```javascript
 // fork
 
+if(!newChannelId || this._client._isLocal) {
+    return this.localFork();
+}
+
 var me = this;
 
 return _promise( function(result) {
@@ -7104,6 +7654,19 @@ this.localFork().forEach( function(item) {
     idx++;
 })
 return newArr;
+```
+
+### <a name="_data_merge"></a>_data::merge(forkedObject)
+`forkedObject` Object which was forked
+ 
+
+Merges object, which was forked from this object into this object.
+```javascript
+var patchCmds = this.diff( forkedObject );
+this.patch( patchCmds );
+
+return this;
+
 ```
 
 ### <a name="_data_openChannel"></a>_data::openChannel(channelURL)
@@ -7729,9 +8292,9 @@ return null;
 
 
 ```javascript
-
+var me = this;
 this._docData.data.forEach( function(d) {
-    fn(_data(d));
+    fn(_data(d, null, me._client));
 });
 
 
@@ -8637,16 +9200,32 @@ The class has following internal singleton variables:
 
 The class has following internal singleton variables:
         
+* _newAce
+        
         
 ### <a name="aceCmdConvert_fromAce"></a>aceCmdConvert::fromAce(cmdList)
 
 
 ```javascript
 
+if(cmdList && cmdList[0]) {
+    if(!cmdList[0].range && !cmdList[0].data) {
+        _newAce = true;
+    }
+}
+
+if(_newAce) return this.fromAce2(cmdList);
 
 var newList = [];
 
-cmdList.forEach( function(cmd) {
+cmdList.forEach( function(theCmd) {
+    
+    var cmd;
+    if(theCmd.data) {
+        cmd = theCmd.data;
+    } else {
+        cmd = theCmd;
+    }
     
     var range = cmd.range;
     if(cmd.action=="insertText") {
@@ -8680,6 +9259,80 @@ cmdList.forEach( function(cmd) {
             ])
     }
     if(cmd.action=="removeLines") {
+        newList.push([
+                4, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines,
+                cmd.nl
+            ])
+    }
+    
+    
+});
+
+return newList;
+
+/*
+{"action":"insertText","range":{"start":{"row":0,"column":0},
+    "end":{"row":0,"column":1}},"text":"d"}
+*/
+```
+
+### <a name="aceCmdConvert_fromAce2"></a>aceCmdConvert::fromAce2(cmdList)
+
+
+```javascript
+
+var newList = [];
+/*
+cmdList: Array[1]
+0: Object
+action: "insert"
+end: Object
+lines: Array[1]
+start: Object
+__proto__: Object
+length: 1
+__proto__: Array[0]
+*/
+
+cmdList.forEach( function(cmd) {
+    
+    var range = cmd;
+    if(cmd.action=="insert" && cmd.lines.length == 1) {
+        newList.push([
+                1, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines[0]
+            ])
+    }
+    if(cmd.action=="remove" && cmd.lines.length == 1) {
+        newList.push([
+                2, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines[0]
+            ])
+    }
+    if(cmd.action=="insert" && cmd.lines.length > 1) {
+        newList.push([
+                3, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines
+            ])
+    }
+    if(cmd.action=="remove" && cmd.lines.length > 1) {
         newList.push([
                 4, 
                 range.start.row,
@@ -8768,6 +9421,7 @@ return newList;
 
 ```javascript
 
+if(_newAce) return this.runToAce2(cmdList);
 
 var newList = [],
     _convert = ["",
@@ -8775,7 +9429,6 @@ var newList = [],
     ];
 
 cmdList.forEach( function(cmd) {
-    
     var c ={
             action : _convert[cmd[0]],
             range : {
@@ -8790,15 +9443,51 @@ cmdList.forEach( function(cmd) {
     }
     if(cmd[0]==4) c.nl = cmd[6] || "\n";
     newList.push(c);
-    
 });
-
 return newList;
 
 /*
 {"action":"insertText","range":{"start":{"row":0,"column":0},
     "end":{"row":0,"column":1}},"text":"d"}
 */
+```
+
+### <a name="aceCmdConvert_runToAce2"></a>aceCmdConvert::runToAce2(cmdList)
+
+
+```javascript
+var newList = [],
+    _convert = ["",
+        "insert","remove","insert", "remove"
+    ];
+/*
+0: Object
+action: "insert"
+end: Object
+lines: Array[1]
+0: "d"
+length: 1
+__proto__: Array[0]
+start: Object
+__proto__: Objec
+*/
+
+cmdList.forEach( function(cmd) {
+    var c ={
+            action : _convert[cmd[0]],
+            start : { row : cmd[1], column : cmd[2]},
+            end   : { row : cmd[3], column : cmd[4]}
+        };
+    if(cmd[0]<3) {
+        c.lines = [cmd[5]];
+    } else {
+        c.lines = cmd[5];
+    }
+    if(cmd[0]==4) c.nl = cmd[6] || "\n";
+    newList.push(c);
+});
+return newList;
+
 ```
 
 ### <a name="aceCmdConvert_runToLineObj"></a>aceCmdConvert::runToLineObj(lines, cmdList)
@@ -8968,6 +9657,15 @@ cmdList.forEach( function(cmd) {
 });
 
 return lines.join("\n");
+```
+
+### <a name="aceCmdConvert_setAceVersion"></a>aceCmdConvert::setAceVersion(version)
+`version` Just setting this makes it apply for the new command format
+ 
+
+
+```javascript
+_newAce = version;
 ```
 
 ### <a name="aceCmdConvert_simplify"></a>aceCmdConvert::simplify(cmdList)
@@ -10261,13 +10959,16 @@ for(var i in cmdObject) {
 
 ```
 
-### <a name="_channelData_toPlainData"></a>_channelData::toPlainData(obj)
+### <a name="_channelData_toPlainData"></a>_channelData::toPlainData(obj, recursive)
 
 
 ```javascript
 
 
-if(typeof( obj ) == "undefined" ) obj = this._data;
+if(typeof( obj ) == "undefined" ) {
+    if(recursive) return obj;
+    return obj = this._data;
+}
 
 if(this.isFunction(obj) ||  typeof(obj)=="function") {
     return;
@@ -10280,13 +10981,13 @@ if(this.isArray(obj.data)) {
     plain = [];
     var len = obj.data.length;
     for(var i=0; i<len; i++) {
-        plain[i] = this.toPlainData( obj.data[i] );
+        plain[i] = this.toPlainData( obj.data[i], true );
     }
 } else {
     plain = {};
     for( var n in obj.data) {
         if(obj.data.hasOwnProperty(n)) {
-            plain[n] = this.toPlainData(obj.data[n]);
+            plain[n] = this.toPlainData(obj.data[n], true);
         }
     }
 }
@@ -10377,6 +11078,7 @@ var tmpCmd = [4, prop, obj.data[prop], null, a[4], a[5], a[6] ];
 this._cmd(tmpCmd, obj, null);      
 
 if(!isRemote) {
+    this._cmd(a, obj, null); // this is the problematic.
     this.writeCommand(a); 
 } else {
     this._cmd(a, obj, null);
@@ -10553,8 +11255,7 @@ return true;
 var obj = this._find( a[4] ),
     prop = "*",
     len = obj.data.length,
-    targetObj,
-    i = 0;
+    targetObj;
 
 if(!obj) return {
     error : 2,
@@ -10562,8 +11263,12 @@ if(!obj) return {
     text  : "Object with ID ("+a[4]+") did not exist"
 };
 
-var oldIndex = null;
+var oldIndex = null, i;
 
+var targetObj = this._find( a[1] );
+i = oldIndex = obj.data.indexOf( targetObj );
+
+/*
 for(i=0; i< len; i++) {
     var m = obj.data[i];
     if(m.__id == a[1]) {
@@ -10572,6 +11277,7 @@ for(i=0; i< len; i++) {
         break;
     }
 }
+*/
 
 if( oldIndex != a[3] ) {
     return {
@@ -10883,6 +11589,11 @@ if(typeof( obj.data[prop]) != "undefined" )  return {
         error : 54,
         cmd   : a,
         text  : "The property ("+a[1]+") was already set, try unsetting first "
+    };
+if( !this.isObject(obj.data) || this.isArray(obj.data) )  return {
+        error : 55,
+        cmd   : a,
+        text  : "The object ("+a[2]+") was not of type Object "
     };
 
 obj.data[prop] = setObj; // value is now set...
@@ -11399,7 +12110,7 @@ if(!_cmds) {
             _dmp = new diff_match_patch();
         } else {
             // if in node.js try to require the module
-            if(typeof(global) != "undefined") {
+            if(typeof(require) != "undefined") { 
                 var DiffMatchPatch = require('diff-match-patch');
                 _dmp = new DiffMatchPatch();        
             }
@@ -11834,11 +12545,20 @@ if(!_initDone) {
            }
         });
    }
- 
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   
+   if(is_node_js) {
+       frame= function(cb) {
+            return setImmediate(cb);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }
+
  
     if (!cancelFrame)
         cancelFrame = function(id) {
@@ -12489,7 +13209,11 @@ if(!manual) {
     var _secStep = function() {
         me.step();
     }
-    later().every(1/30, _secStep);
+    if(moshEnv().isNode()) {
+        later().onFrame(_secStep);
+    } else {
+        later().every(1/30, _secStep);
+    }
 }
 
 ```
@@ -12622,6 +13346,12 @@ The class has following internal singleton variables:
         
 * _socketRooms
         
+* _authExtension
+        
+* _accessManager
+        
+* _autoCreateFn
+        
         
 ### <a name="_serverChannelMgr_addSocketToCh"></a>_serverChannelMgr::addSocketToCh(chId, socket)
 
@@ -12634,6 +13364,13 @@ if(!this._channelSockets[chId]) {
 if(this._channelSockets[chId].indexOf(socket) < 0 ) {
     this._channelSockets[chId].push(socket);
 }
+```
+
+### <a name="_serverChannelMgr_getAccessManager"></a>_serverChannelMgr::getAccessManager(t)
+
+Returns the access manager, if defined
+```javascript
+return _accessManager;
 ```
 
 ### <a name="_serverChannelMgr_getServerSocket"></a>_serverChannelMgr::getServerSocket(t)
@@ -12672,7 +13409,9 @@ this._server.on("connect", function( socket ) {
     var ctrl; // the channel controller
 
     socket.on("requestChannel", function(cData, responseFn) {
-        debugger;
+        
+        // Request channel -> possible also autocreate channels, if they don't exist
+        
         fileSystem.findPath(cData.channelId).then( function(fold) {
             if(fold) {
                 
@@ -12691,7 +13430,66 @@ this._server.on("connect", function( socket ) {
                     });
                 
             } else {
-                responseFn({ success : false, channelId: null});
+                /*
+        if(chData && !chData.__acl) {
+            chData.__acl = chSettings.__acl;
+        }
+        
+        if(!chSettings.channelId || !chSettings._userId ) {
+            response({
+                result : false,
+                text : "Could not create the channel, missing information"
+            });             
+            return;
+        }
+        
+        var obj = {
+            version : 2,    // with pre-initialized data, the first version is 2
+            channelId : chSettings.channelId,
+            userId : chSettings._userId,
+            name : chSettings.name || "",
+            utc : (new Date()).getTime()
+        };                
+                */
+                if(_autoCreateFn) {
+                    // ---
+                    console.log("** Starting to autocreate channel **" + cData.channelId);
+                    _autoCreateFn( cData, socket, function( shouldCreate, withData ) {
+                        if(shouldCreate && withData) {
+                            // --> creates a new channel...
+                            var model = _localChannelModel( null, fileSystem );
+                            model.createChannel({
+                                chData : withData,
+                                _userId : socket.getUserId(),
+                                name : "autocreated",
+                                channelId : cData.channelId
+                            }).then( function(r) {
+                                if(!r.result) {
+                                    responseFn({ success : false, channelId: null});
+                                    return;
+                                }
+                                ctrl = _channelController( cData.channelId, fileSystem, me );
+                                ctrl.then( 
+                                    function() {
+                                        if(ctrl._groupACL(socket, "r")) {
+                                            console.log("** autocreated a channel **" + cData.channelId);
+                                            socket.join(cData.channelId);
+                                            me.addSocketToCh(  cData.channelId, socket );
+                                            _socketChannels.push( cData.channelId );
+                                            responseFn({ success : true, channelId: cData.channelId});
+                                        } else {
+                                            responseFn({ success : false, channelId: null});
+                                        }
+                                    });                            
+                            });
+                            
+                        } else {
+                            responseFn({ success : false, channelId: null});
+                        }
+                    });
+                } else {
+                    responseFn({ success : false, channelId: null});
+                }
             }
             
         })
@@ -12707,21 +13505,38 @@ this._server.on("connect", function( socket ) {
     });
     
     socket.on("auth", function(cData, responseFn) {
-
-        if(authManager) {
-            authManager.login(cData.userId, cData.password).then( function(res) {
-                if(res.result === true) {
-                    var UID = res.userId;
-                    var groups = res.groups;
-                    console.log("AUTH groups ", res.groups);
-                    socket.setAuthInfo( UID, groups);
-                    responseFn( { success : true, userId: socket.getUserId(), groups : res.groups });
-                } else {
-                    responseFn( { success : false, userId: null });
-                }
-            })
+        
+        if(_authExtension) {
+            try {
+                _authExtension( cData, function(success, userid, groups) {
+                    if(success === true) {
+                        var UID = userid;
+                        console.log("custom authentication into ", groups);
+                        socket.setAuthInfo( UID, groups);
+                        responseFn( { success : true, userId: socket.getUserId(), groups : groups });
+                    } else {
+                        responseFn( { success : false, userId: null });
+                    }                    
+                });  
+            } catch(e) {
+                responseFn( { success : false, userId: null });
+            }
         } else {
-            responseFn( { success : false, userId: null });
+            if(authManager) {
+                authManager.login(cData.userId, cData.password).then( function(res) {
+                    if(res.result === true) {
+                        var UID = res.userId;
+                        var groups = res.groups;
+                        console.log("AUTH groups ", res.groups);
+                        socket.setAuthInfo( UID, groups);
+                        responseFn( { success : true, userId: socket.getUserId(), groups : res.groups });
+                    } else {
+                        responseFn( { success : false, userId: null });
+                    }
+                })
+            } else {
+                responseFn( { success : false, userId: null });
+            }
         }
         
     });        
@@ -12762,6 +13577,27 @@ var i=this._channelSockets[chId].indexOf(socket);
 if(i >= 0 ) {
     this._channelSockets[chId].splice(i,1);
 }
+```
+
+### <a name="_serverChannelMgr_setAccessManager"></a>_serverChannelMgr::setAccessManager(fn)
+
+
+```javascript
+_accessManager = fn;
+```
+
+### <a name="_serverChannelMgr_setAuthExtension"></a>_serverChannelMgr::setAuthExtension(fn)
+
+
+```javascript
+_authExtension = fn;
+```
+
+### <a name="_serverChannelMgr_setAutoCreateFn"></a>_serverChannelMgr::setAutoCreateFn(fn)
+
+
+```javascript
+_autoCreateFn = fn;
 ```
 
 
@@ -13400,13 +14236,16 @@ this._fs = fileSystem;
 
 var me = this;
 
-me._createChannelDir(channelId).then( function() {
-    return me._createChannelSettings();
-}).then( function() {
-    me.resolve(true); 
-}).fail( function(e) {
-    console.error(e);
-})
+// create channel directory only if channel is defined
+if(channelId) {
+    me._createChannelDir(channelId).then( function() {
+        return me._createChannelSettings();
+    }).then( function() {
+        me.resolve(true); 
+    }).fail( function(e) {
+        console.error(e);
+    })
+}
 
 ```
         
@@ -14127,7 +14966,10 @@ if(me._serverState.upgrade) {
     }
 }
 
-// construct the data to be sent to the clients, if there is any data to be sent..
+// This is the "business as usual" data from server to the clients.
+// If server has received commands which have been added to the journal and
+// these lines have not been yet sent to the clients, _policy will construct
+// the packet to be sent to listeners.
 if(me._broadcastSocket && me._policy) {
     var data = me._policy.constructServerToClient( me._serverState );  
     if(data) {
@@ -14148,6 +14990,9 @@ if(me._broadcastSocket && me._policy) {
             console.log("--- sending data to me._syncConnection --- ");
             if(data.c) {
                 data.c.forEach( function(eCmd) {
+                    // Note: the addCommand is just fine because it will run the command against the
+                    // client -> server connection state, if the command fails, then it will not be
+                    // sent over the network to the remote server at all
                     var r = me._syncConnection.addCommand(eCmd);
                 });
             }
@@ -14214,7 +15059,7 @@ return _promise(
 */
 ```
 
-### <a name="_channelController__groupACL"></a>_channelController::_groupACL(socket, flags)
+### <a name="_channelController__groupACL"></a>_channelController::_groupACL(socket, flags, cmd)
 
 
 ```javascript
@@ -14222,6 +15067,11 @@ return _promise(
  // for local commands
  if(socket._adminSocket) {
      return true;
+ }
+ 
+ var am = this._chManager.getAccessManager();
+ if(am) {
+     return am(this, socket, cmd);
  }
  
  var me = this;
@@ -14250,7 +15100,7 @@ if(this._cmds) return;
 var me = this;
 this._cmds = {
     treeOfLife : function(cmd, result, socket) {
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
 
         me._model.treeOfLife( ).then( function(r) {
             result(r); 
@@ -14258,9 +15108,8 @@ this._cmds = {
     },
     // -- perhaps a bit hard command here...
     sync : function(cmd, result, socket) {
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
         
-        debugger;
         // can you check that the local port is not the same as the out port
         
         if(!cmd || !cmd.data || !cmd.data.sync || !cmd.data.sync.out || !cmd.data.sync["in"]) {
@@ -14313,7 +15162,7 @@ this._chManager = chManager;
 */
     }, 
     checkout : function(cmd, result, socket) {
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
         
         // read the build tree and the status...
         me._model.readCheckoutData( ).then( function(r) {
@@ -14324,7 +15173,7 @@ this._chManager = chManager;
     },    
     readBuildTree : function(cmd, result, socket) {
 
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
         
         // read the build tree and the status...
         me._model.readBuildTree( ).then( function(r) {
@@ -14339,13 +15188,13 @@ this._chManager = chManager;
         });        
     },
     getForks : function(cmd, result, socket) {
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
         me._model.getForks( ).then( function(r) {
             result(r); 
         });        
     },     
     channelStatus : function(cmd, result, socket) {
-        if(!me._groupACL(socket, "tc")) { result(null); return; }
+        if(!me._groupACL(socket, "tc", cmd)) { result(null); return; }
         me._model.status( ).then( function(r) {
             result(r); 
         });        
@@ -14356,9 +15205,9 @@ this._chManager = chManager;
         } else {
             result( null );
         }
-    },     
+    },   
     createChannel : function(cmd, result, socket) {
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
         if(!cmd.data) {
             result({ ok : false }); 
             return;
@@ -14377,7 +15226,7 @@ this._chManager = chManager;
         });        
     }, 
     fork : function(cmd, result, socket) {
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
         if(!cmd.data) {
             result({ ok : false }); 
             return;
@@ -14392,7 +15241,7 @@ this._chManager = chManager;
         
         console.log("got snapshot command");
         
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
         
         var fullData = me._serverState.data.getData();
         
@@ -14427,26 +15276,26 @@ this._chManager = chManager;
         });        
     },
     writeMain : function( cmd, result, socket ) {
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
         me._model.writeFile( "main", cmd.data ).then( function(r) {
             result({ ok : true}); 
         });
     },
     readMain : function( cmd, result, socket ) {
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
         me._model.readMain().then( function(r) {
             result(r); 
         });
     },
     readMainVersion : function( cmd, result, socket ) {
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
         me._model.readMain(cmd.data).then( function(r) {
             result(r); 
         });
     },
     upgradeRequest : function( cmd, result, socket ) {
 
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
         if(!me._serverState.upgrade) {
             me._serverState.upgrade = {};
         }
@@ -14459,7 +15308,7 @@ this._chManager = chManager;
     },     
     c2s : function( cmd, result, socket ) {
 
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
         
         if(socket.getUserId) {
             var uid = socket.getUserId();
@@ -14486,7 +15335,7 @@ this._chManager = chManager;
     },    
     // here is the point to upgrade the server according to data sent from the client
     masterUpgrade : function(cmd, result, socket) {
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
 
         console.log("creating a master upgrade with ");
         console.log(JSON.stringify( cmd));
@@ -14529,9 +15378,118 @@ this._chManager = chManager;
         result(res);
 
     },     
+    masterJournalUpgrade : function(cmd,result,socket) {
+
+        console.log("masterJournalUpgrade "+JSON.stringify(cmd));
+        result({ ok : true});
+        
+        // PARTIAL update:
+        // {"cmd":"masterJournalUpgrade","data":{"partialFrom":2,"partialEnds":2,"partial":[]}}
+        
+        // FULL update is something like this:
+        /*
+            info.socket.emit("upgrade_"+me._channelId, {
+                version : me._serverState.version,
+                journal : me._serverState.data._journal,
+                data : fullData
+            });          
+        */
+        // QUESTIONS:
+        // 1. how to emulate the behaviour
+        // 2. how to update _doClientUpdate to send the new data, perhaps the client
+        //    update must request upgrade if status for clients which have been dramatically changed
+        
+        
+        /*
+         if(cmd.partial) {
+           
+           // should be reversing perhaps first to some line...
+           var dd = me._clientState.data;
+
+           dd.reverseToLine(cmd.partialFrom);
+           console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
+           var errCnt=0;
+           cmd.partial.forEach( function(c) {
+               if(errCnt > 0 ) return;
+               var r;
+               var cmdIn  = me._transformCmdToNs(c);
+               if(! ((r=dd.execCmd(cmdIn,true))===true ) ) {
+                   console.error("Partial ", r);
+                   errCnt++;
+               }
+           });
+
+           if(errCnt==0) {
+               me._clientState.needsRefresh = false;
+               me._clientState.needsFullRefresh = false;
+               
+               dd._journal.length = cmd.partialEnds;
+               
+               // The correct position 
+               me._clientState.last_update[0] = 0;
+               me._clientState.last_update[1] = dd._journal.length;
+               me._clientState.last_sent[0] = 0;
+               me._clientState.last_sent[1] = dd._journal.length;               
+           } else {
+               me._clientState.needsFullRefresh = true;
+           }
+           
+       }
+       if(cmd.data) {
+           
+           // full upgrade coming here, must also replace the journal
+           
+           var myData = me._clientState.data.getData(); // <- the data
+           me._transformObjToNs(cmd.data);
+           
+           var diff = diffEngine().compareFiles(myData, cmd.data );
+           console.log("The diff ", JSON.stringify(diff));
+           // run the commands for the local data
+           var dd = me._clientState.data;
+           var errCnt = 0;
+           diff.cmds.forEach(function(c) {
+               console.log("Diff cmd ", c);
+               if(errCnt > 0 ) return;
+               var r;
+               /// dd.execCmd(c, true); // the point is just to change the data to something else
+               if(! ((r=dd.execCmd(c,true))===true ) ) {
+                   console.error("Full error ", r);
+                   errCnt++;
+               }               
+           });
+           
+           // and now the hard part, upgrade the local client data.
+           if(errCnt==0) {
+               
+               me._clientState.needsRefresh = false;
+               me._clientState.needsFullRefresh = false;               
+               
+               console.log("** full update should have gone ok ** ");
+               dd._journal.length = 0;
+               dd._journal.push.apply(dd._journal, cmd.journal);
+               me._clientState.needsRefresh = false;
+               me._clientState.version = cmd.version;
+               
+               // dd._journal.length = cmd.updateEnds;
+               
+               me._clientState.last_update[0] = 0;
+               me._clientState.last_update[1] = dd._journal.length;
+               me._clientState.last_sent[0] = 0;
+               me._clientState.last_sent[1] = dd._journal.length;    
+               
+               console.log("Version ", me._clientState.version);
+               
+           } else {
+               console.error("** errors with the full update ** ");
+               me._clientState.needsFullRefresh = true;
+           }
+       }       
+       */
+               
+    },
     changeFrame : function( cmd, result, socket ) {
         
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
 
 
         var res = me._tManager.execute( cmd.data );
@@ -14558,20 +15516,20 @@ this._chManager = chManager;
         */
     },    
     writeJournal : function( cmd, result, socket ) {
-        if(!me._groupACL(socket, "w")) { result(null); return; }
+        if(!me._groupACL(socket, "w", cmd)) { result(null); return; }
         me._model.writeToJournal( cmd.data ).then( function(r) {
             socket.broadcast.to(cmd.channelId).emit("ch_"+cmd.channelId, cmd );
             result({ ok : true}); 
         });
     },
     readJournal : function( cmd, result, socket ) {
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
         me._model.readJournal().then( function(r) {
             result(r); 
         });
     },
     readJournalVersion : function( cmd, result, socket ) {
-        if(!me._groupACL(socket, "r")) { result(null); return; }
+        if(!me._groupACL(socket, "r", cmd)) { result(null); return; }
         me._model.readJournal(cmd.data).then( function(r) {
             result(r); 
         });
@@ -14624,7 +15582,7 @@ return _promise(
                 result(false);
                 return;
             }
-            debugger;
+
             if(data) {
                 console.log("Sync data");
                 console.log(data);
@@ -14725,6 +15683,13 @@ var me = this;
 later().every(1/5, function() {
     me._doClientUpdate();
 });
+```
+
+### <a name="_channelController_channelId"></a>_channelController::channelId(t)
+
+
+```javascript
+return this._channelId;
 ```
 
 ### _channelController::constructor( channelId, fileSystem, chManager )
@@ -15742,11 +16707,13 @@ socket.on("upgrade_"+this._channelId, function(cmd) {
                 };
 */
        }       
-       if(me._master) {
-           me._master.fromSlave( cmd );
-       }
-       if(me._slave) {
-           me._slave.fromMaster( cmd );
+       
+       
+       if(me._slaveController) {
+            me._slaveController._execCmd({
+                cmd : "masterJournalUpgrade",
+                data : cmd
+            });           
        }       
    }
 });
@@ -15756,44 +16723,29 @@ socket.on("s2c_"+this._channelId, function(cmd) {
    // just don't accept any msgs 
    if(me._disconnected) return;
    if(cmd) {
+       
        var res = me._policy.deltaServerToClient( cmd, me._clientState);
        
-       // if there is a slave controller
+       // if there is a slave controller, send this command as masterUpgrade to
+       // the slave server so that the slave can update it's own data state
        if(me._slaveController) {
-
+            
+            // --> then try slave to master command building...
+            
             var newList = [];
             for(var i=0; i<cmd.c.length;i++) {
                 var c = cmd.c[i].slice();
                 newList.push( me._transformCmdFromNs( c ) );
             }
+            
             cmd.c = newList;
-
             me._slaveController._execCmd({
                 cmd : "masterUpgrade",
                 data : cmd
             });           
+            
        }
-       // --> master and slave connections
-       /*
-       me._masterController.
-       me._slave
-       if(me._master) {
-           console.log(" has master -> sending from slave ");
-           me._master.fromSlave( cmd );
-       } 
-       if(me._slave) {
-           //var currLen = me._serverModel.getJournalSize();
-           //var remoteLen = cmd.journalSize;
-           //console.log(" at master, journal sizes ",currLen, remoteLen);
-           console.log(" has slave -> sending masterUpgrade ");
-           for(var i=0; i<cmd.c.length;i++) {
-               cmd.c[i] = me._transformCmdFromNs( cmd.c[i] );
-           }
-           me._slave.sendCommand("masterUpgrade", cmd);
-       } 
-       */
    }
-   // done, no other action needed???
 });
 
 ```
@@ -15904,40 +16856,9 @@ me.askUpgrade();
 
 Add command to next change frame to be sent over the network. TODO: validate the commands against the own channelObject, for example the previous value etc.
 ```javascript
-/*
-    data : {
-            id   : "t2",                   // unique ID for transaction
-            version : 1,                    // channel version
-            from : 1,                      // journal line to start the change
-            to   : 2,                      // the last line ( optionsl, I guess )
-            fail_tolastok : true,           // fail until last ok command
-            // fail_all : true,
-            commands : [
-                [4, "fill", "black", "blue", "id1"]
-            ]                               
-    }
-*/
+var cmdIn  = this._transformCmdToNs(cmd, this._ns);
+return this._data.execCmd(cmdIn, dontBroadcast);
 
-if(0) {
-    console.log("add c b 1 ");
-    var cmdOut = this._transformCmdFromNs(cmd, this._ns);
-    var cmdIn  = this._transformCmdToNs(cmd, this._ns);
-    // the local command is run immediately and if it passes then we add it to the frame
-    var r;
-    if( r = this._data.execCmd(cmdIn, dontBroadcast)  ) {
-        this._currentFrame.commands.push( cmdOut );        
-    }
-    return r;
-
-} else {
-    console.log("add c b 2 ");
-    // local command, no frame to add commands.
-    var cmdIn  = this._transformCmdToNs(cmd, this._ns);
-    console.log(cmdIn);
-    // the local command is run immediately and if it passes then we add it to the frame
-    return this._data.execCmd(cmdIn, dontBroadcast);
-    
-}
 ```
 
 ### <a name="channelClient_askUpgrade"></a>channelClient::askUpgrade(askFull)
@@ -15977,8 +16898,6 @@ if(obj) {
 ```javascript
 
 if(this._isLocal) return;
-
-debugger;
 
 // a fresh copy of the base data
 var copyOf = JSON.parse( JSON.stringify( baseData ) );
@@ -16226,14 +17145,12 @@ if(!_dmp) {
         _dmp = new diff_match_patch();
     } else {
         // if in node.js try to require the module
-        if(typeof(global) != "undefined") {
+        if(typeof(require) != "undefined") { 
             var DiffMatchPatch = require('diff-match-patch');
             _dmp = new DiffMatchPatch();        
         }
     }
 }
-
-console.log("*** channel init called for "+channelId+" *** ");
 
 if(!this._policy) this._policy = _chPolicy();
 
@@ -16416,6 +17333,13 @@ if(this._connCnt && this._connected) return true;
 
 return false;
 
+```
+
+### <a name="channelClient_isLocal"></a>channelClient::isLocal(t)
+
+
+```javascript
+return this._isLocal;
 ```
 
 ### <a name="channelClient_length"></a>channelClient::length(id)
@@ -17919,15 +18843,19 @@ if(!_initDone) {
         });
    }
  
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
- 
-    if (!cancelFrame)
-        cancelFrame = function(id) {
-            clearTimeout(id);
-        };    
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   
+   if(is_node_js) {
+       frame= function(cb) {
+            return setImmediate(cb);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }    
         
     _callers = [];
     _oneTimers = {};
@@ -20754,7 +21682,56 @@ The class has following internal singleton variables:
         
 * _localCnt
         
+* _easings
         
+* _easeFns
+        
+        
+### <a name="later__easeFns"></a>later::_easeFns(t)
+
+
+```javascript
+_easings = { 
+    bounceOut : function(t){
+        if (t < 1/2.75) {
+            return (7.5625*t*t);
+        } else if (t < 2/2.75) {
+            return (7.5625*(t-=1.5/2.75)*t+0.75);
+        } else if (t < 2.5/2.75) {
+            return (7.5625*(t-=2.25/2.75)*t+0.9375);
+        } else {
+            return (7.5625*(t-=2.625/2.75)*t +0.984375);
+        }
+    },
+    easeIn : function(t) {
+        return t*t;
+    },
+    easeOut : function(t) {
+        return -1*t*(t-2);
+    },   
+    easeInOut : function(t) {
+        if(t < 0.5) return t*t;
+        return -1*t*(t-2);
+    },
+    easeInCirc : function(t) {
+        return -1*(Math.sqrt(1 -t*t) - 1);
+    },
+    easeInCubic : function(t) {
+        return t*t*t;
+    },
+    easeOutCubic : function(t) {
+        return (1-t)*(1-t)*(1-t) + 1;
+    },    
+    pow : function(t) {
+        return Math.pow(t,parseFloat(1.5-t));
+    },
+    linear : function(t) {
+        return t;
+    }
+}
+
+```
+
 ### <a name="later_add"></a>later::add(fn, thisObj, args)
 
 
@@ -20771,6 +21748,13 @@ if(thisObj || args) {
 } else {
     _callers.push(fn);
 }
+```
+
+### <a name="later_addEasingFn"></a>later::addEasingFn(name, fn)
+
+
+```javascript
+_easings[name] = fn;
 ```
 
 ### <a name="later_after"></a>later::after(seconds, fn, name)
@@ -20798,6 +21782,33 @@ this.add(fn);
 
 ```
 
+### <a name="later_ease"></a>later::ease(name, delay, callback, over)
+`name` Name of the easing to use
+ 
+`delay` Delay of the transformation in ms
+ 
+`callback` Callback to set the values
+ 
+`over` When animation is over
+ 
+
+
+```javascript
+
+var fn = _easings[name];
+if(!fn) fn = _easings.pow;
+var id_name = "e_"+(_localCnt++);
+_easeFns[id_name] = {
+    easeFn : fn,
+    duration : delay,
+    cb : callback,
+    over : over
+};
+
+
+
+```
+
 ### <a name="later_every"></a>later::every(seconds, fn, name)
 
 
@@ -20818,7 +21829,7 @@ _everies[name] = {
 
 ```javascript
 if(!_initDone) {
-
+   this._easeFns();
    _localCnt=1;
    this.polyfill();
  
@@ -20835,10 +21846,19 @@ if(!_initDone) {
         });
    }
  
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   
+   if(is_node_js) {
+       frame= function(cb) {
+            return setImmediate(cb);// (cb,1);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }
  
     if (!cancelFrame)
         cancelFrame = function(id) {
@@ -20849,10 +21869,14 @@ if(!_initDone) {
     _oneTimers = {};
     _everies = {};
     _framers = [];
+    _easeFns = {};
     var lastMs = 0;
     
     var _callQueQue = function() {
-       var ms = (new Date()).getTime();
+       var ms = (new Date()).getTime(),
+           elapsed = lastMs - ms;
+       
+       if(lastMs==0) elapsed = 0;
        var fn;
        while(fn=_callers.shift()) {
           if(Object.prototype.toString.call( fn ) === '[object Array]' ) {
@@ -20867,7 +21891,29 @@ if(!_initDone) {
            var fFn = _framers[i];
            fFn();
        }
+       /*
+_easeFns.push({
+    easeFn : fn,
+    duration : delay,
+    cb : callback
+});
        
+       */
+       for(var n in _easeFns) {
+           if(_easeFns.hasOwnProperty(n)) {
+               var v = _easeFns[n];
+               if(!v.start) v.start = ms;
+               var delta = ms - v.start,
+                   dt = delta / v.duration;
+               if(dt>=1) {
+                   dt = 1;
+                   delete _easeFns[n];
+               }
+               v.cb(v.easeFn(dt));
+               if((dt == 1) && v.over) v.over();
+           }
+       }   
+
        for(var n in _oneTimers) {
            if(_oneTimers.hasOwnProperty(n)) {
                var v = _oneTimers[n];

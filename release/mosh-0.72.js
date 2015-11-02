@@ -22783,7 +22783,7 @@
        * @param int index  - Journal line to move to
        */
       _myTrait_.moveToLine = function (index) {
-        return this.reverseToLine(index);
+        return this.reverseToLine(parseInt(index));
       };
 
       /**
@@ -22981,7 +22981,11 @@
 
         while (i >= 0 && i <= jLen) {
 
-          var cmd = cmdJournal[i];
+          if (step < 0 && i > 0) {
+            var cmd = cmdJournal[i - 1];
+          } else {
+            var cmd = cmdJournal[i];
+          }
           if (!cmd) break;
 
           i = i + step;

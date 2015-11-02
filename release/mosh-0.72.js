@@ -22981,7 +22981,7 @@
 
         while (i >= 0 && i <= jLen) {
 
-          var cmd = cmdJournall[i];
+          var cmd = cmdJournal[i];
           if (!cmd) break;
 
           i = i + step;

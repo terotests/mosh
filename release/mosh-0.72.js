@@ -22980,7 +22980,7 @@
             cmdJournal = this._journal.slice();
 
         while (i >= 0 && i <= jLen) {
-
+          if (index == i) return;
           if (step < 0 && i > 0) {
             var cmd = cmdJournal[i - 1];
           } else {

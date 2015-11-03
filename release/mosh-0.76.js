@@ -20267,6 +20267,9 @@
           var myJ = data.getJournalCmd(i);
           var serverCmd = updateFrame.c[i - updateFrame.start];
 
+          console.log(" >>> Comparing cmds at journal state " + i);
+          console.log(JSON.stringify(myJ));
+          console.log(JSON.stringify(serverCmd));
           var bSame = true;
           if (myJ) {
 
@@ -22141,7 +22144,7 @@
         if (toIndex > parentObj.data.length || toIndex < 0) return {
           error: 76,
           cmd: a,
-          text: "toIndex out of range"
+          text: "toIndex out of range, parent data len " + parentObj.data.length
         };
 
         parentObj.data.splice(toIndex, 0, insertedObj);

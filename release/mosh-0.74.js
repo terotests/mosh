@@ -11472,6 +11472,7 @@
                   console.log(cmd);
                   console.log("--- the client state ---");
                   console.log(me._clientState);
+                  me._clientState.needsFullRefresh = false;
                 } else {
                   me._clientState.needsFullRefresh = true;
                   me._clientState.fullUpgradeFailCnt = fullUpgradeFailCnt;
@@ -11652,6 +11653,9 @@
       _myTrait_.askUpgrade = function (askFull) {
 
         if (!this._socket) return;
+
+        // do not ask upgrade if failCnt > 0
+        if (this._clientState.fullUpgradeFailCnt) return;
 
         this._socket.send("channelCommand", {
           channelId: this._channelId,

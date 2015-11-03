@@ -351,7 +351,6 @@ pwFs.then(
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
-- [polyfill](README.md#later_polyfill)
 - [removeFrameFn](README.md#later_removeFrameFn)
 
 
@@ -519,7 +518,6 @@ pwFs.then(
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
-- [polyfill](README.md#later_polyfill)
 - [removeFrameFn](README.md#later_removeFrameFn)
 
 
@@ -644,7 +642,6 @@ pwFs.then(
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
-- [polyfill](README.md#later_polyfill)
 - [removeFrameFn](README.md#later_removeFrameFn)
 
 
@@ -679,7 +676,6 @@ pwFs.then(
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
-- [polyfill](README.md#later_polyfill)
 - [removeFrameFn](README.md#later_removeFrameFn)
 
 
@@ -805,6 +801,7 @@ pwFs.then(
 - [openChannel](README.md#_data_openChannel)
 - [patch](README.md#_data_patch)
 - [playback](README.md#_data_playback)
+- [pushToObjArray](README.md#_data_pushToObjArray)
 - [reconnect](README.md#_data_reconnect)
 - [reduce](README.md#_data_reduce)
 - [registerComponent](README.md#_data_registerComponent)
@@ -926,189 +923,6 @@ pwFs.then(
     
       
     
-      
-    
-
-
-
-      
-    
-      
-            
-#### Class channelObjects
-
-
-
-
-
-   
-    
-    
-    
-    
-    
-    
-
-
-   
-      
-            
-#### Class aceCmdConvert
-
-
-- [fromAce](README.md#aceCmdConvert_fromAce)
-- [fromAce2](README.md#aceCmdConvert_fromAce2)
-- [reverse](README.md#aceCmdConvert_reverse)
-- [runToAce](README.md#aceCmdConvert_runToAce)
-- [runToAce2](README.md#aceCmdConvert_runToAce2)
-- [runToLineObj](README.md#aceCmdConvert_runToLineObj)
-- [runToString](README.md#aceCmdConvert_runToString)
-- [setAceVersion](README.md#aceCmdConvert_setAceVersion)
-- [simplify](README.md#aceCmdConvert_simplify)
-
-
-
-   
-
-
-   
-
-
-
-      
-    
-      
-            
-#### Class diffEngine
-
-
-- [_createModelCommands](README.md#diffEngine__createModelCommands)
-- [addedObjects](README.md#diffEngine_addedObjects)
-- [commonObjects](README.md#diffEngine_commonObjects)
-- [compareFiles](README.md#diffEngine_compareFiles)
-- [findObjects](README.md#diffEngine_findObjects)
-- [missingObjects](README.md#diffEngine_missingObjects)
-- [objectDiff](README.md#diffEngine_objectDiff)
-- [restackOps](README.md#diffEngine_restackOps)
-
-
-
-   
-    
-##### trait _dataTrait
-
-- [guid](README.md#_dataTrait_guid)
-- [isArray](README.md#_dataTrait_isArray)
-- [isFunction](README.md#_dataTrait_isFunction)
-- [isObject](README.md#_dataTrait_isObject)
-
-
-    
-    
-
-
-   
-      
-    
-
-
-
-      
-    
-      
-            
-#### Class _channelData
-
-
-- [_addToCache](README.md#_channelData__addToCache)
-- [_classFactory](README.md#_channelData__classFactory)
-- [_cmd](README.md#_channelData__cmd)
-- [_createModelCommands](README.md#_channelData__createModelCommands)
-- [_createNewModel](README.md#_channelData__createNewModel)
-- [_find](README.md#_channelData__find)
-- [_findObjects](README.md#_channelData__findObjects)
-- [_getObjectHash](README.md#_channelData__getObjectHash)
-- [_getRemovedHash](README.md#_channelData__getRemovedHash)
-- [_prepareData](README.md#_channelData__prepareData)
-- [_wCmd](README.md#_channelData__wCmd)
-- [_wrapData](README.md#_channelData__wrapData)
-- [createWorker](README.md#_channelData_createWorker)
-- [getData](README.md#_channelData_getData)
-- [indexOf](README.md#_channelData_indexOf)
-- [setWorkerCommands](README.md#_channelData_setWorkerCommands)
-- [toPlainData](README.md#_channelData_toPlainData)
-
-
-
-   
-    
-##### trait _dataTrait
-
-- [guid](README.md#_dataTrait_guid)
-- [isArray](README.md#_dataTrait_isArray)
-- [isFunction](README.md#_dataTrait_isFunction)
-- [isObject](README.md#_dataTrait_isObject)
-
-
-    
-    
-    
-##### trait commad_trait
-
-- [_cmd_aceCmd](README.md#commad_trait__cmd_aceCmd)
-- [_cmd_createArray](README.md#commad_trait__cmd_createArray)
-- [_cmd_createObject](README.md#commad_trait__cmd_createObject)
-- [_cmd_diffPatch](README.md#commad_trait__cmd_diffPatch)
-- [_cmd_moveToIndex](README.md#commad_trait__cmd_moveToIndex)
-- [_cmd_pushToArray](README.md#commad_trait__cmd_pushToArray)
-- [_cmd_removeObject](README.md#commad_trait__cmd_removeObject)
-- [_cmd_setMeta](README.md#commad_trait__cmd_setMeta)
-- [_cmd_setProperty](README.md#commad_trait__cmd_setProperty)
-- [_cmd_setPropertyObject](README.md#commad_trait__cmd_setPropertyObject)
-- [_cmd_unsetProperty](README.md#commad_trait__cmd_unsetProperty)
-- [_fireListener](README.md#commad_trait__fireListener)
-- [_moveCmdListToParent](README.md#commad_trait__moveCmdListToParent)
-- [_reverse_aceCmd](README.md#commad_trait__reverse_aceCmd)
-- [_reverse_createArray](README.md#commad_trait__reverse_createArray)
-- [_reverse_createObject](README.md#commad_trait__reverse_createObject)
-- [_reverse_diffPatch](README.md#commad_trait__reverse_diffPatch)
-- [_reverse_moveToIndex](README.md#commad_trait__reverse_moveToIndex)
-- [_reverse_pushToArray](README.md#commad_trait__reverse_pushToArray)
-- [_reverse_removeObject](README.md#commad_trait__reverse_removeObject)
-- [_reverse_setMeta](README.md#commad_trait__reverse_setMeta)
-- [_reverse_setProperty](README.md#commad_trait__reverse_setProperty)
-- [_reverse_setPropertyObject](README.md#commad_trait__reverse_setPropertyObject)
-- [_reverse_unsetProperty](README.md#commad_trait__reverse_unsetProperty)
-- [_updateHotBuffer](README.md#commad_trait__updateHotBuffer)
-- [execCmd](README.md#commad_trait_execCmd)
-- [getJournalCmd](README.md#commad_trait_getJournalCmd)
-- [getJournalLine](README.md#commad_trait_getJournalLine)
-- [getLocalJournal](README.md#commad_trait_getLocalJournal)
-- [playback](README.md#commad_trait_playback)
-- [redo](README.md#commad_trait_redo)
-- [redoStep](README.md#commad_trait_redoStep)
-- [reverseCmd](README.md#commad_trait_reverseCmd)
-- [reverseNLines](README.md#commad_trait_reverseNLines)
-- [reverseToLine](README.md#commad_trait_reverseToLine)
-- [setHotMs](README.md#commad_trait_setHotMs)
-- [undo](README.md#commad_trait_undo)
-- [undoStep](README.md#commad_trait_undoStep)
-- [writeCommand](README.md#commad_trait_writeCommand)
-- [writeLocalJournal](README.md#commad_trait_writeLocalJournal)
-
-
-    
-    
-
-
-   
-      
-    
-      
-    
-
-
-
       
     
 
@@ -1457,6 +1271,7 @@ pwFs.then(
 - [_createTransaction](README.md#channelClient__createTransaction)
 - [_fetch](README.md#channelClient__fetch)
 - [_incoming](README.md#channelClient__incoming)
+- [_isNodeJs](README.md#channelClient__isNodeJs)
 - [_onFrameLoop](README.md#channelClient__onFrameLoop)
 - [_onReconnect](README.md#channelClient__onReconnect)
 - [addCommand](README.md#channelClient_addCommand)
@@ -2063,7 +1878,6 @@ pwFs.then(
 - [every](README.md#later_every)
 - [once](README.md#later_once)
 - [onFrame](README.md#later_onFrame)
-- [polyfill](README.md#later_polyfill)
 - [removeFrameFn](README.md#later_removeFrameFn)
 
 
@@ -2468,6 +2282,192 @@ pwFs.then(
 
       
     
+      
+            
+#### Class channelObjects
+
+
+
+
+
+   
+    
+    
+    
+    
+    
+    
+
+
+   
+      
+            
+#### Class aceCmdConvert
+
+
+- [fromAce](README.md#aceCmdConvert_fromAce)
+- [fromAce2](README.md#aceCmdConvert_fromAce2)
+- [reverse](README.md#aceCmdConvert_reverse)
+- [runToAce](README.md#aceCmdConvert_runToAce)
+- [runToAce2](README.md#aceCmdConvert_runToAce2)
+- [runToLineObj](README.md#aceCmdConvert_runToLineObj)
+- [runToString](README.md#aceCmdConvert_runToString)
+- [setAceVersion](README.md#aceCmdConvert_setAceVersion)
+- [simplify](README.md#aceCmdConvert_simplify)
+
+
+
+   
+
+
+   
+
+
+
+      
+    
+      
+            
+#### Class diffEngine
+
+
+- [_createModelCommands](README.md#diffEngine__createModelCommands)
+- [addedObjects](README.md#diffEngine_addedObjects)
+- [commonObjects](README.md#diffEngine_commonObjects)
+- [compareFiles](README.md#diffEngine_compareFiles)
+- [findObjects](README.md#diffEngine_findObjects)
+- [missingObjects](README.md#diffEngine_missingObjects)
+- [objectDiff](README.md#diffEngine_objectDiff)
+- [restackOps](README.md#diffEngine_restackOps)
+
+
+
+   
+    
+##### trait _dataTrait
+
+- [guid](README.md#_dataTrait_guid)
+- [isArray](README.md#_dataTrait_isArray)
+- [isFunction](README.md#_dataTrait_isFunction)
+- [isObject](README.md#_dataTrait_isObject)
+
+
+    
+    
+
+
+   
+      
+    
+
+
+
+      
+    
+      
+            
+#### Class _channelData
+
+
+- [_addToCache](README.md#_channelData__addToCache)
+- [_classFactory](README.md#_channelData__classFactory)
+- [_cmd](README.md#_channelData__cmd)
+- [_createModelCommands](README.md#_channelData__createModelCommands)
+- [_createNewModel](README.md#_channelData__createNewModel)
+- [_find](README.md#_channelData__find)
+- [_findObjects](README.md#_channelData__findObjects)
+- [_getObjectHash](README.md#_channelData__getObjectHash)
+- [_getRemovedHash](README.md#_channelData__getRemovedHash)
+- [_parentCmd](README.md#_channelData__parentCmd)
+- [_prepareData](README.md#_channelData__prepareData)
+- [_wCmd](README.md#_channelData__wCmd)
+- [_wrapData](README.md#_channelData__wrapData)
+- [createWorker](README.md#_channelData_createWorker)
+- [getData](README.md#_channelData_getData)
+- [indexOf](README.md#_channelData_indexOf)
+- [setWorkerCommands](README.md#_channelData_setWorkerCommands)
+- [toPlainData](README.md#_channelData_toPlainData)
+
+
+
+   
+    
+##### trait _dataTrait
+
+- [guid](README.md#_dataTrait_guid)
+- [isArray](README.md#_dataTrait_isArray)
+- [isFunction](README.md#_dataTrait_isFunction)
+- [isObject](README.md#_dataTrait_isObject)
+
+
+    
+    
+    
+##### trait commad_trait
+
+- [_cmd_aceCmd](README.md#commad_trait__cmd_aceCmd)
+- [_cmd_createArray](README.md#commad_trait__cmd_createArray)
+- [_cmd_createObject](README.md#commad_trait__cmd_createObject)
+- [_cmd_diffPatch](README.md#commad_trait__cmd_diffPatch)
+- [_cmd_moveToIndex](README.md#commad_trait__cmd_moveToIndex)
+- [_cmd_pushToArray](README.md#commad_trait__cmd_pushToArray)
+- [_cmd_removeObject](README.md#commad_trait__cmd_removeObject)
+- [_cmd_setMeta](README.md#commad_trait__cmd_setMeta)
+- [_cmd_setProperty](README.md#commad_trait__cmd_setProperty)
+- [_cmd_setPropertyObject](README.md#commad_trait__cmd_setPropertyObject)
+- [_cmd_unsetProperty](README.md#commad_trait__cmd_unsetProperty)
+- [_fireListener](README.md#commad_trait__fireListener)
+- [_moveCmdListToParent](README.md#commad_trait__moveCmdListToParent)
+- [_reverse_aceCmd](README.md#commad_trait__reverse_aceCmd)
+- [_reverse_createArray](README.md#commad_trait__reverse_createArray)
+- [_reverse_createObject](README.md#commad_trait__reverse_createObject)
+- [_reverse_diffPatch](README.md#commad_trait__reverse_diffPatch)
+- [_reverse_moveToIndex](README.md#commad_trait__reverse_moveToIndex)
+- [_reverse_pushToArray](README.md#commad_trait__reverse_pushToArray)
+- [_reverse_removeObject](README.md#commad_trait__reverse_removeObject)
+- [_reverse_setMeta](README.md#commad_trait__reverse_setMeta)
+- [_reverse_setProperty](README.md#commad_trait__reverse_setProperty)
+- [_reverse_setPropertyObject](README.md#commad_trait__reverse_setPropertyObject)
+- [_reverse_unsetProperty](README.md#commad_trait__reverse_unsetProperty)
+- [_updateHotBuffer](README.md#commad_trait__updateHotBuffer)
+- [execCmd](README.md#commad_trait_execCmd)
+- [getJournalCmd](README.md#commad_trait_getJournalCmd)
+- [getJournalLine](README.md#commad_trait_getJournalLine)
+- [getJournalRange](README.md#commad_trait_getJournalRange)
+- [getLocalJournal](README.md#commad_trait_getLocalJournal)
+- [moveToLine](README.md#commad_trait_moveToLine)
+- [playback](README.md#commad_trait_playback)
+- [redo](README.md#commad_trait_redo)
+- [redoStep](README.md#commad_trait_redoStep)
+- [reverseCmd](README.md#commad_trait_reverseCmd)
+- [reverseNLines](README.md#commad_trait_reverseNLines)
+- [reverseToLine](README.md#commad_trait_reverseToLine)
+- [setHotMs](README.md#commad_trait_setHotMs)
+- [undo](README.md#commad_trait_undo)
+- [undoStep](README.md#commad_trait_undoStep)
+- [writeCommand](README.md#commad_trait_writeCommand)
+- [writeLocalJournal](README.md#commad_trait_writeLocalJournal)
+
+
+    
+    
+
+
+   
+      
+    
+      
+    
+
+
+
+      
+    
+
+
+
+      
+    
 
 
 
@@ -2607,17 +2607,6 @@ The class has following internal singleton variables:
 
 ```javascript
 _easings = { 
-    bounceOut : function(t){
-        if (t < 1/2.75) {
-            return (7.5625*t*t);
-        } else if (t < 2/2.75) {
-            return (7.5625*(t-=1.5/2.75)*t+0.75);
-        } else if (t < 2.5/2.75) {
-            return (7.5625*(t-=2.25/2.75)*t+0.9375);
-        } else {
-            return (7.5625*(t-=2.625/2.75)*t +0.984375);
-        }
-    },
     easeIn : function(t) {
         return t*t;
     },
@@ -2627,9 +2616,6 @@ _easings = {
     easeInOut : function(t) {
         if(t < 0.5) return t*t;
         return -1*t*(t-2);
-    },
-    easeInCirc : function(t) {
-        return -1*(Math.sqrt(1 -t*t) - 1);
     },
     easeInCubic : function(t) {
         return t*t*t;
@@ -2678,7 +2664,7 @@ _easings[name] = fn;
 ```javascript
 
 if(!name) {
-    name = "aft7491_"+(_localCnt++);
+    name = "aft_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -2746,7 +2732,6 @@ _everies[name] = {
 if(!_initDone) {
    this._easeFns();
    _localCnt=1;
-   this.polyfill();
  
    var frame, cancelFrame;
    if(typeof(window) != "undefined") {
@@ -2765,7 +2750,7 @@ if(!_initDone) {
    
    if(is_node_js) {
        frame= function(cb) {
-            return setTimeout(cb,1);
+            return setImmediate(cb);// (cb,1);
        }; 
    } else {
         if (!frame) {
@@ -2884,13 +2869,6 @@ _oneTimers[key] = [fn,value];
 ```javascript
 
 _framers.push(fn);
-```
-
-### <a name="later_polyfill"></a>later::polyfill(t)
-
-
-```javascript
-// --- let's not ---
 ```
 
 ### <a name="later_removeFrameFn"></a>later::removeFrameFn(fn)
@@ -4245,17 +4223,6 @@ The class has following internal singleton variables:
 
 ```javascript
 _easings = { 
-    bounceOut : function(t){
-        if (t < 1/2.75) {
-            return (7.5625*t*t);
-        } else if (t < 2/2.75) {
-            return (7.5625*(t-=1.5/2.75)*t+0.75);
-        } else if (t < 2.5/2.75) {
-            return (7.5625*(t-=2.25/2.75)*t+0.9375);
-        } else {
-            return (7.5625*(t-=2.625/2.75)*t +0.984375);
-        }
-    },
     easeIn : function(t) {
         return t*t;
     },
@@ -4265,9 +4232,6 @@ _easings = {
     easeInOut : function(t) {
         if(t < 0.5) return t*t;
         return -1*t*(t-2);
-    },
-    easeInCirc : function(t) {
-        return -1*(Math.sqrt(1 -t*t) - 1);
     },
     easeInCubic : function(t) {
         return t*t*t;
@@ -4316,7 +4280,7 @@ _easings[name] = fn;
 ```javascript
 
 if(!name) {
-    name = "aft7491_"+(_localCnt++);
+    name = "aft_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -4384,7 +4348,6 @@ _everies[name] = {
 if(!_initDone) {
    this._easeFns();
    _localCnt=1;
-   this.polyfill();
  
    var frame, cancelFrame;
    if(typeof(window) != "undefined") {
@@ -4403,7 +4366,7 @@ if(!_initDone) {
    
    if(is_node_js) {
        frame= function(cb) {
-            return setImmediate(cb);
+            return setImmediate(cb);// (cb,1);
        }; 
    } else {
         if (!frame) {
@@ -4522,13 +4485,6 @@ _oneTimers[key] = [fn,value];
 ```javascript
 
 _framers.push(fn);
-```
-
-### <a name="later_polyfill"></a>later::polyfill(t)
-
-
-```javascript
-// --- let's not ---
 ```
 
 ### <a name="later_removeFrameFn"></a>later::removeFrameFn(fn)
@@ -5677,17 +5633,6 @@ The class has following internal singleton variables:
 
 ```javascript
 _easings = { 
-    bounceOut : function(t){
-        if (t < 1/2.75) {
-            return (7.5625*t*t);
-        } else if (t < 2/2.75) {
-            return (7.5625*(t-=1.5/2.75)*t+0.75);
-        } else if (t < 2.5/2.75) {
-            return (7.5625*(t-=2.25/2.75)*t+0.9375);
-        } else {
-            return (7.5625*(t-=2.625/2.75)*t +0.984375);
-        }
-    },
     easeIn : function(t) {
         return t*t;
     },
@@ -5697,9 +5642,6 @@ _easings = {
     easeInOut : function(t) {
         if(t < 0.5) return t*t;
         return -1*t*(t-2);
-    },
-    easeInCirc : function(t) {
-        return -1*(Math.sqrt(1 -t*t) - 1);
     },
     easeInCubic : function(t) {
         return t*t*t;
@@ -5748,7 +5690,7 @@ _easings[name] = fn;
 ```javascript
 
 if(!name) {
-    name = "aft7491_"+(_localCnt++);
+    name = "aft_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -5816,7 +5758,6 @@ _everies[name] = {
 if(!_initDone) {
    this._easeFns();
    _localCnt=1;
-   this.polyfill();
  
    var frame, cancelFrame;
    if(typeof(window) != "undefined") {
@@ -5835,7 +5776,7 @@ if(!_initDone) {
    
    if(is_node_js) {
        frame= function(cb) {
-            return setTimeout(cb,1);
+            return setImmediate(cb);// (cb,1);
        }; 
    } else {
         if (!frame) {
@@ -5954,13 +5895,6 @@ _oneTimers[key] = [fn,value];
 ```javascript
 
 _framers.push(fn);
-```
-
-### <a name="later_polyfill"></a>later::polyfill(t)
-
-
-```javascript
-// --- let's not ---
 ```
 
 ### <a name="later_removeFrameFn"></a>later::removeFrameFn(fn)
@@ -6027,17 +5961,6 @@ The class has following internal singleton variables:
 
 ```javascript
 _easings = { 
-    bounceOut : function(t){
-        if (t < 1/2.75) {
-            return (7.5625*t*t);
-        } else if (t < 2/2.75) {
-            return (7.5625*(t-=1.5/2.75)*t+0.75);
-        } else if (t < 2.5/2.75) {
-            return (7.5625*(t-=2.25/2.75)*t+0.9375);
-        } else {
-            return (7.5625*(t-=2.625/2.75)*t +0.984375);
-        }
-    },
     easeIn : function(t) {
         return t*t;
     },
@@ -6047,9 +5970,6 @@ _easings = {
     easeInOut : function(t) {
         if(t < 0.5) return t*t;
         return -1*t*(t-2);
-    },
-    easeInCirc : function(t) {
-        return -1*(Math.sqrt(1 -t*t) - 1);
     },
     easeInCubic : function(t) {
         return t*t*t;
@@ -6098,7 +6018,7 @@ _easings[name] = fn;
 ```javascript
 
 if(!name) {
-    name = "aft7491_"+(_localCnt++);
+    name = "aft_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -6166,7 +6086,6 @@ _everies[name] = {
 if(!_initDone) {
    this._easeFns();
    _localCnt=1;
-   this.polyfill();
  
    var frame, cancelFrame;
    if(typeof(window) != "undefined") {
@@ -6185,7 +6104,7 @@ if(!_initDone) {
    
    if(is_node_js) {
        frame= function(cb) {
-            return setTimeout(cb,1);
+            return setImmediate(cb);// (cb,1);
        }; 
    } else {
         if (!frame) {
@@ -6304,13 +6223,6 @@ _oneTimers[key] = [fn,value];
 ```javascript
 
 _framers.push(fn);
-```
-
-### <a name="later_polyfill"></a>later::polyfill(t)
-
-
-```javascript
-// --- let's not ---
 ```
 
 ### <a name="later_removeFrameFn"></a>later::removeFrameFn(fn)
@@ -7129,7 +7041,11 @@ if(!_workersDone) {
                 from : cmd[3],
                 to : cmd[2]
             });
-        }
+        },
+        "_d_ch" : function(cmd, options) {        
+            // command which did change the child..
+            options.target.trigger("childChanged", cmd);
+        },         
     });  
     _workersDone = true;
 }
@@ -7547,6 +7463,12 @@ if(typeof( data ) == "string") {
     var opts = {};
     if(options.auth) {
         opts.auth = options.auth
+    } else {
+        opts.auth = {};
+    }
+    if(options.initWithData) {
+        // the data must have ID's and all...
+        opts.initWithData = this._wrapToData( options.initWithData );
     }
     this._client = channelClient( req.fullPath, this._socket, opts);
     this._client.then( function(resp) {
@@ -7712,6 +7634,86 @@ return data.playback(options);
 
 ```
 
+### <a name="_data_pushToObjArray"></a>_data::pushToObjArray(path, itemData, iteratorDef)
+`path` Path to push to, for example &quot;music/favourites&quot;
+ 
+`itemData` Raw object data to push
+ 
+
+Pushes raw data into Array of objects consisting of subarrays.
+
+The iterator definition is like:
+``` 
+{
+        title: &quot;{path}&quot;,
+        items: [],
+        &quot;icon&quot;: &quot;fa fa-folder&quot;
+}
+````
+
+
+```javascript
+    var parts = path.split("/"),
+      model = this;
+
+    var subPathName, titleName, extraAttrs = {},
+      objTemplate;
+
+    if (!iteratorDef) return;
+    for (var n in iteratorDef) {
+      if (iteratorDef.hasOwnProperty(n)) {
+        var val = iteratorDef[n];
+        if (this.isArray(val)) {
+          subPathName = n;
+        } else {
+          if (val == "{path}") {
+            titleName = n;
+          } else {
+            extraAttrs[n] = val;
+          }
+        }
+      }
+    }
+
+    if (!subPathName) return;
+    if (!titleName) return;
+
+    objTemplate = JSON.stringify(extraAttrs);
+
+    if (!subPathName) subPathName = "items";
+    if (!titleName) titleName = "title";
+    var find_or_insert_item = function(index, from) {
+      var name = parts[index];
+      if (!name) return from;
+      if (!from.hasOwn(subPathName)) {
+        from.set(subPathName, []);
+      }
+      var did_find;
+      from[subPathName].forEach(function(i) {
+        if (i.get(titleName) == name) did_find = i;
+      });
+      if (!did_find) {
+        var newObj = JSON.parse(objTemplate);
+        newObj[titleName] = name;
+        newObj[subPathName] = [];
+
+        from[subPathName].push(newObj);
+        did_find = from[subPathName].at(from[subPathName].length() - 1);
+      }
+      if (did_find && (parts.length <= (index + 1))) {
+
+        return did_find;
+      } else {
+        return find_or_insert_item(index + 1, did_find);
+      }
+    }
+
+    var parentNode = find_or_insert_item(0, model);
+    if (parentNode && parentNode[subPathName]) {
+      parentNode[subPathName].push(itemData);
+    }
+```
+
 ### <a name="_data_reconnect"></a>_data::reconnect(t)
 
 
@@ -7874,8 +7876,13 @@ dataCh.createWorker("_d_cf",                                  // worker ID
                       { obj : this});  
 dataCh.createWorker("_d_cf",                                  // worker ID
                       [4, "*", null, null, ns_id],  // filter
-                      { obj : this});                      
-
+                      { obj : this});              
+                      
+// _d_ch -> child object has changed event
+dataCh.createWorker("_d_ch",                                  // worker ID
+                      [42, "*", null, null, ns_id],  // filter
+                      { target : this});    
+                      
 var data = docData.data;
 
 // create the subdata instances for the objects...
@@ -9169,3272 +9176,6 @@ return this._es7Observe( this, null, parentPlain, parentObserver );
     
       
             
-# Class channelObjects
-
-
-The class has following internal singleton variables:
-        
-        
-### channelObjects::constructor( options )
-
-```javascript
-
-```
-        
-
-
-   
-    
-    
-    
-    
-    
-    
-
-
-   
-      
-            
-# Class aceCmdConvert
-
-
-The class has following internal singleton variables:
-        
-* _newAce
-        
-        
-### <a name="aceCmdConvert_fromAce"></a>aceCmdConvert::fromAce(cmdList)
-
-
-```javascript
-
-if(cmdList && cmdList[0]) {
-    if(!cmdList[0].range && !cmdList[0].data) {
-        _newAce = true;
-    }
-}
-
-if(_newAce) return this.fromAce2(cmdList);
-
-var newList = [];
-
-cmdList.forEach( function(theCmd) {
-    
-    var cmd;
-    if(theCmd.data) {
-        cmd = theCmd.data;
-    } else {
-        cmd = theCmd;
-    }
-    
-    var range = cmd.range;
-    if(cmd.action=="insertText") {
-        newList.push([
-                1, 
-                range.start.row,
-                range.start.column,
-                range.end.row,
-                range.end.column,
-                cmd.text
-            ])
-    }
-    if(cmd.action=="removeText") {
-        newList.push([
-                2, 
-                range.start.row,
-                range.start.column,
-                range.end.row,
-                range.end.column,
-                cmd.text
-            ])
-    }
-    if(cmd.action=="insertLines") {
-        newList.push([
-                3, 
-                range.start.row,
-                range.start.column,
-                range.end.row,
-                range.end.column,
-                cmd.lines
-            ])
-    }
-    if(cmd.action=="removeLines") {
-        newList.push([
-                4, 
-                range.start.row,
-                range.start.column,
-                range.end.row,
-                range.end.column,
-                cmd.lines,
-                cmd.nl
-            ])
-    }
-    
-    
-});
-
-return newList;
-
-/*
-{"action":"insertText","range":{"start":{"row":0,"column":0},
-    "end":{"row":0,"column":1}},"text":"d"}
-*/
-```
-
-### <a name="aceCmdConvert_fromAce2"></a>aceCmdConvert::fromAce2(cmdList)
-
-
-```javascript
-
-var newList = [];
-/*
-cmdList: Array[1]
-0: Object
-action: "insert"
-end: Object
-lines: Array[1]
-start: Object
-__proto__: Object
-length: 1
-__proto__: Array[0]
-*/
-
-cmdList.forEach( function(cmd) {
-    
-    var range = cmd;
-    if(cmd.action=="insert" && cmd.lines.length == 1) {
-        newList.push([
-                1, 
-                range.start.row,
-                range.start.column,
-                range.end.row,
-                range.end.column,
-                cmd.lines[0]
-            ])
-    }
-    if(cmd.action=="remove" && cmd.lines.length == 1) {
-        newList.push([
-                2, 
-                range.start.row,
-                range.start.column,
-                range.end.row,
-                range.end.column,
-                cmd.lines[0]
-            ])
-    }
-    if(cmd.action=="insert" && cmd.lines.length > 1) {
-        newList.push([
-                3, 
-                range.start.row,
-                range.start.column,
-                range.end.row,
-                range.end.column,
-                cmd.lines
-            ])
-    }
-    if(cmd.action=="remove" && cmd.lines.length > 1) {
-        newList.push([
-                4, 
-                range.start.row,
-                range.start.column,
-                range.end.row,
-                range.end.column,
-                cmd.lines,
-                cmd.nl
-            ])
-    }
-    
-    
-});
-
-return newList;
-
-/*
-{"action":"insertText","range":{"start":{"row":0,"column":0},
-    "end":{"row":0,"column":1}},"text":"d"}
-*/
-```
-
-### aceCmdConvert::constructor( onFulfilled, onRejected )
-
-```javascript
-
-```
-        
-### <a name="aceCmdConvert_reverse"></a>aceCmdConvert::reverse(cmdList)
-
-
-```javascript
-
-var newList = [];
-
-cmdList.forEach( function(oldCmd) {
-    
-    var cmd = oldCmd.slice(); // create a copy of the old command
-    
-    var row = cmd[1],
-        col = cmd[2],
-        endRow = cmd[3],
-        endCol = cmd[4];
-        
-    // add characters...
-    if(cmd[0]==1) {
-        cmd[0] = 2;
-        newList.unshift( cmd );
-        return; // this simple ???
-    }
-    if(cmd[0]==2) {
-        cmd[0] = 1;
-        newList.unshift( cmd );
-        return; // this simple ???
-    }    
-    if(cmd[0]==3) {
-        cmd[0] = 4;
-        newList.unshift( cmd );
-        return; // this simple ???      
-        /*
-        var cnt = endRow - row;
-        for(var i=0; i<cnt; i++) {
-            lines.splice(row+i, 0, cmd[5][i]);
-        } 
-        */
-    }
-    if(cmd[0]==4) {
-        cmd[0] = 3;
-        newList.unshift( cmd );
-        return; // this simple ???   
-        /*
-        var cnt = endRow - row;
-        for(var i=0; i<cnt; i++) {
-            lines.splice(row, 1);
-        } 
-        */
-    }    
-    
-});
-
-return newList;
-```
-
-### <a name="aceCmdConvert_runToAce"></a>aceCmdConvert::runToAce(cmdList)
-
-
-```javascript
-
-if(_newAce) return this.runToAce2(cmdList);
-
-var newList = [],
-    _convert = ["",
-        "insertText","removeText","insertLines", "removeLines"
-    ];
-
-cmdList.forEach( function(cmd) {
-    var c ={
-            action : _convert[cmd[0]],
-            range : {
-                start : { row : cmd[1], column : cmd[2]},
-                end   : { row : cmd[3], column : cmd[4]}
-            }
-        };
-    if(cmd[0]<3) {
-        c.text = cmd[5];
-    } else {
-        c.lines = cmd[5];
-    }
-    if(cmd[0]==4) c.nl = cmd[6] || "\n";
-    newList.push(c);
-});
-return newList;
-
-/*
-{"action":"insertText","range":{"start":{"row":0,"column":0},
-    "end":{"row":0,"column":1}},"text":"d"}
-*/
-```
-
-### <a name="aceCmdConvert_runToAce2"></a>aceCmdConvert::runToAce2(cmdList)
-
-
-```javascript
-var newList = [],
-    _convert = ["",
-        "insert","remove","insert", "remove"
-    ];
-/*
-0: Object
-action: "insert"
-end: Object
-lines: Array[1]
-0: "d"
-length: 1
-__proto__: Array[0]
-start: Object
-__proto__: Objec
-*/
-
-cmdList.forEach( function(cmd) {
-    var c ={
-            action : _convert[cmd[0]],
-            start : { row : cmd[1], column : cmd[2]},
-            end   : { row : cmd[3], column : cmd[4]}
-        };
-    if(cmd[0]<3) {
-        c.lines = [cmd[5]];
-    } else {
-        c.lines = cmd[5];
-    }
-    if(cmd[0]==4) c.nl = cmd[6] || "\n";
-    newList.push(c);
-});
-return newList;
-
-```
-
-### <a name="aceCmdConvert_runToLineObj"></a>aceCmdConvert::runToLineObj(lines, cmdList)
-
-
-```javascript
-
-cmdList.forEach( function(cmd) {
-    var row = cmd[1],
-        col = cmd[2],
-        endRow = cmd[3],
-        endCol = cmd[4];
-    if(cmd[0]==1) {
-        if(cmd[5]=="\n") {
-            // add the newline can be a bit tricky
-            var line = lines.item(row);
-            if(!line) {
-                lines.insertAt(row, { text : "" });
-                lines.insertAt(row+1, { text : "" });
-            } else {
-                var txt = line.text();
-                line.text( txt.slice(0,col) );
-                var newLine = {
-                    text : txt.slice(col) || ""
-                };
-                lines.insertAt(row+1, newLine);
-            }
-            //lines[row] = line.slice(0,col);
-            //var newLine = line.slice(col) || "";
-            //lines.splice(row+1, 0, newLine);
-        } else {
-            var line = lines.item(row);
-            if(!line) {
-                lines.insertAt(row, { text : cmd[5] });
-            } else {
-                var txt = line.text();
-                line.text( txt.slice(0, col) + cmd[5] + txt.slice(col) );
-                // lines[row] = line.slice(0, col) + cmd[5] + line.slice(col);
-            }
-        }
-    }
-    if(cmd[0]==2) {
-        if(cmd[5]=="\n") {
-            // removing the newline can be a bit tricky
-            // lines[row]
-            var thisLine = lines.item(row),
-                nextLine = lines.item( row+1 );
-            
-            // lines[row] = thisLine + nextLine;
-            // lines.splice(row+1, 1); // remove the line...
-            var txt1 = "", txt2 = "";
-            if(thisLine) txt1 = thisLine.text();
-            if(nextLine) txt2 = nextLine.text();
-            if(!thisLine) {
-                lines.insertAt(row, { text : "" });
-            } else {
-                thisLine.text( txt1 + txt2 );
-            }
-            if(nextLine) nextLine.remove();
-        } else {
-            var line = lines.item(row),
-                txt = line.text();
-            line.text( txt.slice(0, col) + txt.slice(endCol) );
-            //  str.slice(0, 4) + str.slice(5, str.length))
-            // lines[row] = line.slice(0, col) + line.slice(endCol);
-        }
-    }    
-    if(cmd[0]==3) {
-        var cnt = endRow - row;
-        for(var i=0; i<cnt; i++) {
-            // var line = lines.item(row+i);
-            lines.insertAt(row+i, { text : cmd[5][i] });
-            // lines.splice(row+i, 0, cmd[5][i]);
-        }         
-    }
-    if(cmd[0]==4) {
-        var cnt = endRow - row;
-        for(var i=0; i<cnt; i++) {
-            var line = lines.item(row);
-            line.remove();
-            // lines.splice(row, 1);
-        }       
-    }    
-    
-});
-/*
-tools.button().text("Insert to 1 ").on("click", function() {
-    myT.lines.insertAt(1, { text : prompt("text")}); 
-});
-tools.button().text("Insert to 0 ").on("click", function() {
-    myT.lines.insertAt(0, { text : prompt("text")}); 
-});
-tools.button().text("Split line 1").on("click", function() {
-    var line1 = myT.lines.item(1);
-    var txt = line1.text();
-    var txt1 = txt.substring(0, 4),
-        txt2 = txt.substring(4);
-    line1.text(txt1);
-    myT.lines.insertAt(2, { text : txt2 });
-});
-tools.button().text("Insert to N-1 ").on("click", function() {
-    myT.lines.insertAt(myT.lines.length()-1, { text : prompt("text")}); 
-});
-tools.button().text("Insert to N ").on("click", function() {
-    myT.lines.insertAt(myT.lines.length(), { text : prompt("text")}); 
-});
-*/
-
-```
-
-### <a name="aceCmdConvert_runToString"></a>aceCmdConvert::runToString(str, cmdList)
-
-
-```javascript
-
-if( !cmdList || ( typeof(str)=="undefined")) {
-    return "";
-}
-str = str+"";
-
-var lines = str.split("\n");
-
-cmdList.forEach( function(cmd) {
-    var row = cmd[1],
-        col = cmd[2],
-        endRow = cmd[3],
-        endCol = cmd[4];
-    if(cmd[0]==1) {
-        if(cmd[5]=="\n") {
-            // add the newline can be a bit tricky
-            var line = lines[row] || "";
-            lines[row] = line.slice(0,col);
-            var newLine = line.slice(col) || "";
-            lines.splice(row+1, 0, newLine);
-        } else {
-            var line = lines[row] || "";
-            lines[row] = line.slice(0, col) + cmd[5] + line.slice(col);
-        }
-    }
-    if(cmd[0]==2) {
-        if(cmd[5]=="\n") {
-            // removing the newline can be a bit tricky
-            // lines[row]
-            var thisLine = lines[row] || "",
-                nextLine = lines[row+1] || "";
-            lines[row] = thisLine + nextLine;
-            lines.splice(row+1, 1); // remove the line...
-        } else {
-            var line = lines[row] || "";
-            // str.slice(0, 4) + str.slice(5, str.length))
-            lines[row] = line.slice(0, col) + line.slice(endCol);
-        }
-    }    
-    if(cmd[0]==3) {
-        var cnt = endRow - row;
-        for(var i=0; i<cnt; i++) {
-            lines.splice(row+i, 0, cmd[5][i]);
-        }         
-    }
-    if(cmd[0]==4) {
-        var cnt = endRow - row;
-        for(var i=0; i<cnt; i++) {
-            lines.splice(row, 1);
-        }       
-    }    
-    
-});
-
-return lines.join("\n");
-```
-
-### <a name="aceCmdConvert_setAceVersion"></a>aceCmdConvert::setAceVersion(version)
-`version` Just setting this makes it apply for the new command format
- 
-
-
-```javascript
-_newAce = version;
-```
-
-### <a name="aceCmdConvert_simplify"></a>aceCmdConvert::simplify(cmdList)
-
-
-```javascript
-
-// [[1,0,0,0,1,"a"],[1,0,1,0,2,"b"],[1,0,2,0,3,"c"],[1,0,3,0,4,"e"],[1,0,4,0,5,"d"],
-// [1,0,5,0,6,"e"],[1,0,6,0,7,"f"],[1,0,7,0,8,"g"]]
-var newList = [],
-    lastCmd,
-    lastCol,
-    lastRow,
-    collect = null;
-
-cmdList.forEach( function(cmd) {
-    
-    if(lastCmd && (cmd[0]==1) && (lastCmd[0]==1) && (cmd[3]==cmd[1]) && (lastCmd[1]==cmd[1]) && (lastCmd[3]==cmd[3]) && (lastCmd[4]==cmd[2]) ) {
-        if(!collect) {
-            collect = [];
-            collect[0] = 1;
-            collect[1] = lastCmd[1];
-            collect[2] = lastCmd[2];
-            collect[3] = cmd[3];
-            collect[4] = cmd[4];
-            collect[5] = lastCmd[5] + cmd[5];
-        } else {
-            collect[3] = cmd[3];
-            collect[4] = cmd[4];
-            collect[5] = collect[5] + cmd[5];
-        }
-    } else {
-        if(collect) {
-            newList.push(collect);
-            collect = null;
-        } 
-        if(cmd[0]==1) {
-            collect = cmd.slice();
-        } else {
-            newList.push(cmd);
-        }
-    }
-    lastCmd = cmd;
-});
-if(collect) newList.push(collect);
-return newList;
-```
-
-
-
-   
-
-
-   
-
-
-
-      
-    
-      
-            
-# Class diffEngine
-
-
-The class has following internal singleton variables:
-        
-* _all
-        
-* _data1
-        
-* _data2
-        
-* _up
-        
-* _reals
-        
-* _missing
-        
-* _added
-        
-* _parents
-        
-        
-### <a name="diffEngine__createModelCommands"></a>diffEngine::_createModelCommands(obj, parentObj, intoList)
-
-
-```javascript
-
-/*
-    _cmdIndex = {}; 
-    _cmdIndex["createObject"] = 1;
-    _cmdIndex["createArray"]  = 2;
-    _cmdIndex["initProp"]  = 3;
-    _cmdIndex["set"]  = 4;
-    _cmdIndex["setMember"]  = 5;
-    _cmdIndex["push"]  = 6;
-    _cmdIndex["pushObj"]  = 7;
-    _cmdIndex["removeItem"]  = 8;
-    
-    // reserved 9 for optimizations
-    _cmdIndex["last"]  = 9;
-    
-    _cmdIndex["removeProperty"]  = 10;
-    _cmdIndex["insertObjectAt"]  = 11;
-    _cmdIndex["moveToIndex"]  = 12;
-*/
-
-if(!intoList) intoList = [];
-
-var data;
-
-if(obj.data && obj.__id ) {
-    data = obj.data;
-} else {
-    data = obj;
-}
-
-if(this.isObject(data) || this.isArray(data)) {
-    
-    var newObj;
-    
-    if(obj.__id) {
-        newObj = obj;
-    } else {
-        newObj = {
-            data : data,
-            __id : this.guid()
-        }
-    }
-    
-    if(this.isArray(data)) {
-        var cmd = [2, newObj.__fork || newObj.__id, [], null, newObj.__fork || newObj.__id];
-    } else {
-        var cmd = [1, newObj.__fork || newObj.__id, {}, null, newObj.__fork || newObj.__id];
-    }
-    if(parentObj) {
-        newObj.__p = parentObj.__id;
-        // this._moveCmdListToParent( newObj );
-    }
-    intoList.push( cmd );
-
-    // Then, check for the member variables...
-    for(var n in data) {
-        if(data.hasOwnProperty(n)) {
-            var value = data[n];
-            if(this.isObject(value) || this.isArray(value)) {
-                // Then create a new...
-                var oo = this._createModelCommands( value, newObj, intoList );
-                var cmd = [5, n, oo.__fork || oo.__id, null, newObj.__fork || newObj.__id];
-                intoList.push( cmd );
-            } else {
-                var cmd = [4, n, value, null, newObj.__fork || newObj.__id];
-                intoList.push( cmd );
-            }
-        }
-    }
-    
-    return newObj;
-} else {
-    
-}
-
-
-
-/*
-var newObj = {
-    data : data,
-    __id : this.guid()
-}
-*/
-```
-
-### <a name="diffEngine_addedObjects"></a>diffEngine::addedObjects(t)
-
-
-```javascript
-
-var res = [];
-
-for( var id in _data2) {
-    if(_data2.hasOwnProperty(id)) {
-        if(!_data1[id]) {
-            res.push( id );
-            _added[id] = _data2[id];
-        }
-    }
-}
-
-return res;
-```
-
-### <a name="diffEngine_commonObjects"></a>diffEngine::commonObjects(t)
-
-
-```javascript
-var res = [];
-
-for( var id in _all) {
-    if(_data1[id] && _data2[id]) {
-        res.push( id );
-    }
-}
-
-return res;
-```
-
-### <a name="diffEngine_compareFiles"></a>diffEngine::compareFiles(data1, data2)
-
-
-```javascript
-
-// these are static global for the diff engine, the results are one-time only
-_data1 = {};
-_data2 = {};
-_all = {};
-_reals = {};
-_missing = {};
-_added = {};
-_parents = {};
-
-this.findObjects(data1, _data1);
-this.findObjects(data2, _data2);
-
-var details = {
-    missing : this.missingObjects(),
-    added : this.addedObjects(),
-    common : this.commonObjects(),
-    cMod : [],
-    cmds : []
-};
-
-var me = this;
-details.common.forEach( function(id) {
-    var diff = me.objectDiff( _data1[id], _data2[id] ); 
-    details.cMod.push( diff );
-});
-
-var me = this;
-details.added.forEach( function(cid) {
-   var cmdList = [];
-   var obj = _all[cid];
-   me._createModelCommands( obj, null, cmdList ); 
-   
-   cmdList.forEach( function(cmd) {
-       details.cmds.push(cmd);
-   });
-});
-details.cMod.forEach( function(c) {
-    c.cmds.forEach( function(cc) {
-         details.cmds.push(cc);
-    });
-});
-
-
-return details;
-
-```
-
-### <a name="diffEngine_findObjects"></a>diffEngine::findObjects(data, saveTo, parentObj)
-
-
-```javascript
-
-if(data && data.__id) {
-    saveTo[data.__fork || data.__id] = data;
-    _all[data.__fork || data.__id] = data;
-    _reals[data.__id] = data;
-}
-
-if(data.data) {
-    var sub = data.data;
-    for(var n in sub) {
-        if(sub.hasOwnProperty(n)) {
-            var p = sub[n];
-            if(this.isObject(p)) {
-                _parents[p.__fork || p.__id] = data.__fork || data.__id;
-                this.findObjects(p, saveTo);
-            } 
-        }
-    }
-}
-```
-
-### diffEngine::constructor( t )
-
-```javascript
-
-```
-        
-### <a name="diffEngine_missingObjects"></a>diffEngine::missingObjects(t)
-
-
-```javascript
-
-var res = [];
-
-for( var id in _data1) {
-    if(_data1.hasOwnProperty(id)) {
-        if(!_data2[id]) {
-            _missing[id] = _data1[id];
-            res.push( id );
-        }
-    }
-}
-
-return res;
-```
-
-### <a name="diffEngine_objectDiff"></a>diffEngine::objectDiff(obj1, obj2)
-
-
-```javascript
-var res = {
-    modified : [], 
-    posMoved : [],
-    sourcesAndTargets : [],
-    cmds : []
-};
-
-if(obj1.data && obj2.data && this.isObject(obj1.data) && !this.isArray(obj1.data)) {
-    var sub = obj1.data, hadProps = {};
-    for(var n in obj2.data) {
-        if(obj2.data.hasOwnProperty(n)) {
-            var v = sub[n],
-                objid = obj1.__fork || obj1.__id;
-            if(!this.isObject(v) && (!this.isArray(v))) {
-                hadProps[n] = true;
-                var v2 = obj2.data[n];
-                if(obj2.data[n] != v) {
-                    if(this.isObject(v) || this.isObject(v2)) {
-                        if(v2 && v2.__id) {
-                            res.cmds.push([5, n, obj2.data[n].__id, null, objid]);
-                        } else {
-                            res.cmds.push([10, n, v.__id, null, objid]);
-                        }
-                    } else {
-                        res.modified.push({ id : objid, prop : n, from : v, to : obj2.data[n]});
-                        res.cmds.push([4, n, obj2.data[n], v, objid]);
-                    }
-                }
-            } else {
-             
-            }
-        }
-    }
-    for(var n in obj1.data) {
-        if(obj1.data.hasOwnProperty(n)) {
-            if(hadProps[n]) continue;
-            var v = obj1.data[n],
-                objid = obj1.__id;
-
-            if(this.isObject(v) && (!this.isArray(v))) {
-                var v2 = obj2.data[n];
-                if(!v2 && v && v.__id) {
-                    res.cmds.push([10, n, v.__id, null, objid]);
-                }
-            }                
-        }
-    }    
-}
-if(this.isArray(obj1.data)) {
-
-    var arr1 = obj1.data,
-        arr2 = obj2.data,
-        sourceArray = [],
-        targetArray = [],
-        len1 = arr1.length,
-        len2 = arr2.length;
-    // insert
-    // [7, 0, <insertedID>, 0, <parentId>]
-        
-    // remove
-    // [8, 0, <insertedID>, 0, <parentId>]        
-    for(var i=0; i<len1;i++) {
-        var o = arr1[i];
-        if(this.isObject(o)) {
-            var activeId = o.__fork || o.__id;
-            if(!_missing[activeId]) {
-                sourceArray.push( activeId );
-            } else {
-                // res.cmds.push("remove "+activeId);
-                res.cmds.push([8, 0, activeId, 0, _parents[activeId]]);
-            }
-        }
-    }
-    var indexArr = {},
-        reverseIndex = {},
-        sourceReverseIndex = {};
-    for(var i=0; i<len2;i++) {
-        var o = arr2[i];
-        if(this.isObject(o)) {
-            var activeId = o.__fork || o.__id;
-            indexArr[activeId] = i;
-            reverseIndex[i] = activeId;
-            if(_added[activeId]) { 
-                sourceArray.push( activeId );
-                // res.cmds.push("insert "+activeId);
-                res.cmds.push([7, i, activeId, 0, _parents[activeId]]);
-            }
-            targetArray.push( activeId );
-        }
-    }
-    
-    var list = [], i=0;
-    sourceArray.forEach( function(id) {
-        list.push( indexArr[id] );
-        sourceReverseIndex[id] = i;
-        i++;
-    });
-    
-    res.restackIndex = indexArr;
-    res.restackList = list;
-    res.reverseIndex = reverseIndex;
-    res.restack = this.restackOps( list );
-    
-    
-    // insert
-    // [7, 0, <insertedID>, 0, <parentId>]
-        
-    // remove
-    // [8, 0, <insertedID>, 0, <parentId>]
-    
-    // move
-    // [12, <insertedID>, <index>, 0, <parentId>]       
-    
-    var cmdList = [],
-        sourceArrayWork = sourceArray.slice();
-    
-    res.restack.forEach( function(c) {
-        if(c[0]=="a") {
-            var moveItemId = reverseIndex[c[1]],
-                aboveItemId = reverseIndex[c[2]],
-                atIndex = indexArr[aboveItemId],
-                fromIndex = sourceArrayWork.indexOf(moveItemId);
-            
-            sourceArrayWork.splice(fromIndex, 1);
-            var toIndex = sourceArrayWork.indexOf(aboveItemId);
-            sourceArrayWork.splice(toIndex,0,moveItemId);
-            
-            var obj = _all[moveItemId];
-            
-            res.cmds.push([12, moveItemId, toIndex, fromIndex, _parents[moveItemId]]);
-//             cmdList.push(" move item "+moveItemId+" above "+aboveItemId+ " from "+fromIndex+ " to "+toIndex);
-            
-            
-        } else {
-            var moveItemId = reverseIndex[c[1]],
-                aboveItemId = reverseIndex[c[2]],
-                atIndex = indexArr[aboveItemId],
-                fromIndex = sourceArrayWork.indexOf(moveItemId);
-            sourceArrayWork.splice(fromIndex, 1);
-            var toIndex = sourceArrayWork.indexOf(aboveItemId)+1;
-            sourceArrayWork.splice(toIndex,0,moveItemId);
-            // cmdList.push(" move item "+moveItemId+" above "+aboveItemId+ " from "+fromIndex+ " to "+toIndex);  
-            res.cmds.push([12, moveItemId, toIndex, fromIndex, _parents[moveItemId]]);
-        }
-    });
-    res.stackCmds = cmdList;
-    res.sourceArrayWork = sourceArrayWork;
-    
-    
-    res.sourcesAndTargets.push([sourceArray, targetArray]);
-        
-}    
-
-
-return res;
-```
-
-### <a name="diffEngine_restackOps"></a>diffEngine::restackOps(input)
-
-
-```javascript
-var moveCnt=0,
-    cmds = [];
-    
-function restack(input) {
-    var data = input.slice(0);
-    var dataIn = input.slice(0);
-    var goalIn = input.slice(0).sort(function(a, b) { return a - b; });
-
-    var mapper = {};
-    var indexes = {};
-    // Testing this kind of simple system...
-    for(var i=0; i<dataIn.length;i++) {
-        var mm = goalIn.indexOf(dataIn[i]);
-        mapper[dataIn[i]] = mm;
-        indexes[mm] = dataIn[i];
-        data[i] = mm;
-    }
-    
-    var goal = data.slice(0).sort(function(a, b) { return a - b; });
-
-    var minValue = data[0],
-        maxValue = data[0],
-        partDiffs=[],
-        partCum = 0,
-        avgDiff = function() {
-            var i=0, len=data.length, df=0;
-            for(;i<len;i++) {
-                var v = data[i];
-                if(v>maxValue) maxValue=v;
-                if(v<minValue) minValue=v;
-                if(i>0) partDiffs.push(goal[i]-goal[i-1]);
-                if(i>0) partCum += Math.abs(goal[i]-goal[i-1]);
-                df+=Math.abs(v-goal[i]);
-            }
-            partCum = partCum / len;
-            return df / len;
-        }();
-    
-    partDiffs.sort(function(a, b) { return a - b; }); 
-    var    minDelta = partDiffs[0];
-    
-    // collects one "acceptable" array 
-    var    accept = function(fn) {
-	            var collect = function(i,sx, last) {
-                    var res = [];
-                    var len=data.length;
-                    if(!sx) sx=0;
-                    for(;i<len;i++) {                    
-                        var v = data[i];
-                        if((v-last)==1) {
-                            res.push(v);
-                            last = v;
-                            continue;
-                        }
-                        var gi=i+sx;
-                        if(gi<0) gi=0;
-                        if(gi>=len) gi=len-1;
-                        if(fn(v, goal[gi], v, last,i,len)) {                            
-                            if( (data[i+1] && data[i+1]<v && data[i+1]>last ) ){
-                               // skip, if next should be taken instead 
-                            } else {
-	                            res.push(v);
-                                last = v;
-                            }                            
-                        }
-                    }
-                    return res;
-                }
-                
-                var m=[];
-            	var ii=0,a=0;
-        		// small tricks to improve the algo, just for comp's sake...
-            	while(a<0.1) {
-                    for(var sx=-5;sx<=5;sx++)
-                    	m.push(collect(Math.floor(data.length*a),sx, minValue-1));
-                    a+=0.05;
-                }
-	            m.sort(function(a,b) { return b.length - a.length; } );
-                return m[0];
-            };
-    
-    // different search agents...
-    var test = [
-                accept( function(dv,gv,v,last,i,len) {
-                    // console.log(Math.abs(v-last)+" vs "+partCum);
-                    if(v<last) return false;
-                    if(i>0) if(Math.abs(v-last) > partDiffs[i-1]) return false;
-                    if(Math.abs(v-last)>avgDiff) return false;
-                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
-                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
-                    return false;
-                }),   
-		        accept( function(dv,gv,v,last,i,len) {
-                    if(v<last) return false;
-                    if(Math.abs(v-last)>avgDiff) return false;
-                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
-                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
-                    return false;
-                }),
-        		accept( function(dv,gv,v,last,i,len) {
-                    if(v<last) return false;
-                    if(Math.abs(v-last)>avgDiff) return false;
-                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
-                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
-                    return false;
-                }),
-                accept( function(dv,gv,v,last,i,len) {
-                    if(v<last) return false;
-                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
-                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
-                    return false;
-                }),
-                accept( function(dv,gv,v,last,i,len) {
-                    if(v<last) return false;
-                    if(Math.abs(dv-gv)<=avgDiff && v>=last) return true;
-                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
-                    return false;
-                }), 
-        		accept( function(dv,gv,v,last,i,len) {
-                    if(v<last) return false;
-                    if(Math.abs(v-last)<partCum) return true;
-                    if(Math.abs(dv-gv)<=partCum && v>=last) return true;
-                    return false;
-                }),
-        		accept( function(dv,gv,v,last,i,len) {
-                    if(v>last) return true;
-                    return false;
-                }),
-				accept( function(dv,gv,v,last,i,len) {
-                    if(v<last) return false;
-                    if(Math.abs(v-last)>avgDiff) return false;
-                    if(Math.abs(dv-gv)<=avgDiff && v>=last) return true;
-                    return false;
-                }),
-                accept( function(dv,gv,v,last,i,len) {
-                    if(v<last) return false;
-                    if(i>0) if(Math.abs(v-last)>avgDiff) return false;
-                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
-                    if(i>0) if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
-                    return false;
-                }),                 
-                accept( function(dv,gv,v,last,i,len) {
-                    if(v<last) return false;
-                    if(last>=minValue) {
-                        if(v>=last) return true;
-                    } else {
-                        if(v==minValue) return true;
-                    }            
-                    return false;
-                })      
-                ];
-
-        
-    // choose between algorithms
-    var okVals = [], maxSet=0;
-    for(var i=0; i<test.length;i++) {
-        var set = test[i];
-        if(set.length>maxSet) {
-            okVals = set;
-            maxSet = set.length;
-        }
-    }
-    // if nothing, take something
-    if(okVals.length==0) okVals=[ goal[ Math.floor(goal.length/2) ] ];
-    
-    // divide the list to big and small
-    var big=[],small=[];
-    var divide = function() {
-        var min = minValue,
-            max = okVals[0],
-            okLen = okVals.length,
-            oki = data.indexOf(max),
-            index=0;
-        
-        var i=0, len=data.length;
-        for(;i<len;i++) {
-            var v = data[i];
-            if(v>=min && v<=max && ( i<=oki) ) {
-               	big.push(v);
-               	min = v;
-            } else {
-               	small.push(v);
-            }
-            if(v==max) {
-                min = v;
-                if(index<okLen-1) {
-                    index++;
-                    max = okVals[index];
-                    oki = data.indexOf(max);
-                } else {
-                    max = maxValue;
-                    oki = len+1;
-                }
-            }
-        }
-             
-    }();
-    
-    // sort the small list before joining them
-    small.sort(function(a, b) { return a - b; });
-    
-    //console.log(big);
-    //console.log(small);
-    
-    var joinThem = function() {
-        var si=0,
-            bi=0,
-            lastb = big[0],
-            slen = small.length;
-        while(si<slen) {
-            var b=big[bi],s=small[si];
-            if(typeof(b)=="undefined") {
-                while(si<slen) {
-                    cmds.push(["b", indexes[s], indexes[lastb]]);
-                    // restackXBelowY(dataIn, indexes[s], indexes[lastb]);
-                    lastb = s;
-                    si++;
-                    s=small[si]
-                }
-                return;
-            }
-            if(b<s) {
-                // console.log("B was smaller");
-                lastb = b;
-                bi++;
-            } else{
-                cmds.push(["a", indexes[s], indexes[b]]);
-                // restackXAboveY(dataIn, indexes[s], indexes[b]);
-                si++;
-            }
-        }
-    }();
-    
-    // console.log(dataIn);
-    return data; // actually the return value is not used for anything    
-   
-}
-restack(input);
-
-return cmds;
-
-```
-
-
-
-   
-    
-## trait _dataTrait
-
-The class has following internal singleton variables:
-        
-* _eventOn
-        
-* _commands
-        
-        
-### <a name="_dataTrait_guid"></a>_dataTrait::guid(t)
-
-
-```javascript
-
-return Math.random().toString(36).substring(2, 15) +
-        Math.random().toString(36).substring(2, 15);
-        
-//return Math.random();
-// return Math.random().toString(36);
-        
-/*    
-return Math.random().toString(36).substring(2, 15) +
-        Math.random().toString(36).substring(2, 15);
-*/
-/*        
-function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-               .toString(16)
-               .substring(1);
-  }
-
-return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-       s4() + '-' + s4() + s4() + s4();*/
-```
-
-### <a name="_dataTrait_isArray"></a>_dataTrait::isArray(t)
-
-
-```javascript
-
-if(typeof(t)=="undefined") return this.__isA;
-
-return Object.prototype.toString.call( t ) === '[object Array]';
-```
-
-### <a name="_dataTrait_isFunction"></a>_dataTrait::isFunction(fn)
-
-
-```javascript
-return Object.prototype.toString.call(fn) == '[object Function]';
-```
-
-### <a name="_dataTrait_isObject"></a>_dataTrait::isObject(t)
-
-
-```javascript
-
-if(typeof(t)=="undefined") return this.__isO;
-
-return t === Object(t);
-```
-
-
-    
-    
-
-
-   
-      
-    
-
-
-
-      
-    
-      
-            
-# Class _channelData
-
-
-The class has following internal singleton variables:
-        
-* _instanceCache
-        
-* _workerCmds
-        
-        
-### <a name="_channelData__addToCache"></a>_channelData::_addToCache(data)
-
-
-```javascript
-
-if(data && data.__id) {
-    this._objectHash[data.__id] = data;
-}
-```
-
-### <a name="_channelData__classFactory"></a>_channelData::_classFactory(id)
-
-
-```javascript
-
-if(!_instanceCache) _instanceCache = {};
-
-if(_instanceCache[id]) return _instanceCache[id];
-
-_instanceCache[id] = this;
-```
-
-### <a name="_channelData__cmd"></a>_channelData::_cmd(cmd, UUID1, UUID2)
-
-In the future can be used to initiate events, if required.
-```javascript
-
-var cmdIndex = cmd[0],
-    UUID = cmd[4];
-    
-this._wCmd( cmdIndex, UUID, cmd );
-
-if(UUID2 && UUID2 != UUID) this._wCmd( cmdIndex, UUID2, cmd );
-
-```
-
-### <a name="_channelData__createModelCommands"></a>_channelData::_createModelCommands(obj, parentObj, intoList)
-
-
-```javascript
-
-/*
-    _cmdIndex = {}; 
-    _cmdIndex["createObject"] = 1;
-    _cmdIndex["createArray"]  = 2;
-    _cmdIndex["initProp"]  = 3;
-    _cmdIndex["set"]  = 4;
-    _cmdIndex["setMember"]  = 5;
-    _cmdIndex["push"]  = 6;
-    _cmdIndex["pushObj"]  = 7;
-    _cmdIndex["removeItem"]  = 8;
-    
-    // reserved 9 for optimizations
-    _cmdIndex["last"]  = 9;
-    
-    _cmdIndex["removeProperty"]  = 10;
-    _cmdIndex["insertObjectAt"]  = 11;
-    _cmdIndex["moveToIndex"]  = 12;
-*/
-
-if(!intoList) intoList = [];
-
-var data;
-
-if(obj.data && obj.__id ) {
-    data = obj.data;
-} else {
-    data = obj;
-}
-
-if(this.isObject(data) || this.isArray(data)) {
-    
-    var newObj;
-    
-    if(obj.__id) {
-        newObj = obj;
-    } else {
-        newObj = {
-            data : data,
-            __id : this.guid()
-        }
-    }
-    
-    if(this.isArray(data)) {
-        var cmd = [2, newObj.__id, [], null, newObj.__id];
-    } else {
-        var cmd = [1, newObj.__id, {}, null, newObj.__id];
-    }
-    if(parentObj) {
-        newObj.__p = parentObj.__id;
-        // this._moveCmdListToParent( newObj );
-    }
-    intoList.push( cmd );
-
-    // Then, check for the member variables...
-    for(var n in data) {
-        if(data.hasOwnProperty(n)) {
-            var value = data[n];
-            if(this.isObject(value) || this.isArray(value)) {
-                // Then create a new...
-                var oo = this._createModelCommands( value, newObj, intoList );
-                var cmd = [5, n, oo.__id, null, newObj.__id];
-                intoList.push( cmd );
-            } else {
-                var cmd = [4, n, value, null, newObj.__id];
-                intoList.push( cmd );
-            }
-        }
-    }
-    
-    return newObj;
-} else {
-    
-}
-
-
-
-/*
-var newObj = {
-    data : data,
-    __id : this.guid()
-}
-*/
-```
-
-### <a name="_channelData__createNewModel"></a>_channelData::_createNewModel(data, parentObj)
-
-
-```javascript
-
-/*
-    _cmdIndex = {}; 
-    _cmdIndex["createObject"] = 1;
-    _cmdIndex["createArray"]  = 2;
-    _cmdIndex["initProp"]  = 3;
-    _cmdIndex["set"]  = 4;
-    _cmdIndex["setMember"]  = 5;
-    _cmdIndex["push"]  = 6;
-    _cmdIndex["pushObj"]  = 7;
-    _cmdIndex["removeItem"]  = 8;
-    
-    // reserved 9 for optimizations
-    _cmdIndex["last"]  = 9;
-    
-    _cmdIndex["removeProperty"]  = 10;
-    _cmdIndex["insertObjectAt"]  = 11;
-    _cmdIndex["moveToIndex"]  = 12;
-*/
-
-if(this.isObject(data) || this.isArray(data)) {
-    
-    var newObj = {
-        data : data,
-        __id : this.guid()
-    }
-    
-    this._objectHash[newObj.__id] = newObj;
-    
-    if(this.isArray(data)) {
-        var cmd = [2, newObj.__id, [], null, newObj.__id];
-    } else {
-        var cmd = [1, newObj.__id, {}, null, newObj.__id];
-    }
-
-    if(parentObj) {
-        newObj.__p = parentObj.__id;
-        // this._moveCmdListToParent( newObj );
-    }
-    this.writeCommand(cmd, newObj);
-    
-    // Then, check for the member variables...
-    for(var n in data) {
-        if(data.hasOwnProperty(n)) {
-            var value = data[n];
-            if(this.isObject(value) || this.isArray(value)) {
-                // Then create a new...
-                var oo = this._createNewModel( value, newObj );
-                newObj.data[n] = oo;
-                var cmd = [5, n, oo.__id, null, newObj.__id];
-                this.writeCommand(cmd, newObj);
-                this._moveCmdListToParent( oo );
-            } else {
-                var cmd = [4, n, value, null, newObj.__id];
-                this.writeCommand(cmd, newObj);
-            }
-        }
-    }
-    
-    return newObj;
-    
-} else {
-    
-}
-
-
-/*
-var newObj = {
-    data : data,
-    __id : this.guid()
-}
-*/
-```
-
-### <a name="_channelData__find"></a>_channelData::_find(id)
-
-
-```javascript
-var o = this._objectHash[id];
-if(o) return o;
-return this._removedHash[id];
-
-```
-
-### <a name="_channelData__findObjects"></a>_channelData::_findObjects(data, parentId, whenReady)
-
-
-```javascript
-
-if(!data) return null;
-
-if(!this.isObject(data)) return data;
-
-data = this._wrapData( data );
-if(data.__id) {
-    this._objectHash[data.__id] = data;
-}
-
-var me = this;
-if(parentId) {
-    data.__p = parentId;
-}
-if(data.data) {
-    var sub = data.data;
-    for(var n in sub) {
-        if(sub.hasOwnProperty(n)) {
-            var p = sub[n];
-            if(this.isObject(p)) {
-                var newData = this._findObjects(p, data.__id);
-                if(newData !== p ) {
-                    data.data[n] = newData;
-                }
-            }
-        }
-    }
-}
-return data;
-```
-
-### <a name="_channelData__getObjectHash"></a>_channelData::_getObjectHash(t)
-
-
-```javascript
-return this._objectHash;
-```
-
-### <a name="_channelData__getRemovedHash"></a>_channelData::_getRemovedHash(t)
-
-
-```javascript
-return this._removedHash;
-```
-
-### <a name="_channelData__prepareData"></a>_channelData::_prepareData(data)
-
-
-```javascript
-var d = this._wrapData( data );
-if(!this._objectHash[d.__id]) {
-    d = this._findObjects( d );
-}
-return d;
-```
-
-### <a name="_channelData__wCmd"></a>_channelData::_wCmd(cmdIndex, UUID, cmd)
-
-
-```javascript
-
-if(!this._workers[cmdIndex]) return;
-if(!this._workers[cmdIndex][UUID]) return;
-    
-var workers = this._workers[cmdIndex][UUID];
-var me = this;
-
-var propFilter = cmd[1];
-var allProps = workers["*"],
-    thisProp = workers[propFilter];
-
-if(allProps) {
-    allProps.forEach( function(w) {
-        var id = w[0],
-            options = w[1];
-        var worker = _workerCmds[id];
-        if(worker) {
-            worker( cmd, options );
-        }
-    });
-}
-if(thisProp) {
-    thisProp.forEach( function(w) {
-        var id = w[0],
-            options = w[1];
-        var worker = _workerCmds[id];
-        if(worker) {
-            worker( cmd, options );
-        }
-    });
-}
-
-```
-
-### <a name="_channelData__wrapData"></a>_channelData::_wrapData(data, parent)
-
-
-```javascript
-
-// if instance of this object...
-if(data && data._wrapData) {
-    // we can use the same pointer to this data
-    return data._data;
-}
-
-// if the data is "well formed"
-if(data.__id && data.data) return data;
-
-// if new data, then we must create a new object and return it
-
-var newObj = this._createNewModel( data );
-/*
-var newObj = {
-    data : data,
-    __id : this.guid()
-}
-*/
-return newObj;
-```
-
-### <a name="_channelData_createWorker"></a>_channelData::createWorker(workerID, cmdFilter, workerOptions)
-
-
-```javascript
-
-// cmdFilter could be something like this:
-// [ 4, 'x', null, null, 'GUID' ]
-// [ 8, null, null, null, 'GUID' ]
-
-var cmdIndex = cmdFilter[0],
-    UUID = cmdFilter[4];
-
-if(!this._workers[cmdIndex]) {
-    this._workers[cmdIndex] = {};
-}
-
-if(!this._workers[cmdIndex][UUID]) 
-    this._workers[cmdIndex][UUID] = {};
-
-var workers = this._workers[cmdIndex][UUID];
-
-var propFilter = cmdFilter[1];
-if(!propFilter) propFilter = "*";
-
-if(!workers[propFilter]) workers[propFilter] = [];
-
-workers[propFilter].push( [workerID, workerOptions ] );
-
-
-
-
-// The original worker implementation was something like this:
-
-// The worker has 
-// 1. the Data item ID
-// 2. property name
-// 3. the worker function
-// 4. the view information
-// 5. extra params ( 4. and 5. could be simplified to options)
-
-/*
-   var w = _dataLink._createWorker( 
-        dataItem.__id, 
-        vName, 
-        _workers().fetch(9), 
-        subTplDOM, {
-           modelid : dataItem.__id,
-           compiler : me,
-           view : myView
-       });
-*/
-```
-
-### <a name="_channelData_getData"></a>_channelData::getData(t)
-
-
-```javascript
-return this._data;
-```
-
-### <a name="_channelData_indexOf"></a>_channelData::indexOf(item)
-
-
-```javascript
-
-if(!item) item = this._data;
-
-if(!this.isObject(item)) {
-    item = this._find( item );
-}
-if(!item) return;
-
-var parent = this._find( item.__p);
-
-if(!parent) return;
-if(!this.isArray( parent.data)) return;
-
-return parent.data.indexOf( item );
-
-```
-
-### _channelData::constructor( channelId, mainData, journalCmds )
-
-```javascript
-
-// if no mainData defined, exit immediately
-if(!mainData) return;
-/*
-The format of the main data is as follows : 
-{
-    data : {
-        key : value,
-        subObject : {
-            data : {}
-            __id : "subGuid"
-        }
-    },
-    __id : "someGuid"
-}
-*/
-if(!this._objectHash) {
-    this._objectHash = {};
-    this._removedHash = {};
-}
-
-var me = this;
-this._channelId = channelId;
-this._data = mainData;
-this._workers = {};
-this._journal = journalCmds || [];
-this._journalPointer = this._journal.length;
-
-var newData = this._findObjects(mainData);
-if(newData != mainData ) this._data = newData;
-
-if(!this._data.__orphan) {
-    this._data.__orphan = [];
-}
-
-// Then, the journal commands should be run on the object
-
-if(journalCmds && this.isArray(journalCmds)) {
-    journalCmds.forEach( function(c) {
-        me.execCmd( c, true );
-    });
-}
-
-
-```
-        
-### <a name="_channelData_setWorkerCommands"></a>_channelData::setWorkerCommands(cmdObject)
-
-Notice that all channels are using the same commands.
-```javascript
-
-if(!_workerCmds) _workerCmds = {};
-
-
-for(var i in cmdObject) {
-    if(cmdObject.hasOwnProperty(i)) {
-        _workerCmds[i] = cmdObject[i];
-    }
-}
-// _workerCmds
-
-
-
-```
-
-### <a name="_channelData_toPlainData"></a>_channelData::toPlainData(obj, recursive)
-
-
-```javascript
-
-
-if(typeof( obj ) == "undefined" ) {
-    if(recursive) return obj;
-    return obj = this._data;
-}
-
-if(this.isFunction(obj) ||  typeof(obj)=="function") {
-    return;
-}
-if(!this.isObject(obj)) return obj;
-
-var plain;
-
-if(this.isArray(obj.data)) {
-    plain = [];
-    var len = obj.data.length;
-    for(var i=0; i<len; i++) {
-        plain[i] = this.toPlainData( obj.data[i], true );
-    }
-} else {
-    plain = {};
-    for( var n in obj.data) {
-        if(obj.data.hasOwnProperty(n)) {
-            plain[n] = this.toPlainData(obj.data[n], true);
-        }
-    }
-}
-
-return plain;
-```
-
-
-
-   
-    
-## trait _dataTrait
-
-The class has following internal singleton variables:
-        
-        
-### <a name="_dataTrait_guid"></a>_dataTrait::guid(t)
-
-
-```javascript
-return Math.random().toString(36).substring(2, 15) +
-        Math.random().toString(36).substring(2, 15);
-
-```
-
-### <a name="_dataTrait_isArray"></a>_dataTrait::isArray(t)
-
-
-```javascript
-return t instanceof Array;
-```
-
-### <a name="_dataTrait_isFunction"></a>_dataTrait::isFunction(fn)
-
-
-```javascript
-return Object.prototype.toString.call(fn) == '[object Function]';
-```
-
-### <a name="_dataTrait_isObject"></a>_dataTrait::isObject(t)
-
-
-```javascript
-return t === Object(t);
-```
-
-
-    
-    
-    
-## trait commad_trait
-
-The class has following internal singleton variables:
-        
-* _listeners
-        
-* _execInfo
-        
-* _doingRemote
-        
-* _cmds
-        
-* _reverseCmds
-        
-* _settings
-        
-* _hotObjs
-        
-* _dmp
-        
-        
-### <a name="commad_trait__cmd_aceCmd"></a>commad_trait::_cmd_aceCmd(a, isRemote)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = a[1];
-    
-if(!obj || !prop) return false;
-if(typeof( obj.data[prop] )  != "string" ) return false;
-
-var conv = aceCmdConvert();
-obj.data[prop] = conv.runToString( obj.data[prop], a[2]);
-
-_doingRemote = isRemote;
-
-var tmpCmd = [4, prop, obj.data[prop], null, a[4], a[5], a[6] ];
-this._cmd(tmpCmd, obj, null);      
-
-if(!isRemote) {
-    this._cmd(a, obj, null); // this is the problematic.
-    this.writeCommand(a); 
-} else {
-    this._cmd(a, obj, null);
-}
-_doingRemote = false;
-// this._fireListener(obj, prop);
-
-return true;
-
-```
-
-### <a name="commad_trait__cmd_createArray"></a>commad_trait::_cmd_createArray(a, isRemote)
-
-
-```javascript
-var objId = a[1];
-if(!objId) return {
-    error : 21,
-    cmd   : a,
-    text  : "Object ID was null or undefined"
-};
-
-var hash = this._getObjectHash();
-if(hash[objId]) return {
-    error : 22,
-    cmd   : a,
-    text  : "Object with same ID ("+objId+") was alredy created"
-};
-
-var newObj;
-var _removedHash = this._getRemovedHash();
-
-if(_removedHash[objId]) {
-    newObj = _removedHash[objId];
-    newObj.__p = null;
-} else {
-    newObj = { data : [], __id : objId };
-}
-// var newObj = { data : [], __id : objId };
-hash[newObj.__id] = newObj;
-
-// it is orphan object...
-this._data.__orphan.push(newObj);
-
-if(!(isRemote)) {
-    // this.writeCommand(a, newObj);
-} 
-return true;
-```
-
-### <a name="commad_trait__cmd_createObject"></a>commad_trait::_cmd_createObject(a, isRemote)
-
-
-```javascript
-
-var objId = a[1];
-
-if(!objId) return {
-    error : 11,
-    cmd   : a,
-    text  : "Object ID was null or undefined"
-};
-
-var hash = this._getObjectHash();
-
-if(hash[objId]) return {
-    error : 12,
-    cmd   : a,
-    text  : "Object with same ID ("+objId+") was alredy created"
-};
-var newObj;
-var _removedHash = this._getRemovedHash();
-
-if(_removedHash[objId]) {
-    newObj = _removedHash[objId];
-    newObj.__p = null;
-} else {
-    newObj = { data : {}, __id : objId };
-}
-hash[newObj.__id] = newObj;
-
-// it is orphan object...
-this._data.__orphan.push(newObj);
-
-// --- adding to the data object...
-
-if(!(isRemote)) {
-    // this.writeCommand(a, newObj);
-} 
-return true;
-```
-
-### <a name="commad_trait__cmd_diffPatch"></a>commad_trait::_cmd_diffPatch(a, isRemote)
-
-
-```javascript
-
-if(!_dmp) return {
-        error : 141,
-        cmd   : a,
-        text  : "diff-match-patch not initialized"
-    };
-
-var obj = this._find( a[4] ),
-    prop = a[1];
-    
-if(!obj) return {
-        error : 41,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[4]+") "
-    };
-
-if(!prop) return {
-        error : 42,
-        cmd   : a,
-        text  : "The property was not defined ("+a[1]+") "
-    };
-
-var oldValue = obj.data[prop];
-if( this.isObject(oldValue) || this.isArray(oldValue) ) return {
-    error : 145,
-    cmd   : a,
-    text  : "Trying to apply text diff/patch to  Object or Array"
-};
-
-// TODO: data -integrity problem, can you verify the reverse diff, this might cause problems...
-// a[2] -> the patch as text
-// a[3] -> the reverse patch as text
-
-var patch = _dmp.patch_fromText( a[2] );
-// TODO: error condition? 
-
-var newValue = _dmp.patch_apply(patch, oldValue);
-if(!this.isArray(newValue)) return {
-    error : 146,
-    cmd   : a,
-    text  : "patch_apply failed"
-};
-var list = newValue[1];
-if(!list) return {
-    error : 146,
-    cmd   : a,
-    text  : "patch_apply failed"
-};
-for(var i=0; i<list.length;i++) {
-    if(!list[i]) return {
-        error : 146,
-        cmd   : a,
-        text  : "patch_apply failed"
-    };
-}
-obj.data[prop] = newValue[0]; // the new value for the data property
-_doingRemote = isRemote;
-
-// from the listeners point of view this is only object property change
-var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6] ];
-this._cmd(tmpCmd, obj, null);      
-
-if(!isRemote) {
-    this.writeCommand(a); 
-} else {
-    this._cmd(a, obj, null);
-}
-_doingRemote = false;
-
-return true;
-
-```
-
-### <a name="commad_trait__cmd_moveToIndex"></a>commad_trait::_cmd_moveToIndex(a, isRemote)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = "*",
-    len = obj.data.length,
-    targetObj;
-
-if(!obj) return {
-    error : 2,
-    cmd   : 1,
-    text  : "Object with ID ("+a[4]+") did not exist"
-};
-
-var oldIndex = null, i;
-
-var targetObj = this._find( a[1] );
-i = oldIndex = obj.data.indexOf( targetObj );
-
-/*
-for(i=0; i< len; i++) {
-    var m = obj.data[i];
-    if(m.__id == a[1]) {
-        targetObj = m;
-        oldIndex = i;
-        break;
-    }
-}
-*/
-
-if( oldIndex != a[3] ) {
-    return {
-        error : 121,
-        cmd   : a,
-        text  : "The old index was not what expected: "+oldIndex+" cmd have "+a[3]
-    };
-}
-
-if( !targetObj  ) {
-    return {
-        error : 122,
-        cmd   : a,
-        text  : "Object to be moved ("+a[1]+") was not in the array"
-    };
-}
-
-
-
-// Questions here:
-// - should we move command list only on the parent object, not the child
-//  =>  this._moveCmdListToParent(targetObj); could be
-//      this._moveCmdListToParent(obj);
-// That is... where the command is really saved???
-// is the command actually written anywhere???
-//  - where is the writeCommand?
-// 
-// Moving the object in the array
-
-var targetIndex = parseInt(a[2]);
-if(isNaN(targetIndex)) return {
-        error : 123,
-        cmd   : a,
-        text  : "Target index ("+targetIndex+") was not a number"
-    };
-
-if(obj.data.length <= i || (i < 0)) return {
-        error : 124,
-        cmd   : a,
-        text  : "Invalid original index ("+i+") given"
-    };
-
-_execInfo.fromIndex = i;
-
-obj.data.splice(i, 1);
-obj.data.splice(targetIndex, 0, targetObj);
-this._cmd(a, null, a[1]);
-
-return true;
-
-
-```
-
-### <a name="commad_trait__cmd_pushToArray"></a>commad_trait::_cmd_pushToArray(a, isRemote)
-
-
-```javascript
-
-var parentObj = this._find( a[4] ),
-    insertedObj = this._find( a[2] ),
-    toIndex = parseInt( a[1] ),
-    oldPos  = a[3],  // old position can also be "null"
-    prop = "*",
-    index = parentObj.data.length; // might check if valid...
-
-
-if(!parentObj) return {
-        error : 71,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[4]+") "
-    };
-
-if(!insertedObj) return {
-        error : 72,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[2]+") "
-    };
-
-// NOTE: deny inserting object which already has been inserted
-if(insertedObj.__p) return {
-        error : 73,
-        cmd   : a,
-        text  : "The object already had a parent - need to remove first ("+a[2]+") "
-    };
-    
-if(isNaN(toIndex)) return {
-        error : 74,
-        cmd   : a,
-        text  : "toIndex was not a number"
-    };
-if(!this.isArray( parentObj.data )) return {
-        error : 75,
-        cmd   : a,
-        text  : "Target Object was not an array"
-    };
-if( toIndex > parentObj.data.length || toIndex < 0) return {
-        error : 76,
-        cmd   : a,
-        text  : "toIndex out of range"
-    };
-
-parentObj.data.splice( toIndex, 0, insertedObj );
-
-insertedObj.__p = parentObj.__id;
-
-
-
-// remove from orphans
-var ii = this._data.__orphan.indexOf(insertedObj);
-if(ii>=0) {
-    this._data.__orphan.splice(ii,1);
-}
-// this._moveCmdListToParent(insertedObj);
-
-// Saving the write to root document
-if(!isRemote) {
-    // this.writeCommand(a);
-}  
-this._cmd(a, null, a[2]);
-
-return true;
-```
-
-### <a name="commad_trait__cmd_removeObject"></a>commad_trait::_cmd_removeObject(a, isRemote)
-
-
-```javascript
-
-var parentObj = this._find( a[4] ),
-    removedItem = this._find( a[2] ),
-    oldPosition = parseInt( a[1] ),
-    prop = "*";
-    
-
-if(!parentObj) return {
-        error : 81,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[4]+") "
-    };
-
-if(!removedItem) return {
-        error : 82,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[2]+") "
-    };
-
-// NOTE: deny inserting object which already has been inserted
-if(!removedItem.__p) return {
-        error : 83,
-        cmd   : a,
-        text  : "The removed item did not have a parent ("+a[2]+") "
-    };
-
-var index = parentObj.data.indexOf( removedItem ); // might check if valid...
-if(isNaN(oldPosition)) return {
-        error : 84,
-        cmd   : a,
-        text  : "oldPosition was not a number"
-    };
-if( oldPosition  != index ) return {
-        error : 85,
-        cmd   : a,
-        text  : "oldPosition was not same as current position"
-    };
-
-var _removedHash = this._getRemovedHash();
-_removedHash[a[2]] = removedItem;
-// now the object is in the array...
-parentObj.data.splice( index, 1 );
-
-// removed at should not be necessary because journal has the data
-// removedItem.__removedAt = index;
-
-this._cmd(a, null, a[2]);
-
-removedItem.__p = null; // must be set to null...
-
-// remove from orphans
-var ii = this._data.__orphan.indexOf(removedItem);
-if(ii < 0) {
-    this._data.__orphan.push( removedItem );
-}
-
-
-// Saving the write to root document
-if(!isRemote) {
-    // this.writeCommand(a);
-}        
-
-return true;
-
-```
-
-### <a name="commad_trait__cmd_setMeta"></a>commad_trait::_cmd_setMeta(a, isRemote)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = a[1];
-
-if(!prop) return false;
-
-if(prop == "data") return false;
-if(prop == "__id") return false;
-
-if(obj) {
-    
-    if( obj[prop] == a[2] ) return false;
-
-    obj[prop] = a[2]; // value is now set...
-    this._cmd(a, obj, null);
-    
-    // Saving the write to root document
-    if(!isRemote) {
-        this.writeCommand(a);
-    } 
-    return true;
-} else {
-    return false;
-}
-```
-
-### <a name="commad_trait__cmd_setProperty"></a>commad_trait::_cmd_setProperty(a, isRemote)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = a[1];
-    
-if(!obj) return {
-        error : 41,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[4]+") "
-    };
-
-if(!prop) return {
-        error : 42,
-        cmd   : a,
-        text  : "The property was not defined ("+a[1]+") "
-    };
-
-var oldValue = obj.data[prop];
-
-if( oldValue == a[2] ) return {
-        error : 43,
-        cmd   : a,
-        text  : "Trying to set the same value to the object twice"
-    };
-
-if(typeof( oldValue ) != "undefined") {
-    if( oldValue != a[3] ) return {
-        error : 44,
-        cmd   : a,
-        text  : "The old value "+oldValue+" was not the same as the commands old value"
-    };
-
-} else {
-    if( this.isObject(oldValue) || this.isArray(oldValue) ) return {
-        error : 45,
-        cmd   : a,
-        text  : "Trying to set Object or Array value to a scalar property"
-    };
-}
-
-obj.data[prop] = a[2]; // value is now set...
-this._cmd(a, obj, null);
-
-// Saving the write to root document
-if(!isRemote) {
-//    this.writeCommand(a);
-} 
-//this._fireListener(obj, prop);
-
-return true;
-
-```
-
-### <a name="commad_trait__cmd_setPropertyObject"></a>commad_trait::_cmd_setPropertyObject(a, isRemote)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = a[1],
-    setObj = this._find( a[2] );
-
-if(!obj) return {
-        error : 51,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[4]+") "
-    };
-
-if(!prop) return {
-        error : 52,
-        cmd   : a,
-        text  : "The property was not defined ("+a[1]+") "
-    };
-    
-// if(!obj || !prop)   return false;
-// if(!setObj)         return false; 
-
-if(!setObj) return {
-        error : 53,
-        cmd   : a,
-        text  : "Could not find the Object to be set with ID ("+a[2]+") "
-    };
-    
-
-if(typeof( obj.data[prop]) != "undefined" )  return {
-        error : 54,
-        cmd   : a,
-        text  : "The property ("+a[1]+") was already set, try unsetting first "
-    };
-if( !this.isObject(obj.data) || this.isArray(obj.data) )  return {
-        error : 55,
-        cmd   : a,
-        text  : "The object ("+a[2]+") was not of type Object "
-    };
-
-obj.data[prop] = setObj; // value is now set...
-setObj.__p = obj.__id; // The parent relationship
-
-this._cmd(a, null, a[2]);
-
-var ii = this._data.__orphan.indexOf(setObj);
-if(ii>=0) {
-    this._data.__orphan.splice(ii,1);
-}
-
-
-
-if(!isRemote) {
-    this._moveCmdListToParent(setObj);
-    // this.writeCommand(a);
-} 
-return true;
-```
-
-### <a name="commad_trait__cmd_unsetProperty"></a>commad_trait::_cmd_unsetProperty(a, isRemote)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = a[1];
-    
-if(!obj) return {
-        error : 101,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[4]+") "
-    };
-
-if(!prop) return {
-        error : 102,
-        cmd   : a,
-        text  : "The property was not defined ("+a[1]+") "
-    };
-
-if(this.isArray( obj.data[prop] ) ) return {
-        error : 103,
-        cmd   : a,
-        text  : "The Object data was Array ("+a[4]+") "
-    };
-
-delete obj.data[prop];
-// if(!isRemote) this.writeCommand(a);
-         
-
-return true;
-       
-```
-
-### <a name="commad_trait__fireListener"></a>commad_trait::_fireListener(obj, prop)
-
-
-```javascript
-if(_listeners) {
-    var lName = obj.__id+"::"+prop,
-        eList = _listeners[lName];
-    if(eList) {
-        eList.forEach( function(fn) {
-            fn( obj, obj.data[prop] );
-        })
-    }
-}
-```
-
-### <a name="commad_trait__moveCmdListToParent"></a>commad_trait::_moveCmdListToParent(t)
-
-
-```javascript
-
-```
-
-### <a name="commad_trait__reverse_aceCmd"></a>commad_trait::_reverse_aceCmd(a)
-
-
-```javascript
-
-
-var obj = this._find( a[4] ),
-    prop = a[1];
-
-var conv = aceCmdConvert();
-
-var newCmds = conv.reverse( a[2] );
-
-var tmpCmd = [4, prop, obj.data[prop], null, a[4] ];
-var tmpCmd2 = [13, prop, newCmds, null, a[4] ];
-
-var s = conv.runToString( obj.data[prop], newCmds );
-obj.data[prop] = s;
-
-// TODO: check that these work, may not be good idea to do both
-this._cmd(tmpCmd);      
-this._cmd(tmpCmd2);
-
-```
-
-### <a name="commad_trait__reverse_createArray"></a>commad_trait::_reverse_createArray(a)
-
-
-```javascript
-var objId =  a[1];
-var hash = this._getObjectHash();
-
-var o = hash[objId];
-var _removedHash = this._getRemovedHash();
-_removedHash[objId] = o;
-
-delete hash[objId];
-
-var ii = this._data.__orphan.indexOf(o);
-
-if(ii>=0) {
-    this._data.__orphan.splice(ii,1);
-}
-
-```
-
-### <a name="commad_trait__reverse_createObject"></a>commad_trait::_reverse_createObject(a)
-
-
-```javascript
-var objId =  a[1];
-var hash = this._getObjectHash();
-
-var o = hash[objId];
-var _removedHash = this._getRemovedHash();
-_removedHash[objId] = o;
-
-delete hash[objId];
-
-var ii = this._data.__orphan.indexOf(o);
-
-if(ii>=0) {
-    this._data.__orphan.splice(ii,1);
-}
-
-```
-
-### <a name="commad_trait__reverse_diffPatch"></a>commad_trait::_reverse_diffPatch(a, isRemote)
-
-
-```javascript
-
-if(!_dmp) return {
-        error : 141,
-        cmd   : a,
-        text  : "diff-match-patch not initialized"
-    };
-
-var obj = this._find( a[4] ),
-    prop = a[1];
-    
-if(!obj) return {
-        error : 41,
-        cmd   : a,
-        text  : "Did not find object with ID ("+a[4]+") "
-    };
-
-if(!prop) return {
-        error : 42,
-        cmd   : a,
-        text  : "The property was not defined ("+a[1]+") "
-    };
-
-var oldValue = obj.data[prop];
-if( this.isObject(oldValue) || this.isArray(oldValue) ) return {
-    error : 145,
-    cmd   : a,
-    text  : "Trying to apply text diff/patch to  Object or Array"
-};
-
-// the reverse command...
-var patch = _dmp.patch_fromText( a[3] );
-
-var newValue = _dmp.patch_apply(patch, oldValue);
-if(!this.isArray(newValue)) return {
-    error : 146,
-    cmd   : a,
-    text  : "patch_apply failed"
-};
-var list = newValue[1];
-if(!list) return {
-    error : 146,
-    cmd   : a,
-    text  : "patch_apply failed"
-};
-for(var i=0; i<list.length;i++) {
-    if(!list[i]) return {
-        error : 146,
-        cmd   : a,
-        text  : "patch_apply failed"
-    };
-}
-obj.data[prop] = newValue[0]; // the new value for the data property
-_doingRemote = isRemote;
-
-// from the listeners point of view this is only object property change
-var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6] ];
-this._cmd(tmpCmd, obj, null);      
-
-if(!isRemote) {
-    this.writeCommand(a); 
-} else {
-    this._cmd(a, obj, null);
-}
-_doingRemote = false;
-
-return true;
-
-```
-
-### <a name="commad_trait__reverse_moveToIndex"></a>commad_trait::_reverse_moveToIndex(a)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = "*",
-    len = obj.data.length,
-    targetObj,
-    i = 0;
-
-var oldIndex = null;
-
-for(i=0; i< len; i++) {
-    var m = obj.data[i];
-    if(m.__id == a[1]) {
-        targetObj = m;
-        oldIndex = i;
-        break;
-    }
-}
-
-if(oldIndex != a[2]) {
-    throw "_reverse_moveToIndex with invalid index value";
-    return;
-}
-
-if(targetObj) {
-    
-    var targetIndex = parseInt(a[3]);
-    
-    obj.data.splice(i, 1);
-    obj.data.splice(targetIndex, 0, targetObj);
-    
-    var tmpCmd = a.slice();
-    tmpCmd[2] = targetIndex;
-    tmpCmd[3] = a[2];
-    
-    this._cmd(tmpCmd, null, tmpCmd[1]);
-
-}
-```
-
-### <a name="commad_trait__reverse_pushToArray"></a>commad_trait::_reverse_pushToArray(a)
-
-
-```javascript
-var parentObj = this._find( a[4] ),
-    insertedObj = this._find( a[2] ),
-    prop = "*",
-    index = parentObj.data.length; 
-    
-// Moving the object in the array
-if( parentObj && insertedObj) {
-    
-    var shouldBeAt = parentObj.data.length - 1;
-    
-    var item = parentObj.data[shouldBeAt];
-    
-    // old parent and old item id perhas should be also defined?
-    if(item.__id == a[2]) {
-        
-        // the command which appears to be run, sent to the data listeners
-        var tmpCmd = [ 8, shouldBeAt, item.__id,  null,  parentObj.__id  ];
-        
-        // too simple still...
-        parentObj.data.splice( shouldBeAt, 1 ); 
-        
-        this._cmd(tmpCmd, null, tmpCmd[2]);
-    }
-
-}
-```
-
-### <a name="commad_trait__reverse_removeObject"></a>commad_trait::_reverse_removeObject(a)
-
-
-```javascript
-
-var parentObj = this._find( a[4] ),
-    removedItem = this._find( a[2] ),
-    oldPosition = a[1],
-    prop = "*",
-    index = parentObj.data.indexOf( removedItem ); // might check if valid...
-
-// Moving the object in the array
-if( parentObj && removedItem) {
-
-    // now the object is in the array...
-    parentObj.data.splice( oldPosition, 0, removedItem );
-    
-    var tmpCmd = [7, oldPosition, a[2], null, a[4]];
-    
-    this._cmd(tmpCmd, null, a[2]);
-    
-    // remove from orphans
-    var ii = this._data.__orphan.indexOf(removedItem);
-    if(ii >= 0) {
-        this._data.__orphan.splice(ii,1);
-    }    
-    
-    
-    removedItem.__p = a[4];
-}
-```
-
-### <a name="commad_trait__reverse_setMeta"></a>commad_trait::_reverse_setMeta(a)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = a[1];
-
-if(obj) {
-    var tmpCmd = [3, prop, a[3], a[2], a[4] ];
-    obj[prop] = a[3];  // the old value
-    this._cmd(tmpCmd);
-}
-```
-
-### <a name="commad_trait__reverse_setProperty"></a>commad_trait::_reverse_setProperty(a)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    prop = a[1];
-
-if(obj) {
-    var tmpCmd = [4, prop, a[3], a[2], a[4] ];
-    obj.data[prop] = a[3];  // the old value
-    this._cmd(tmpCmd);
-}
-```
-
-### <a name="commad_trait__reverse_setPropertyObject"></a>commad_trait::_reverse_setPropertyObject(a)
-
-
-```javascript
-
-var obj = this._find( a[4] ),
-    prop = a[1],
-    setObj = this._find( a[2] );
-
-if(!obj) return;
-if(!setObj) return;        
-
-delete obj.data[prop];   // removes the property object
-setObj.__p = null;
-
-var tmpCmd = [ 10, prop, null, null, a[4] ];
-this._cmd(tmpCmd);
-
-```
-
-### <a name="commad_trait__reverse_unsetProperty"></a>commad_trait::_reverse_unsetProperty(a)
-
-
-```javascript
-var obj = this._find( a[4] ),
-    removedObj = this._find( a[2] ),
-    prop = a[1];
-
-if(obj && prop && removedObj) {
-
-
-    obj.data[prop] = removedObj;
-    removedObj.__p = obj.__id; // The parent relationship
-    
-    var tmpCmd = [5, prop, removedObj.__id, 0, a[4] ];
-    this._cmd(tmpCmd, null, removedObj.__id);
-
-}      
-```
-
-### <a name="commad_trait__updateHotBuffer"></a>commad_trait::_updateHotBuffer(forceWrite)
-
-
-```javascript
-var me = this;
-var ms = (new Date()).getTime();
-for(var n in _hotObjs) {
-    if(_hotObjs.hasOwnProperty(n)) {
-        var hoot = _hotObjs[n];
-        
-        if(forceWrite || ( (ms - hoot.ms) > _settings.hotMs) ) {
-            // => one should write this command now
-            
-            if(hoot.lastCmd) {
-                var a = hoot.firstCmd,
-                    b = hoot.lastCmd;
-                hoot.chObj.writeLocalJournal( [4, a[1], b[2], a[3], a[4] ] );
-            } else {
-                hoot.chObj.writeLocalJournal( hoot.firstCmd );
-            }
-            delete _hotObjs[n];
-        }
-    }
-} 
-```
-
-### <a name="commad_trait_execCmd"></a>commad_trait::execCmd(a, isRemote, isRedo)
-
-
-```javascript
-
-try {
-    if(!this.isArray(a)) return false;
-    var c = _cmds[a[0]];
-    
-    if(this._playBackOnFn && !isRedo) {
-        // do not allow commands when playback is on
-        return false;
-    }
-    
-    if(c) {
-        var rv =  c.apply(this, [a, isRemote]);
-        
-        if((rv===true) && !isRedo) {
-            // there is the hot buffer possibility for the object
-            if(!isRemote) {
-
-                if(a[0]==4 && _settings.hotMs) {
-                    var objid = a[4];
-                    var key = objid+":"+a[1];
-                    var hot = _hotObjs[key];
-                    if(!hot) {
-                        _hotObjs[key] = {
-                            ms : (new Date()).getTime(),
-                            firstCmd : a,
-                            chObj : this
-                        };
-                    } else {
-                        hot.lastCmd = a;
-                    }
-                    // console.log(JSON.stringify(hot));
-                } else {
-                    this._updateHotBuffer(true);
-                    this.writeLocalJournal( a );
-                }
-            } else {
-                this.writeLocalJournal( a );
-            }
-        }
-        return rv;
-    } else {
-        return {
-            error : 199,
-            text  : "Invalid command"
-        };
-    }
-} catch(e) {
-    var txt = "";
-    if(e && e.message) txt = e.message;
-    return {
-            error : 199,
-            cmd : a,
-            text  : "Exception raised " + txt
-    };
-}
-```
-
-### <a name="commad_trait_getJournalCmd"></a>commad_trait::getJournalCmd(i)
-
-
-```javascript
-
-return this._journal[i];
-```
-
-### <a name="commad_trait_getJournalLine"></a>commad_trait::getJournalLine(t)
-
-
-```javascript
-return this._journalPointer;
-```
-
-### <a name="commad_trait_getLocalJournal"></a>commad_trait::getLocalJournal(t)
-
-
-```javascript
-return this._journal;
-```
-
-### commad_trait::constructor( t )
-
-```javascript
-if(!_listeners) {
-    _listeners = {};
-    _execInfo = {};
-    _settings = {};
-    _hotObjs = {};
-}
-
-
-if(!_cmds) {
-
-    if(!_dmp) {
-        if(typeof(diff_match_patch) != "undefined") {
-            _dmp = new diff_match_patch();
-        } else {
-            // if in node.js try to require the module
-            if(typeof(require) != "undefined") { 
-                var DiffMatchPatch = require('diff-match-patch');
-                _dmp = new DiffMatchPatch();        
-            }
-        }
-    }
-    
-    _reverseCmds = new Array(30);
-    _cmds = new Array(30);
-    
-    _cmds[1] = this._cmd_createObject;
-    _cmds[2] = this._cmd_createArray;
-    _cmds[3] = this._cmd_setMeta;
-    _cmds[4] = this._cmd_setProperty;
-    _cmds[5] = this._cmd_setPropertyObject;
-    _cmds[7] = this._cmd_pushToArray;
-    _cmds[8] = this._cmd_removeObject;
-    _cmds[10] = this._cmd_unsetProperty;
-    _cmds[12] = this._cmd_moveToIndex;
-    _cmds[13] = this._cmd_aceCmd;
-    _cmds[14] = this._cmd_diffPatch;
-    
-    _reverseCmds[1] = this._reverse_createObject;
-    _reverseCmds[2] = this._reverse_createArray;
-    _reverseCmds[3] = this._reverse_setMeta;
-    _reverseCmds[4] = this._reverse_setProperty;
-    _reverseCmds[5] = this._reverse_setPropertyObject;
-    _reverseCmds[7] = this._reverse_pushToArray;
-    _reverseCmds[8] = this._reverse_removeObject;
-    _reverseCmds[10] = this._reverse_unsetProperty;
-    _reverseCmds[12] = this._reverse_moveToIndex;
-    _reverseCmds[13] = this._reverse_aceCmd;
-    _reverseCmds[14] = this._reverse_diffPatch;
-    // _reverse_setPropertyObject
-    
-    var me = this;
-    later().every(0.5, function() {
-        me._updateHotBuffer(); 
-    });
-    
-}
-```
-        
-### <a name="commad_trait_playback"></a>commad_trait::playback(options)
-
-
-```javascript
-
-// NOTE: playback requires later() library to work
-
-options = options || {};
-var deferMe = _promise();
-
-var firstMs = this._journal[0][5];
-if(!firstMs) {
-    console.error("journal does not have timestamps");
-    return;
-}
-
-var maxDelay = options.ms || 2000; // max delay on the playback, if the ms loop has some delays
-
-// then start the playback using the current journal buffer
-var journal;
-if(options.journal) {
-    journal = options.journal;
-} else {
-    journal = this._journal.slice();
-}
-var journalLen = journal.length;
-
-// starting from beginning may change in the future
-this.reverseToLine(0); // start from the beginning :)
-
-var msStart = (new Date()).getTime();
-
-var journal_index = 0,
-    me = this,
-    baseMs = firstMs;
-
-var rCnt = 0;
-
-var frameFn = function() {
-    
-    var msNow = (new Date()).getTime();
-    var delta = msNow - msStart; // <- time elapsed from beginng
-    var len = journalLen;
-    var lastCmdTime;
-    
-    for(var i=journal_index; i<len; ) {
-    
-        var jTime = journal[i][5], // ms,
-            jDelta = jTime - baseMs;
-        
-        
-        if(lastCmdTime && ( jTime - lastCmdTime) > maxDelay) {
-            // if there is a long delay in the stream, we move the virtual starting
-            // point of the "stream time" relative to the elapsed time now
-            var newStartTime = jTime - delta - parseInt(maxDelay/2);
-            baseMs = newStartTime;
-            jDelta = jTime - baseMs;
-        }
-        // console.log(jTime, msNow, jDelta, delta);
-        // test if the command should have been executd
-        if(jDelta < delta) {
-            // then should be executed
-            try {
-                me.redo(1, journal);
-            } catch(e) {
-                console.error(e);
-            }
-            rCnt++;
-            // console.log("doing redo");
-        } else {
-            break;
-        }
-        
-        i++;
-        lastCmdTime = jTime;
-    }
-    journal_index = i;
-    if(journal_index == len) {
-        later().removeFrameFn( frameFn );
-        me._journal = journal;
-        me._playBackOnFn = null;
-        deferMe.resolve(true);
-    }
-}
-this._playBackOnFn = frameFn;
-later().onFrame( frameFn );
-return deferMe;
-
-
-```
-
-### <a name="commad_trait_redo"></a>commad_trait::redo(n, journal)
-
-
-```javascript
-// if one line in buffer line == 1
-var line = this.getJournalLine(); 
-n = n || 1;
-while( (n--) > 0 ) {
-    
-    var cmd;
-    if(journal) {
-        cmd = journal[line];
-    } else {
-        cmd = this._journal[line];
-    }
-    if(!cmd) return;
-    
-    var res = this.execCmd( cmd, false, true );
-    if(res !== true) {
-        console.error(res);
-    }
-    line++;
-    this._journalPointer++;
-}
-```
-
-### <a name="commad_trait_redoStep"></a>commad_trait::redoStep(options)
-
-
-```javascript
-options = options || {};
-var pulseMs = options.ms || 400;
-
-var idx = this.getJournalLine(); 
-
-if(!this._journal[idx]) return;
-
-var firstMs = this._journal[idx][5]; 
-var stepCnt = 0;
-
-// stepping the problem forward...
-while(this._journal[idx]) {
-    var ms = this._journal[idx][5]; 
-    var diff = Math.abs( ms - firstMs );
-    if(diff > pulseMs) break;
-    idx++;
-    stepCnt++;
-}
-
-if(stepCnt > 0 ) this.redo( stepCnt );
-```
-
-### <a name="commad_trait_reverseCmd"></a>commad_trait::reverseCmd(a)
-
-This function reverses a given command. There may be cases when the command parameters make the command itself non-reversable. It is the responsibility of the framework to make sure all commands remain reversable.
-```javascript
-if(!a) {
-    return;
-}
-var c = _reverseCmds[a[0]];
-if(c) {
-    var rv =  c.apply(this, [a]);
-    return rv;
-}
-```
-
-### <a name="commad_trait_reverseNLines"></a>commad_trait::reverseNLines(n)
-
-
-```javascript
-// if one line in buffer line == 1
-var line = this.getJournalLine(); 
-
-while( ( line - 1 )  >= 0 &&  ( (n--) > 0 )) {
-    var cmd = this._journal[line-1];
-    this.reverseCmd( cmd );
-    line--;
-    this._journalPointer--;
-}
-```
-
-### <a name="commad_trait_reverseToLine"></a>commad_trait::reverseToLine(index)
-
-0 = reverse all commands, 1 = reverse to the first line etc.
-```javascript
-// if one line in buffer line == 1
-var line = this.getJournalLine(); 
-
-while( ( line - 1 )  >= 0 &&  line > ( index  ) ) {
-    var cmd = this._journal[line-1];
-    this.reverseCmd( cmd );
-    line--;
-    this._journalPointer--;
-}
-```
-
-### <a name="commad_trait_setHotMs"></a>commad_trait::setHotMs(t)
-
-Hotbuffer delay in ms. The property sets will be throttled by this amount.
-```javascript
-_settings.hotMs = t;
-```
-
-### <a name="commad_trait_undo"></a>commad_trait::undo(n)
-
-
-```javascript
-
-if(n===0) return;
-if(typeof(n)=="undefined") n = 1;
-
-this.reverseNLines( n );
-
-```
-
-### <a name="commad_trait_undoStep"></a>commad_trait::undoStep(options)
-
-
-```javascript
-
-options = options || {};
-var pulseMs = options.ms || 400;
-
-var idx = this.getJournalLine(); 
-// var idx = this._journal.length;
-if(idx==0) return;
-
-var firstMs = this._journal[idx-1][5]; 
-var stepCnt = 0;
-
-// stepping the problem forward...
-while((idx-1) >= 0) {
-    var ms = this._journal[idx-1][5]; 
-    var diff = Math.abs( ms - firstMs );
-    if(diff > pulseMs) break;
-    idx--;
-    stepCnt++;
-}
-
-if(stepCnt > 0 ) this.undo( stepCnt );
-```
-
-### <a name="commad_trait_writeCommand"></a>commad_trait::writeCommand(t)
-
-
-```javascript
-
-```
-
-### <a name="commad_trait_writeLocalJournal"></a>commad_trait::writeLocalJournal(cmd)
-
-
-```javascript
-
-if(this._journal) {
-    
-    // truncate on write if length > journalPointer
-    
-    if(this._journal.length > this._journalPointer) {
-        this._journal.length = this._journalPointer;
-    }
-    
-    if(!cmd[5]) cmd[5] = (new Date()).getTime();
-    
-    this._journal.push(cmd);
-    this._journalPointer++;
-}
-```
-
-
-    
-    
-
-
-   
-      
-    
-      
-    
-
-
-
-      
-    
-
-
-
-      
-    
-      
-            
 # Class _channels
 
 
@@ -13239,8 +9980,6 @@ while(i<len) {
             
             var p = _promise();
             
-            // if(fn.async) {
-
             fn.fnCmd( function(res) {
                 p.resolve(true); 
             }, function(failReason) {
@@ -13555,10 +10294,16 @@ this._server.on("connect", function( socket ) {
             return;
         }
         
-        console.log("Command "+JSON.stringify(cmd));
+        // console.log("Command "+JSON.stringify(cmd));
+        
+        console.time("cmd_emit_done");
+        
+        var ms = (new Date()).getTime();
         
         // the command for the channel controller...
         ctrl.run( cmd, function(resp) {
+            var msEnd = (new Date()).getTime();
+            console.log("Command took "+(msEnd - ms)); 
             if(responseFn) responseFn( resp );
         }, socket);
         
@@ -14974,20 +11719,26 @@ if(me._broadcastSocket && me._policy) {
     var data = me._policy.constructServerToClient( me._serverState );  
     if(data) {
         
-        console.log(" has something to sent to the clients ");
-        console.log(JSON.stringify(data));
+        //console.log(" has something to sent to the clients ");
+        //console.log(JSON.stringify(data));
+        
+        console.time("emit_start");
         
         if(!updObj) updObj = me._broadcastSocket.to( me._channelId );
         
         var currentJournalSize = me._model.getJournalSize();
         data.journalSize = currentJournalSize;
         
-        // broadcast to the socket "room"
         updObj.emit( "s2c_"+me._channelId, data );
         
+        // broadcast to the socket "room"
+        console.timeEnd("emit_start");
+        console.timeEnd("cmd_emit_done");
+        
+        var updStartMsEnd = (new Date()).getTime();
         // the server's connection to the remote client goes here...
         if(me._syncConnection && me._syncConnection.isConnected()) {
-            console.log("--- sending data to me._syncConnection --- ");
+            // console.log("--- sending data to me._syncConnection --- ");
             if(data.c) {
                 data.c.forEach( function(eCmd) {
                     // Note: the addCommand is just fine because it will run the command against the
@@ -15680,7 +12431,7 @@ return _promise(
 // on the server load - the function is not required to be run if there is no activity
 // and it should be removed if the client exits from the channel.
 var me = this;
-later().every(1/5, function() {
+later().onFrame( function() {
     me._doClientUpdate();
 });
 ```
@@ -15901,11 +12652,19 @@ if(!_initDone) {
            }
         });
    }
- 
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
+   
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   if(is_node_js) {
+       frame= function(cb) {
+            return setImmediate(cb);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }
  
     if (!cancelFrame)
         cancelFrame = function(id) {
@@ -16599,7 +13358,8 @@ This is the beef of almost everything, when a new frame comes around, what to do
 ```javascript
 
 var me = this,
-    channelId = this._channelId;
+    channelId = this._channelId,
+    fullUpgradeFailCnt=0;
 
 socket.on("upgrade_"+this._channelId, function(cmd) {
 
@@ -16616,14 +13376,14 @@ socket.on("upgrade_"+this._channelId, function(cmd) {
            var dd = me._clientState.data;
 
            dd.reverseToLine(cmd.partialFrom);
-           console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
+           // console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
            var errCnt=0;
            cmd.partial.forEach( function(c) {
                if(errCnt > 0 ) return;
                var r;
                var cmdIn  = me._transformCmdToNs(c);
                if(! ((r=dd.execCmd(cmdIn,true))===true ) ) {
-                   console.error("Partial ", r);
+                   // console.error("Partial ", r);
                    errCnt++;
                }
            });
@@ -16663,6 +13423,7 @@ socket.on("upgrade_"+this._channelId, function(cmd) {
                /// dd.execCmd(c, true); // the point is just to change the data to something else
                if(! ((r=dd.execCmd(c,true))===true ) ) {
                    console.error("Full error ", r);
+                   console.log("Return value from failed cmd: ",r);
                    errCnt++;
                }               
            });
@@ -16689,9 +13450,22 @@ socket.on("upgrade_"+this._channelId, function(cmd) {
                console.log("Version ", me._clientState.version);
                
            } else {
+               fullUpgradeFailCnt++;
+               
+               // must stop full refresh at this point
                console.error("** errors with the full update ** ");
-               me._clientState.needsFullRefresh = true;
-               // TODO: might be unresolvable error here, if too many 
+               if(fullUpgradeFailCnt>0) {   
+                   console.log("--- server command data ---");
+                   console.log(cmd);
+                   console.log("--- the client state ---");
+                   console.log(me._clientState);
+                   me._clientState.needsFullRefresh = false;
+               } else {
+                   me._clientState.needsFullRefresh = true;
+                   me._clientState.fullUpgradeFailCnt = fullUpgradeFailCnt;
+               }
+               
+
                // re-connections or refreshes appear
            }
 /*
@@ -16750,6 +13524,13 @@ socket.on("s2c_"+this._channelId, function(cmd) {
 
 ```
 
+### <a name="channelClient__isNodeJs"></a>channelClient::_isNodeJs(t)
+
+
+```javascript
+return (new Function("try { return this === global; } catch(e) { return false; }"))();
+```
+
 ### <a name="channelClient__onFrameLoop"></a>channelClient::_onFrameLoop(socket)
 
 
@@ -16770,7 +13551,7 @@ var _frameFn = function() {
         // *** if refresh is required, out of sync client **
         
         if(!me._upgradePending) {
-            console.log(" needsRefresh && !_upgradePending " );
+            // console.log(" needsRefresh && !_upgradePending " );
             me.askUpgrade(me._clientState.needsFullRefresh);
         }
         me._upgradePending = true;
@@ -16779,8 +13560,8 @@ var _frameFn = function() {
     var packet = me._policy.constructClientToServer( me._clientState );
     if(packet) {
 
-            console.log("Sending packet to server ");
-            console.log(packet);
+            //console.log("Sending packet to server ");
+            //console.log(packet);
             socket.send("channelCommand", {
                         channelId : channelId,
                         cmd : "c2s",
@@ -16867,6 +13648,10 @@ return this._data.execCmd(cmdIn, dontBroadcast);
 ```javascript
 
 if(!this._socket) return;
+
+
+// do not ask upgrade if failCnt > 0
+if(this._clientState.fullUpgradeFailCnt) return;
 
 this._socket.send("channelCommand", {
             channelId : this._channelId,
@@ -17227,7 +14012,8 @@ socket.on("connect", function() {
             }
             // ask to join the channel with this socket...
             return socket.send("requestChannel", {
-                        channelId : channelId
+                        channelId : channelId,
+                        initWithData  : options.initWithData
                 });
         })
         .then( function(resp) {
@@ -17607,12 +14393,17 @@ this._data.undoStep(options);
 ```javascript
 var ns_id = this._idToNs( id, this._ns ); // is this too slow?
 var obj = this._data._find( ns_id );
-if(obj) {
-    var old_obj = obj.data[name];
-    if( old_obj && old_obj.__id ) {
-        this.addCommand([10, name, old_obj.__id, null, ns_id ]);
+if(obj && obj.data) {
+
+    if(this.isObject(obj.data[name])) {
+        this.addCommand([10, name, obj.data[name].__id, null, ns_id ]);
+    } else {
+        if( obj.data && (typeof(obj.data[name]) != "undefined")) {
+             this.addCommand([10, name, obj.data[name], "value", ns_id ]);
+         }
     }
 }
+
 
 ```
 
@@ -18133,7 +14924,7 @@ if(realSocket) {
     var openConnection, connection;
     
     var whenConnected = function() {
-        console.log("whenConnected called");
+        // console.log("whenConnected called");
         
         if(!_hasbeenConnected) {
             
@@ -18144,7 +14935,7 @@ if(realSocket) {
             connection = _tcpEmu(ip, port, myId, "client", realSocket);
             
             connection.on("clientMessage", function(o,v) {
-                console.log("clientMessage received ", v);
+                // console.log("clientMessage received ", v);
                 if(v.connected) {
                     me._socket = connection;
                     me._connected = true;
@@ -18159,7 +14950,7 @@ if(realSocket) {
             });            
         } else {
             // does this kind of connection work...
-            console.log("Triggering connect again");
+            // console.log("Triggering connect again");
             me.trigger("connect", me._socket);
         }
         // console.log("Sending message to _tcpEmu with real socket ");
@@ -18171,10 +14962,10 @@ if(realSocket) {
     })
 
     if(realSocket.connected) {
-        console.log("realSocket was connected");
+        // console.log("realSocket was connected");
         whenConnected();
     } else {
-        console.log("realSocket was not connected");
+        // console.log("realSocket was not connected");
         realSocket.on("connect", whenConnected);
     }
 
@@ -18402,13 +15193,13 @@ if(ioLib) {
                 me.trigger("connect",  wrappedSocket);
                 
                 if(wrappedSocket.isConnected()) {
-                    console.log("Trying to send the connected message back to client");
+                    // console.log("Trying to send the connected message back to client");
                     newSocket.messageFrom({
                         connected : true,
                         socketId : v.socketId
                     });        
                 } else {
-                    console.log("The socket was not connected");
+                    // console.log("The socket was not connected");
                 }
             }
         })        
@@ -18605,7 +15396,7 @@ Message &quot;to&quot; refers to client sending message to server. This is the f
 var socket = this._socket;
 if(socket) {
     
-    _log.log("_tcpEmu, emitting ", this._dbName, msg);
+    // _log.log("_tcpEmu, emitting ", this._dbName, msg);
     socket.emit(this._dbName, msg);
     return;
 }
@@ -18640,7 +15431,7 @@ var socket = this._socket;
 
 if(role=="server") {
     this._pumpListener = function(data) {
-        _log.log("socketPump", me._dbName);
+        // _log.log("socketPump", me._dbName);
         me.trigger("serverMessage", data);
     };
     socket.on(this._dbName, this._pumpListener );
@@ -19204,10 +15995,10 @@ var realRoomName = this._roomPrefix+":"+roomName;
 
 return {
     emit : function(name, data) {
-        console.log(" emit called ");
+        //console.log(" emit called ");
         if(_rooms && _rooms[realRoomName]) {
             _rooms[realRoomName].forEach( function(socket) {
-                console.log(" emit with ", name, data);
+                // console.log(" emit with ", name, data);
                 socket.emit( name, data );
             })        
         }
@@ -19800,11 +16591,19 @@ if(!_initDone) {
            }
         });
    }
- 
-    if (!frame)
-        frame= function(cb) {
-            return setTimeout(cb, 16);
-        };
+   var is_node_js = (new Function("try { return this == global; } catch(e) { return false; }"))();
+   
+   if(is_node_js) {
+       frame= function(cb) {
+            return setImmediate(cb);// (cb,1);
+       }; 
+   } else {
+        if (!frame) {
+            frame= function(cb) {
+                return setTimeout(cb, 16);
+            };       
+        }
+   }
  
     if (!cancelFrame)
         cancelFrame = function(id) {
@@ -21692,17 +18491,6 @@ The class has following internal singleton variables:
 
 ```javascript
 _easings = { 
-    bounceOut : function(t){
-        if (t < 1/2.75) {
-            return (7.5625*t*t);
-        } else if (t < 2/2.75) {
-            return (7.5625*(t-=1.5/2.75)*t+0.75);
-        } else if (t < 2.5/2.75) {
-            return (7.5625*(t-=2.25/2.75)*t+0.9375);
-        } else {
-            return (7.5625*(t-=2.625/2.75)*t +0.984375);
-        }
-    },
     easeIn : function(t) {
         return t*t;
     },
@@ -21712,9 +18500,6 @@ _easings = {
     easeInOut : function(t) {
         if(t < 0.5) return t*t;
         return -1*t*(t-2);
-    },
-    easeInCirc : function(t) {
-        return -1*(Math.sqrt(1 -t*t) - 1);
     },
     easeInCubic : function(t) {
         return t*t*t;
@@ -21763,7 +18548,7 @@ _easings[name] = fn;
 ```javascript
 
 if(!name) {
-    name = "aft7491_"+(_localCnt++);
+    name = "aft_"+(_localCnt++);
 }
 
 _everies[name] = {
@@ -21831,7 +18616,6 @@ _everies[name] = {
 if(!_initDone) {
    this._easeFns();
    _localCnt=1;
-   this.polyfill();
  
    var frame, cancelFrame;
    if(typeof(window) != "undefined") {
@@ -21969,13 +18753,6 @@ _oneTimers[key] = [fn,value];
 ```javascript
 
 _framers.push(fn);
-```
-
-### <a name="later_polyfill"></a>later::polyfill(t)
-
-
-```javascript
-// --- let's not ---
 ```
 
 ### <a name="later_removeFrameFn"></a>later::removeFrameFn(fn)
@@ -24955,8 +21732,8 @@ if(!clientFrame) return;
 
 if(!serverState._done) serverState._done = {};
 
-console.log("Processing client frame");
-console.log(JSON.stringify(clientFrame));
+// console.log("Processing client frame");
+// console.log(JSON.stringify(clientFrame));
 
 try {
         
@@ -24981,7 +21758,7 @@ try {
     var results =  {
         errors : errors
     };
-    console.log(JSON.stringify(results));   
+    // console.log(JSON.stringify(results));   
     
     return results;
 
@@ -25283,20 +22060,20 @@ var result = {
     reverseCnt : 0
 };
 
-console.log("deltaServerToClient");
-console.log(clientState.last_update);
+//console.log("deltaServerToClient");
+//console.log(clientState.last_update);
 
 var sameUntil = updateFrame.start;
 
 if(clientState.needsRefresh) {
-    console.log("** client needs refresh **");
+    // console.log("** client needs refresh **");
     return;
 }
 
 if(updateFrame.start > data._journal.length ) {
 
-    console.log("--- setting refresh on because of ---- ");
-    console.log(" updateFrame.start > data._journal.length ");  
+    //console.log("--- setting refresh on because of ---- ");
+    //console.log(" updateFrame.start > data._journal.length ");  
     
     clientState.needsRefresh = true;
     result.fail = true;
@@ -25331,7 +22108,7 @@ for(var i=updateFrame.start; i<updateFrame.end; i++) {
                         arr2 = mainArray2[mi];
                     for(var ai=0; ai<5; ai++) {
                         if(arr1[ai]!=arr2[ai]) {
-                            console.log("not same ", ai, arr1[ai], arr2[ai]);
+                            // console.log("not same ", ai, arr1[ai], arr2[ai]);
                             bSame = false;
                             break;
                         }
@@ -25343,7 +22120,7 @@ for(var i=updateFrame.start; i<updateFrame.end; i++) {
                             var len = Math.max( arr1.length || 0, arr2.length || 0);
                             for(var ai=0; ai<len; ai++) {
                                 if(arr1[ai]!=arr2[ai]) {
-                                    console.log("not same array ", ai);
+                                    // console.log("not same array ", ai);
                                     bSame = false;
                                     break;
                                 }
@@ -25355,8 +22132,8 @@ for(var i=updateFrame.start; i<updateFrame.end; i++) {
                         }
                     }
                     if(!bSame) {
-                        console.log("was not the same");
-                        console.log(serverCmd, "vs", myJ );           
+                        // console.log("was not the same");
+                        // console.log(serverCmd, "vs", myJ );           
                     }
                 }
             }
@@ -25364,8 +22141,8 @@ for(var i=updateFrame.start; i<updateFrame.end; i++) {
             for(var j=0; j<=4; j++) {
                 if(myJ[j] != serverCmd[j]) {
                     bSame = false;
-                    console.log("was not the same");
-                    console.log(serverCmd[j], "vs", myJ[j] );
+                    //console.log("was not the same");
+                    //console.log(serverCmd[j], "vs", myJ[j] );
                 }
             }
         }
@@ -25375,8 +22152,8 @@ for(var i=updateFrame.start; i<updateFrame.end; i++) {
         var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
         if( cmdRes !== true ) {
             // if we get errors then we have some kind of problem
-                console.log("--- setting refresh on because of ---- ");
-                console.log(JSON.stringify(cmdRes));  
+            //    console.log("--- setting refresh on because of ---- ");
+            //    console.log(JSON.stringify(cmdRes));  
             clientState.needsRefresh = true;
             result.fail = true;
             result.reason = cmdRes;
@@ -25405,8 +22182,8 @@ for(var i=updateFrame.start; i<updateFrame.end; i++) {
             var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
             if( cmdRes !== true ) {
     
-                console.log("--- setting refresh on because of ---- ");
-                console.log(JSON.stringify(cmdRes));                
+                //console.log("--- setting refresh on because of ---- ");
+                //console.log(JSON.stringify(cmdRes));                
                 
                 // if we get errors then we have some kind of problem
                 clientState.needsRefresh = true;
@@ -25508,6 +22285,3353 @@ return "Hello World";
 
 
    
+
+
+
+      
+    
+      
+            
+# Class channelObjects
+
+
+The class has following internal singleton variables:
+        
+        
+### channelObjects::constructor( options )
+
+```javascript
+
+```
+        
+
+
+   
+    
+    
+    
+    
+    
+    
+
+
+   
+      
+            
+# Class aceCmdConvert
+
+
+The class has following internal singleton variables:
+        
+* _newAce
+        
+        
+### <a name="aceCmdConvert_fromAce"></a>aceCmdConvert::fromAce(cmdList)
+
+
+```javascript
+
+if(cmdList && cmdList[0]) {
+    if(!cmdList[0].range && !cmdList[0].data) {
+        _newAce = true;
+    }
+}
+
+if(_newAce) return this.fromAce2(cmdList);
+
+var newList = [];
+
+cmdList.forEach( function(theCmd) {
+    
+    var cmd;
+    if(theCmd.data) {
+        cmd = theCmd.data;
+    } else {
+        cmd = theCmd;
+    }
+    
+    var range = cmd.range;
+    if(cmd.action=="insertText") {
+        newList.push([
+                1, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.text
+            ])
+    }
+    if(cmd.action=="removeText") {
+        newList.push([
+                2, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.text
+            ])
+    }
+    if(cmd.action=="insertLines") {
+        newList.push([
+                3, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines
+            ])
+    }
+    if(cmd.action=="removeLines") {
+        newList.push([
+                4, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines,
+                cmd.nl
+            ])
+    }
+    
+    
+});
+
+return newList;
+
+/*
+{"action":"insertText","range":{"start":{"row":0,"column":0},
+    "end":{"row":0,"column":1}},"text":"d"}
+*/
+```
+
+### <a name="aceCmdConvert_fromAce2"></a>aceCmdConvert::fromAce2(cmdList)
+
+
+```javascript
+
+var newList = [];
+/*
+cmdList: Array[1]
+0: Object
+action: "insert"
+end: Object
+lines: Array[1]
+start: Object
+__proto__: Object
+length: 1
+__proto__: Array[0]
+*/
+
+cmdList.forEach( function(cmd) {
+    
+    var range = cmd;
+    if(cmd.action=="insert" && cmd.lines.length == 1) {
+        newList.push([
+                1, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines[0]
+            ])
+    }
+    if(cmd.action=="remove" && cmd.lines.length == 1) {
+        newList.push([
+                2, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines[0]
+            ])
+    }
+    if(cmd.action=="insert" && cmd.lines.length > 1) {
+        newList.push([
+                3, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines
+            ])
+    }
+    if(cmd.action=="remove" && cmd.lines.length > 1) {
+        newList.push([
+                4, 
+                range.start.row,
+                range.start.column,
+                range.end.row,
+                range.end.column,
+                cmd.lines,
+                cmd.nl
+            ])
+    }
+    
+    
+});
+
+return newList;
+
+/*
+{"action":"insertText","range":{"start":{"row":0,"column":0},
+    "end":{"row":0,"column":1}},"text":"d"}
+*/
+```
+
+### aceCmdConvert::constructor( onFulfilled, onRejected )
+
+```javascript
+
+```
+        
+### <a name="aceCmdConvert_reverse"></a>aceCmdConvert::reverse(cmdList)
+
+
+```javascript
+
+var newList = [];
+
+cmdList.forEach( function(oldCmd) {
+    
+    var cmd = oldCmd.slice(); // create a copy of the old command
+    
+    var row = cmd[1],
+        col = cmd[2],
+        endRow = cmd[3],
+        endCol = cmd[4];
+        
+    // add characters...
+    if(cmd[0]==1) {
+        cmd[0] = 2;
+        newList.unshift( cmd );
+        return; // this simple ???
+    }
+    if(cmd[0]==2) {
+        cmd[0] = 1;
+        newList.unshift( cmd );
+        return; // this simple ???
+    }    
+    if(cmd[0]==3) {
+        cmd[0] = 4;
+        newList.unshift( cmd );
+        return; // this simple ???      
+        /*
+        var cnt = endRow - row;
+        for(var i=0; i<cnt; i++) {
+            lines.splice(row+i, 0, cmd[5][i]);
+        } 
+        */
+    }
+    if(cmd[0]==4) {
+        cmd[0] = 3;
+        newList.unshift( cmd );
+        return; // this simple ???   
+        /*
+        var cnt = endRow - row;
+        for(var i=0; i<cnt; i++) {
+            lines.splice(row, 1);
+        } 
+        */
+    }    
+    
+});
+
+return newList;
+```
+
+### <a name="aceCmdConvert_runToAce"></a>aceCmdConvert::runToAce(cmdList)
+
+
+```javascript
+
+if(_newAce) return this.runToAce2(cmdList);
+
+var newList = [],
+    _convert = ["",
+        "insertText","removeText","insertLines", "removeLines"
+    ];
+
+cmdList.forEach( function(cmd) {
+    var c ={
+            action : _convert[cmd[0]],
+            range : {
+                start : { row : cmd[1], column : cmd[2]},
+                end   : { row : cmd[3], column : cmd[4]}
+            }
+        };
+    if(cmd[0]<3) {
+        c.text = cmd[5];
+    } else {
+        c.lines = cmd[5];
+    }
+    if(cmd[0]==4) c.nl = cmd[6] || "\n";
+    newList.push(c);
+});
+return newList;
+
+/*
+{"action":"insertText","range":{"start":{"row":0,"column":0},
+    "end":{"row":0,"column":1}},"text":"d"}
+*/
+```
+
+### <a name="aceCmdConvert_runToAce2"></a>aceCmdConvert::runToAce2(cmdList)
+
+
+```javascript
+var newList = [],
+    _convert = ["",
+        "insert","remove","insert", "remove"
+    ];
+/*
+0: Object
+action: "insert"
+end: Object
+lines: Array[1]
+0: "d"
+length: 1
+__proto__: Array[0]
+start: Object
+__proto__: Objec
+*/
+
+cmdList.forEach( function(cmd) {
+    var c ={
+            action : _convert[cmd[0]],
+            start : { row : cmd[1], column : cmd[2]},
+            end   : { row : cmd[3], column : cmd[4]}
+        };
+    if(cmd[0]<3) {
+        c.lines = [cmd[5]];
+    } else {
+        c.lines = cmd[5];
+    }
+    if(cmd[0]==4) c.nl = cmd[6] || "\n";
+    newList.push(c);
+});
+return newList;
+
+```
+
+### <a name="aceCmdConvert_runToLineObj"></a>aceCmdConvert::runToLineObj(lines, cmdList)
+
+
+```javascript
+
+cmdList.forEach( function(cmd) {
+    var row = cmd[1],
+        col = cmd[2],
+        endRow = cmd[3],
+        endCol = cmd[4];
+    if(cmd[0]==1) {
+        if(cmd[5]=="\n") {
+            // add the newline can be a bit tricky
+            var line = lines.item(row);
+            if(!line) {
+                lines.insertAt(row, { text : "" });
+                lines.insertAt(row+1, { text : "" });
+            } else {
+                var txt = line.text();
+                line.text( txt.slice(0,col) );
+                var newLine = {
+                    text : txt.slice(col) || ""
+                };
+                lines.insertAt(row+1, newLine);
+            }
+            //lines[row] = line.slice(0,col);
+            //var newLine = line.slice(col) || "";
+            //lines.splice(row+1, 0, newLine);
+        } else {
+            var line = lines.item(row);
+            if(!line) {
+                lines.insertAt(row, { text : cmd[5] });
+            } else {
+                var txt = line.text();
+                line.text( txt.slice(0, col) + cmd[5] + txt.slice(col) );
+                // lines[row] = line.slice(0, col) + cmd[5] + line.slice(col);
+            }
+        }
+    }
+    if(cmd[0]==2) {
+        if(cmd[5]=="\n") {
+            // removing the newline can be a bit tricky
+            // lines[row]
+            var thisLine = lines.item(row),
+                nextLine = lines.item( row+1 );
+            
+            // lines[row] = thisLine + nextLine;
+            // lines.splice(row+1, 1); // remove the line...
+            var txt1 = "", txt2 = "";
+            if(thisLine) txt1 = thisLine.text();
+            if(nextLine) txt2 = nextLine.text();
+            if(!thisLine) {
+                lines.insertAt(row, { text : "" });
+            } else {
+                thisLine.text( txt1 + txt2 );
+            }
+            if(nextLine) nextLine.remove();
+        } else {
+            var line = lines.item(row),
+                txt = line.text();
+            line.text( txt.slice(0, col) + txt.slice(endCol) );
+            //  str.slice(0, 4) + str.slice(5, str.length))
+            // lines[row] = line.slice(0, col) + line.slice(endCol);
+        }
+    }    
+    if(cmd[0]==3) {
+        var cnt = endRow - row;
+        for(var i=0; i<cnt; i++) {
+            // var line = lines.item(row+i);
+            lines.insertAt(row+i, { text : cmd[5][i] });
+            // lines.splice(row+i, 0, cmd[5][i]);
+        }         
+    }
+    if(cmd[0]==4) {
+        var cnt = endRow - row;
+        for(var i=0; i<cnt; i++) {
+            var line = lines.item(row);
+            line.remove();
+            // lines.splice(row, 1);
+        }       
+    }    
+    
+});
+/*
+tools.button().text("Insert to 1 ").on("click", function() {
+    myT.lines.insertAt(1, { text : prompt("text")}); 
+});
+tools.button().text("Insert to 0 ").on("click", function() {
+    myT.lines.insertAt(0, { text : prompt("text")}); 
+});
+tools.button().text("Split line 1").on("click", function() {
+    var line1 = myT.lines.item(1);
+    var txt = line1.text();
+    var txt1 = txt.substring(0, 4),
+        txt2 = txt.substring(4);
+    line1.text(txt1);
+    myT.lines.insertAt(2, { text : txt2 });
+});
+tools.button().text("Insert to N-1 ").on("click", function() {
+    myT.lines.insertAt(myT.lines.length()-1, { text : prompt("text")}); 
+});
+tools.button().text("Insert to N ").on("click", function() {
+    myT.lines.insertAt(myT.lines.length(), { text : prompt("text")}); 
+});
+*/
+
+```
+
+### <a name="aceCmdConvert_runToString"></a>aceCmdConvert::runToString(str, cmdList)
+
+
+```javascript
+
+if( !cmdList || ( typeof(str)=="undefined")) {
+    return "";
+}
+str = str+"";
+
+var lines = str.split("\n");
+
+cmdList.forEach( function(cmd) {
+    var row = cmd[1],
+        col = cmd[2],
+        endRow = cmd[3],
+        endCol = cmd[4];
+    if(cmd[0]==1) {
+        if(cmd[5]=="\n") {
+            // add the newline can be a bit tricky
+            var line = lines[row] || "";
+            lines[row] = line.slice(0,col);
+            var newLine = line.slice(col) || "";
+            lines.splice(row+1, 0, newLine);
+        } else {
+            var line = lines[row] || "";
+            lines[row] = line.slice(0, col) + cmd[5] + line.slice(col);
+        }
+    }
+    if(cmd[0]==2) {
+        if(cmd[5]=="\n") {
+            // removing the newline can be a bit tricky
+            // lines[row]
+            var thisLine = lines[row] || "",
+                nextLine = lines[row+1] || "";
+            lines[row] = thisLine + nextLine;
+            lines.splice(row+1, 1); // remove the line...
+        } else {
+            var line = lines[row] || "";
+            // str.slice(0, 4) + str.slice(5, str.length))
+            lines[row] = line.slice(0, col) + line.slice(endCol);
+        }
+    }    
+    if(cmd[0]==3) {
+        var cnt = endRow - row;
+        for(var i=0; i<cnt; i++) {
+            lines.splice(row+i, 0, cmd[5][i]);
+        }         
+    }
+    if(cmd[0]==4) {
+        var cnt = endRow - row;
+        for(var i=0; i<cnt; i++) {
+            lines.splice(row, 1);
+        }       
+    }    
+    
+});
+
+return lines.join("\n");
+```
+
+### <a name="aceCmdConvert_setAceVersion"></a>aceCmdConvert::setAceVersion(version)
+`version` Just setting this makes it apply for the new command format
+ 
+
+
+```javascript
+_newAce = version;
+```
+
+### <a name="aceCmdConvert_simplify"></a>aceCmdConvert::simplify(cmdList)
+
+
+```javascript
+
+// [[1,0,0,0,1,"a"],[1,0,1,0,2,"b"],[1,0,2,0,3,"c"],[1,0,3,0,4,"e"],[1,0,4,0,5,"d"],
+// [1,0,5,0,6,"e"],[1,0,6,0,7,"f"],[1,0,7,0,8,"g"]]
+var newList = [],
+    lastCmd,
+    lastCol,
+    lastRow,
+    collect = null;
+
+cmdList.forEach( function(cmd) {
+    
+    if(lastCmd && (cmd[0]==1) && (lastCmd[0]==1) && (cmd[3]==cmd[1]) && (lastCmd[1]==cmd[1]) && (lastCmd[3]==cmd[3]) && (lastCmd[4]==cmd[2]) ) {
+        if(!collect) {
+            collect = [];
+            collect[0] = 1;
+            collect[1] = lastCmd[1];
+            collect[2] = lastCmd[2];
+            collect[3] = cmd[3];
+            collect[4] = cmd[4];
+            collect[5] = lastCmd[5] + cmd[5];
+        } else {
+            collect[3] = cmd[3];
+            collect[4] = cmd[4];
+            collect[5] = collect[5] + cmd[5];
+        }
+    } else {
+        if(collect) {
+            newList.push(collect);
+            collect = null;
+        } 
+        if(cmd[0]==1) {
+            collect = cmd.slice();
+        } else {
+            newList.push(cmd);
+        }
+    }
+    lastCmd = cmd;
+});
+if(collect) newList.push(collect);
+return newList;
+```
+
+
+
+   
+
+
+   
+
+
+
+      
+    
+      
+            
+# Class diffEngine
+
+
+The class has following internal singleton variables:
+        
+* _all
+        
+* _data1
+        
+* _data2
+        
+* _up
+        
+* _reals
+        
+* _missing
+        
+* _added
+        
+* _parents
+        
+        
+### <a name="diffEngine__createModelCommands"></a>diffEngine::_createModelCommands(obj, parentObj, intoList)
+
+
+```javascript
+
+/*
+    _cmdIndex = {}; 
+    _cmdIndex["createObject"] = 1;
+    _cmdIndex["createArray"]  = 2;
+    _cmdIndex["initProp"]  = 3;
+    _cmdIndex["set"]  = 4;
+    _cmdIndex["setMember"]  = 5;
+    _cmdIndex["push"]  = 6;
+    _cmdIndex["pushObj"]  = 7;
+    _cmdIndex["removeItem"]  = 8;
+    
+    // reserved 9 for optimizations
+    _cmdIndex["last"]  = 9;
+    
+    _cmdIndex["removeProperty"]  = 10;
+    _cmdIndex["insertObjectAt"]  = 11;
+    _cmdIndex["moveToIndex"]  = 12;
+*/
+
+if(!intoList) intoList = [];
+
+var data;
+
+if(obj.data && obj.__id ) {
+    data = obj.data;
+} else {
+    data = obj;
+}
+
+if(this.isObject(data) || this.isArray(data)) {
+    
+    var newObj;
+    
+    if(obj.__id) {
+        newObj = obj;
+    } else {
+        newObj = {
+            data : data,
+            __id : this.guid()
+        }
+    }
+    
+    if(this.isArray(data)) {
+        var cmd = [2, newObj.__fork || newObj.__id, [], null, newObj.__fork || newObj.__id];
+    } else {
+        var cmd = [1, newObj.__fork || newObj.__id, {}, null, newObj.__fork || newObj.__id];
+    }
+    if(parentObj) {
+        newObj.__p = parentObj.__id;
+        // this._moveCmdListToParent( newObj );
+    }
+    intoList.push( cmd );
+
+    // Then, check for the member variables...
+    for(var n in data) {
+        if(data.hasOwnProperty(n)) {
+            var value = data[n];
+            if(this.isObject(value) || this.isArray(value)) {
+                // Then create a new...
+                var oo = this._createModelCommands( value, newObj, intoList );
+                var cmd = [5, n, oo.__fork || oo.__id, null, newObj.__fork || newObj.__id];
+                intoList.push( cmd );
+            } else {
+                var cmd = [4, n, value, null, newObj.__fork || newObj.__id];
+                intoList.push( cmd );
+            }
+        }
+    }
+    
+    return newObj;
+} else {
+    
+}
+
+
+
+/*
+var newObj = {
+    data : data,
+    __id : this.guid()
+}
+*/
+```
+
+### <a name="diffEngine_addedObjects"></a>diffEngine::addedObjects(t)
+
+
+```javascript
+
+var res = [];
+
+for( var id in _data2) {
+    if(_data2.hasOwnProperty(id)) {
+        if(!_data1[id]) {
+            res.push( id );
+            _added[id] = _data2[id];
+        }
+    }
+}
+
+return res;
+```
+
+### <a name="diffEngine_commonObjects"></a>diffEngine::commonObjects(t)
+
+
+```javascript
+var res = [];
+
+for( var id in _all) {
+    if(_data1[id] && _data2[id]) {
+        res.push( id );
+    }
+}
+
+return res;
+```
+
+### <a name="diffEngine_compareFiles"></a>diffEngine::compareFiles(data1, data2)
+
+
+```javascript
+
+// these are static global for the diff engine, the results are one-time only
+_data1 = {};
+_data2 = {};
+_all = {};
+_reals = {};
+_missing = {};
+_added = {};
+_parents = {};
+
+this.findObjects(data1, _data1);
+this.findObjects(data2, _data2);
+
+var details = {
+    missing : this.missingObjects(),
+    added : this.addedObjects(),
+    common : this.commonObjects(),
+    cMod : [],
+    cmds : []
+};
+
+var me = this;
+details.common.forEach( function(id) {
+    var diff = me.objectDiff( _data1[id], _data2[id] ); 
+    details.cMod.push( diff );
+});
+
+var me = this;
+details.added.forEach( function(cid) {
+   var cmdList = [];
+   var obj = _all[cid];
+   me._createModelCommands( obj, null, cmdList ); 
+   
+   cmdList.forEach( function(cmd) {
+       details.cmds.push(cmd);
+   });
+});
+details.cMod.forEach( function(c) {
+    c.cmds.forEach( function(cc) {
+         details.cmds.push(cc);
+    });
+});
+
+
+return details;
+
+```
+
+### <a name="diffEngine_findObjects"></a>diffEngine::findObjects(data, saveTo, parentObj)
+
+
+```javascript
+
+if(data && data.__id) {
+    saveTo[data.__fork || data.__id] = data;
+    _all[data.__fork || data.__id] = data;
+    _reals[data.__id] = data;
+}
+
+if(data.data) {
+    var sub = data.data;
+    for(var n in sub) {
+        if(sub.hasOwnProperty(n)) {
+            var p = sub[n];
+            if(this.isObject(p)) {
+                _parents[p.__fork || p.__id] = data.__fork || data.__id;
+                this.findObjects(p, saveTo);
+            } 
+        }
+    }
+}
+```
+
+### diffEngine::constructor( t )
+
+```javascript
+
+```
+        
+### <a name="diffEngine_missingObjects"></a>diffEngine::missingObjects(t)
+
+
+```javascript
+
+var res = [];
+
+for( var id in _data1) {
+    if(_data1.hasOwnProperty(id)) {
+        if(!_data2[id]) {
+            _missing[id] = _data1[id];
+            res.push( id );
+        }
+    }
+}
+
+return res;
+```
+
+### <a name="diffEngine_objectDiff"></a>diffEngine::objectDiff(obj1, obj2)
+
+
+```javascript
+var res = {
+    modified : [], 
+    posMoved : [],
+    sourcesAndTargets : [],
+    cmds : []
+};
+
+if(obj1.data && obj2.data && this.isObject(obj1.data) && !this.isArray(obj1.data)) {
+    var sub = obj1.data, hadProps = {};
+    for(var n in obj2.data) {
+        if(obj2.data.hasOwnProperty(n)) {
+            var v = sub[n],
+                objid = obj1.__fork || obj1.__id;
+            if(!this.isObject(v) && (!this.isArray(v))) {
+                hadProps[n] = true;
+                var v2 = obj2.data[n];
+                if(obj2.data[n] != v) {
+                    if(this.isObject(v) || this.isObject(v2)) {
+                        if(v2 && v2.__id) {
+                            res.cmds.push([5, n, obj2.data[n].__id, null, objid]);
+                        } else {
+                            res.cmds.push([10, n, v.__id, null, objid]);
+                        }
+                    } else {
+                        res.modified.push({ id : objid, prop : n, from : v, to : obj2.data[n]});
+                        res.cmds.push([4, n, obj2.data[n], v, objid]);
+                    }
+                }
+            } else {
+             
+            }
+        }
+    }
+    for(var n in obj1.data) {
+        if(obj1.data.hasOwnProperty(n)) {
+            if(hadProps[n]) continue;
+            var v = obj1.data[n],
+                objid = obj1.__id;
+
+            if(this.isObject(v) && (!this.isArray(v))) {
+                var v2 = obj2.data[n];
+                if(!v2 && v && v.__id) {
+                    res.cmds.push([10, n, v.__id, null, objid]);
+                }
+            }                
+        }
+    }    
+}
+if(this.isArray(obj1.data)) {
+
+    var arr1 = obj1.data,
+        arr2 = obj2.data,
+        sourceArray = [],
+        targetArray = [],
+        len1 = arr1.length,
+        len2 = arr2.length;
+    // insert
+    // [7, 0, <insertedID>, 0, <parentId>]
+        
+    // remove
+    // [8, 0, <insertedID>, 0, <parentId>]        
+    for(var i=0; i<len1;i++) {
+        var o = arr1[i];
+        if(this.isObject(o)) {
+            var activeId = o.__fork || o.__id;
+            if(!_missing[activeId]) {
+                sourceArray.push( activeId );
+            } else {
+                // res.cmds.push("remove "+activeId);
+                res.cmds.push([8, 0, activeId, 0, _parents[activeId]]);
+            }
+        }
+    }
+    var indexArr = {},
+        reverseIndex = {},
+        sourceReverseIndex = {};
+    for(var i=0; i<len2;i++) {
+        var o = arr2[i];
+        if(this.isObject(o)) {
+            var activeId = o.__fork || o.__id;
+            indexArr[activeId] = i;
+            reverseIndex[i] = activeId;
+            if(_added[activeId]) { 
+                sourceArray.push( activeId );
+                // res.cmds.push("insert "+activeId);
+                res.cmds.push([7, i, activeId, 0, _parents[activeId]]);
+            }
+            targetArray.push( activeId );
+        }
+    }
+    
+    var list = [], i=0;
+    sourceArray.forEach( function(id) {
+        list.push( indexArr[id] );
+        sourceReverseIndex[id] = i;
+        i++;
+    });
+    
+    res.restackIndex = indexArr;
+    res.restackList = list;
+    res.reverseIndex = reverseIndex;
+    res.restack = this.restackOps( list );
+    
+    
+    // insert
+    // [7, 0, <insertedID>, 0, <parentId>]
+        
+    // remove
+    // [8, 0, <insertedID>, 0, <parentId>]
+    
+    // move
+    // [12, <insertedID>, <index>, 0, <parentId>]       
+    
+    var cmdList = [],
+        sourceArrayWork = sourceArray.slice();
+    
+    res.restack.forEach( function(c) {
+        if(c[0]=="a") {
+            var moveItemId = reverseIndex[c[1]],
+                aboveItemId = reverseIndex[c[2]],
+                atIndex = indexArr[aboveItemId],
+                fromIndex = sourceArrayWork.indexOf(moveItemId);
+            
+            sourceArrayWork.splice(fromIndex, 1);
+            var toIndex = sourceArrayWork.indexOf(aboveItemId);
+            sourceArrayWork.splice(toIndex,0,moveItemId);
+            
+            var obj = _all[moveItemId];
+            
+            res.cmds.push([12, moveItemId, toIndex, fromIndex, _parents[moveItemId]]);
+//             cmdList.push(" move item "+moveItemId+" above "+aboveItemId+ " from "+fromIndex+ " to "+toIndex);
+            
+            
+        } else {
+            var moveItemId = reverseIndex[c[1]],
+                aboveItemId = reverseIndex[c[2]],
+                atIndex = indexArr[aboveItemId],
+                fromIndex = sourceArrayWork.indexOf(moveItemId);
+            sourceArrayWork.splice(fromIndex, 1);
+            var toIndex = sourceArrayWork.indexOf(aboveItemId)+1;
+            sourceArrayWork.splice(toIndex,0,moveItemId);
+            // cmdList.push(" move item "+moveItemId+" above "+aboveItemId+ " from "+fromIndex+ " to "+toIndex);  
+            res.cmds.push([12, moveItemId, toIndex, fromIndex, _parents[moveItemId]]);
+        }
+    });
+    res.stackCmds = cmdList;
+    res.sourceArrayWork = sourceArrayWork;
+    
+    
+    res.sourcesAndTargets.push([sourceArray, targetArray]);
+        
+}    
+
+
+return res;
+```
+
+### <a name="diffEngine_restackOps"></a>diffEngine::restackOps(input)
+
+
+```javascript
+var moveCnt=0,
+    cmds = [];
+    
+function restack(input) {
+    var data = input.slice(0);
+    var dataIn = input.slice(0);
+    var goalIn = input.slice(0).sort(function(a, b) { return a - b; });
+
+    var mapper = {};
+    var indexes = {};
+    // Testing this kind of simple system...
+    for(var i=0; i<dataIn.length;i++) {
+        var mm = goalIn.indexOf(dataIn[i]);
+        mapper[dataIn[i]] = mm;
+        indexes[mm] = dataIn[i];
+        data[i] = mm;
+    }
+    
+    var goal = data.slice(0).sort(function(a, b) { return a - b; });
+
+    var minValue = data[0],
+        maxValue = data[0],
+        partDiffs=[],
+        partCum = 0,
+        avgDiff = function() {
+            var i=0, len=data.length, df=0;
+            for(;i<len;i++) {
+                var v = data[i];
+                if(v>maxValue) maxValue=v;
+                if(v<minValue) minValue=v;
+                if(i>0) partDiffs.push(goal[i]-goal[i-1]);
+                if(i>0) partCum += Math.abs(goal[i]-goal[i-1]);
+                df+=Math.abs(v-goal[i]);
+            }
+            partCum = partCum / len;
+            return df / len;
+        }();
+    
+    partDiffs.sort(function(a, b) { return a - b; }); 
+    var    minDelta = partDiffs[0];
+    
+    // collects one "acceptable" array 
+    var    accept = function(fn) {
+	            var collect = function(i,sx, last) {
+                    var res = [];
+                    var len=data.length;
+                    if(!sx) sx=0;
+                    for(;i<len;i++) {                    
+                        var v = data[i];
+                        if((v-last)==1) {
+                            res.push(v);
+                            last = v;
+                            continue;
+                        }
+                        var gi=i+sx;
+                        if(gi<0) gi=0;
+                        if(gi>=len) gi=len-1;
+                        if(fn(v, goal[gi], v, last,i,len)) {                            
+                            if( (data[i+1] && data[i+1]<v && data[i+1]>last ) ){
+                               // skip, if next should be taken instead 
+                            } else {
+	                            res.push(v);
+                                last = v;
+                            }                            
+                        }
+                    }
+                    return res;
+                }
+                
+                var m=[];
+            	var ii=0,a=0;
+        		// small tricks to improve the algo, just for comp's sake...
+            	while(a<0.1) {
+                    for(var sx=-5;sx<=5;sx++)
+                    	m.push(collect(Math.floor(data.length*a),sx, minValue-1));
+                    a+=0.05;
+                }
+	            m.sort(function(a,b) { return b.length - a.length; } );
+                return m[0];
+            };
+    
+    // different search agents...
+    var test = [
+                accept( function(dv,gv,v,last,i,len) {
+                    // console.log(Math.abs(v-last)+" vs "+partCum);
+                    if(v<last) return false;
+                    if(i>0) if(Math.abs(v-last) > partDiffs[i-1]) return false;
+                    if(Math.abs(v-last)>avgDiff) return false;
+                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
+                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
+                    return false;
+                }),   
+		        accept( function(dv,gv,v,last,i,len) {
+                    if(v<last) return false;
+                    if(Math.abs(v-last)>avgDiff) return false;
+                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
+                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
+                    return false;
+                }),
+        		accept( function(dv,gv,v,last,i,len) {
+                    if(v<last) return false;
+                    if(Math.abs(v-last)>avgDiff) return false;
+                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
+                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
+                    return false;
+                }),
+                accept( function(dv,gv,v,last,i,len) {
+                    if(v<last) return false;
+                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
+                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
+                    return false;
+                }),
+                accept( function(dv,gv,v,last,i,len) {
+                    if(v<last) return false;
+                    if(Math.abs(dv-gv)<=avgDiff && v>=last) return true;
+                    if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
+                    return false;
+                }), 
+        		accept( function(dv,gv,v,last,i,len) {
+                    if(v<last) return false;
+                    if(Math.abs(v-last)<partCum) return true;
+                    if(Math.abs(dv-gv)<=partCum && v>=last) return true;
+                    return false;
+                }),
+        		accept( function(dv,gv,v,last,i,len) {
+                    if(v>last) return true;
+                    return false;
+                }),
+				accept( function(dv,gv,v,last,i,len) {
+                    if(v<last) return false;
+                    if(Math.abs(v-last)>avgDiff) return false;
+                    if(Math.abs(dv-gv)<=avgDiff && v>=last) return true;
+                    return false;
+                }),
+                accept( function(dv,gv,v,last,i,len) {
+                    if(v<last) return false;
+                    if(i>0) if(Math.abs(v-last)>avgDiff) return false;
+                    if(Math.abs(dv-gv)<=avgDiff*(i/len) && v>=last) return true;
+                    if(i>0) if(Math.abs(last-v)<=avgDiff*(i/len) && v>=last) return true;
+                    return false;
+                }),                 
+                accept( function(dv,gv,v,last,i,len) {
+                    if(v<last) return false;
+                    if(last>=minValue) {
+                        if(v>=last) return true;
+                    } else {
+                        if(v==minValue) return true;
+                    }            
+                    return false;
+                })      
+                ];
+
+        
+    // choose between algorithms
+    var okVals = [], maxSet=0;
+    for(var i=0; i<test.length;i++) {
+        var set = test[i];
+        if(set.length>maxSet) {
+            okVals = set;
+            maxSet = set.length;
+        }
+    }
+    // if nothing, take something
+    if(okVals.length==0) okVals=[ goal[ Math.floor(goal.length/2) ] ];
+    
+    // divide the list to big and small
+    var big=[],small=[];
+    var divide = function() {
+        var min = minValue,
+            max = okVals[0],
+            okLen = okVals.length,
+            oki = data.indexOf(max),
+            index=0;
+        
+        var i=0, len=data.length;
+        for(;i<len;i++) {
+            var v = data[i];
+            if(v>=min && v<=max && ( i<=oki) ) {
+               	big.push(v);
+               	min = v;
+            } else {
+               	small.push(v);
+            }
+            if(v==max) {
+                min = v;
+                if(index<okLen-1) {
+                    index++;
+                    max = okVals[index];
+                    oki = data.indexOf(max);
+                } else {
+                    max = maxValue;
+                    oki = len+1;
+                }
+            }
+        }
+             
+    }();
+    
+    // sort the small list before joining them
+    small.sort(function(a, b) { return a - b; });
+    
+    //console.log(big);
+    //console.log(small);
+    
+    var joinThem = function() {
+        var si=0,
+            bi=0,
+            lastb = big[0],
+            slen = small.length;
+        while(si<slen) {
+            var b=big[bi],s=small[si];
+            if(typeof(b)=="undefined") {
+                while(si<slen) {
+                    cmds.push(["b", indexes[s], indexes[lastb]]);
+                    // restackXBelowY(dataIn, indexes[s], indexes[lastb]);
+                    lastb = s;
+                    si++;
+                    s=small[si]
+                }
+                return;
+            }
+            if(b<s) {
+                // console.log("B was smaller");
+                lastb = b;
+                bi++;
+            } else{
+                cmds.push(["a", indexes[s], indexes[b]]);
+                // restackXAboveY(dataIn, indexes[s], indexes[b]);
+                si++;
+            }
+        }
+    }();
+    
+    // console.log(dataIn);
+    return data; // actually the return value is not used for anything    
+   
+}
+restack(input);
+
+return cmds;
+
+```
+
+
+
+   
+    
+## trait _dataTrait
+
+The class has following internal singleton variables:
+        
+* _eventOn
+        
+* _commands
+        
+        
+### <a name="_dataTrait_guid"></a>_dataTrait::guid(t)
+
+
+```javascript
+
+return Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+        
+//return Math.random();
+// return Math.random().toString(36);
+        
+/*    
+return Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+*/
+/*        
+function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+               .toString(16)
+               .substring(1);
+  }
+
+return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+       s4() + '-' + s4() + s4() + s4();*/
+```
+
+### <a name="_dataTrait_isArray"></a>_dataTrait::isArray(t)
+
+
+```javascript
+
+if(typeof(t)=="undefined") return this.__isA;
+
+return Object.prototype.toString.call( t ) === '[object Array]';
+```
+
+### <a name="_dataTrait_isFunction"></a>_dataTrait::isFunction(fn)
+
+
+```javascript
+return Object.prototype.toString.call(fn) == '[object Function]';
+```
+
+### <a name="_dataTrait_isObject"></a>_dataTrait::isObject(t)
+
+
+```javascript
+
+if(typeof(t)=="undefined") return this.__isO;
+
+return t === Object(t);
+```
+
+
+    
+    
+
+
+   
+      
+    
+
+
+
+      
+    
+      
+            
+# Class _channelData
+
+
+The class has following internal singleton variables:
+        
+* _instanceCache
+        
+* _workerCmds
+        
+        
+### <a name="_channelData__addToCache"></a>_channelData::_addToCache(data)
+
+
+```javascript
+
+if(data && data.__id) {
+    this._objectHash[data.__id] = data;
+}
+```
+
+### <a name="_channelData__classFactory"></a>_channelData::_classFactory(id)
+
+
+```javascript
+
+if(!_instanceCache) _instanceCache = {};
+
+if(_instanceCache[id]) return _instanceCache[id];
+
+_instanceCache[id] = this;
+```
+
+### <a name="_channelData__cmd"></a>_channelData::_cmd(cmd, UUID1, UUID2)
+
+In the future can be used to initiate events, if required.
+```javascript
+
+var cmdIndex = cmd[0],
+    UUID = cmd[4];
+    
+this._wCmd( cmdIndex, UUID, cmd );
+
+if(UUID2 && UUID2 != UUID) this._wCmd( cmdIndex, UUID2, cmd );
+
+// -- create commands for parent elements about the changes --
+// var obj = this._find( a[4] ),
+
+this._parentCmd( UUID, cmd);
+```
+
+### <a name="_channelData__createModelCommands"></a>_channelData::_createModelCommands(obj, parentObj, intoList)
+
+
+```javascript
+
+/*
+    _cmdIndex = {}; 
+    _cmdIndex["createObject"] = 1;
+    _cmdIndex["createArray"]  = 2;
+    _cmdIndex["initProp"]  = 3;
+    _cmdIndex["set"]  = 4;
+    _cmdIndex["setMember"]  = 5;
+    _cmdIndex["push"]  = 6;
+    _cmdIndex["pushObj"]  = 7;
+    _cmdIndex["removeItem"]  = 8;
+    
+    // reserved 9 for optimizations
+    _cmdIndex["last"]  = 9;
+    
+    _cmdIndex["removeProperty"]  = 10;
+    _cmdIndex["insertObjectAt"]  = 11;
+    _cmdIndex["moveToIndex"]  = 12;
+*/
+
+if(!intoList) intoList = [];
+
+var data;
+
+if(obj.data && obj.__id ) {
+    data = obj.data;
+} else {
+    data = obj;
+}
+
+if(this.isObject(data) || this.isArray(data)) {
+    
+    var newObj;
+    
+    if(obj.__id) {
+        newObj = obj;
+    } else {
+        newObj = {
+            data : data,
+            __id : this.guid()
+        }
+    }
+    
+    if(this.isArray(data)) {
+        var cmd = [2, newObj.__id, [], null, newObj.__id];
+    } else {
+        var cmd = [1, newObj.__id, {}, null, newObj.__id];
+    }
+    if(parentObj) {
+        newObj.__p = parentObj.__id;
+        // this._moveCmdListToParent( newObj );
+    }
+    intoList.push( cmd );
+
+    // Then, check for the member variables...
+    for(var n in data) {
+        if(data.hasOwnProperty(n)) {
+            var value = data[n];
+            if(this.isObject(value) || this.isArray(value)) {
+                // Then create a new...
+                var oo = this._createModelCommands( value, newObj, intoList );
+                var cmd = [5, n, oo.__id, null, newObj.__id];
+                intoList.push( cmd );
+            } else {
+                var cmd = [4, n, value, null, newObj.__id];
+                intoList.push( cmd );
+            }
+        }
+    }
+    
+    return newObj;
+} else {
+    
+}
+
+
+
+/*
+var newObj = {
+    data : data,
+    __id : this.guid()
+}
+*/
+```
+
+### <a name="_channelData__createNewModel"></a>_channelData::_createNewModel(data, parentObj)
+
+
+```javascript
+
+/*
+    _cmdIndex = {}; 
+    _cmdIndex["createObject"] = 1;
+    _cmdIndex["createArray"]  = 2;
+    _cmdIndex["initProp"]  = 3;
+    _cmdIndex["set"]  = 4;
+    _cmdIndex["setMember"]  = 5;
+    _cmdIndex["push"]  = 6;
+    _cmdIndex["pushObj"]  = 7;
+    _cmdIndex["removeItem"]  = 8;
+    
+    // reserved 9 for optimizations
+    _cmdIndex["last"]  = 9;
+    
+    _cmdIndex["removeProperty"]  = 10;
+    _cmdIndex["insertObjectAt"]  = 11;
+    _cmdIndex["moveToIndex"]  = 12;
+*/
+
+if(this.isObject(data) || this.isArray(data)) {
+    
+    var newObj = {
+        data : data,
+        __id : this.guid()
+    }
+    
+    this._objectHash[newObj.__id] = newObj;
+    
+    if(this.isArray(data)) {
+        var cmd = [2, newObj.__id, [], null, newObj.__id];
+    } else {
+        var cmd = [1, newObj.__id, {}, null, newObj.__id];
+    }
+
+    if(parentObj) {
+        newObj.__p = parentObj.__id;
+        // this._moveCmdListToParent( newObj );
+    }
+    this.writeCommand(cmd, newObj);
+    
+    // Then, check for the member variables...
+    for(var n in data) {
+        if(data.hasOwnProperty(n)) {
+            var value = data[n];
+            if(this.isObject(value) || this.isArray(value)) {
+                // Then create a new...
+                var oo = this._createNewModel( value, newObj );
+                newObj.data[n] = oo;
+                var cmd = [5, n, oo.__id, null, newObj.__id];
+                this.writeCommand(cmd, newObj);
+                this._moveCmdListToParent( oo );
+            } else {
+                var cmd = [4, n, value, null, newObj.__id];
+                this.writeCommand(cmd, newObj);
+            }
+        }
+    }
+    
+    return newObj;
+    
+} else {
+    
+}
+
+
+/*
+var newObj = {
+    data : data,
+    __id : this.guid()
+}
+*/
+```
+
+### <a name="_channelData__find"></a>_channelData::_find(id)
+
+
+```javascript
+var o = this._objectHash[id];
+if(o) return o;
+return this._removedHash[id];
+
+```
+
+### <a name="_channelData__findObjects"></a>_channelData::_findObjects(data, parentId, whenReady)
+
+
+```javascript
+
+if(!data) return null;
+
+if(!this.isObject(data)) return data;
+
+data = this._wrapData( data );
+if(data.__id) {
+    this._objectHash[data.__id] = data;
+}
+
+var me = this;
+if(parentId) {
+    data.__p = parentId;
+}
+if(data.data) {
+    var sub = data.data;
+    for(var n in sub) {
+        if(sub.hasOwnProperty(n)) {
+            var p = sub[n];
+            if(this.isObject(p)) {
+                var newData = this._findObjects(p, data.__id);
+                if(newData !== p ) {
+                    data.data[n] = newData;
+                }
+            }
+        }
+    }
+}
+return data;
+```
+
+### <a name="_channelData__getObjectHash"></a>_channelData::_getObjectHash(t)
+
+
+```javascript
+return this._objectHash;
+```
+
+### <a name="_channelData__getRemovedHash"></a>_channelData::_getRemovedHash(t)
+
+
+```javascript
+return this._removedHash;
+```
+
+### <a name="_channelData__parentCmd"></a>_channelData::_parentCmd(UUID, cmd, parent)
+
+
+```javascript
+
+var obj = this._find(UUID);
+
+if(obj) {
+     this._wCmd( 42, UUID, cmd );
+    if(obj.__p) {
+        if(!parent) parent = this._find(obj.__p);
+        if(parent) {
+            this._parentCmd( obj.__p, cmd, parent);
+        }
+    }
+}
+
+    
+
+```
+
+### <a name="_channelData__prepareData"></a>_channelData::_prepareData(data)
+
+
+```javascript
+var d = this._wrapData( data );
+if(!this._objectHash[d.__id]) {
+    d = this._findObjects( d );
+}
+return d;
+```
+
+### <a name="_channelData__wCmd"></a>_channelData::_wCmd(cmdIndex, UUID, cmd)
+
+
+```javascript
+
+if(!this._workers[cmdIndex]) return;
+if(!this._workers[cmdIndex][UUID]) return;
+    
+var workers = this._workers[cmdIndex][UUID];
+var me = this;
+
+var propFilter = cmd[1];
+var allProps = workers["*"],
+    thisProp = workers[propFilter];
+
+if(allProps) {
+    allProps.forEach( function(w) {
+        var id = w[0],
+            options = w[1];
+        var worker = _workerCmds[id];
+        if(worker) {
+            worker( cmd, options );
+        }
+    });
+}
+if(thisProp) {
+    thisProp.forEach( function(w) {
+        var id = w[0],
+            options = w[1];
+        var worker = _workerCmds[id];
+        if(worker) {
+            worker( cmd, options );
+        }
+    });
+}
+
+```
+
+### <a name="_channelData__wrapData"></a>_channelData::_wrapData(data, parent)
+
+
+```javascript
+
+// if instance of this object...
+if(data && data._wrapData) {
+    // we can use the same pointer to this data
+    return data._data;
+}
+
+// if the data is "well formed"
+if(data.__id && data.data) return data;
+
+// if new data, then we must create a new object and return it
+
+var newObj = this._createNewModel( data );
+/*
+var newObj = {
+    data : data,
+    __id : this.guid()
+}
+*/
+return newObj;
+```
+
+### <a name="_channelData_createWorker"></a>_channelData::createWorker(workerID, cmdFilter, workerOptions)
+
+
+```javascript
+
+// cmdFilter could be something like this:
+// [ 4, 'x', null, null, 'GUID' ]
+// [ 8, null, null, null, 'GUID' ]
+
+var cmdIndex = cmdFilter[0],
+    UUID = cmdFilter[4];
+
+if(!this._workers[cmdIndex]) {
+    this._workers[cmdIndex] = {};
+}
+
+if(!this._workers[cmdIndex][UUID]) 
+    this._workers[cmdIndex][UUID] = {};
+
+var workers = this._workers[cmdIndex][UUID];
+
+var propFilter = cmdFilter[1];
+if(!propFilter) propFilter = "*";
+
+if(!workers[propFilter]) workers[propFilter] = [];
+
+workers[propFilter].push( [workerID, workerOptions ] );
+
+
+
+
+// The original worker implementation was something like this:
+
+// The worker has 
+// 1. the Data item ID
+// 2. property name
+// 3. the worker function
+// 4. the view information
+// 5. extra params ( 4. and 5. could be simplified to options)
+
+/*
+   var w = _dataLink._createWorker( 
+        dataItem.__id, 
+        vName, 
+        _workers().fetch(9), 
+        subTplDOM, {
+           modelid : dataItem.__id,
+           compiler : me,
+           view : myView
+       });
+*/
+```
+
+### <a name="_channelData_getData"></a>_channelData::getData(t)
+
+
+```javascript
+return this._data;
+```
+
+### <a name="_channelData_indexOf"></a>_channelData::indexOf(item)
+
+
+```javascript
+
+if(!item) item = this._data;
+
+if(!this.isObject(item)) {
+    item = this._find( item );
+}
+if(!item) return;
+
+var parent = this._find( item.__p);
+
+if(!parent) return;
+if(!this.isArray( parent.data)) return;
+
+return parent.data.indexOf( item );
+
+```
+
+### _channelData::constructor( channelId, mainData, journalCmds )
+
+```javascript
+
+// if no mainData defined, exit immediately
+if(!mainData) return;
+/*
+The format of the main data is as follows : 
+{
+    data : {
+        key : value,
+        subObject : {
+            data : {}
+            __id : "subGuid"
+        }
+    },
+    __id : "someGuid"
+}
+*/
+if(!this._objectHash) {
+    this._objectHash = {};
+    this._removedHash = {};
+}
+
+var me = this;
+this._channelId = channelId;
+this._data = mainData;
+this._workers = {};
+this._journal = journalCmds || [];
+this._journalPointer = this._journal.length;
+
+var newData = this._findObjects(mainData);
+if(newData != mainData ) this._data = newData;
+
+if(!this._data.__orphan) {
+    this._data.__orphan = [];
+}
+
+// Then, the journal commands should be run on the object
+
+if(journalCmds && this.isArray(journalCmds)) {
+    journalCmds.forEach( function(c) {
+        me.execCmd( c, true );
+    });
+}
+
+
+```
+        
+### <a name="_channelData_setWorkerCommands"></a>_channelData::setWorkerCommands(cmdObject)
+
+Notice that all channels are using the same commands.
+```javascript
+
+if(!_workerCmds) _workerCmds = {};
+
+
+for(var i in cmdObject) {
+    if(cmdObject.hasOwnProperty(i)) {
+        _workerCmds[i] = cmdObject[i];
+    }
+}
+// _workerCmds
+
+
+
+```
+
+### <a name="_channelData_toPlainData"></a>_channelData::toPlainData(obj, recursive)
+
+
+```javascript
+
+
+if(typeof( obj ) == "undefined" ) {
+    if(recursive) return obj;
+    return obj = this._data;
+}
+
+if(this.isFunction(obj) ||  typeof(obj)=="function") {
+    return;
+}
+if(!this.isObject(obj)) return obj;
+
+var plain;
+
+if(this.isArray(obj.data)) {
+    plain = [];
+    var len = obj.data.length;
+    for(var i=0; i<len; i++) {
+        plain[i] = this.toPlainData( obj.data[i], true );
+    }
+} else {
+    plain = {};
+    for( var n in obj.data) {
+        if(obj.data.hasOwnProperty(n)) {
+            plain[n] = this.toPlainData(obj.data[n], true);
+        }
+    }
+}
+
+return plain;
+```
+
+
+
+   
+    
+## trait _dataTrait
+
+The class has following internal singleton variables:
+        
+        
+### <a name="_dataTrait_guid"></a>_dataTrait::guid(t)
+
+
+```javascript
+return Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+
+```
+
+### <a name="_dataTrait_isArray"></a>_dataTrait::isArray(t)
+
+
+```javascript
+return t instanceof Array;
+```
+
+### <a name="_dataTrait_isFunction"></a>_dataTrait::isFunction(fn)
+
+
+```javascript
+return Object.prototype.toString.call(fn) == '[object Function]';
+```
+
+### <a name="_dataTrait_isObject"></a>_dataTrait::isObject(t)
+
+
+```javascript
+return t === Object(t);
+```
+
+
+    
+    
+    
+## trait commad_trait
+
+The class has following internal singleton variables:
+        
+* _listeners
+        
+* _execInfo
+        
+* _doingRemote
+        
+* _cmds
+        
+* _reverseCmds
+        
+* _settings
+        
+* _hotObjs
+        
+* _dmp
+        
+        
+### <a name="commad_trait__cmd_aceCmd"></a>commad_trait::_cmd_aceCmd(a, isRemote)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = a[1];
+    
+if(!obj || !prop) return false;
+if(typeof( obj.data[prop] )  != "string" ) return false;
+
+var conv = aceCmdConvert();
+obj.data[prop] = conv.runToString( obj.data[prop], a[2]);
+
+_doingRemote = isRemote;
+
+var tmpCmd = [4, prop, obj.data[prop], null, a[4], a[5], a[6] ];
+this._cmd(tmpCmd, obj, null);      
+
+if(!isRemote) {
+    this._cmd(a, obj, null); // this is the problematic.
+    this.writeCommand(a); 
+} else {
+    this._cmd(a, obj, null);
+}
+_doingRemote = false;
+// this._fireListener(obj, prop);
+
+return true;
+
+```
+
+### <a name="commad_trait__cmd_createArray"></a>commad_trait::_cmd_createArray(a, isRemote)
+
+
+```javascript
+var objId = a[1];
+if(!objId) return {
+    error : 21,
+    cmd   : a,
+    text  : "Object ID was null or undefined"
+};
+
+var hash = this._getObjectHash();
+if(hash[objId]) {
+    return true;
+}
+
+var newObj;
+var _removedHash = this._getRemovedHash();
+
+if(_removedHash[objId]) {
+    newObj = _removedHash[objId];
+    newObj.__p = null;
+} else {
+    newObj = { data : [], __id : objId };
+}
+// var newObj = { data : [], __id : objId };
+hash[newObj.__id] = newObj;
+
+// it is orphan object...
+this._data.__orphan.push(newObj);
+
+if(!(isRemote)) {
+    // this.writeCommand(a, newObj);
+} 
+return true;
+```
+
+### <a name="commad_trait__cmd_createObject"></a>commad_trait::_cmd_createObject(a, isRemote)
+
+
+```javascript
+
+var objId = a[1];
+
+if(!objId) return {
+    error : 11,
+    cmd   : a,
+    text  : "Object ID was null or undefined"
+};
+
+var hash = this._getObjectHash();
+
+// not error, skip the cmd
+if(hash[objId]) {
+    return true;
+}
+var newObj;
+var _removedHash = this._getRemovedHash();
+
+if(_removedHash[objId]) {
+    newObj = _removedHash[objId];
+    newObj.__p = null;
+} else {
+    newObj = { data : {}, __id : objId };
+}
+hash[newObj.__id] = newObj;
+
+// it is orphan object...
+this._data.__orphan.push(newObj);
+
+// --- adding to the data object...
+
+if(!(isRemote)) {
+    // this.writeCommand(a, newObj);
+} 
+return true;
+```
+
+### <a name="commad_trait__cmd_diffPatch"></a>commad_trait::_cmd_diffPatch(a, isRemote)
+
+
+```javascript
+
+if(!_dmp) return {
+        error : 141,
+        cmd   : a,
+        text  : "diff-match-patch not initialized"
+    };
+
+var obj = this._find( a[4] ),
+    prop = a[1];
+    
+if(!obj) return {
+        error : 41,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!prop) return {
+        error : 42,
+        cmd   : a,
+        text  : "The property was not defined ("+a[1]+") "
+    };
+
+var oldValue = obj.data[prop];
+if( this.isObject(oldValue) || this.isArray(oldValue) ) return {
+    error : 145,
+    cmd   : a,
+    text  : "Trying to apply text diff/patch to  Object or Array"
+};
+
+// TODO: data -integrity problem, can you verify the reverse diff, this might cause problems...
+// a[2] -> the patch as text
+// a[3] -> the reverse patch as text
+
+var patch = _dmp.patch_fromText( a[2] );
+// TODO: error condition? 
+
+var newValue = _dmp.patch_apply(patch, oldValue);
+if(!this.isArray(newValue)) return {
+    error : 146,
+    cmd   : a,
+    text  : "patch_apply failed"
+};
+var list = newValue[1];
+if(!list) return {
+    error : 146,
+    cmd   : a,
+    text  : "patch_apply failed"
+};
+for(var i=0; i<list.length;i++) {
+    if(!list[i]) return {
+        error : 146,
+        cmd   : a,
+        text  : "patch_apply failed"
+    };
+}
+obj.data[prop] = newValue[0]; // the new value for the data property
+_doingRemote = isRemote;
+
+// from the listeners point of view this is only object property change
+var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6] ];
+this._cmd(tmpCmd, obj, null);      
+
+if(!isRemote) {
+    this.writeCommand(a); 
+} else {
+    this._cmd(a, obj, null);
+}
+_doingRemote = false;
+
+return true;
+
+```
+
+### <a name="commad_trait__cmd_moveToIndex"></a>commad_trait::_cmd_moveToIndex(a, isRemote)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = "*",
+    len = obj.data.length,
+    targetObj;
+
+if(!obj) return {
+    error : 2,
+    cmd   : 1,
+    text  : "Object with ID ("+a[4]+") did not exist"
+};
+
+var oldIndex = null, i;
+
+var targetObj = this._find( a[1] );
+i = oldIndex = obj.data.indexOf( targetObj );
+
+/*
+for(i=0; i< len; i++) {
+    var m = obj.data[i];
+    if(m.__id == a[1]) {
+        targetObj = m;
+        oldIndex = i;
+        break;
+    }
+}
+*/
+
+if( oldIndex != a[3] ) {
+    return {
+        error : 121,
+        cmd   : a,
+        text  : "The old index was not what expected: "+oldIndex+" cmd have "+a[3]
+    };
+}
+
+if( !targetObj  ) {
+    return {
+        error : 122,
+        cmd   : a,
+        text  : "Object to be moved ("+a[1]+") was not in the array"
+    };
+}
+
+
+
+// Questions here:
+// - should we move command list only on the parent object, not the child
+//  =>  this._moveCmdListToParent(targetObj); could be
+//      this._moveCmdListToParent(obj);
+// That is... where the command is really saved???
+// is the command actually written anywhere???
+//  - where is the writeCommand?
+// 
+// Moving the object in the array
+
+var targetIndex = parseInt(a[2]);
+if(isNaN(targetIndex)) return {
+        error : 123,
+        cmd   : a,
+        text  : "Target index ("+targetIndex+") was not a number"
+    };
+
+if(obj.data.length <= i || (i < 0)) return {
+        error : 124,
+        cmd   : a,
+        text  : "Invalid original index ("+i+") given"
+    };
+
+_execInfo.fromIndex = i;
+
+obj.data.splice(i, 1);
+obj.data.splice(targetIndex, 0, targetObj);
+this._cmd(a, null, a[1]);
+
+return true;
+
+
+```
+
+### <a name="commad_trait__cmd_pushToArray"></a>commad_trait::_cmd_pushToArray(a, isRemote)
+
+
+```javascript
+
+var parentObj = this._find( a[4] ),
+    insertedObj = this._find( a[2] ),
+    toIndex = parseInt( a[1] ),
+    oldPos  = a[3],  // old position can also be "null"
+    prop = "*",
+    index = parentObj.data.length; // might check if valid...
+
+
+if(!parentObj) return {
+        error : 71,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!insertedObj) return {
+        error : 72,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[2]+") "
+    };
+
+// NOTE: deny inserting object which already has been inserted
+if(insertedObj.__p) return {
+        error : 73,
+        cmd   : a,
+        text  : "The object already had a parent - need to remove first ("+a[2]+") "
+    };
+    
+if(isNaN(toIndex)) return {
+        error : 74,
+        cmd   : a,
+        text  : "toIndex was not a number"
+    };
+if(!this.isArray( parentObj.data )) return {
+        error : 75,
+        cmd   : a,
+        text  : "Target Object was not an array"
+    };
+if( toIndex > parentObj.data.length || toIndex < 0) return {
+        error : 76,
+        cmd   : a,
+        text  : "toIndex out of range"
+    };
+
+parentObj.data.splice( toIndex, 0, insertedObj );
+
+insertedObj.__p = parentObj.__id;
+
+
+
+// remove from orphans
+var ii = this._data.__orphan.indexOf(insertedObj);
+if(ii>=0) {
+    this._data.__orphan.splice(ii,1);
+}
+// this._moveCmdListToParent(insertedObj);
+
+// Saving the write to root document
+if(!isRemote) {
+    // this.writeCommand(a);
+}  
+this._cmd(a, null, a[2]);
+
+return true;
+```
+
+### <a name="commad_trait__cmd_removeObject"></a>commad_trait::_cmd_removeObject(a, isRemote)
+
+
+```javascript
+
+var parentObj = this._find( a[4] ),
+    removedItem = this._find( a[2] ),
+    oldPosition = parseInt( a[1] ),
+    prop = "*";
+    
+
+if(!parentObj) return {
+        error : 81,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!removedItem) return {
+        error : 82,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[2]+") "
+    };
+
+// NOTE: deny inserting object which already has been inserted
+if(!removedItem.__p) return {
+        error : 83,
+        cmd   : a,
+        text  : "The removed item did not have a parent ("+a[2]+") "
+    };
+
+var index = parentObj.data.indexOf( removedItem ); // might check if valid...
+if(isNaN(oldPosition)) return {
+        error : 84,
+        cmd   : a,
+        text  : "oldPosition was not a number"
+    };
+if( oldPosition  != index ) return {
+        error : 85,
+        cmd   : a,
+        text  : "oldPosition was not same as current position"
+    };
+
+var _removedHash = this._getRemovedHash();
+_removedHash[a[2]] = removedItem;
+// now the object is in the array...
+parentObj.data.splice( index, 1 );
+
+// removed at should not be necessary because journal has the data
+// removedItem.__removedAt = index;
+
+this._cmd(a, null, a[2]);
+
+removedItem.__p = null; // must be set to null...
+
+// remove from orphans
+var ii = this._data.__orphan.indexOf(removedItem);
+if(ii < 0) {
+    this._data.__orphan.push( removedItem );
+}
+
+
+// Saving the write to root document
+if(!isRemote) {
+    // this.writeCommand(a);
+}        
+
+return true;
+
+```
+
+### <a name="commad_trait__cmd_setMeta"></a>commad_trait::_cmd_setMeta(a, isRemote)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = a[1];
+
+if(!prop) return false;
+
+if(prop == "data") return false;
+if(prop == "__id") return false;
+
+if(obj) {
+    
+    if( obj[prop] == a[2] ) return false;
+
+    obj[prop] = a[2]; // value is now set...
+    this._cmd(a, obj, null);
+    
+    // Saving the write to root document
+    if(!isRemote) {
+        this.writeCommand(a);
+    } 
+    return true;
+} else {
+    return false;
+}
+```
+
+### <a name="commad_trait__cmd_setProperty"></a>commad_trait::_cmd_setProperty(a, isRemote)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = a[1];
+    
+if(!obj) return {
+        error : 41,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!prop) return {
+        error : 42,
+        cmd   : a,
+        text  : "The property was not defined ("+a[1]+") "
+    };
+
+var oldValue = obj.data[prop];
+
+if( oldValue == a[2] ) return {
+        error : 43,
+        cmd   : a,
+        text  : "Trying to set the same value to the object twice"
+    };
+
+if(typeof( oldValue ) != "undefined") {
+    if( oldValue != a[3] ) return {
+        error : 44,
+        cmd   : a,
+        text  : "The old value "+oldValue+" was not the same as the commands old value"
+    };
+
+} else {
+    if( this.isObject(oldValue) || this.isArray(oldValue) ) return {
+        error : 45,
+        cmd   : a,
+        text  : "Trying to set Object or Array value to a scalar property"
+    };
+}
+
+obj.data[prop] = a[2]; // value is now set...
+this._cmd(a, obj, null);
+
+// Saving the write to root document
+if(!isRemote) {
+//    this.writeCommand(a);
+} 
+//this._fireListener(obj, prop);
+
+return true;
+
+```
+
+### <a name="commad_trait__cmd_setPropertyObject"></a>commad_trait::_cmd_setPropertyObject(a, isRemote)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = a[1],
+    setObj = this._find( a[2] );
+
+if(!obj) return {
+        error : 51,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!prop) return {
+        error : 52,
+        cmd   : a,
+        text  : "The property was not defined ("+a[1]+") "
+    };
+    
+// if(!obj || !prop)   return false;
+// if(!setObj)         return false; 
+
+if(!setObj) return {
+        error : 53,
+        cmd   : a,
+        text  : "Could not find the Object to be set with ID ("+a[2]+") "
+    };
+    
+
+if(typeof( obj.data[prop]) != "undefined" )  return {
+        error : 54,
+        cmd   : a,
+        text  : "The property ("+a[1]+") was already set, try unsetting first "
+    };
+if( !this.isObject(obj.data) || this.isArray(obj.data) )  return {
+        error : 55,
+        cmd   : a,
+        text  : "The object ("+a[2]+") was not of type Object "
+    };
+
+obj.data[prop] = setObj; // value is now set...
+setObj.__p = obj.__id; // The parent relationship
+
+this._cmd(a, null, a[2]);
+
+var ii = this._data.__orphan.indexOf(setObj);
+if(ii>=0) {
+    this._data.__orphan.splice(ii,1);
+}
+
+
+
+if(!isRemote) {
+    this._moveCmdListToParent(setObj);
+    // this.writeCommand(a);
+} 
+return true;
+```
+
+### <a name="commad_trait__cmd_unsetProperty"></a>commad_trait::_cmd_unsetProperty(a, isRemote)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = a[1];
+    
+if(!obj) return {
+        error : 101,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!prop) return {
+        error : 102,
+        cmd   : a,
+        text  : "The property was not defined ("+a[1]+") "
+    };
+
+if(this.isArray( obj.data[prop] ) ) return {
+        error : 103,
+        cmd   : a,
+        text  : "The Object data was Array ("+a[4]+") "
+    };
+
+delete obj.data[prop];
+// if(!isRemote) this.writeCommand(a);
+         
+
+return true;
+       
+```
+
+### <a name="commad_trait__fireListener"></a>commad_trait::_fireListener(obj, prop)
+
+
+```javascript
+if(_listeners) {
+    var lName = obj.__id+"::"+prop,
+        eList = _listeners[lName];
+    if(eList) {
+        eList.forEach( function(fn) {
+            fn( obj, obj.data[prop] );
+        })
+    }
+}
+```
+
+### <a name="commad_trait__moveCmdListToParent"></a>commad_trait::_moveCmdListToParent(t)
+
+
+```javascript
+
+```
+
+### <a name="commad_trait__reverse_aceCmd"></a>commad_trait::_reverse_aceCmd(a)
+
+
+```javascript
+
+
+var obj = this._find( a[4] ),
+    prop = a[1];
+
+var conv = aceCmdConvert();
+
+var newCmds = conv.reverse( a[2] );
+
+var tmpCmd = [4, prop, obj.data[prop], null, a[4] ];
+var tmpCmd2 = [13, prop, newCmds, null, a[4] ];
+
+var s = conv.runToString( obj.data[prop], newCmds );
+obj.data[prop] = s;
+
+// TODO: check that these work, may not be good idea to do both
+this._cmd(tmpCmd);      
+this._cmd(tmpCmd2);
+
+```
+
+### <a name="commad_trait__reverse_createArray"></a>commad_trait::_reverse_createArray(a)
+
+
+```javascript
+var objId =  a[1];
+var hash = this._getObjectHash();
+
+var o = hash[objId];
+var _removedHash = this._getRemovedHash();
+_removedHash[objId] = o;
+
+delete hash[objId];
+
+var ii = this._data.__orphan.indexOf(o);
+
+if(ii>=0) {
+    this._data.__orphan.splice(ii,1);
+}
+
+```
+
+### <a name="commad_trait__reverse_createObject"></a>commad_trait::_reverse_createObject(a)
+
+
+```javascript
+var objId =  a[1];
+var hash = this._getObjectHash();
+
+var o = hash[objId];
+var _removedHash = this._getRemovedHash();
+_removedHash[objId] = o;
+
+delete hash[objId];
+
+var ii = this._data.__orphan.indexOf(o);
+
+if(ii>=0) {
+    this._data.__orphan.splice(ii,1);
+}
+
+```
+
+### <a name="commad_trait__reverse_diffPatch"></a>commad_trait::_reverse_diffPatch(a, isRemote)
+
+
+```javascript
+
+if(!_dmp) return {
+        error : 141,
+        cmd   : a,
+        text  : "diff-match-patch not initialized"
+    };
+
+var obj = this._find( a[4] ),
+    prop = a[1];
+    
+if(!obj) return {
+        error : 41,
+        cmd   : a,
+        text  : "Did not find object with ID ("+a[4]+") "
+    };
+
+if(!prop) return {
+        error : 42,
+        cmd   : a,
+        text  : "The property was not defined ("+a[1]+") "
+    };
+
+var oldValue = obj.data[prop];
+if( this.isObject(oldValue) || this.isArray(oldValue) ) return {
+    error : 145,
+    cmd   : a,
+    text  : "Trying to apply text diff/patch to  Object or Array"
+};
+
+// the reverse command...
+var patch = _dmp.patch_fromText( a[3] );
+
+var newValue = _dmp.patch_apply(patch, oldValue);
+if(!this.isArray(newValue)) return {
+    error : 146,
+    cmd   : a,
+    text  : "patch_apply failed"
+};
+var list = newValue[1];
+if(!list) return {
+    error : 146,
+    cmd   : a,
+    text  : "patch_apply failed"
+};
+for(var i=0; i<list.length;i++) {
+    if(!list[i]) return {
+        error : 146,
+        cmd   : a,
+        text  : "patch_apply failed"
+    };
+}
+obj.data[prop] = newValue[0]; // the new value for the data property
+_doingRemote = isRemote;
+
+// from the listeners point of view this is only object property change
+var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6] ];
+this._cmd(tmpCmd, obj, null);      
+
+if(!isRemote) {
+    this.writeCommand(a); 
+} else {
+    this._cmd(a, obj, null);
+}
+_doingRemote = false;
+
+return true;
+
+```
+
+### <a name="commad_trait__reverse_moveToIndex"></a>commad_trait::_reverse_moveToIndex(a)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = "*",
+    len = obj.data.length,
+    targetObj,
+    i = 0;
+
+var oldIndex = null;
+
+for(i=0; i< len; i++) {
+    var m = obj.data[i];
+    if(m.__id == a[1]) {
+        targetObj = m;
+        oldIndex = i;
+        break;
+    }
+}
+
+if(oldIndex != a[2]) {
+    throw "_reverse_moveToIndex with invalid index value";
+    return;
+}
+
+if(targetObj) {
+    
+    var targetIndex = parseInt(a[3]);
+    
+    obj.data.splice(i, 1);
+    obj.data.splice(targetIndex, 0, targetObj);
+    
+    var tmpCmd = a.slice();
+    tmpCmd[2] = targetIndex;
+    tmpCmd[3] = a[2];
+    
+    this._cmd(tmpCmd, null, tmpCmd[1]);
+
+}
+```
+
+### <a name="commad_trait__reverse_pushToArray"></a>commad_trait::_reverse_pushToArray(a)
+
+
+```javascript
+var parentObj = this._find( a[4] ),
+    insertedObj = this._find( a[2] ),
+    prop = "*",
+    index = parentObj.data.length; 
+    
+// Moving the object in the array
+if( parentObj && insertedObj) {
+    
+    var shouldBeAt = parentObj.data.length - 1;
+    
+    var item = parentObj.data[shouldBeAt];
+    
+    // old parent and old item id perhas should be also defined?
+    if(item.__id == a[2]) {
+        
+        // the command which appears to be run, sent to the data listeners
+        var tmpCmd = [ 8, shouldBeAt, item.__id,  null,  parentObj.__id  ];
+        
+        // too simple still...
+        parentObj.data.splice( shouldBeAt, 1 ); 
+        
+        this._cmd(tmpCmd, null, tmpCmd[2]);
+    }
+
+}
+```
+
+### <a name="commad_trait__reverse_removeObject"></a>commad_trait::_reverse_removeObject(a)
+
+
+```javascript
+
+var parentObj = this._find( a[4] ),
+    removedItem = this._find( a[2] ),
+    oldPosition = a[1],
+    prop = "*",
+    index = parentObj.data.indexOf( removedItem ); // might check if valid...
+
+// Moving the object in the array
+if( parentObj && removedItem) {
+
+    // now the object is in the array...
+    parentObj.data.splice( oldPosition, 0, removedItem );
+    
+    var tmpCmd = [7, oldPosition, a[2], null, a[4]];
+    
+    this._cmd(tmpCmd, null, a[2]);
+    
+    // remove from orphans
+    var ii = this._data.__orphan.indexOf(removedItem);
+    if(ii >= 0) {
+        this._data.__orphan.splice(ii,1);
+    }    
+    
+    
+    removedItem.__p = a[4];
+}
+```
+
+### <a name="commad_trait__reverse_setMeta"></a>commad_trait::_reverse_setMeta(a)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = a[1];
+
+if(obj) {
+    var tmpCmd = [3, prop, a[3], a[2], a[4] ];
+    obj[prop] = a[3];  // the old value
+    this._cmd(tmpCmd);
+}
+```
+
+### <a name="commad_trait__reverse_setProperty"></a>commad_trait::_reverse_setProperty(a)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    prop = a[1];
+
+if(obj) {
+    var tmpCmd = [4, prop, a[3], a[2], a[4] ];
+    obj.data[prop] = a[3];  // the old value
+    this._cmd(tmpCmd);
+}
+```
+
+### <a name="commad_trait__reverse_setPropertyObject"></a>commad_trait::_reverse_setPropertyObject(a)
+
+
+```javascript
+
+var obj = this._find( a[4] ),
+    prop = a[1],
+    setObj = this._find( a[2] );
+
+if(!obj) return;
+if(!setObj) return;        
+
+delete obj.data[prop];   // removes the property object
+setObj.__p = null;
+
+var tmpCmd = [ 10, prop, null, null, a[4] ];
+this._cmd(tmpCmd);
+
+```
+
+### <a name="commad_trait__reverse_unsetProperty"></a>commad_trait::_reverse_unsetProperty(a)
+
+
+```javascript
+var obj = this._find( a[4] ),
+    removedObj = this._find( a[2] ),
+    prop = a[1];
+
+if(a[3] != "value") {
+    if(obj && prop && removedObj) {
+    
+        obj.data[prop] = removedObj;
+        removedObj.__p = obj.__id; // The parent relationship
+        
+        var tmpCmd = [5, prop, removedObj.__id, 0, a[4] ];
+        this._cmd(tmpCmd, null, removedObj.__id);
+    }
+} else {
+    if(obj && prop) {
+        var tmpCmd = [4, prop, a[2], null, a[4] ];
+        this._cmd(tmpCmd, null, obj.__id);        
+    }
+}     
+```
+
+### <a name="commad_trait__updateHotBuffer"></a>commad_trait::_updateHotBuffer(forceWrite)
+
+
+```javascript
+var me = this;
+var ms = (new Date()).getTime();
+for(var n in _hotObjs) {
+    if(_hotObjs.hasOwnProperty(n)) {
+        var hoot = _hotObjs[n];
+        
+        if(forceWrite || ( (ms - hoot.ms) > _settings.hotMs) ) {
+            // => one should write this command now
+            
+            if(hoot.lastCmd) {
+                var a = hoot.firstCmd,
+                    b = hoot.lastCmd;
+                hoot.chObj.writeLocalJournal( [4, a[1], b[2], a[3], a[4] ] );
+            } else {
+                hoot.chObj.writeLocalJournal( hoot.firstCmd );
+            }
+            delete _hotObjs[n];
+        }
+    }
+} 
+```
+
+### <a name="commad_trait_execCmd"></a>commad_trait::execCmd(a, isRemote, isRedo)
+
+
+```javascript
+
+try {
+    if(!this.isArray(a)) return false;
+    var c = _cmds[a[0]];
+    
+    if(this._playBackOnFn && !isRedo) {
+        // do not allow commands when playback is on
+        return false;
+    }
+    
+    if(c) {
+        var rv =  c.apply(this, [a, isRemote]);
+        
+        if((rv===true) && !isRedo) {
+            // there is the hot buffer possibility for the object
+            if(!isRemote) {
+
+                if(a[0]==4 && _settings.hotMs) {
+                    var objid = a[4];
+                    var key = objid+":"+a[1];
+                    var hot = _hotObjs[key];
+                    if(!hot) {
+                        _hotObjs[key] = {
+                            ms : (new Date()).getTime(),
+                            firstCmd : a,
+                            chObj : this
+                        };
+                    } else {
+                        hot.lastCmd = a;
+                    }
+                    // console.log(JSON.stringify(hot));
+                } else {
+                    this._updateHotBuffer(true);
+                    this.writeLocalJournal( a );
+                }
+            } else {
+                this.writeLocalJournal( a );
+            }
+        }
+        return rv;
+    } else {
+        return {
+            error : 199,
+            text  : "Invalid command"
+        };
+    }
+} catch(e) {
+    var txt = "";
+    if(e && e.message) txt = e.message;
+    return {
+            error : 199,
+            cmd : a,
+            text  : "Exception raised " + txt
+    };
+}
+```
+
+### <a name="commad_trait_getJournalCmd"></a>commad_trait::getJournalCmd(i)
+
+
+```javascript
+
+return this._journal[i];
+```
+
+### <a name="commad_trait_getJournalLine"></a>commad_trait::getJournalLine(t)
+
+
+```javascript
+return this._journalPointer;
+```
+
+### <a name="commad_trait_getJournalRange"></a>commad_trait::getJournalRange(t)
+
+
+```javascript
+return [0, this._journal.length];
+```
+
+### <a name="commad_trait_getLocalJournal"></a>commad_trait::getLocalJournal(t)
+
+
+```javascript
+return this._journal;
+```
+
+### commad_trait::constructor( t )
+
+```javascript
+if(!_listeners) {
+    _listeners = {};
+    _execInfo = {};
+    _settings = {};
+    _hotObjs = {};
+}
+
+
+if(!_cmds) {
+
+    if(!_dmp) {
+        if(typeof(diff_match_patch) != "undefined") {
+            _dmp = new diff_match_patch();
+        } else {
+            // if in node.js try to require the module
+            if(typeof(require) != "undefined") { 
+                var DiffMatchPatch = require('diff-match-patch');
+                _dmp = new DiffMatchPatch();        
+            }
+        }
+    }
+    
+    _reverseCmds = new Array(30);
+    _cmds = new Array(30);
+    
+    _cmds[1] = this._cmd_createObject;
+    _cmds[2] = this._cmd_createArray;
+    _cmds[3] = this._cmd_setMeta;
+    _cmds[4] = this._cmd_setProperty;
+    _cmds[5] = this._cmd_setPropertyObject;
+    _cmds[7] = this._cmd_pushToArray;
+    _cmds[8] = this._cmd_removeObject;
+    _cmds[10] = this._cmd_unsetProperty;
+    _cmds[12] = this._cmd_moveToIndex;
+    _cmds[13] = this._cmd_aceCmd;
+    _cmds[14] = this._cmd_diffPatch;
+    
+    _reverseCmds[1] = this._reverse_createObject;
+    _reverseCmds[2] = this._reverse_createArray;
+    _reverseCmds[3] = this._reverse_setMeta;
+    _reverseCmds[4] = this._reverse_setProperty;
+    _reverseCmds[5] = this._reverse_setPropertyObject;
+    _reverseCmds[7] = this._reverse_pushToArray;
+    _reverseCmds[8] = this._reverse_removeObject;
+    _reverseCmds[10] = this._reverse_unsetProperty;
+    _reverseCmds[12] = this._reverse_moveToIndex;
+    _reverseCmds[13] = this._reverse_aceCmd;
+    _reverseCmds[14] = this._reverse_diffPatch;
+    // _reverse_setPropertyObject
+    
+    var me = this;
+    later().every(0.5, function() {
+        me._updateHotBuffer(); 
+    });
+    
+}
+```
+        
+### <a name="commad_trait_moveToLine"></a>commad_trait::moveToLine(index)
+`index` Journal line to move to
+ 
+
+Moves the journal pointer to specified line, also executes the commands along the way.
+```javascript
+return this.reverseToLine( parseInt( index) );
+```
+
+### <a name="commad_trait_playback"></a>commad_trait::playback(options)
+
+
+```javascript
+
+// NOTE: playback requires later() library to work
+
+options = options || {};
+var deferMe = _promise();
+
+var firstMs = this._journal[0][5];
+if(!firstMs) {
+    console.error("journal does not have timestamps");
+    return;
+}
+
+var maxDelay = options.ms || 2000; // max delay on the playback, if the ms loop has some delays
+
+// then start the playback using the current journal buffer
+var journal;
+if(options.journal) {
+    journal = options.journal;
+} else {
+    journal = this._journal.slice();
+}
+var journalLen = journal.length;
+
+// starting from beginning may change in the future
+this.reverseToLine(0); // start from the beginning :)
+
+var msStart = (new Date()).getTime();
+
+var journal_index = 0,
+    me = this,
+    baseMs = firstMs;
+
+var rCnt = 0;
+
+var frameFn = function() {
+    
+    var msNow = (new Date()).getTime();
+    var delta = msNow - msStart; // <- time elapsed from beginng
+    var len = journalLen;
+    var lastCmdTime;
+    
+    for(var i=journal_index; i<len; ) {
+    
+        var jTime = journal[i][5], // ms,
+            jDelta = jTime - baseMs;
+        
+        
+        if(lastCmdTime && ( jTime - lastCmdTime) > maxDelay) {
+            // if there is a long delay in the stream, we move the virtual starting
+            // point of the "stream time" relative to the elapsed time now
+            var newStartTime = jTime - delta - parseInt(maxDelay/2);
+            baseMs = newStartTime;
+            jDelta = jTime - baseMs;
+        }
+        // console.log(jTime, msNow, jDelta, delta);
+        // test if the command should have been executd
+        if(jDelta < delta) {
+            // then should be executed
+            try {
+                me.redo(1, journal);
+            } catch(e) {
+                console.error(e);
+            }
+            rCnt++;
+            // console.log("doing redo");
+        } else {
+            break;
+        }
+        
+        i++;
+        lastCmdTime = jTime;
+    }
+    journal_index = i;
+    if(journal_index == len) {
+        later().removeFrameFn( frameFn );
+        me._journal = journal;
+        me._playBackOnFn = null;
+        deferMe.resolve(true);
+    }
+}
+this._playBackOnFn = frameFn;
+later().onFrame( frameFn );
+return deferMe;
+
+
+```
+
+### <a name="commad_trait_redo"></a>commad_trait::redo(n, journal)
+
+
+```javascript
+// if one line in buffer line == 1
+var line = this.getJournalLine(); 
+n = n || 1;
+while( (n--) > 0 ) {
+    
+    var cmd;
+    if(journal) {
+        cmd = journal[line];
+    } else {
+        cmd = this._journal[line];
+    }
+    if(!cmd) return;
+    
+    var res = this.execCmd( cmd, false, true );
+    if(res !== true) {
+        console.error(res);
+    }
+    line++;
+    this._journalPointer++;
+}
+```
+
+### <a name="commad_trait_redoStep"></a>commad_trait::redoStep(options)
+
+
+```javascript
+options = options || {};
+var pulseMs = options.ms || 400;
+
+var idx = this.getJournalLine(); 
+
+if(!this._journal[idx]) return;
+
+var firstMs = this._journal[idx][5]; 
+var stepCnt = 0;
+
+// stepping the problem forward...
+while(this._journal[idx]) {
+    var ms = this._journal[idx][5]; 
+    var diff = Math.abs( ms - firstMs );
+    if(diff > pulseMs) break;
+    idx++;
+    stepCnt++;
+}
+
+if(stepCnt > 0 ) this.redo( stepCnt );
+```
+
+### <a name="commad_trait_reverseCmd"></a>commad_trait::reverseCmd(a)
+
+This function reverses a given command. There may be cases when the command parameters make the command itself non-reversable. It is the responsibility of the framework to make sure all commands remain reversable.
+```javascript
+if(!a) {
+    return;
+}
+var c = _reverseCmds[a[0]];
+if(c) {
+    var rv =  c.apply(this, [a]);
+    return rv;
+}
+```
+
+### <a name="commad_trait_reverseNLines"></a>commad_trait::reverseNLines(n)
+
+
+```javascript
+// if one line in buffer line == 1
+var line = this.getJournalLine(); 
+
+while( ( line - 1 )  >= 0 &&  ( (n--) > 0 )) {
+    var cmd = this._journal[line-1];
+    this.reverseCmd( cmd );
+    line--;
+    this._journalPointer--;
+}
+```
+
+### <a name="commad_trait_reverseToLine"></a>commad_trait::reverseToLine(index)
+
+0 = reverse all commands, 1 = reverse to the first line etc.
+```javascript
+// if one line in buffer line == 1
+var line = this.getJournalLine(); 
+var jLen = this._journal.length;
+
+if((index < 0) || (index > jLen)) return;
+if(index == line) return;
+
+// direction of cmd buffer iteration
+var step = -1;
+if(index > line) {
+    step = 1;
+}
+
+var i = line,
+    cmdJournal = this._journal.slice();
+    
+while( i >= 0 && i <= jLen) {
+    if(index == i) return;
+    if((step<0) && (i>0)) {
+        var cmd = cmdJournal[i-1];
+    } else {
+        var cmd = cmdJournal[i];
+    }
+    if(!cmd) break;
+    
+    i = i + step;
+    if(i<0 || i>jLen) break;
+    
+    if(step>0) {
+        var res = this.execCmd( cmd, false, true );
+    } else {
+        this.reverseCmd( cmd );
+    }
+    this._journalPointer = i;
+    
+}
+
+// old reverse without directions
+/*
+while( ( line - 1 )  >= 0 &&  line > ( index  ) ) {
+    var cmd = this._journal[line-1];
+    
+    this.reverseCmd( cmd );
+    line--;
+    this._journalPointer--;
+}
+*/
+```
+
+### <a name="commad_trait_setHotMs"></a>commad_trait::setHotMs(t)
+
+Hotbuffer delay in ms. The property sets will be throttled by this amount.
+```javascript
+_settings.hotMs = t;
+```
+
+### <a name="commad_trait_undo"></a>commad_trait::undo(n)
+
+
+```javascript
+
+if(n===0) return;
+if(typeof(n)=="undefined") n = 1;
+
+this.reverseNLines( n );
+
+```
+
+### <a name="commad_trait_undoStep"></a>commad_trait::undoStep(options)
+
+
+```javascript
+
+options = options || {};
+var pulseMs = options.ms || 400;
+
+var idx = this.getJournalLine(); 
+// var idx = this._journal.length;
+if(idx==0) return;
+
+var firstMs = this._journal[idx-1][5]; 
+var stepCnt = 0;
+
+// stepping the problem forward...
+while((idx-1) >= 0) {
+    var ms = this._journal[idx-1][5]; 
+    var diff = Math.abs( ms - firstMs );
+    if(diff > pulseMs) break;
+    idx--;
+    stepCnt++;
+}
+
+if(stepCnt > 0 ) this.undo( stepCnt );
+```
+
+### <a name="commad_trait_writeCommand"></a>commad_trait::writeCommand(t)
+
+
+```javascript
+
+```
+
+### <a name="commad_trait_writeLocalJournal"></a>commad_trait::writeLocalJournal(cmd)
+
+
+```javascript
+
+if(this._journal) {
+    
+    // truncate on write if length > journalPointer
+    
+    if(this._journal.length > this._journalPointer) {
+        this._journal.length = this._journalPointer;
+    }
+    
+    if(!cmd[5]) cmd[5] = (new Date()).getTime();
+    
+    this._journal.push(cmd);
+    this._journalPointer++;
+}
+```
+
+
+    
+    
+
+
+   
+      
+    
+      
+    
+
+
+
+      
+    
 
 
 

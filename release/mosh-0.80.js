@@ -21926,15 +21926,11 @@
         };
 
         var hash = this._getObjectHash();
-        if (hash[objId]) {
-          if (_clearCreated) {
-            hash[objId] = {
-              data: [],
-              __id: objId
-            };
-          }
-          return true;
-        }
+        if (hash[objId]) return {
+          error: 22,
+          cmd: a,
+          text: "Array with ID was already created"
+        };
 
         var newObj;
         var _removedHash = this._getRemovedHash();
@@ -21975,15 +21971,12 @@
         var hash = this._getObjectHash();
 
         // not error, skip the cmd
-        if (hash[objId]) {
-          if (_clearCreated) {
-            hash[objId] = {
-              data: {},
-              __id: objId
-            };
-          }
-          return true;
-        }
+        if (hash[objId]) return {
+          error: 12,
+          cmd: a,
+          text: "Object ID was already created"
+        };
+
         var newObj;
         var _removedHash = this._getRemovedHash();
 

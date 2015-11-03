@@ -11426,7 +11426,11 @@
               me._transformObjToNs(cmd.data);
 
               var diff = diffEngine().compareFiles(myData, cmd.data);
-              console.log("The diff ", JSON.stringify(diff));
+              console.log("Diff obj , myData, cmd.data");
+              console.log(diff);
+              console.log(myData);
+              console.log(cmd.data);
+
               // run the commands for the local data
               var dd = me._clientState.data;
               var errCnt = 0;

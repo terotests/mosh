@@ -11373,7 +11373,8 @@
       _myTrait_._incoming = function (socket, myNamespace) {
 
         var me = this,
-            channelId = this._channelId;
+            channelId = this._channelId,
+            fullUpgradeFailCnt = 0;
 
         socket.on("upgrade_" + this._channelId, function (cmd) {
 
@@ -11436,6 +11437,7 @@
                 /// dd.execCmd(c, true); // the point is just to change the data to something else
                 if (!((r = dd.execCmd(c, true)) === true)) {
                   console.error("Full error ", r);
+                  console.log("Return value from failed cmd: ", r);
                   errCnt++;
                 }
               });
@@ -11461,9 +11463,20 @@
 
                 console.log("Version ", me._clientState.version);
               } else {
+                fullUpgradeFailCnt++;
+
+                // must stop full refresh at this point
                 console.error("** errors with the full update ** ");
-                me._clientState.needsFullRefresh = true;
-                // TODO: might be unresolvable error here, if too many
+                if (fullUpgradeFailCnt > 0) {
+                  console.log("--- server command data ---");
+                  console.log(cmd);
+                  console.log("--- the client state ---");
+                  console.log(me._clientState);
+                } else {
+                  me._clientState.needsFullRefresh = true;
+                  me._clientState.fullUpgradeFailCnt = fullUpgradeFailCnt;
+                }
+
                 // re-connections or refreshes appear
               }
               /*

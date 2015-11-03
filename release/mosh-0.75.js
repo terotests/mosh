@@ -11393,6 +11393,8 @@
               dd.reverseToLine(cmd.partialFrom);
               // console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
               var errCnt = 0;
+
+              dd.setClearCreated(true);
               cmd.partial.forEach(function (c) {
                 if (errCnt > 0) return;
                 var r;
@@ -11402,6 +11404,7 @@
                   errCnt++;
                 }
               });
+              dd.setClearCreated(false);
 
               if (errCnt == 0) {
                 me._clientState.needsRefresh = false;
@@ -11434,6 +11437,8 @@
               // run the commands for the local data
               var dd = me._clientState.data;
               var errCnt = 0;
+
+              dd.setClearCreated(true);
               diff.cmds.forEach(function (c) {
                 console.log("Diff cmd ", c);
                 if (errCnt > 0) return;
@@ -11445,6 +11450,7 @@
                   errCnt++;
                 }
               });
+              dd.setClearCreated(false);
 
               // and now the hard part, upgrade the local client data.
               if (errCnt == 0) {
@@ -21799,6 +21805,7 @@
       var _settings;
       var _hotObjs;
       var _dmp;
+      var _clearCreated;
 
       // Initialize static variables here...
 
@@ -21847,6 +21854,12 @@
 
         var hash = this._getObjectHash();
         if (hash[objId]) {
+          if (_clearCreated) {
+            hash[objId] = {
+              data: [],
+              __id: objId
+            };
+          }
           return true;
         }
 
@@ -21890,6 +21903,12 @@
 
         // not error, skip the cmd
         if (hash[objId]) {
+          if (_clearCreated) {
+            hash[objId] = {
+              data: {},
+              __id: objId
+            };
+          }
           return true;
         }
         var newObj;
@@ -23116,6 +23135,14 @@
         this._journalPointer--;
         }
         */
+      };
+
+      /**
+       * In case we are running update from server set this flag to true to enable crearing the object in case an existing object is asked to be created.
+       * @param Boolean bClear  - If new object is created, should it clear the object
+       */
+      _myTrait_.setClearCreated = function (bClear) {
+        _clearCreated = bClear;
       };
 
       /**

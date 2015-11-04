@@ -4572,6 +4572,7 @@
         }
         if (this._channelSockets[chId].indexOf(socket) < 0) {
           this._channelSockets[chId].push(socket);
+          console.log("-- client joined " + chId + ", now  " + this._channelSockets[chId].length + " connected");
         }
       };
 
@@ -4826,15 +4827,16 @@
       _myTrait_.removeSocketFromCh = function (chId, socket) {
         if (!this._channelSockets[chId]) return;
 
-        var i = this._channelSockets[chId].indexOf(socket);
+        var list = this._channelSockets[chId];
+        var i = list.indexOf(socket);
         if (i >= 0) {
-          this._channelSockets[chId].splice(i, 1);
+          list.splice(i, 1);
         }
 
-        if (this._channelSockets.length == 0) {
+        if (list.length == 0) {
           console.log("-- all clients have left " + chId + " => should close the channel --- ");
         } else {
-          console.log("-- client left " + chId + " still  " + this._channelSockets.length + " connected");
+          console.log("-- client left " + chId + " still  " + list.length + " connected");
         }
       };
 

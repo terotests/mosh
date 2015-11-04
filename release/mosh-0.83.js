@@ -4619,6 +4619,8 @@
           var _socketChannels = [];
           var ctrl; // the channel controller
 
+          if (!socket.__channels) socket.__channels = [];
+
           socket.on("requestChannel", function (cData, responseFn) {
 
             // Request channel -> possible also autocreate channels, if they don't exist
@@ -4632,7 +4634,7 @@
                   if (ctrl._groupACL(socket, "r")) {
                     socket.join(cData.channelId);
                     me.addSocketToCh(cData.channelId, socket);
-                    _socketChannels.push(cData.channelId);
+                    socket.__channels.push(cData.channelId);
                     responseFn({
                       success: true,
                       channelId: cData.channelId
@@ -4690,7 +4692,7 @@
                             console.log("** autocreated a channel **" + cData.channelId);
                             socket.join(cData.channelId);
                             me.addSocketToCh(cData.channelId, socket);
-                            _socketChannels.push(cData.channelId);
+                            socket.__channels.push(cData.channelId);
                             responseFn({
                               success: true,
                               channelId: cData.channelId
@@ -4724,7 +4726,7 @@
             // console.log("--- channel manager got disconnect to the service pool ---- ");
             // console.log("TODO: remove the channel so that it will not leak memory");
             // me.removeSocketFromCh(  socket );
-            _socketChannels.forEach(function (chId) {
+            socket.__channels.forEach(function (chId) {
               me.removeSocketFromCh(chId, socket);
             });
           });

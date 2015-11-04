@@ -4815,7 +4815,7 @@
             // the command for the channel controller...
             ctrl.run(cmd, function (resp) {
               var msEnd = new Date().getTime();
-              console.log("Command took " + (msEnd - ms));
+              console.log("Command " + cmd.cmd + " took " + (msEnd - ms));
               if (responseFn) responseFn(resp);
             }, socket);
           });

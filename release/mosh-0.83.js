@@ -4726,6 +4726,7 @@
             // console.log("--- channel manager got disconnect to the service pool ---- ");
             // console.log("TODO: remove the channel so that it will not leak memory");
             // me.removeSocketFromCh(  socket );
+            console.log("Socket is in " + socket.__channels.length + " channels ");
             socket.__channels.forEach(function (chId) {
               me.removeSocketFromCh(chId, socket);
             });
@@ -9785,10 +9786,12 @@
 
             var openConnection = _tcpEmu(ip, port, "openConnection", "server", socket);
 
-            var myRealSocket;
+            var socket_list = [];
             socket.on("disconnect", function () {
-              console.log("ioLib at server sent disconnect");
-              if (myRealSocket) myRealSocket.close();
+              console.log("ioLib at server sent disconnect, closing opened connections");
+              socket_list.forEach(function (s) {
+                s.close();
+              });
             });
 
             openConnection.on("serverMessage", function (o, v) {
@@ -9796,7 +9799,9 @@
               if (v.socketId) {
 
                 var newSocket = _tcpEmu(ip, port, v.socketId, "server", socket);
-                myRealSocket = newSocket;
+
+                // save the virtual sockets for disconnection...
+                socket_list.push(newSocket);
 
                 var wrappedSocket = _serverSocketWrap(newSocket, me);
                 _clients[v.socketId] = wrappedSocket;

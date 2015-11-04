@@ -3383,748 +3383,6 @@
     }
   }).call(new Function('return this')());
 
-  var _chPolicy_prototype = function _chPolicy_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return t instanceof Array;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == '[object Function]';
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _hooks;
-
-      // Initialize static variables here...
-
-      /**
-       * @param Object clientState
-       */
-      _myTrait_.constructClientToServer = function (clientState) {
-        var chData = clientState.data;
-
-        if (!clientState.last_sent) {
-          clientState.last_sent = [];
-        }
-
-        // last_update : [1, 30]
-        var start = clientState.last_sent[1] || 0;
-        var end = chData._journal.length;
-
-        // --- do not re-send
-
-        // last_update[]
-        // clientState.last_update
-
-        // problems here??
-        if (clientState.last_update) {
-
-          if (start < clientState.last_update[1]) {
-            start = clientState.last_update[1];
-          }
-
-          var fromServer = clientState.last_update[1] || 0;
-          if (fromServer >= end) {
-            //console.log(" fromServer >= end ");
-            return null;
-          }
-        }
-
-        if (start == end) {
-          // console.log(" start == end ");
-          return null;
-        }
-
-        //console.log("clientToServer");
-        //console.log(clientState.last_update);
-        //console.log(start,end);
-
-        // [2,4]
-        // 0
-        // 1
-        // 2 *
-        // 3 *
-
-        clientState.last_sent[0] = start;
-        clientState.last_sent[1] = end;
-
-        var obj = {
-          cmd: 'c2s',
-          id: this.guid(),
-          c: chData._journal.slice(start, end),
-          start: start,
-          end: end,
-          version: clientState.version
-        };
-
-        if (clientState.client) {
-          for (var i = 0; i < obj.c.length; i++) {
-            var c = obj.c[i];
-            obj.c[i] = clientState.client._transformCmdFromNs(c);
-          }
-        }
-        return obj;
-      };
-
-      /**
-       * @param Object serverState
-       */
-      _myTrait_.constructServerToClient = function (serverState) {
-
-        var chData = serverState.data;
-
-        if (!serverState.last_update) {
-          serverState.last_update = [];
-        }
-
-        // last_update : [1, 30]
-        var start = serverState.last_update[1] || 0;
-        var end = chData._journal.length;
-
-        if (start == end) return null;
-
-        // [2,4]
-        // 0
-        // 1
-        // 2 *
-        // 3 *
-
-        serverState.last_update[0] = start;
-        serverState.last_update[1] = end;
-
-        return {
-          cmd: 's2c',
-          c: chData._journal.slice(start, end),
-          start: start,
-          end: end,
-          version: serverState.version
-        };
-      };
-
-      /**
-       * @param Object clientFrame  - This is the clients changeFrame which should be applied to the servers internal state
-       * @param Object serverState  - This object holds the data the server needs
-       */
-      _myTrait_.deltaClientToServer = function (clientFrame, serverState) {
-        // the client frame
-        /*
-        {
-        id          : "transaction ID",        // unique ID for transaction
-        socket_id   : "socketid",              // added by the server
-        v : 1,                          // main file + journal version
-        lu : [1,10],                        // last update from server 0..N
-        tl : 1,                          // transaction level
-        c : [
-                                    // list of channel commands to run
-        ]
-        }
-        */
-        // the server state structure
-        /*
-        {
-        data : channelData,     // The channel data object
-        version : 1,
-        last_update : [1, 30],  // version + journal line
-        lagging_sockets : {}    // hash of invalid sockets
-        }
-        */
-
-        if (!clientFrame) return;
-
-        if (!serverState._done) serverState._done = {};
-
-        // console.log("Processing client frame");
-        // console.log(JSON.stringify(clientFrame));
-
-        try {
-
-          if (!clientFrame.id) return;
-          // if(!clientFrame.socket_id) return;
-          if (serverState._done[clientFrame.id]) return res;
-
-          serverState._done[clientFrame.id] = true;
-
-          var chData = serverState.data; // the channel data object
-          var errors = [];
-
-          // now, it's simple, we just try to apply all the comands
-          for (var i = 0; i < clientFrame.c.length; i++) {
-            var c = clientFrame.c[i];
-            var cmdRes = chData.execCmd(c);
-            if (cmdRes !== true) {
-              errors.push(cmdRes);
-            }
-          }
-
-          var results = {
-            errors: errors
-          };
-          // console.log(JSON.stringify(results));  
-
-          return results;
-        } catch (e) {
-          // in this version, NO PROBLEMO!
-          return e.message;
-        }
-      };
-
-      /**
-       * @param float updateFrame
-       * @param float serverState
-       */
-      _myTrait_.deltaMasterToSlave = function (updateFrame, serverState) {
-
-        // the client state
-        /*
-        {
-        data : channelData,     // The channel data object
-        version : 1,
-        last_update : [1, 30],  // last server update
-        }
-        */
-
-        // the server sends
-        /*
-        {
-        c : chData._journal.slice( start, end ),
-        start : start,
-        end : end,
-        version : serverState.version
-        }
-        */
-        // The server state
-        /*
-        {
-        data : channelData,     // The channel data object
-        version : 1,
-        last_update : [1, 30],  // version + journal line
-        lagging_sockets : {}    // hash of invalid sockets
-        }
-        */
-        // check where is our last point of action...
-
-        if (!updateFrame) return;
-
-        var data = serverState.data; // the channel data we have now
-
-        // [2,4] = [start, end]
-        // 0
-        // 1
-        // 2 *
-        // 3 *
-
-        var result = {
-          goodCnt: 0,
-          oldCnt: 0,
-          newCnt: 0,
-          reverseCnt: 0
-        };
-
-        console.log('deltaMasterToSlave');
-        var sameUntil = updateFrame.start;
-
-        if (serverState.needsRefresh) {
-          console.log('** serverState needs refresh **');
-          return;
-        }
-
-        // if the server's journal is a lot behind the sent data...
-        if (updateFrame.start > data._journal.length) {
-
-          console.log('--- setting refresh on because of ---- ');
-          console.log(' updateFrame.start > data._journal.length ');
-
-          serverState.needsRefresh = true;
-          result.fail = true;
-          return result;
-        }
-
-        // this should not be needed at the server side, because object ID's are without
-        // the namespace
-        /*
-        if(serverState.client) {
-        for(var i=updateFrame.start; i<updateFrame.end; i++) {
-        var serverCmd = updateFrame.c[i-updateFrame.start];
-        updateFrame.c[i-updateFrame.start] = serverState.client._transformCmdToNs( serverCmd );
-        }
-        }
-        */
-
-        var goodList = [];
-
-        // process the commands a long as they are the same
-        for (var i = updateFrame.start; i < updateFrame.end; i++) {
-
-          var myJ = data.getJournalCmd(i);
-          var serverCmd = updateFrame.c[i - updateFrame.start];
-
-          var bSame = true;
-          if (myJ) {
-
-            if (myJ[0] == 13 && serverCmd[0] == 13 && myJ[4] == serverCmd[4] && myJ[1] == serverCmd[1]) {
-              var mainArray1 = myJ[2],
-                  mainArray2 = serverCmd[2];
-              if (mainArray1.length != mainArray2.length) {
-                bSame = false;
-              } else {
-                for (var mi = 0; mi < mainArray1.length; mi++) {
-                  if (!bSame) break;
-                  var arr1 = mainArray1[mi],
-                      arr2 = mainArray2[mi];
-                  for (var ai = 0; ai < 5; ai++) {
-                    if (arr1[ai] != arr2[ai]) {
-                      console.log('not same ', ai, arr1[ai], arr2[ai]);
-                      bSame = false;
-                      break;
-                    }
-                  }
-                  if (bSame) {
-                    if (this.isArray(arr1[5])) {
-                      var arr1 = arr1[5],
-                          arr2 = arr2[5];
-                      var len = Math.max(arr1.length || 0, arr2.length || 0);
-                      for (var ai = 0; ai < len; ai++) {
-                        if (arr1[ai] != arr2[ai]) {
-                          console.log('not same array ', ai);
-                          bSame = false;
-                          break;
-                        }
-                      }
-                    } else {
-                      if (arr1[5] != arr2[5]) {
-                        bSame = false;
-                      }
-                    }
-                  }
-                  if (!bSame) {
-                    console.log('was not the same');
-                    console.log(serverCmd, 'vs', myJ);
-                  }
-                }
-              }
-            } else {
-              for (var j = 0; j <= 4; j++) {
-                if (myJ[j] != serverCmd[j]) {
-                  bSame = false;
-                  console.log('was not the same');
-                  console.log(serverCmd[j], 'vs', myJ[j]);
-                }
-              }
-            }
-          } else {
-            // a new command has arrived...
-
-            var cmdRes = data.execCmd(serverCmd); // set data ready to be broadcasted
-            if (cmdRes !== true) {
-              // if we get errors then we have some kind of problem
-              console.log('--- setting refresh on because of ---- ');
-              console.log(JSON.stringify(cmdRes));
-              serverState.needsRefresh = true;
-              result.fail = true;
-              result.reason = cmdRes;
-              return result;
-            } else {
-              sameUntil = i; // ??
-              result.goodCnt++;
-              result.newCnt++;
-            }
-            goodList.push(serverCmd);
-
-            continue;
-          }
-          if (bSame) {
-            sameUntil = i;
-            result.goodCnt++;
-            result.oldCnt++;
-          } else {
-            console.log('Not same ');
-            console.log(JSON.stringify(updateFrame.c));
-            return _promise(function (done) {
-              // here is the point where the data is reversed and also the server journal should be truncated:
-              data.reverseToLine(sameUntil);
-              var size = updateFrame.journalSize;
-              console.log('Truncating the journal to ', size, sameUntil);
-              // truncate server journal to certain length
-              serverState.model.truncateJournalTo(size, sameUntil).then(function () {
-
-                // and then run commands without sending them outside...
-                var list = [];
-                for (var i = sameUntil; i < updateFrame.end; i++) {
-
-                  var serverCmd = updateFrame.c[i - updateFrame.start];
-                  var cmdRes = data.execCmd(serverCmd); // data ready to be broadcasted
-                  if (cmdRes !== true) {
-
-                    console.log('--- there is need for a bigger refersh ---- ');
-                    console.log(JSON.stringify(cmdRes));
-
-                    // if we get errors then we have some kind of problem
-                    serverState.needsRefresh = true;
-                    result.fail = true;
-                    result.reason = cmdRes;
-                    done(result);
-                    return result;
-                  }
-                  list.push(serverCmd);
-                  result.reverseCnt++;
-                }
-
-                // serverState.last_update[0] = updateFrame.start;
-                // serverState.last_update[1] = updateFrame.end;
-
-                // mark the new start for next update,
-                serverState.last_update[0] = 0;
-                serverState.last_update[1] = sameUntil; // <- this is what matters
-
-                // --> writing to the journal is done at the client loop
-                // write the new lines to the servers journal
-                //serverState.model.writeToJournal( list ).then( function() {
-                //    done(result);
-                //});
-
-                return result;
-              });
-            });
-          }
-        }
-        //clientState.last_update[0] = updateFrame.start;
-        //clientState.last_update[1] = updateFrame.end;
-
-        console.log('server last update ' + JSON.stringify(serverState.last_update));
-        console.log('server data length ' + serverState.data._journal.length);
-
-        if (goodList.length) {}
-
-        return result;
-      };
-
-      /**
-       * @param Object updateFrame  - request from server to client
-       * @param float clientState  - This object holds the data the client needs to pefrform it&#39;s actions
-       */
-      _myTrait_.deltaServerToClient = function (updateFrame, clientState) {
-
-        // the client state
-        /*
-        {
-        data : channelData,     // The channel data object
-        version : 1,
-        last_update : [1, 30],  // last server update
-        }
-        */
-
-        // the server sends
-        /*
-        {
-        c : chData._journal.slice( start, end ),
-        start : start,
-        end : end,
-        version : serverState.version
-        }
-        */
-        // check where is our last point of action...
-
-        if (!updateFrame) return;
-
-        var data = clientState.data; // the channel data we have now
-
-        if (!clientState.last_update) {
-          clientState.last_update = [];
-        }
-        // [2,4] = [start, end]
-        // 0
-        // 1
-        // 2 *
-        // 3 *
-
-        var result = {
-          goodCnt: 0,
-          oldCnt: 0,
-          newCnt: 0,
-          reverseCnt: 0
-        };
-
-        //console.log("deltaServerToClient");
-        //console.log(clientState.last_update);
-
-        var sameUntil = updateFrame.start;
-
-        if (clientState.needsRefresh) {
-          // console.log("** client needs refresh **");
-          if (_hooks['onCancel']) {
-            _hooks['onCancel']({
-              data: data,
-              reason: cmdRes,
-              clientState: clientState,
-              updateFrame: updateFrame,
-              serverCmds: updateFrame.c
-            });
-          }
-          return;
-        }
-
-        if (updateFrame.start > data._journal.length) {
-
-          if (_hooks['onError']) {
-            _hooks['onError']({
-              data: data,
-              reason: ' updateFrame.start > data._journal.length ',
-              clientState: clientState,
-              updateFrame: updateFrame,
-              serverCmds: updateFrame.c
-            });
-          }
-          clientState.needsRefresh = true;
-          result.fail = true;
-          return result;
-        }
-
-        if (clientState.client) {
-          for (var i = updateFrame.start; i < updateFrame.end; i++) {
-            var serverCmd = updateFrame.c[i - updateFrame.start];
-            updateFrame.c[i - updateFrame.start] = clientState.client._transformCmdToNs(serverCmd);
-          }
-        }
-
-        if (_hooks['onServerData']) {
-          _hooks['onServerData']({
-            data: data,
-            clientState: clientState,
-            updateFrame: updateFrame,
-            serverCmds: updateFrame.c
-          });
-        }
-
-        for (var i = updateFrame.start; i < updateFrame.end; i++) {
-
-          var myJ = data.getJournalCmd(i);
-          var serverCmd = updateFrame.c[i - updateFrame.start];
-
-          var bSame = true;
-          if (myJ) {
-
-            if (myJ[0] == 13 && serverCmd[0] == 13 && myJ[4] == serverCmd[4] && myJ[1] == serverCmd[1]) {
-              var mainArray1 = myJ[2],
-                  mainArray2 = serverCmd[2];
-              if (mainArray1.length != mainArray2.length) {
-                bSame = false;
-              } else {
-                for (var mi = 0; mi < mainArray1.length; mi++) {
-                  if (!bSame) break;
-                  var arr1 = mainArray1[mi],
-                      arr2 = mainArray2[mi];
-                  for (var ai = 0; ai < 5; ai++) {
-                    if (arr1[ai] != arr2[ai]) {
-                      console.log('not same ', ai, arr1[ai], arr2[ai]);
-                      bSame = false;
-                      break;
-                    }
-                  }
-                  if (bSame) {
-                    if (this.isArray(arr1[5])) {
-                      var arr1 = arr1[5],
-                          arr2 = arr2[5];
-                      var len = Math.max(arr1.length || 0, arr2.length || 0);
-                      for (var ai = 0; ai < len; ai++) {
-                        if (arr1[ai] != arr2[ai]) {
-                          console.log('not same array ', ai);
-                          bSame = false;
-                          break;
-                        }
-                      }
-                    } else {
-                      if (arr1[5] != arr2[5]) {
-                        bSame = false;
-                      }
-                    }
-                  }
-                  if (!bSame) {
-                    console.log('was not the same at array compare');
-                    console.log(serverCmd, 'vs', myJ);
-                  }
-                }
-              }
-            } else {
-              for (var j = 0; j <= 4; j++) {
-                if (myJ[j] != serverCmd[j]) {
-                  bSame = false;
-                  if (_hooks['onError']) {
-                    _hooks['onError']({
-                      data: data,
-                      reason: ' server datas are different ',
-                      clientState: clientState,
-                      updateFrame: updateFrame,
-                      serverCmds: updateFrame.c
-                    });
-                  }
-                }
-              }
-            }
-          } else {
-            // a new command has arrived...
-
-            var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
-            if (cmdRes !== true) {
-              // if we get errors then we have some kind of problem
-              console.log('--- setting refresh on because of ---- ');
-              console.log(JSON.stringify(cmdRes));
-
-              if (_hooks['onError']) {
-                _hooks['onError']({
-                  data: data,
-                  reason: cmdRes,
-                  clientState: clientState,
-                  updateFrame: updateFrame,
-                  serverCmds: updateFrame.c
-                });
-              }
-              clientState.needsRefresh = true;
-              result.fail = true;
-              result.reason = cmdRes;
-              return result;
-            } else {
-              sameUntil = i; // ??
-              result.goodCnt++;
-              result.newCnt++;
-            }
-
-            continue;
-          }
-          if (bSame) {
-            sameUntil = i;
-            result.goodCnt++;
-            result.oldCnt++;
-          } else {
-            // the sent commands did differ...
-
-            // TODO: rollback
-            data.reverseToLine(sameUntil);
-            // and then run commands without sending them outside...
-            for (var i = sameUntil; i < updateFrame.end; i++) {
-
-              var serverCmd = updateFrame.c[i - updateFrame.start];
-              var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
-              if (cmdRes !== true) {
-
-                console.log('--- setting refresh on because of ---- ');
-                console.log(JSON.stringify(cmdRes));
-                if (_hooks['onError']) {
-                  _hooks['onError']({
-                    data: data,
-                    reason: cmdRes,
-                    clientState: clientState,
-                    updateFrame: updateFrame,
-                    serverCmds: updateFrame.c
-                  });
-                }
-                // if we get errors then we have some kind of problem
-                clientState.needsRefresh = true;
-                result.fail = true;
-                result.reason = cmdRes;
-                return result;
-              }
-              result.reverseCnt++;
-            }
-
-            clientState.last_update[0] = updateFrame.start;
-            clientState.last_update[1] = updateFrame.end;
-
-            return result;
-          }
-        }
-        clientState.last_update[0] = updateFrame.start;
-        clientState.last_update[1] = updateFrame.end;
-        return result;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {
-        if (!_hooks) {
-          _hooks = {};
-        }
-      });
-
-      /**
-       * @param float n
-       * @param float fn
-       */
-      _myTrait_.setHook = function (n, fn) {
-        if (!_hooks) {
-          _hooks = {};
-        }
-        _hooks[n] = fn;
-      };
-    })(this);
-  };
-
-  var _chPolicy = function _chPolicy(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _chPolicy) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == 'function') {
-          if (res._classInfo.name != _chPolicy._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == 'function') m.init.apply(m, args);
-      }
-    } else return new _chPolicy(a, b, c, d, e, f, g, h);
-  };
-
-  _chPolicy._classInfo = {
-    name: '_chPolicy'
-  };
-  _chPolicy.prototype = new _chPolicy_prototype();
-
-  (function () {
-    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
-      __amdDefs__['_chPolicy'] = _chPolicy;
-      this._chPolicy = _chPolicy;
-    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
-      module.exports['_chPolicy'] = _chPolicy;
-    } else {
-      this._chPolicy = _chPolicy;
-    }
-  }).call(new Function('return this')());
-
   var aceCmdConvert_prototype = function aceCmdConvert_prototype() {
 
     (function (_myTrait_) {
@@ -9293,6 +8551,401 @@
     }
   }).call(new Function('return this')());
 
+  var _chPolicy_prototype = function _chPolicy_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == '[object Function]';
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _hooks;
+
+      // Initialize static variables here...
+
+      /**
+       * @param Object clientState
+       */
+      _myTrait_.constructClientToServer = function (clientState) {
+        var chData = clientState.data;
+
+        if (!clientState.last_sent) {
+          clientState.last_sent = [];
+        }
+
+        // last_update : [1, 30]
+        var start = clientState.last_sent[1] || 0;
+        var end = chData._journal.length;
+
+        // --- do not re-send
+
+        // last_update[]
+        // clientState.last_update
+
+        // problems here??
+        if (clientState.last_update) {
+
+          if (start < clientState.last_update[1]) {
+            start = clientState.last_update[1];
+          }
+
+          var fromServer = clientState.last_update[1] || 0;
+          if (fromServer >= end) {
+            //console.log(" fromServer >= end ");
+            return null;
+          }
+        }
+
+        if (start == end) {
+          // console.log(" start == end ");
+          return null;
+        }
+
+        //console.log("clientToServer");
+        //console.log(clientState.last_update);
+        //console.log(start,end);
+
+        // [2,4]
+        // 0
+        // 1
+        // 2 *
+        // 3 *
+
+        clientState.last_sent[0] = start;
+        clientState.last_sent[1] = end;
+
+        var obj = {
+          cmd: 'c2s',
+          id: this.guid(),
+          c: chData._journal.slice(start, end),
+          start: start,
+          end: end,
+          version: clientState.version
+        };
+
+        if (clientState.client) {
+          for (var i = 0; i < obj.c.length; i++) {
+            var c = obj.c[i];
+            obj.c[i] = clientState.client._transformCmdFromNs(c);
+          }
+        }
+        return obj;
+      };
+
+      /**
+       * @param Object updateFrame  - request from server to client
+       * @param float clientState  - This object holds the data the client needs to pefrform it&#39;s actions
+       */
+      _myTrait_.deltaServerToClient = function (updateFrame, clientState) {
+
+        // the client state
+        /*
+        {
+        data : channelData,     // The channel data object
+        version : 1,
+        last_update : [1, 30],  // last server update
+        }
+        */
+
+        // the server sends
+        /*
+        {
+        c : chData._journal.slice( start, end ),
+        start : start,
+        end : end,
+        version : serverState.version
+        }
+        */
+        // check where is our last point of action...
+
+        if (!updateFrame) return;
+
+        var data = clientState.data; // the channel data we have now
+
+        if (!clientState.last_update) {
+          clientState.last_update = [];
+        }
+        // [2,4] = [start, end]
+        // 0
+        // 1
+        // 2 *
+        // 3 *
+
+        var result = {
+          goodCnt: 0,
+          oldCnt: 0,
+          newCnt: 0,
+          reverseCnt: 0
+        };
+
+        //console.log("deltaServerToClient");
+        //console.log(clientState.last_update);
+
+        var sameUntil = updateFrame.start;
+
+        if (clientState.needsRefresh) {
+          // console.log("** client needs refresh **");
+          if (_hooks['onCancel']) {
+            _hooks['onCancel']({
+              data: data,
+              reason: cmdRes,
+              clientState: clientState,
+              updateFrame: updateFrame,
+              serverCmds: updateFrame.c
+            });
+          }
+          return;
+        }
+
+        if (updateFrame.start > data._journal.length) {
+
+          if (_hooks['onError']) {
+            _hooks['onError']({
+              data: data,
+              reason: ' updateFrame.start > data._journal.length ',
+              clientState: clientState,
+              updateFrame: updateFrame,
+              serverCmds: updateFrame.c
+            });
+          }
+          clientState.needsRefresh = true;
+          result.fail = true;
+          return result;
+        }
+
+        if (clientState.client) {
+          for (var i = updateFrame.start; i < updateFrame.end; i++) {
+            var serverCmd = updateFrame.c[i - updateFrame.start];
+            updateFrame.c[i - updateFrame.start] = clientState.client._transformCmdToNs(serverCmd);
+          }
+        }
+
+        if (_hooks['onServerData']) {
+          _hooks['onServerData']({
+            data: data,
+            clientState: clientState,
+            updateFrame: updateFrame,
+            serverCmds: updateFrame.c
+          });
+        }
+
+        for (var i = updateFrame.start; i < updateFrame.end; i++) {
+
+          var myJ = data.getJournalCmd(i);
+          var serverCmd = updateFrame.c[i - updateFrame.start];
+
+          var bSame = true;
+          if (myJ) {
+
+            if (myJ[0] == 13 && serverCmd[0] == 13 && myJ[4] == serverCmd[4] && myJ[1] == serverCmd[1]) {
+              var mainArray1 = myJ[2],
+                  mainArray2 = serverCmd[2];
+              if (mainArray1.length != mainArray2.length) {
+                bSame = false;
+              } else {
+                for (var mi = 0; mi < mainArray1.length; mi++) {
+                  if (!bSame) break;
+                  var arr1 = mainArray1[mi],
+                      arr2 = mainArray2[mi];
+                  for (var ai = 0; ai < 5; ai++) {
+                    if (arr1[ai] != arr2[ai]) {
+                      console.log('not same ', ai, arr1[ai], arr2[ai]);
+                      bSame = false;
+                      break;
+                    }
+                  }
+                  if (bSame) {
+                    if (this.isArray(arr1[5])) {
+                      var arr1 = arr1[5],
+                          arr2 = arr2[5];
+                      var len = Math.max(arr1.length || 0, arr2.length || 0);
+                      for (var ai = 0; ai < len; ai++) {
+                        if (arr1[ai] != arr2[ai]) {
+                          console.log('not same array ', ai);
+                          bSame = false;
+                          break;
+                        }
+                      }
+                    } else {
+                      if (arr1[5] != arr2[5]) {
+                        bSame = false;
+                      }
+                    }
+                  }
+                  if (!bSame) {
+                    console.log('was not the same at array compare');
+                    console.log(serverCmd, 'vs', myJ);
+                  }
+                }
+              }
+            } else {
+              for (var j = 0; j <= 4; j++) {
+                if (myJ[j] != serverCmd[j]) {
+                  bSame = false;
+                  if (_hooks['onError']) {
+                    _hooks['onError']({
+                      data: data,
+                      reason: ' server datas are different ',
+                      clientState: clientState,
+                      updateFrame: updateFrame,
+                      serverCmds: updateFrame.c
+                    });
+                  }
+                }
+              }
+            }
+          } else {
+            // a new command has arrived...
+
+            var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
+            if (cmdRes !== true) {
+              // if we get errors then we have some kind of problem
+              console.log('--- setting refresh on because of ---- ');
+              console.log(JSON.stringify(cmdRes));
+
+              if (_hooks['onError']) {
+                _hooks['onError']({
+                  data: data,
+                  reason: cmdRes,
+                  clientState: clientState,
+                  updateFrame: updateFrame,
+                  serverCmds: updateFrame.c
+                });
+              }
+              clientState.needsRefresh = true;
+              result.fail = true;
+              result.reason = cmdRes;
+              return result;
+            } else {
+              sameUntil = i; // ??
+              result.goodCnt++;
+              result.newCnt++;
+            }
+
+            continue;
+          }
+          if (bSame) {
+            sameUntil = i;
+            result.goodCnt++;
+            result.oldCnt++;
+          } else {
+            // the sent commands did differ...
+
+            // TODO: rollback
+            data.reverseToLine(sameUntil);
+            // and then run commands without sending them outside...
+            for (var i = sameUntil; i < updateFrame.end; i++) {
+
+              var serverCmd = updateFrame.c[i - updateFrame.start];
+              var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
+              if (cmdRes !== true) {
+
+                console.log('--- setting refresh on because of ---- ');
+                console.log(JSON.stringify(cmdRes));
+                if (_hooks['onError']) {
+                  _hooks['onError']({
+                    data: data,
+                    reason: cmdRes,
+                    clientState: clientState,
+                    updateFrame: updateFrame,
+                    serverCmds: updateFrame.c
+                  });
+                }
+                // if we get errors then we have some kind of problem
+                clientState.needsRefresh = true;
+                result.fail = true;
+                result.reason = cmdRes;
+                return result;
+              }
+              result.reverseCnt++;
+            }
+
+            clientState.last_update[0] = updateFrame.start;
+            clientState.last_update[1] = updateFrame.end;
+
+            return result;
+          }
+        }
+        clientState.last_update[0] = updateFrame.start;
+        clientState.last_update[1] = updateFrame.end;
+        return result;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {});
+    })(this);
+  };
+
+  var _chPolicy = function _chPolicy(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _chPolicy) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == 'function') {
+          if (res._classInfo.name != _chPolicy._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == 'function') m.init.apply(m, args);
+      }
+    } else return new _chPolicy(a, b, c, d, e, f, g, h);
+  };
+
+  _chPolicy._classInfo = {
+    name: '_chPolicy'
+  };
+  _chPolicy.prototype = new _chPolicy_prototype();
+
+  (function () {
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['_chPolicy'] = _chPolicy;
+      this._chPolicy = _chPolicy;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['_chPolicy'] = _chPolicy;
+    } else {
+      this._chPolicy = _chPolicy;
+    }
+  }).call(new Function('return this')());
+
   var moshModule_prototype = function moshModule_prototype() {
 
     (function (_myTrait_) {
@@ -9343,12 +8996,6 @@
 // console.log("Strange... no emit value in ", this._parent);
 
 // objectCache[data.__id] = this;
-
-/*
-serverState.model.writeToJournal( goodList ).then( function() {
-// done(result);
-});
-*/
 
 // skip, if next should be taken instead
 

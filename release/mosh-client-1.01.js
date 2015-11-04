@@ -690,55 +690,6 @@
       };
 
       /**
-       * @param function collectFn
-       * @param array promiseList
-       * @param Object results
-       */
-      _myTrait_.collect = function (collectFn, promiseList, results) {
-
-        var args;
-        if (this.isArray(promiseList)) {
-          args = promiseList;
-        } else {
-          args = [promiseList];
-        }
-
-        // console.log(args);
-        var targetLen = args.length,
-            isReady = false,
-            noMore = false,
-            rCnt = 0,
-            myPromises = [],
-            myResults = results || {};
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                rCnt++;
-                isReady = collectFn(v, myResults);
-                if (isReady && !noMore || noMore == false && targetLen == rCnt) {
-                  allPromise.resolve(myResults);
-                  noMore = true;
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject('Not list of promises');
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
        * @param function fn
        */
       _myTrait_.fail = function (fn) {
@@ -866,76 +817,6 @@
       };
 
       /**
-       * @param float fname
-       * @param float fn
-       */
-      _myTrait_.nodeStyle = function (fname, fn) {
-        var me = this;
-        this.plugin(fname, function () {
-          var args = Array.prototype.slice.call(arguments, 0);
-          var last,
-              userCb,
-              cbIndex = 0;
-          if (args.length >= 0) {
-            last = args[args.length - 1];
-            if (Object.prototype.toString.call(last) == '[object Function]') {
-              userCb = last;
-              cbIndex = args.length - 1;
-            }
-          }
-
-          var mainPromise = wishes().pending();
-          this.then(function () {
-            var nodePromise = wishes().pending();
-            var args2 = Array.prototype.slice.call(arguments, 0);
-            console.log('Orig args', args);
-            console.log('Then args', args2);
-            var z;
-            if (args.length == 0) z = args2;
-            if (args2.length == 0) z = args;
-            if (!z) z = args2.concat(args);
-            cbIndex = z.length; // 0,fn... 2
-            if (userCb) cbIndex--;
-            z[cbIndex] = function (err) {
-              if (err) {
-                console.log('Got error ', err);
-                nodePromise.reject(err);
-                mainPromise.reject(err);
-                return;
-              }
-              if (userCb) {
-                var args = Array.prototype.slice.call(arguments);
-                var res = userCb.apply(this, args);
-                mainPromise.resolve(res);
-              } else {
-                var args = Array.prototype.slice.call(arguments, 1);
-                mainPromise.resolve.apply(mainPromise, args);
-              }
-            };
-            nodePromise.then(function (v) {
-              mainPromise.resolve(v);
-            });
-
-            console.log('nodeStyle after concat', z);
-            var res = fn.apply(this, z);
-            // myPromise.resolve(res);
-            // return nodePromise;
-            return nodePromise;
-          }, function (v) {
-            mainPromise.reject(v);
-          });
-          return mainPromise;
-          /*
-          log("..... now waiting "+ms);
-          var p = waitFor(ms);
-          p.then( function(v) {
-             myPromise.resolve(v);
-          });
-          */
-        });
-      };
-
-      /**
        * @param function fn
        */
       _myTrait_.onStateChange = function (fn) {
@@ -943,66 +824,6 @@
         if (!this._listeners) this._listeners = [];
 
         this._listeners.push(fn);
-      };
-
-      /**
-       * @param float n
-       * @param float fn
-       */
-      _myTrait_.plugin = function (n, fn) {
-
-        _myTrait_[n] = fn;
-
-        return this;
-      };
-
-      /**
-       * @param Object obj
-       */
-      _myTrait_.props = function (obj) {
-        var args = [];
-
-        for (var n in obj) {
-          if (obj.hasOwnProperty(n)) {
-            args.push({
-              name: n,
-              promise: obj[n]
-            });
-          }
-        }
-
-        // console.log(args);
-        var targetLen = args.length,
-            rCnt = 0,
-            myPromises = [],
-            myResults = {};
-
-        return this.then(function () {
-
-          var allPromise = wishes().pending();
-          args.forEach(function (def) {
-            var b = def.promise,
-                name = def.name;
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                myResults[name] = v;
-                rCnt++;
-                if (rCnt == targetLen) {
-                  allPromise.resolve(myResults);
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject('Not list of promises');
-            }
-          });
-
-          return allPromise;
-        });
       };
 
       /**

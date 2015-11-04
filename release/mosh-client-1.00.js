@@ -1,8 +1,1129 @@
-"use strict";
+'use strict';
 
 (function () {
 
   var __amdDefs__ = {};
+
+  var _clientSocket_prototype = function _clientSocket_prototype() {
+
+    (function (_myTrait_) {
+      var _eventOn;
+      var _commands;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return Object.prototype.toString.call(t) === '[object Array]';
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == '[object Function]';
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        if (en == 'connect' && this._connected) {
+          ef(this._socket);
+        }
+
+        return this;
+      };
+
+      /**
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.removeListener = function (name, fn) {
+        if (!this._ev) return;
+        if (!this._ev[name]) return;
+
+        var list = this._ev[name];
+
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] == fn) {
+            list.splice(i, 1);
+            return;
+          }
+        }
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(data, fn);
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _callBacks;
+      var _socketIndex;
+      var _socketCnt;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.disconnect = function (t) {
+        this._socket.messageTo({
+          disconnect: true
+        });
+        me._connected = false;
+      };
+
+      /**
+       * Emit data from client to server
+       * @param String name  - Message name
+       * @param Object data  - Data to be sent, Object or string
+       * @param Function callBackFn  - Callback, message from the receiver
+       */
+      _myTrait_.emit = function (name, data, callBackFn) {
+
+        var obj = {
+          name: name,
+          data: data
+        };
+
+        if (callBackFn) {
+          obj._callBackId = this.guid();
+          var me = this;
+          var handleCb = function handleCb(data) {
+            callBackFn(data);
+            me.removeListener(obj._callBackId, handleCb);
+          };
+          this.on(obj._callBackId, handleCb);
+        }
+
+        this._socket.messageTo(obj);
+      };
+
+      /**
+       * The enumerated socket, stating from 1
+       * @param float t
+       */
+      _myTrait_.getEnum = function (t) {
+        var myId = this.socketId;
+
+        if (!_socketIndex[myId]) {
+          _socketIndex[myId] = _socketCnt++;
+        }
+        return _socketIndex[myId];
+      };
+
+      /**
+       * Returns GUID of the current socket.
+       * @param float t
+       */
+      _myTrait_.getId = function (t) {
+        return this.socketId;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (ip, port, realSocket) {
+
+        // The socket ID must be told to the server side too
+
+        if (!_socketIndex) {
+          _socketIndex = {};
+          _socketCnt = 1;
+        }
+
+        var me = this;
+        var myId = this.guid();
+        this.socketId = myId;
+
+        if (!_socketIndex[this.socketId]) {
+          _socketIndex[this.socketId] = _socketCnt++;
+        }
+
+        if (realSocket) {
+
+          var _hasbeenConnected = false;
+          var openConnection, connection;
+
+          var whenConnected = function whenConnected() {
+            // console.log("whenConnected called");
+
+            if (!_hasbeenConnected) {
+
+              if (openConnection) openConnection.release();
+              if (connection) connection.release();
+
+              openConnection = _tcpEmu(ip, port, 'openConnection', 'client', realSocket);
+              connection = _tcpEmu(ip, port, myId, 'client', realSocket);
+
+              connection.on('clientMessage', function (o, v) {
+                // console.log("clientMessage received ", v);
+                if (v.connected) {
+                  me._socket = connection;
+                  me._connected = true;
+                  me.trigger('connect', connection);
+                } else {
+                  me.trigger(v.name, v.data);
+                }
+              });
+              // should this be called again?
+              openConnection.messageTo({
+                socketId: myId
+              });
+            } else {
+              // does this kind of connection work...
+              // console.log("Triggering connect again");
+              me.trigger('connect', me._socket);
+            }
+            // console.log("Sending message to _tcpEmu with real socket ");
+            // _hasbeenConnected = true;
+          };
+          var me = this;
+          realSocket.on('disconnect', function () {
+            me.trigger('disconnect');
+          });
+
+          if (realSocket.connected) {
+            // console.log("realSocket was connected");
+            whenConnected();
+          } else {
+            // console.log("realSocket was not connected");
+            realSocket.on('connect', whenConnected);
+          }
+
+          // this._connected
+          return;
+        }
+
+        var openConnection = _tcpEmu(ip, port, 'openConnection', 'client', realSocket);
+        var connection = _tcpEmu(ip, port, myId, 'client', realSocket);
+
+        connection.on('clientMessage', function (o, v) {
+          if (v.connected) {
+            me._socket = connection;
+            me._connected = true;
+            me.trigger('connect', connection);
+          } else {
+            me.trigger(v.name, v.data);
+          }
+        });
+        openConnection.messageTo({
+          socketId: myId
+        });
+      });
+
+      /**
+       * A promisified interface of the &quot;emit&quot; for the _clientSocket
+       * @param float name
+       * @param float data
+       */
+      _myTrait_.send = function (name, data) {
+        var me = this;
+        return _promise(function (respFn) {
+          me.emit(name, data, respFn);
+        });
+      };
+    })(this);
+  };
+
+  var _clientSocket = function _clientSocket(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _clientSocket) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == 'function') {
+          if (res._classInfo.name != _clientSocket._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == 'function') m.init.apply(m, args);
+      }
+    } else return new _clientSocket(a, b, c, d, e, f, g, h);
+  };
+
+  _clientSocket._classInfo = {
+    name: '_clientSocket'
+  };
+  _clientSocket.prototype = new _clientSocket_prototype();
+
+  (function () {
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['_clientSocket'] = _clientSocket;
+      this._clientSocket = _clientSocket;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['_clientSocket'] = _clientSocket;
+    } else {
+      this._clientSocket = _clientSocket;
+    }
+  }).call(new Function('return this')());
+
+  var _serverSocket_prototype = function _serverSocket_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        return this;
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(data, fn);
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _clients;
+      var _rooms;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getPrefix = function (t) {
+        return this._ip + ':' + this._port;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (ip, port, ioLib) {
+        /*
+        // This is how the server side should be operating...
+        var io = require('socket.io')();
+        io.on('connection', function(socket){
+        socket.emit('an event', { some: 'data' });
+        });
+        */
+
+        if (!_rooms) {
+          _rooms = {};
+          _clients = {};
+        }
+
+        var me = this;
+
+        var sockets = [];
+
+        this._ip = ip;
+        this._port = port;
+        this._ioLib = ioLib;
+
+        if (ioLib) {
+          ioLib.on('connection', function (socket) {
+
+            console.log('socket.io got connection');
+            console.log('ip, port', ip, port);
+
+            var openConnection = _tcpEmu(ip, port, 'openConnection', 'server', socket);
+
+            var socket_list = [];
+            socket.on('disconnect', function () {
+              console.log('ioLib at server sent disconnect, closing opened connections');
+              socket_list.forEach(function (s) {
+                s.close();
+              });
+            });
+
+            openConnection.on('serverMessage', function (o, v) {
+
+              if (v.socketId) {
+
+                var newSocket = _tcpEmu(ip, port, v.socketId, 'server', socket);
+
+                // save the virtual sockets for disconnection...
+                socket_list.push(newSocket);
+
+                var wrappedSocket = _serverSocketWrap(newSocket, me);
+                _clients[v.socketId] = wrappedSocket;
+                me.trigger('connect', wrappedSocket);
+
+                if (wrappedSocket.isConnected()) {
+                  // console.log("Trying to send the connected message back to client");
+                  newSocket.messageFrom({
+                    connected: true,
+                    socketId: v.socketId
+                  });
+                } else {}
+              }
+            });
+          });
+          return;
+        }
+
+        var openConnection = _tcpEmu(ip, port, 'openConnection', 'server');
+
+        openConnection.on('serverMessage', function (o, v) {
+
+          if (v.socketId) {
+            //console.log("Trying to send msg to client ", v);
+            var newSocket = _tcpEmu(ip, port, v.socketId, 'server');
+
+            var socket = _serverSocketWrap(newSocket, me);
+            _clients[v.socketId] = socket;
+            me.trigger('connect', socket);
+            me.trigger('connection', socket);
+
+            if (socket.isConnected()) {
+
+              newSocket.messageFrom({
+                connected: true,
+                socketId: v.socketId
+              });
+            }
+          }
+        });
+      });
+    })(this);
+  };
+
+  var _serverSocket = function _serverSocket(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _serverSocket) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == 'function') {
+          if (res._classInfo.name != _serverSocket._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == 'function') m.init.apply(m, args);
+      }
+    } else return new _serverSocket(a, b, c, d, e, f, g, h);
+  };
+
+  _serverSocket._classInfo = {
+    name: '_serverSocket'
+  };
+  _serverSocket.prototype = new _serverSocket_prototype();
+
+  (function () {
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['_serverSocket'] = _serverSocket;
+      this._serverSocket = _serverSocket;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['_serverSocket'] = _serverSocket;
+    } else {
+      this._serverSocket = _serverSocket;
+    }
+  }).call(new Function('return this')());
+
+  var _tcpEmu_prototype = function _tcpEmu_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.clearEvents = function (t) {
+        delete this._ev;
+      };
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        return this;
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(me, data, fn);
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _eventOn;
+      var _commands;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return Object.prototype.toString.call(t) === '[object Array]';
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == '[object Function]';
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _msgBuffer;
+      var _log;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.close = function (t) {
+        this.trigger('disconnect');
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (server, port, socketId, role, socket) {
+
+        var me = this;
+        this._server = server;
+        this._port = port;
+        this._role = role;
+        this._socketId = socketId;
+        this._dbName = 'tcp://' + this._server + ':' + this._port + ':' + this._socketId;
+
+        if (!_log) {
+          if (typeof lokki != 'undefined') {
+            _log = lokki('tcp');
+          } else {
+            _log = {
+              log: function log() {},
+              error: function error() {}
+            };
+          }
+        }
+
+        if (socket) {
+          // "this._dbName" is the message which is listened using socketPump
+          this._socket = socket;
+          this.socketPump(role);
+        } else {
+          this.memoryPump(role);
+        }
+      });
+
+      /**
+       * The memory storage transform layer implementation.
+       * @param float role
+       */
+      _myTrait_.memoryPump = function (role) {
+        var me = this;
+        var bnTo = this._dbName + ':to';
+        var bnFrom = this._dbName + ':from';
+
+        if (!_msgBuffer) _msgBuffer = {};
+        if (!_msgBuffer[bnTo]) _msgBuffer[bnTo] = [];
+        if (!_msgBuffer[bnFrom]) _msgBuffer[bnFrom] = [];
+
+        var _mfn = function _mfn() {
+          if (role == 'server') {
+            var list = _msgBuffer[bnTo].slice();
+            list.forEach(function (msg) {
+              _log.log('server got message ', msg);
+              me.trigger('serverMessage', msg);
+              _msgBuffer[bnTo].shift();
+            });
+          }
+          if (role == 'client') {
+            var list = _msgBuffer[bnFrom].slice();
+            list.forEach(function (msg) {
+              me.trigger('clientMessage', msg);
+              _msgBuffer[bnFrom].shift();
+            });
+          }
+        };
+        this._memoryFn = _mfn;
+        later().every(1 / 10, _mfn);
+      };
+
+      /**
+       * Message &quot;from&quot; refers to client getting message from the server. This is the function to be used when a server sends data back to the client.
+       * @param float msg
+       */
+      _myTrait_.messageFrom = function (msg) {
+        var socket = this._socket;
+        if (socket) {
+          //console.log("The socket should emit to "+this._dbName);
+          //console.log(msg);
+          socket.emit(this._dbName, msg);
+          return;
+        }
+
+        var bn = this._dbName + ':from';
+        _msgBuffer[bn].push(msg);
+      };
+
+      /**
+       * Message &quot;to&quot; refers to client sending message to server. This is the function to be used when a client socket sends data to the server.
+       * @param float msg
+       */
+      _myTrait_.messageTo = function (msg) {
+
+        var socket = this._socket;
+        if (socket) {
+
+          // _log.log("_tcpEmu, emitting ", this._dbName, msg);
+          socket.emit(this._dbName, msg);
+          return;
+        }
+
+        var bn = this._dbName + ':to';
+        _msgBuffer[bn].push(msg);
+      };
+
+      /**
+       * Should be called after reconnecting with new socket
+       * @param float t
+       */
+      _myTrait_.release = function (t) {
+        this.clearEvents();
+
+        var socket = this._socket;
+
+        if (this._pumpListener) {
+          socket.removeListener(this._dbName, this._pumpListener);
+        }
+        if (this._memoryFn && this._memoryFn._release) this._memoryFn._release();
+      };
+
+      /**
+       * The socket transform layer implementation.
+       * @param float role
+       */
+      _myTrait_.socketPump = function (role) {
+        var me = this;
+
+        var socket = this._socket;
+
+        if (role == 'server') {
+          this._pumpListener = function (data) {
+            // _log.log("socketPump", me._dbName);
+            me.trigger('serverMessage', data);
+          };
+          socket.on(this._dbName, this._pumpListener);
+        }
+
+        if (role == 'client') {
+          this._pumpListener = function (data) {
+            me.trigger('clientMessage', data);
+          };
+          socket.on(this._dbName, this._pumpListener);
+        }
+      };
+    })(this);
+  };
+
+  var _tcpEmu = function _tcpEmu(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _tcpEmu) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == 'function') {
+          if (res._classInfo.name != _tcpEmu._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == 'function') m.init.apply(m, args);
+      }
+    } else return new _tcpEmu(a, b, c, d, e, f, g, h);
+  };
+
+  _tcpEmu._classInfo = {
+    name: '_tcpEmu'
+  };
+  _tcpEmu.prototype = new _tcpEmu_prototype();
+
+  var _serverSocketWrap_prototype = function _serverSocketWrap_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        return this;
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(data, fn);
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _rooms;
+      var _socketRooms;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float roomName
+       * @param float name
+       * @param float data
+       */
+      _myTrait_.delegateToRoom = function (roomName, name, data) {
+
+        var realRoomName = this._roomPrefix + ':' + roomName;
+
+        if (_rooms && _rooms[realRoomName]) {
+          var me = this;
+          _rooms[realRoomName].forEach(function (socket) {
+            if (socket != me) {
+              socket.emit(name, data);
+            }
+          });
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.disconnect = function (t) {
+        var me = this;
+        me._disconnected = true;
+
+        console.log('_serverSocketWrap disconnecting');
+
+        me.leaveFromRooms();
+        console.log('_serverSocketWrap left from rooms');
+        me.trigger('disconnect', me);
+        // Then remove the socket from the listeners...
+        me._disconnected = true;
+
+        // TODO: check if the code below could be defined in a cross-platform way
+        /*
+        var dbName = this._tcp._dbName;
+        if(typeof(_localDB) != "undefined") {
+        _localDB().clearDatabases( function(d) {
+        if(d.name==dbName) return true;
+        });
+        }
+        */
+
+        return;
+      };
+
+      /**
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.emit = function (name, value) {
+
+        this._tcp.messageFrom({
+          name: name,
+          data: value
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getId = function (t) {
+        return this._tcp._socketId;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getUserId = function (t) {
+
+        return this._userId;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getUserRoles = function (t) {
+
+        return this._roles;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (tcpEmu, server, isReal) {
+
+        var me = this;
+        this._roomPrefix = server.getPrefix();
+        this._server = server;
+        this._tcp = tcpEmu;
+
+        tcpEmu.on('disconnect', function () {
+          console.log('tcpEmu sent disconnect');
+          me.disconnect();
+        });
+
+        var disconnected = false;
+        tcpEmu.on('serverMessage', function (o, v) {
+
+          if (me._disconnected) return; // not good enough
+
+          if (v.disconnect) {
+            me.disconnect();
+            return;
+          }
+          if (v._callBackId) {
+            me.trigger(v.name, v.data, function (data) {
+              me.emit(v._callBackId, data);
+            });
+          } else {
+            me.trigger(v.name, v.data);
+          }
+        });
+
+        this.broadcast = {
+          to: function to(room) {
+            return {
+              emit: function emit(name, value) {
+                me.delegateToRoom(room, name, value);
+              }
+            };
+          }
+        }
+
+        /*
+        socket.broadcast.to(_ctx.channelId).emit('ctxupd_'+_ctx.channelId, cObj);
+        */
+
+        ;
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isConnected = function (t) {
+        if (this._disconnected) return false;
+        return true;
+      };
+
+      /**
+       * @param float roomName
+       */
+      _myTrait_.isInRoom = function (roomName) {
+        if (!_socketRooms) return false;
+        return _socketRooms[this.getId()].indexOf(roomName) >= 0;
+      };
+
+      /**
+       * Adds a new client to some room
+       * @param String roomName
+       */
+      _myTrait_.join = function (roomName) {
+
+        var realRoomName = this._roomPrefix + ':' + roomName;
+
+        if (!_rooms) _rooms = {};
+        if (!_rooms[realRoomName]) _rooms[realRoomName] = [];
+
+        if (_rooms[realRoomName].indexOf(this) < 0) {
+          _rooms[realRoomName].push(this);
+          if (!_socketRooms) _socketRooms = {};
+          if (!_socketRooms[this.getId()]) _socketRooms[this.getId()] = [];
+
+          _socketRooms[this.getId()].push(roomName);
+        }
+      };
+
+      /**
+       * @param float roomName
+       */
+      _myTrait_.leave = function (roomName) {
+
+        var realRoomName = this._roomPrefix + ':' + roomName;
+
+        if (!_rooms) _rooms = {};
+        if (!_rooms[realRoomName]) _rooms[realRoomName] = [];
+
+        var i;
+        if ((i = _rooms[realRoomName].indexOf(this)) >= 0) {
+          _rooms[realRoomName].splice(i, 1);
+          var id = this.getId();
+
+          var i2 = _socketRooms[id].indexOf(roomName);
+          if (i2 >= 0) _socketRooms[id].splice(i2, 1);
+        }
+      };
+
+      /**
+       * @param float socket
+       */
+      _myTrait_.leaveFromRooms = function (socket) {
+        var id = this.getId();
+        var me = this;
+
+        if (!_socketRooms) return;
+        if (!_socketRooms[id]) return;
+
+        _socketRooms[id].forEach(function (name) {
+          me.leave(name);
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.removeListener = function (t) {};
+
+      /**
+       * Each socket can have and in many implementations must have some userID and role, which can be used together with the ACL implementations.
+       * @param float userId
+       * @param float roles
+       */
+      _myTrait_.setAuthInfo = function (userId, roles) {
+
+        this._userId = userId;
+        this._roles = roles;
+      };
+
+      /**
+       * @param string roomName
+       */
+      _myTrait_.to = function (roomName) {
+
+        var realRoomName = this._roomPrefix + ':' + roomName;
+
+        return {
+          emit: function emit(name, data) {
+            //console.log(" emit called ");
+            if (_rooms && _rooms[realRoomName]) {
+              _rooms[realRoomName].forEach(function (socket) {
+                // console.log(" emit with ", name, data);
+                socket.emit(name, data);
+              });
+            }
+          }
+        };
+      };
+    })(this);
+  };
+
+  var _serverSocketWrap = function _serverSocketWrap(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _serverSocketWrap) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == 'function') {
+          if (res._classInfo.name != _serverSocketWrap._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == 'function') m.init.apply(m, args);
+      }
+    } else return new _serverSocketWrap(a, b, c, d, e, f, g, h);
+  };
+
+  _serverSocketWrap._classInfo = {
+    name: '_serverSocketWrap'
+  };
+  _serverSocketWrap.prototype = new _serverSocketWrap_prototype();
+
+  var socketEmulator_prototype = function socketEmulator_prototype() {
+
+    (function (_myTrait_) {
+      var _initDone;
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (host, bUseReal) {});
+    })(this);
+  };
+
+  var socketEmulator = function socketEmulator(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof socketEmulator) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == 'function') {
+          if (res._classInfo.name != socketEmulator._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == 'function') m.init.apply(m, args);
+      }
+    } else return new socketEmulator(a, b, c, d, e, f, g, h);
+  };
+
+  socketEmulator._classInfo = {
+    name: 'socketEmulator'
+  };
+  socketEmulator.prototype = new socketEmulator_prototype();
 
   var later_prototype = function later_prototype() {
 
@@ -56,7 +1177,7 @@
       _myTrait_.add = function (fn, thisObj, args) {
         if (thisObj || args) {
           var tArgs;
-          if (Object.prototype.toString.call(args) === "[object Array]") {
+          if (Object.prototype.toString.call(args) === '[object Array]') {
             tArgs = args;
           } else {
             tArgs = Array.prototype.slice.call(arguments, 2);
@@ -84,7 +1205,7 @@
       _myTrait_.after = function (seconds, fn, name) {
 
         if (!name) {
-          name = "aft_" + _localCnt++;
+          name = 'aft_' + _localCnt++;
         }
 
         _everies[name] = {
@@ -112,7 +1233,7 @@
 
         var fn = _easings[name];
         if (!fn) fn = _easings.pow;
-        var id_name = "e_" + _localCnt++;
+        var id_name = 'e_' + _localCnt++;
         _easeFns[id_name] = {
           easeFn: fn,
           duration: delay,
@@ -129,7 +1250,7 @@
       _myTrait_.every = function (seconds, fn, name) {
 
         if (!name) {
-          name = "t7491_" + _localCnt++;
+          name = 't7491_' + _localCnt++;
         }
 
         _everies[name] = {
@@ -139,7 +1260,7 @@
         };
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (interval, fn) {
         if (!_initDone) {
@@ -147,18 +1268,18 @@
           _localCnt = 1;
 
           var frame, cancelFrame;
-          if (typeof window != "undefined") {
-            var frame = window["requestAnimationFrame"],
-                cancelFrame = window["cancelRequestAnimationFrame"];
-            ["", "ms", "moz", "webkit", "o"].forEach(function (x) {
+          if (typeof window != 'undefined') {
+            var frame = window['requestAnimationFrame'],
+                cancelFrame = window['cancelRequestAnimationFrame'];
+            ['', 'ms', 'moz', 'webkit', 'o'].forEach(function (x) {
               if (!frame) {
-                frame = window[x + "RequestAnimationFrame"];
-                cancelFrame = window[x + "CancelAnimationFrame"] || window[x + "CancelRequestAnimationFrame"];
+                frame = window[x + 'RequestAnimationFrame'];
+                cancelFrame = window[x + 'CancelAnimationFrame'] || window[x + 'CancelRequestAnimationFrame'];
               }
             });
           }
 
-          var is_node_js = new Function("try { return this == global; } catch(e) { return false; }")();
+          var is_node_js = new Function('try { return this == global; } catch(e) { return false; }')();
 
           if (is_node_js) {
             frame = function (cb) {
@@ -190,7 +1311,7 @@
             if (lastMs == 0) elapsed = 0;
             var fn;
             while (fn = _callers.shift()) {
-              if (Object.prototype.toString.call(fn) === "[object Array]") {
+              if (Object.prototype.toString.call(fn) === '[object Array]') {
                 fn[1].apply(fn[0], fn[2]);
               } else {
                 fn();
@@ -310,7 +1431,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != later._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -321,26 +1442,26 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new later(a, b, c, d, e, f, g, h);
   };
 
   later._classInfo = {
-    name: "later"
+    name: 'later'
   };
   later.prototype = new later_prototype();
 
   (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["later"] = later;
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['later'] = later;
       this.later = later;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["later"] = later;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['later'] = later;
     } else {
       this.later = later;
     }
-  }).call(new Function("return this")());
+  }).call(new Function('return this')());
 
   var _promise_prototype = function _promise_prototype() {
 
@@ -352,14 +1473,14 @@
        * @param float someVar
        */
       _myTrait_.isArray = function (someVar) {
-        return Object.prototype.toString.call(someVar) === "[object Array]";
+        return Object.prototype.toString.call(someVar) === '[object Array]';
       };
 
       /**
        * @param Function fn
        */
       _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
+        return Object.prototype.toString.call(fn) == '[object Function]';
       };
 
       /**
@@ -413,7 +1534,7 @@
                 allPromise.reject(v);
               });
             } else {
-              allPromise.reject("Not list of promises");
+              allPromise.reject('Not list of promises');
             }
           });
 
@@ -462,7 +1583,7 @@
                 allPromise.reject(v);
               });
             } else {
-              allPromise.reject("Not list of promises");
+              allPromise.reject('Not list of promises');
             }
           });
 
@@ -500,7 +1621,7 @@
             try {
               var x = p._onFulfill(withValue);
               // console.log("Returned ",x);
-              if (typeof x != "undefined") {
+              if (typeof x != 'undefined') {
                 p.resolve(x);
               } else {
                 p.fulfill(withValue);
@@ -534,7 +1655,7 @@
         var me = this;
         this.plugin(fname, function () {
           var args = Array.prototype.slice.call(arguments, 0);
-          console.log("Plugin args", args);
+          console.log('Plugin args', args);
           var myPromise = _promise();
           this.then(function (v) {
             var args2 = Array.prototype.slice.call(arguments, 0);
@@ -548,7 +1669,7 @@
         });
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (onFulfilled, onRejected) {
         // 0 = pending
@@ -610,7 +1731,7 @@
               cbIndex = 0;
           if (args.length >= 0) {
             last = args[args.length - 1];
-            if (Object.prototype.toString.call(last) == "[object Function]") {
+            if (Object.prototype.toString.call(last) == '[object Function]') {
               userCb = last;
               cbIndex = args.length - 1;
             }
@@ -620,8 +1741,8 @@
           this.then(function () {
             var nodePromise = wishes().pending();
             var args2 = Array.prototype.slice.call(arguments, 0);
-            console.log("Orig args", args);
-            console.log("Then args", args2);
+            console.log('Orig args', args);
+            console.log('Then args', args2);
             var z;
             if (args.length == 0) z = args2;
             if (args2.length == 0) z = args;
@@ -630,7 +1751,7 @@
             if (userCb) cbIndex--;
             z[cbIndex] = function (err) {
               if (err) {
-                console.log("Got error ", err);
+                console.log('Got error ', err);
                 nodePromise.reject(err);
                 mainPromise.reject(err);
                 return;
@@ -648,7 +1769,7 @@
               mainPromise.resolve(v);
             });
 
-            console.log("nodeStyle after concat", z);
+            console.log('nodeStyle after concat', z);
             var res = fn.apply(this, z);
             // myPromise.resolve(res);
             // return nodePromise;
@@ -729,7 +1850,7 @@
                 allPromise.reject(v);
               });
             } else {
-              allPromise.reject("Not list of promises");
+              allPromise.reject('Not list of promises');
             }
           });
 
@@ -805,7 +1926,7 @@
 
         if (x == this) {
           // error
-          this._rejectReason = "TypeError";
+          this._rejectReason = 'TypeError';
           this.reject(this._rejectReason);
           return;
         }
@@ -873,7 +1994,7 @@
        * @param float newState
        */
       _myTrait_.state = function (newState) {
-        if (typeof newState != "undefined") {
+        if (typeof newState != 'undefined') {
           this._state = newState;
         }
         return this._state;
@@ -921,7 +2042,7 @@
        * @param float v
        */
       _myTrait_.value = function (v) {
-        if (typeof v != "undefined") {
+        if (typeof v != 'undefined') {
           this._stateValue = v;
           return this;
         }
@@ -939,7 +2060,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != _promise._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -950,1147 +2071,26 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new _promise(a, b, c, d, e, f, g, h);
   };
 
   _promise._classInfo = {
-    name: "_promise"
+    name: '_promise'
   };
   _promise.prototype = new _promise_prototype();
 
   (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_promise"] = _promise;
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['_promise'] = _promise;
       this._promise = _promise;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_promise"] = _promise;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['_promise'] = _promise;
     } else {
       this._promise = _promise;
     }
-  }).call(new Function("return this")());
-
-  var _clientSocket_prototype = function _clientSocket_prototype() {
-
-    (function (_myTrait_) {
-      var _eventOn;
-      var _commands;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return Object.prototype.toString.call(t) === "[object Array]";
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * Binds event name to event function
-       * @param string en  - Event name
-       * @param float ef
-       */
-      _myTrait_.on = function (en, ef) {
-        if (!this._ev) this._ev = {};
-        if (!this._ev[en]) this._ev[en] = [];
-
-        this._ev[en].push(ef);
-
-        if (en == "connect" && this._connected) {
-          ef(this._socket);
-        }
-
-        return this;
-      };
-
-      /**
-       * @param float name
-       * @param float fn
-       */
-      _myTrait_.removeListener = function (name, fn) {
-        if (!this._ev) return;
-        if (!this._ev[name]) return;
-
-        var list = this._ev[name];
-
-        for (var i = 0; i < list.length; i++) {
-          if (list[i] == fn) {
-            list.splice(i, 1);
-            return;
-          }
-        }
-      };
-
-      /**
-       * triggers event with data and optional function
-       * @param string en
-       * @param float data
-       * @param float fn
-       */
-      _myTrait_.trigger = function (en, data, fn) {
-
-        if (!this._ev) return;
-        if (!this._ev[en]) return;
-        var me = this;
-        this._ev[en].forEach(function (cb) {
-          cb(data, fn);
-        });
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _callBacks;
-      var _socketIndex;
-      var _socketCnt;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.disconnect = function (t) {
-        this._socket.messageTo({
-          disconnect: true
-        });
-        me._connected = false;
-      };
-
-      /**
-       * Emit data from client to server
-       * @param String name  - Message name
-       * @param Object data  - Data to be sent, Object or string
-       * @param Function callBackFn  - Callback, message from the receiver
-       */
-      _myTrait_.emit = function (name, data, callBackFn) {
-
-        var obj = {
-          name: name,
-          data: data
-        };
-
-        if (callBackFn) {
-          obj._callBackId = this.guid();
-          var me = this;
-          var handleCb = function handleCb(data) {
-            callBackFn(data);
-            me.removeListener(obj._callBackId, handleCb);
-          };
-          this.on(obj._callBackId, handleCb);
-        }
-
-        this._socket.messageTo(obj);
-      };
-
-      /**
-       * The enumerated socket, stating from 1
-       * @param float t
-       */
-      _myTrait_.getEnum = function (t) {
-        var myId = this.socketId;
-
-        if (!_socketIndex[myId]) {
-          _socketIndex[myId] = _socketCnt++;
-        }
-        return _socketIndex[myId];
-      };
-
-      /**
-       * Returns GUID of the current socket.
-       * @param float t
-       */
-      _myTrait_.getId = function (t) {
-        return this.socketId;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (ip, port, realSocket) {
-
-        // The socket ID must be told to the server side too
-
-        if (!_socketIndex) {
-          _socketIndex = {};
-          _socketCnt = 1;
-        }
-
-        var me = this;
-        var myId = this.guid();
-        this.socketId = myId;
-
-        if (!_socketIndex[this.socketId]) {
-          _socketIndex[this.socketId] = _socketCnt++;
-        }
-
-        if (realSocket) {
-
-          var _hasbeenConnected = false;
-          var openConnection, connection;
-
-          var whenConnected = function whenConnected() {
-            // console.log("whenConnected called");
-
-            if (!_hasbeenConnected) {
-
-              if (openConnection) openConnection.release();
-              if (connection) connection.release();
-
-              openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
-              connection = _tcpEmu(ip, port, myId, "client", realSocket);
-
-              connection.on("clientMessage", function (o, v) {
-                // console.log("clientMessage received ", v);
-                if (v.connected) {
-                  me._socket = connection;
-                  me._connected = true;
-                  me.trigger("connect", connection);
-                } else {
-                  me.trigger(v.name, v.data);
-                }
-              });
-              // should this be called again?
-              openConnection.messageTo({
-                socketId: myId
-              });
-            } else {
-              // does this kind of connection work...
-              // console.log("Triggering connect again");
-              me.trigger("connect", me._socket);
-            }
-            // console.log("Sending message to _tcpEmu with real socket ");
-            // _hasbeenConnected = true;
-          };
-          var me = this;
-          realSocket.on("disconnect", function () {
-            me.trigger("disconnect");
-          });
-
-          if (realSocket.connected) {
-            // console.log("realSocket was connected");
-            whenConnected();
-          } else {
-            // console.log("realSocket was not connected");
-            realSocket.on("connect", whenConnected);
-          }
-
-          // this._connected
-          return;
-        }
-
-        var openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
-        var connection = _tcpEmu(ip, port, myId, "client", realSocket);
-
-        connection.on("clientMessage", function (o, v) {
-          if (v.connected) {
-            me._socket = connection;
-            me._connected = true;
-            me.trigger("connect", connection);
-          } else {
-            me.trigger(v.name, v.data);
-          }
-        });
-        openConnection.messageTo({
-          socketId: myId
-        });
-      });
-
-      /**
-       * A promisified interface of the &quot;emit&quot; for the _clientSocket
-       * @param float name
-       * @param float data
-       */
-      _myTrait_.send = function (name, data) {
-        var me = this;
-        return _promise(function (respFn) {
-          me.emit(name, data, respFn);
-        });
-      };
-    })(this);
-  };
-
-  var _clientSocket = function _clientSocket(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _clientSocket) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _clientSocket._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _clientSocket(a, b, c, d, e, f, g, h);
-  };
-
-  _clientSocket._classInfo = {
-    name: "_clientSocket"
-  };
-  _clientSocket.prototype = new _clientSocket_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_clientSocket"] = _clientSocket;
-      this._clientSocket = _clientSocket;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_clientSocket"] = _clientSocket;
-    } else {
-      this._clientSocket = _clientSocket;
-    }
-  }).call(new Function("return this")());
-
-  var _serverSocket_prototype = function _serverSocket_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * Binds event name to event function
-       * @param string en  - Event name
-       * @param float ef
-       */
-      _myTrait_.on = function (en, ef) {
-        if (!this._ev) this._ev = {};
-        if (!this._ev[en]) this._ev[en] = [];
-
-        this._ev[en].push(ef);
-
-        return this;
-      };
-
-      /**
-       * triggers event with data and optional function
-       * @param string en
-       * @param float data
-       * @param float fn
-       */
-      _myTrait_.trigger = function (en, data, fn) {
-
-        if (!this._ev) return;
-        if (!this._ev[en]) return;
-        var me = this;
-        this._ev[en].forEach(function (cb) {
-          cb(data, fn);
-        });
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _clients;
-      var _rooms;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getPrefix = function (t) {
-        return this._ip + ":" + this._port;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (ip, port, ioLib) {
-        /*
-        // This is how the server side should be operating...
-        var io = require('socket.io')();
-        io.on('connection', function(socket){
-        socket.emit('an event', { some: 'data' });
-        });
-        */
-
-        if (!_rooms) {
-          _rooms = {};
-          _clients = {};
-        }
-
-        var me = this;
-
-        var sockets = [];
-
-        this._ip = ip;
-        this._port = port;
-        this._ioLib = ioLib;
-
-        if (ioLib) {
-          ioLib.on("connection", function (socket) {
-
-            console.log("socket.io got connection");
-            console.log("ip, port", ip, port);
-
-            var openConnection = _tcpEmu(ip, port, "openConnection", "server", socket);
-
-            var socket_list = [];
-            socket.on("disconnect", function () {
-              console.log("ioLib at server sent disconnect, closing opened connections");
-              socket_list.forEach(function (s) {
-                s.close();
-              });
-            });
-
-            openConnection.on("serverMessage", function (o, v) {
-
-              if (v.socketId) {
-
-                var newSocket = _tcpEmu(ip, port, v.socketId, "server", socket);
-
-                // save the virtual sockets for disconnection...
-                socket_list.push(newSocket);
-
-                var wrappedSocket = _serverSocketWrap(newSocket, me);
-                _clients[v.socketId] = wrappedSocket;
-                me.trigger("connect", wrappedSocket);
-
-                if (wrappedSocket.isConnected()) {
-                  // console.log("Trying to send the connected message back to client");
-                  newSocket.messageFrom({
-                    connected: true,
-                    socketId: v.socketId
-                  });
-                } else {}
-              }
-            });
-          });
-          return;
-        }
-
-        var openConnection = _tcpEmu(ip, port, "openConnection", "server");
-
-        openConnection.on("serverMessage", function (o, v) {
-
-          if (v.socketId) {
-            //console.log("Trying to send msg to client ", v);
-            var newSocket = _tcpEmu(ip, port, v.socketId, "server");
-
-            var socket = _serverSocketWrap(newSocket, me);
-            _clients[v.socketId] = socket;
-            me.trigger("connect", socket);
-            me.trigger("connection", socket);
-
-            if (socket.isConnected()) {
-
-              newSocket.messageFrom({
-                connected: true,
-                socketId: v.socketId
-              });
-            }
-          }
-        });
-      });
-    })(this);
-  };
-
-  var _serverSocket = function _serverSocket(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _serverSocket) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _serverSocket._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _serverSocket(a, b, c, d, e, f, g, h);
-  };
-
-  _serverSocket._classInfo = {
-    name: "_serverSocket"
-  };
-  _serverSocket.prototype = new _serverSocket_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_serverSocket"] = _serverSocket;
-      this._serverSocket = _serverSocket;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_serverSocket"] = _serverSocket;
-    } else {
-      this._serverSocket = _serverSocket;
-    }
-  }).call(new Function("return this")());
-
-  var _tcpEmu_prototype = function _tcpEmu_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.clearEvents = function (t) {
-        delete this._ev;
-      };
-
-      /**
-       * Binds event name to event function
-       * @param string en  - Event name
-       * @param float ef
-       */
-      _myTrait_.on = function (en, ef) {
-        if (!this._ev) this._ev = {};
-        if (!this._ev[en]) this._ev[en] = [];
-
-        this._ev[en].push(ef);
-
-        return this;
-      };
-
-      /**
-       * triggers event with data and optional function
-       * @param string en
-       * @param float data
-       * @param float fn
-       */
-      _myTrait_.trigger = function (en, data, fn) {
-
-        if (!this._ev) return;
-        if (!this._ev[en]) return;
-        var me = this;
-        this._ev[en].forEach(function (cb) {
-          cb(me, data, fn);
-        });
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _eventOn;
-      var _commands;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return Object.prototype.toString.call(t) === "[object Array]";
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _msgBuffer;
-      var _log;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.close = function (t) {
-        this.trigger("disconnect");
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (server, port, socketId, role, socket) {
-
-        var me = this;
-        this._server = server;
-        this._port = port;
-        this._role = role;
-        this._socketId = socketId;
-        this._dbName = "tcp://" + this._server + ":" + this._port + ":" + this._socketId;
-
-        if (!_log) {
-          if (typeof lokki != "undefined") {
-            _log = lokki("tcp");
-          } else {
-            _log = {
-              log: function log() {},
-              error: function error() {}
-            };
-          }
-        }
-
-        if (socket) {
-          // "this._dbName" is the message which is listened using socketPump
-          this._socket = socket;
-          this.socketPump(role);
-        } else {
-          this.memoryPump(role);
-        }
-      });
-
-      /**
-       * The memory storage transform layer implementation.
-       * @param float role
-       */
-      _myTrait_.memoryPump = function (role) {
-        var me = this;
-        var bnTo = this._dbName + ":to";
-        var bnFrom = this._dbName + ":from";
-
-        if (!_msgBuffer) _msgBuffer = {};
-        if (!_msgBuffer[bnTo]) _msgBuffer[bnTo] = [];
-        if (!_msgBuffer[bnFrom]) _msgBuffer[bnFrom] = [];
-
-        var _mfn = function _mfn() {
-          if (role == "server") {
-            var list = _msgBuffer[bnTo].slice();
-            list.forEach(function (msg) {
-              _log.log("server got message ", msg);
-              me.trigger("serverMessage", msg);
-              _msgBuffer[bnTo].shift();
-            });
-          }
-          if (role == "client") {
-            var list = _msgBuffer[bnFrom].slice();
-            list.forEach(function (msg) {
-              me.trigger("clientMessage", msg);
-              _msgBuffer[bnFrom].shift();
-            });
-          }
-        };
-        this._memoryFn = _mfn;
-        later().every(1 / 10, _mfn);
-      };
-
-      /**
-       * Message &quot;from&quot; refers to client getting message from the server. This is the function to be used when a server sends data back to the client.
-       * @param float msg
-       */
-      _myTrait_.messageFrom = function (msg) {
-        var socket = this._socket;
-        if (socket) {
-          //console.log("The socket should emit to "+this._dbName);
-          //console.log(msg);
-          socket.emit(this._dbName, msg);
-          return;
-        }
-
-        var bn = this._dbName + ":from";
-        _msgBuffer[bn].push(msg);
-      };
-
-      /**
-       * Message &quot;to&quot; refers to client sending message to server. This is the function to be used when a client socket sends data to the server.
-       * @param float msg
-       */
-      _myTrait_.messageTo = function (msg) {
-
-        var socket = this._socket;
-        if (socket) {
-
-          // _log.log("_tcpEmu, emitting ", this._dbName, msg);
-          socket.emit(this._dbName, msg);
-          return;
-        }
-
-        var bn = this._dbName + ":to";
-        _msgBuffer[bn].push(msg);
-      };
-
-      /**
-       * Should be called after reconnecting with new socket
-       * @param float t
-       */
-      _myTrait_.release = function (t) {
-        this.clearEvents();
-
-        var socket = this._socket;
-
-        if (this._pumpListener) {
-          socket.removeListener(this._dbName, this._pumpListener);
-        }
-        if (this._memoryFn && this._memoryFn._release) this._memoryFn._release();
-      };
-
-      /**
-       * The socket transform layer implementation.
-       * @param float role
-       */
-      _myTrait_.socketPump = function (role) {
-        var me = this;
-
-        var socket = this._socket;
-
-        if (role == "server") {
-          this._pumpListener = function (data) {
-            // _log.log("socketPump", me._dbName);
-            me.trigger("serverMessage", data);
-          };
-          socket.on(this._dbName, this._pumpListener);
-        }
-
-        if (role == "client") {
-          this._pumpListener = function (data) {
-            me.trigger("clientMessage", data);
-          };
-          socket.on(this._dbName, this._pumpListener);
-        }
-      };
-    })(this);
-  };
-
-  var _tcpEmu = function _tcpEmu(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _tcpEmu) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _tcpEmu._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _tcpEmu(a, b, c, d, e, f, g, h);
-  };
-
-  _tcpEmu._classInfo = {
-    name: "_tcpEmu"
-  };
-  _tcpEmu.prototype = new _tcpEmu_prototype();
-
-  var _serverSocketWrap_prototype = function _serverSocketWrap_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * Binds event name to event function
-       * @param string en  - Event name
-       * @param float ef
-       */
-      _myTrait_.on = function (en, ef) {
-        if (!this._ev) this._ev = {};
-        if (!this._ev[en]) this._ev[en] = [];
-
-        this._ev[en].push(ef);
-
-        return this;
-      };
-
-      /**
-       * triggers event with data and optional function
-       * @param string en
-       * @param float data
-       * @param float fn
-       */
-      _myTrait_.trigger = function (en, data, fn) {
-
-        if (!this._ev) return;
-        if (!this._ev[en]) return;
-        var me = this;
-        this._ev[en].forEach(function (cb) {
-          cb(data, fn);
-        });
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _rooms;
-      var _socketRooms;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float roomName
-       * @param float name
-       * @param float data
-       */
-      _myTrait_.delegateToRoom = function (roomName, name, data) {
-
-        var realRoomName = this._roomPrefix + ":" + roomName;
-
-        if (_rooms && _rooms[realRoomName]) {
-          var me = this;
-          _rooms[realRoomName].forEach(function (socket) {
-            if (socket != me) {
-              socket.emit(name, data);
-            }
-          });
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.disconnect = function (t) {
-        var me = this;
-        me._disconnected = true;
-
-        console.log("_serverSocketWrap disconnecting");
-
-        me.leaveFromRooms();
-        console.log("_serverSocketWrap left from rooms");
-        me.trigger("disconnect", me);
-        // Then remove the socket from the listeners...
-        me._disconnected = true;
-
-        // TODO: check if the code below could be defined in a cross-platform way
-        /*
-        var dbName = this._tcp._dbName;
-        if(typeof(_localDB) != "undefined") {
-        _localDB().clearDatabases( function(d) {
-        if(d.name==dbName) return true;
-        });
-        }
-        */
-
-        return;
-      };
-
-      /**
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.emit = function (name, value) {
-
-        this._tcp.messageFrom({
-          name: name,
-          data: value
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getId = function (t) {
-        return this._tcp._socketId;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getUserId = function (t) {
-
-        return this._userId;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getUserRoles = function (t) {
-
-        return this._roles;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (tcpEmu, server, isReal) {
-
-        var me = this;
-        this._roomPrefix = server.getPrefix();
-        this._server = server;
-        this._tcp = tcpEmu;
-
-        tcpEmu.on("disconnect", function () {
-          console.log("tcpEmu sent disconnect");
-          me.disconnect();
-        });
-
-        var disconnected = false;
-        tcpEmu.on("serverMessage", function (o, v) {
-
-          if (me._disconnected) return; // not good enough
-
-          if (v.disconnect) {
-            me.disconnect();
-            return;
-          }
-          if (v._callBackId) {
-            me.trigger(v.name, v.data, function (data) {
-              me.emit(v._callBackId, data);
-            });
-          } else {
-            me.trigger(v.name, v.data);
-          }
-        });
-
-        this.broadcast = {
-          to: function to(room) {
-            return {
-              emit: function emit(name, value) {
-                me.delegateToRoom(room, name, value);
-              }
-            };
-          }
-        }
-
-        /*
-        socket.broadcast.to(_ctx.channelId).emit('ctxupd_'+_ctx.channelId, cObj);
-        */
-
-        ;
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isConnected = function (t) {
-        if (this._disconnected) return false;
-        return true;
-      };
-
-      /**
-       * @param float roomName
-       */
-      _myTrait_.isInRoom = function (roomName) {
-        if (!_socketRooms) return false;
-        return _socketRooms[this.getId()].indexOf(roomName) >= 0;
-      };
-
-      /**
-       * Adds a new client to some room
-       * @param String roomName
-       */
-      _myTrait_.join = function (roomName) {
-
-        var realRoomName = this._roomPrefix + ":" + roomName;
-
-        if (!_rooms) _rooms = {};
-        if (!_rooms[realRoomName]) _rooms[realRoomName] = [];
-
-        if (_rooms[realRoomName].indexOf(this) < 0) {
-          _rooms[realRoomName].push(this);
-          if (!_socketRooms) _socketRooms = {};
-          if (!_socketRooms[this.getId()]) _socketRooms[this.getId()] = [];
-
-          _socketRooms[this.getId()].push(roomName);
-        }
-      };
-
-      /**
-       * @param float roomName
-       */
-      _myTrait_.leave = function (roomName) {
-
-        var realRoomName = this._roomPrefix + ":" + roomName;
-
-        if (!_rooms) _rooms = {};
-        if (!_rooms[realRoomName]) _rooms[realRoomName] = [];
-
-        var i;
-        if ((i = _rooms[realRoomName].indexOf(this)) >= 0) {
-          _rooms[realRoomName].splice(i, 1);
-          var id = this.getId();
-
-          var i2 = _socketRooms[id].indexOf(roomName);
-          if (i2 >= 0) _socketRooms[id].splice(i2, 1);
-        }
-      };
-
-      /**
-       * @param float socket
-       */
-      _myTrait_.leaveFromRooms = function (socket) {
-        var id = this.getId();
-        var me = this;
-
-        if (!_socketRooms) return;
-        if (!_socketRooms[id]) return;
-
-        _socketRooms[id].forEach(function (name) {
-          me.leave(name);
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.removeListener = function (t) {};
-
-      /**
-       * Each socket can have and in many implementations must have some userID and role, which can be used together with the ACL implementations.
-       * @param float userId
-       * @param float roles
-       */
-      _myTrait_.setAuthInfo = function (userId, roles) {
-
-        this._userId = userId;
-        this._roles = roles;
-      };
-
-      /**
-       * @param string roomName
-       */
-      _myTrait_.to = function (roomName) {
-
-        var realRoomName = this._roomPrefix + ":" + roomName;
-
-        return {
-          emit: function emit(name, data) {
-            //console.log(" emit called ");
-            if (_rooms && _rooms[realRoomName]) {
-              _rooms[realRoomName].forEach(function (socket) {
-                // console.log(" emit with ", name, data);
-                socket.emit(name, data);
-              });
-            }
-          }
-        };
-      };
-    })(this);
-  };
-
-  var _serverSocketWrap = function _serverSocketWrap(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _serverSocketWrap) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _serverSocketWrap._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _serverSocketWrap(a, b, c, d, e, f, g, h);
-  };
-
-  _serverSocketWrap._classInfo = {
-    name: "_serverSocketWrap"
-  };
-  _serverSocketWrap.prototype = new _serverSocketWrap_prototype();
-
-  var socketEmulator_prototype = function socketEmulator_prototype() {
-
-    (function (_myTrait_) {
-      var _initDone;
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (host, bUseReal) {});
-    })(this);
-  };
-
-  var socketEmulator = function socketEmulator(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof socketEmulator) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != socketEmulator._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new socketEmulator(a, b, c, d, e, f, g, h);
-  };
-
-  socketEmulator._classInfo = {
-    name: "socketEmulator"
-  };
-  socketEmulator.prototype = new socketEmulator_prototype();
+  }).call(new Function('return this')());
 
   var _data_prototype = function _data_prototype() {
 
@@ -2118,7 +2118,7 @@
        * @param float cb
        */
       _myTrait_._collectObject = function (me, what, cb) {
-        if (!this.isArray(what)) what = what.split(",");
+        if (!this.isArray(what)) what = what.split(',');
 
         var myData = {};
         what.forEach(function (n) {
@@ -2170,58 +2170,58 @@
 
         var ns_id = this._client._idToNs(this._docData.__id, this._client._ns);
 
-        dataCh.createWorker("_to_ch", // worker ID
-        [7, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_to_ch', // worker ID
+        [7, '*', null, null, ns_id], // filter
         {
           target: this
         });
 
-        dataCh.createWorker("_to_ch", // worker ID
-        [5, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_to_ch', // worker ID
+        [5, '*', null, null, ns_id], // filter
         {
           target: this
         });
 
-        dataCh.createWorker("_d_set", // worker ID
-        [4, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_d_set', // worker ID
+        [4, '*', null, null, ns_id], // filter
         {
           target: this
         });
 
-        dataCh.createWorker("_d_rem", // worker ID
-        [8, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_d_rem', // worker ID
+        [8, '*', null, null, ns_id], // filter
         {
           target: this
         });
 
-        dataCh.createWorker("_d_ins", // worker ID
-        [7, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_d_ins', // worker ID
+        [7, '*', null, null, ns_id], // filter
         {
           target: this
         });
 
-        dataCh.createWorker("_d_mv", // worker ID
-        [12, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_d_mv', // worker ID
+        [12, '*', null, null, ns_id], // filter
         {
           target: this
         });
 
         // "_d_cf"
 
-        dataCh.createWorker("_d_cf", // worker ID
-        [5, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_d_cf', // worker ID
+        [5, '*', null, null, ns_id], // filter
         {
           obj: this
         });
-        dataCh.createWorker("_d_cf", // worker ID
-        [4, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_d_cf', // worker ID
+        [4, '*', null, null, ns_id], // filter
         {
           obj: this
         });
 
         // _d_ch -> child object has changed event
-        dataCh.createWorker("_d_ch", // worker ID
-        [42, "*", null, null, ns_id], // filter
+        dataCh.createWorker('_d_ch', // worker ID
+        [42, '*', null, null, ns_id], // filter
         {
           target: this
         });
@@ -2268,7 +2268,7 @@
         if (this.isObject(data) && data.data) {
 
           if (this.isArray(data.data)) {
-            list.push([2, data.__id, "", null, data.__id]);
+            list.push([2, data.__id, '', null, data.__id]);
 
             for (var i = 0; i < data.data.length; i++) {
               var obj = data.data[i];
@@ -2280,7 +2280,7 @@
               }
             }
           } else {
-            list.push([1, data.__id, "", null, data.__id]);
+            list.push([1, data.__id, '', null, data.__id]);
             // var cmd = [1, newObj.__id, {}, null, newObj.__id];
 
             for (var n in data.data) {
@@ -2306,17 +2306,17 @@
        */
       _myTrait_._parseURL = function (url) {
 
-        var parts1 = url.split("://");
+        var parts1 = url.split('://');
         var protocol = parts1.shift(),
             rest = parts1.shift();
-        var serverParts = rest.split("/"),
+        var serverParts = rest.split('/'),
             ipAndPort = serverParts.shift(),
-            iParts = ipAndPort.split(":"),
+            iParts = ipAndPort.split(':'),
             ip = iParts[0],
             port = iParts[1],
             sandbox = serverParts.shift(),
             fileName = serverParts.pop(),
-            path = serverParts.join("/");
+            path = serverParts.join('/');
 
         return {
           url: url,
@@ -2343,7 +2343,7 @@
           if (this.isObject(data)) {
             for (var n in data) {
               if (!data.hasOwnProperty(n)) continue;
-              if (n == "__id") {
+              if (n == '__id') {
                 data[n] = this.guid();
                 continue;
               }
@@ -2372,7 +2372,7 @@
 
         if (newObj.data && this.isObject(newObj.data)) {
           for (var n in newObj.data) {
-            if (n == "__oid") {
+            if (n == '__oid') {
               delete newObj.data[n];
               continue;
             }
@@ -2392,7 +2392,7 @@
        * @param Object c
        */
       _myTrait_.addController = function (c) {
-        console.error("** askChannelQuestion ** not implemented now ");
+        console.error('** askChannelQuestion ** not implemented now ');
       };
 
       /**
@@ -2402,7 +2402,7 @@
        */
       _myTrait_.askChannelQuestion = function (question, data, cb) {
 
-        console.error("** askChannelQuestion ** not implemented now ");
+        console.error('** askChannelQuestion ** not implemented now ');
 
         /*
         var url = this._findURL();
@@ -2466,7 +2466,7 @@
        * @param float defaultValue
        */
       _myTrait_.createField = function (n, defaultValue) {
-        this.set(n, defaultValue || "");
+        this.set(n, defaultValue || '');
         return this;
       };
 
@@ -2493,7 +2493,7 @@
         if (!_myTrait_[name]) {
           _myTrait_[name] = function (value) {
 
-            if (typeof value == "undefined") {
+            if (typeof value == 'undefined') {
               return this._client.get(this._docData.__id, name);
             }
             this._client.set(this._docData.__id, name, value);
@@ -2629,7 +2629,7 @@
       _myTrait_.find = function (path) {
         // should find the item from the path...
 
-        console.error("*** FIND IS NOT IMPLEMENTED *** ");
+        console.error('*** FIND IS NOT IMPLEMENTED *** ');
 
         // var dataObj = _up._getObjectInPath(path, this._docData);
         // if(dataObj) return _data(dataObj.__id);
@@ -2657,7 +2657,7 @@
         if (!fn) {
           fn = arrayKeys;
         } else {
-          var limit = arrayKeys.split(",");
+          var limit = arrayKeys.split(',');
           limit.forEach(function (k) {
             limitFilter[k.trim()] = true;
             bLimit = true;
@@ -2690,8 +2690,8 @@
        */
       _myTrait_.get = function (name) {
 
-        console.log("Calling get for " + name);
-        console.log("docData " + JSON.stringify(this._docData));
+        console.log('Calling get for ' + name);
+        console.log('docData ' + JSON.stringify(this._docData));
 
         return this._client.get(this._docData.__id, name);
       };
@@ -2757,7 +2757,7 @@
        */
       _myTrait_.hasOwn = function (name) {
 
-        if (typeof this._docData.data[name] != "undefined" && this[name]) {
+        if (typeof this._docData.data[name] != 'undefined' && this[name]) {
           return true;
         }
         return false;
@@ -2770,7 +2770,7 @@
         return this._client.indexOf(this._docData.__id);
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (data, options, notUsed, notUsed2) {
 
@@ -2793,12 +2793,12 @@
        */
       _myTrait_.isArray = function (t) {
 
-        if (typeof t == "undefined") {
+        if (typeof t == 'undefined') {
           if (!this._docData) return false;
           if (!this._docData.data) return false;
           return this.isArray(this._docData.data);
         }
-        return Object.prototype.toString.call(t) === "[object Array]";
+        return Object.prototype.toString.call(t) === '[object Array]';
       };
 
       /**
@@ -2813,7 +2813,7 @@
        * @param float fn
        */
       _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
+        return Object.prototype.toString.call(fn) == '[object Function]';
       };
 
       /**
@@ -2821,7 +2821,7 @@
        */
       _myTrait_.isObject = function (t) {
 
-        if (typeof t == "undefined") {
+        if (typeof t == 'undefined') {
           if (!this._docData) return false;
           if (!this._docData.data) return false;
           return this.isObject(this._docData.data);
@@ -2905,7 +2905,7 @@
        */
       _myTrait_.parent = function (p) {
 
-        if (typeof p != "undefined") {
+        if (typeof p != 'undefined') {
           return this;
         }
         if (!this._docData) {
@@ -2977,7 +2977,7 @@
           }
         }
         var index;
-        if (typeof toIndex != "undefined") {
+        if (typeof toIndex != 'undefined') {
           index = toIndex;
           var dd = this._client._fetch(this._docData.__id);
           if (index < 0 || index > dd.data.length) return;
@@ -3034,7 +3034,7 @@
        */
       _myTrait_.renderTemplate = function (tplData) {
 
-        console.error("RenderTemplate not implemented");
+        console.error('RenderTemplate not implemented');
 
         /*
         var comp = templateCompiler();  
@@ -3060,7 +3060,7 @@
         for (var n in data) {
           if (data.hasOwnProperty(n)) {
             var v = data[n];
-            if (typeof v == "undefined") continue;
+            if (typeof v == 'undefined') continue;
             if (nonRecursive) {
               if (this.isObject(v) || this.isArray(v)) continue;
             }
@@ -3115,7 +3115,7 @@
           return this;
         } else {
 
-          console.log("value set " + name + " = " + value);
+          console.log('value set ' + name + ' = ' + value);
           debugger;
           this._client.set(this._docData.__id, name, value);
           this.createPropertyUpdateFn(name, value);
@@ -3186,7 +3186,7 @@
 
       // Initialize static variables here...
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (t) {
 
@@ -3305,7 +3305,7 @@
         _atObserve = t;
       };
 
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
+      if (!_myTrait_.hasOwnProperty('__factoryClass')) _myTrait_.__factoryClass = [];
       _myTrait_.__factoryClass.push(function (data) {
 
         if (!_objectCache) _objectCache = {};
@@ -3323,7 +3323,7 @@
             } else {}
           }
         } else {
-          if (typeof data == "string") {
+          if (typeof data == 'string') {
             var oo = _objectCache[data];
             if (oo) {
               return oo;
@@ -3368,7 +3368,7 @@
        */
       _myTrait_._initIterator = function (t) {
         var me = this;
-        if (typeof Symbol != "undefined" && typeof Symbol.iterator != "undefined") {
+        if (typeof Symbol != 'undefined' && typeof Symbol.iterator != 'undefined') {
           me[Symbol.iterator] = function () {
             var idx = 0;
             return { // this is the iterator object, returning a single element, the string "bye"
@@ -3397,12 +3397,12 @@
         if (!_workersDone) {
           var dataCh = me._client.getChannelData();
           dataCh.setWorkerCommands({
-            "_obs_4": function _obs_4(cmd, options) {
+            '_obs_4': function _obs_4(cmd, options) {
               if (_atObserve) return;
               // Object.observe - set value to object
               options.target[cmd[1]] = cmd[2];
             },
-            "_obs_7": function _obs_7(cmd, options) {
+            '_obs_7': function _obs_7(cmd, options) {
               if (_atObserve) return;
               var toIndex = cmd[1];
               var dataObj = _data(cmd[2]);
@@ -3412,7 +3412,7 @@
                 Array.observe(options.target, options.parentObserver);
               }
             },
-            "_obs_8": function _obs_8(cmd, options) {
+            '_obs_8': function _obs_8(cmd, options) {
               if (_atObserve) {
                 return;
               }
@@ -3421,7 +3421,7 @@
               options.target.splice(toIndex, 1); //  = dataObj.toObservable();
               Array.observe(options.target, options.parentObserver);
             },
-            "_obs_12": function _obs_12(cmd, options) {
+            '_obs_12': function _obs_12(cmd, options) {
               if (_atObserve) return;
 
               // move the item inside the array...a bit trickier than the rest
@@ -3438,11 +3438,11 @@
               Array.observe(data, options.parentObserver);
               // options.target.splice(toIndex, 1); //  = dataObj.toObservable();
             },
-            "_d_set": function _d_set(cmd, options) {
+            '_d_set': function _d_set(cmd, options) {
               // for example, trigger .on("x", value);
               options.target.trigger(cmd[1], cmd[2]);
             },
-            "_d_cf": function _d_cf(cmd, options) {
+            '_d_cf': function _d_cf(cmd, options) {
               // create field for the object
               var o = options.obj;
               if (cmd[0] == 4) {
@@ -3460,13 +3460,13 @@
                 }
               }
             },
-            "_d_rem": function _d_rem(cmd, options) {
+            '_d_rem': function _d_rem(cmd, options) {
 
-              options.target.trigger("remove", cmd[1]);
+              options.target.trigger('remove', cmd[1]);
               // delete _objectCache[cmd[1]];
               // remove the object from the object cache
             },
-            "_to_ch": function _to_ch(cmd, options) {
+            '_to_ch': function _to_ch(cmd, options) {
               // new object has been inserted to this channel
               // if this is a broadcast channel, create a new _data for the object
 
@@ -3481,20 +3481,20 @@
                 }
               }
             },
-            "_d_ins": function _d_ins(cmd, options) {
-              options.target.trigger("insert", cmd[1]);
+            '_d_ins': function _d_ins(cmd, options) {
+              options.target.trigger('insert', cmd[1]);
             },
-            "_d_mv": function _d_mv(cmd, options) {
-              options.target.trigger("move", {
+            '_d_mv': function _d_mv(cmd, options) {
+              options.target.trigger('move', {
                 itemId: cmd[1],
                 parentId: cmd[4],
                 from: cmd[3],
                 to: cmd[2]
               });
             },
-            "_d_ch": function _d_ch(cmd, options) {
+            '_d_ch': function _d_ch(cmd, options) {
               // command which did change the child..
-              options.target.trigger("childChanged", cmd);
+              options.target.trigger('childChanged', cmd);
             } });
           _workersDone = true;
         }
@@ -3583,7 +3583,7 @@
           if (dataItem.__undone) return;
 
           if (options.bListenMVC && options.eventObj) {
-            options.eventObj.trigger("remove", dataItem.__removedAt);
+            options.eventObj.trigger('remove', dataItem.__removedAt);
           }
         }
 
@@ -3601,7 +3601,7 @@
           var index = parentObj.data.indexOf(insertedObj);
 
           if (options.bListenMVC && options.eventObj) {
-            options.eventObj.trigger("insert", index);
+            options.eventObj.trigger('insert', index);
           }
         }
 
@@ -3634,7 +3634,7 @@
             var targetIndex = parseInt(change[2]);
             if (options.bListenMVC && options.eventObj) {
               // console.log("Triggering move ", fromIndex, targetIndex);
-              options.eventObj.trigger("move", {
+              options.eventObj.trigger('move', {
                 from: fromIndex,
                 to: targetIndex
               });
@@ -3647,18 +3647,18 @@
        * @param string url
        */
       _myTrait_._parseURL = function (url) {
-        var parts1 = url.split("://");
+        var parts1 = url.split('://');
         var protocol = parts1.shift(),
             rest = parts1.shift();
-        var serverParts = rest.split("/"),
+        var serverParts = rest.split('/'),
             ipAndPort = serverParts.shift(),
-            fullPath = serverParts.join("/"),
-            iParts = ipAndPort.split(":"),
+            fullPath = serverParts.join('/'),
+            iParts = ipAndPort.split(':'),
             ip = iParts[0],
             port = iParts[1],
             sandbox = serverParts.shift(),
             fileName = serverParts.pop(),
-            path = serverParts.join("/");
+            path = serverParts.join('/');
 
         var reqData = {
           protocol: protocol,
@@ -3710,7 +3710,7 @@
               return;
             }
             var req = me._request;
-            var myD = _data(req.protocol + "://" + req.ip + ":" + req.port + "/" + newChannelId, me._initOptions);
+            var myD = _data(req.protocol + '://' + req.ip + ':' + req.port + '/' + newChannelId, me._initOptions);
             myD.then(function () {
               result({
                 result: true,
@@ -3734,7 +3734,7 @@
 
         var myDataClass = function myDataClass(a, b, c, d, e, f, g, h) {
           if (this instanceof myDataClass) {
-            console.log("is instance of...");
+            console.log('is instance of...');
             console.log(this.__traitInit);
             var args = [a, b, c, d, e, f, g, h];
             if (this.__factoryClass) {
@@ -3743,23 +3743,23 @@
               this.__factoryClass.forEach(function (initF) {
                 res = initF.apply(m, args);
               });
-              if (Object.prototype.toString.call(res) == "[object Function]") {
+              if (Object.prototype.toString.call(res) == '[object Function]') {
                 if (res._classInfo.name != myDataClass._classInfo.name) return new res(a, b, c, d, e, f, g, h);
               } else {
                 if (res) return res;
               }
             }
             if (this.__traitInit) {
-              console.log("Calling the subclass trait init...");
+              console.log('Calling the subclass trait init...');
               var m = this;
               this.__traitInit.forEach(function (initF) {
                 initF.apply(m, args);
               });
             } else {
-              if (typeof this.init == "function") this.init.apply(this, args);
+              if (typeof this.init == 'function') this.init.apply(this, args);
             }
           } else {
-            console.log("NOT instance of...");
+            console.log('NOT instance of...');
             return new myDataClass(a, b, c, d, e, f, g, h);
           }
         };
@@ -3837,7 +3837,7 @@
             this._socket = _clientSocket(req.protocol+"://"+req.ip, req.port);          
             */
             var req = me._request;
-            var myD = _data(req.protocol + "://" + req.ip + ":" + req.port + "/" + newChannelId, me._initOptions);
+            var myD = _data(req.protocol + '://' + req.ip + ':' + req.port + '/' + newChannelId, me._initOptions);
             myD.then(function () {
               result({
                 result: true,
@@ -3873,7 +3873,7 @@
         return d._journal.slice();
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (data, options, client) {
 
@@ -3892,9 +3892,9 @@
 
         this._initOptions = options;
 
-        if (typeof data == "string") {
+        if (typeof data == 'string') {
 
-          if (!data.match("://")) {
+          if (!data.match('://')) {
             return;
           }
 
@@ -3902,7 +3902,7 @@
           this._request = req;
 
           this._connectionOptions = options;
-          this._socket = _clientSocket(req.protocol + "://" + req.ip, req.port, options.ioLib);
+          this._socket = _clientSocket(req.protocol + '://' + req.ip, req.port, options.ioLib);
           var opts = {};
           if (options.auth) {
             opts.auth = options.auth;
@@ -3917,7 +3917,7 @@
           this._client.then(function (resp) {
 
             if (resp.result === false) {
-              me.trigger("login::failed");
+              me.trigger('login::failed');
               return;
             }
             var rawData = me._client.getData();
@@ -4077,7 +4077,7 @@
       * @param float iteratorDef  
       */
       _myTrait_.pushToObjArray = function (path, itemData, iteratorDef) {
-        var parts = path.split("/"),
+        var parts = path.split('/'),
             model = this;
 
         var subPathName,
@@ -4092,7 +4092,7 @@
             if (this.isArray(val)) {
               subPathName = n;
             } else {
-              if (val == "{path}") {
+              if (val == '{path}') {
                 titleName = n;
               } else {
                 extraAttrs[n] = val;
@@ -4106,8 +4106,8 @@
 
         objTemplate = JSON.stringify(extraAttrs);
 
-        if (!subPathName) subPathName = "items";
-        if (!titleName) titleName = "title";
+        if (!subPathName) subPathName = 'items';
+        if (!titleName) titleName = 'title';
         var find_or_insert_item = function find_or_insert_item(_x, _x2) {
           var _again = true;
 
@@ -4202,7 +4202,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != _data._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -4213,7 +4213,7 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new _data(a, b, c, d, e, f, g, h);
   };
@@ -4221,20 +4221,20 @@
   _data_prototype.prototype = _promise.prototype;
 
   _data._classInfo = {
-    name: "_data"
+    name: '_data'
   };
   _data.prototype = new _data_prototype();
 
   (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_data"] = _data;
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['_data'] = _data;
       this._data = _data;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_data"] = _data;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['_data'] = _data;
     } else {
       this._data = _data;
     }
-  }).call(new Function("return this")());
+  }).call(new Function('return this')());
 
   var _chPolicy_prototype = function _chPolicy_prototype() {
 
@@ -4260,7 +4260,7 @@
        * @param float fn
        */
       _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
+        return Object.prototype.toString.call(fn) == '[object Function]';
       };
 
       /**
@@ -4328,7 +4328,7 @@
         clientState.last_sent[1] = end;
 
         var obj = {
-          cmd: "c2s",
+          cmd: 'c2s',
           id: this.guid(),
           c: chData._journal.slice(start, end),
           start: start,
@@ -4372,7 +4372,7 @@
         serverState.last_update[1] = end;
 
         return {
-          cmd: "s2c",
+          cmd: 's2c',
           c: chData._journal.slice(start, end),
           start: start,
           end: end,
@@ -4499,19 +4499,19 @@
           reverseCnt: 0
         };
 
-        console.log("deltaMasterToSlave");
+        console.log('deltaMasterToSlave');
         var sameUntil = updateFrame.start;
 
         if (serverState.needsRefresh) {
-          console.log("** serverState needs refresh **");
+          console.log('** serverState needs refresh **');
           return;
         }
 
         // if the server's journal is a lot behind the sent data...
         if (updateFrame.start > data._journal.length) {
 
-          console.log("--- setting refresh on because of ---- ");
-          console.log(" updateFrame.start > data._journal.length ");
+          console.log('--- setting refresh on because of ---- ');
+          console.log(' updateFrame.start > data._journal.length ');
 
           serverState.needsRefresh = true;
           result.fail = true;
@@ -4552,7 +4552,7 @@
                       arr2 = mainArray2[mi];
                   for (var ai = 0; ai < 5; ai++) {
                     if (arr1[ai] != arr2[ai]) {
-                      console.log("not same ", ai, arr1[ai], arr2[ai]);
+                      console.log('not same ', ai, arr1[ai], arr2[ai]);
                       bSame = false;
                       break;
                     }
@@ -4564,7 +4564,7 @@
                       var len = Math.max(arr1.length || 0, arr2.length || 0);
                       for (var ai = 0; ai < len; ai++) {
                         if (arr1[ai] != arr2[ai]) {
-                          console.log("not same array ", ai);
+                          console.log('not same array ', ai);
                           bSame = false;
                           break;
                         }
@@ -4576,8 +4576,8 @@
                     }
                   }
                   if (!bSame) {
-                    console.log("was not the same");
-                    console.log(serverCmd, "vs", myJ);
+                    console.log('was not the same');
+                    console.log(serverCmd, 'vs', myJ);
                   }
                 }
               }
@@ -4585,8 +4585,8 @@
               for (var j = 0; j <= 4; j++) {
                 if (myJ[j] != serverCmd[j]) {
                   bSame = false;
-                  console.log("was not the same");
-                  console.log(serverCmd[j], "vs", myJ[j]);
+                  console.log('was not the same');
+                  console.log(serverCmd[j], 'vs', myJ[j]);
                 }
               }
             }
@@ -4596,7 +4596,7 @@
             var cmdRes = data.execCmd(serverCmd); // set data ready to be broadcasted
             if (cmdRes !== true) {
               // if we get errors then we have some kind of problem
-              console.log("--- setting refresh on because of ---- ");
+              console.log('--- setting refresh on because of ---- ');
               console.log(JSON.stringify(cmdRes));
               serverState.needsRefresh = true;
               result.fail = true;
@@ -4616,13 +4616,13 @@
             result.goodCnt++;
             result.oldCnt++;
           } else {
-            console.log("Not same ");
+            console.log('Not same ');
             console.log(JSON.stringify(updateFrame.c));
             return _promise(function (done) {
               // here is the point where the data is reversed and also the server journal should be truncated:
               data.reverseToLine(sameUntil);
               var size = updateFrame.journalSize;
-              console.log("Truncating the journal to ", size, sameUntil);
+              console.log('Truncating the journal to ', size, sameUntil);
               // truncate server journal to certain length
               serverState.model.truncateJournalTo(size, sameUntil).then(function () {
 
@@ -4634,7 +4634,7 @@
                   var cmdRes = data.execCmd(serverCmd); // data ready to be broadcasted
                   if (cmdRes !== true) {
 
-                    console.log("--- there is need for a bigger refersh ---- ");
+                    console.log('--- there is need for a bigger refersh ---- ');
                     console.log(JSON.stringify(cmdRes));
 
                     // if we get errors then we have some kind of problem
@@ -4669,8 +4669,8 @@
         //clientState.last_update[0] = updateFrame.start;
         //clientState.last_update[1] = updateFrame.end;
 
-        console.log("server last update " + JSON.stringify(serverState.last_update));
-        console.log("server data length " + serverState.data._journal.length);
+        console.log('server last update ' + JSON.stringify(serverState.last_update));
+        console.log('server data length ' + serverState.data._journal.length);
 
         if (goodList.length) {}
 
@@ -4730,8 +4730,8 @@
 
         if (clientState.needsRefresh) {
           // console.log("** client needs refresh **");
-          if (_hooks["onCancel"]) {
-            _hooks["onCancel"]({
+          if (_hooks['onCancel']) {
+            _hooks['onCancel']({
               data: data,
               reason: cmdRes,
               clientState: clientState,
@@ -4744,10 +4744,10 @@
 
         if (updateFrame.start > data._journal.length) {
 
-          if (_hooks["onError"]) {
-            _hooks["onError"]({
+          if (_hooks['onError']) {
+            _hooks['onError']({
               data: data,
-              reason: " updateFrame.start > data._journal.length ",
+              reason: ' updateFrame.start > data._journal.length ',
               clientState: clientState,
               updateFrame: updateFrame,
               serverCmds: updateFrame.c
@@ -4765,8 +4765,8 @@
           }
         }
 
-        if (_hooks["onServerData"]) {
-          _hooks["onServerData"]({
+        if (_hooks['onServerData']) {
+          _hooks['onServerData']({
             data: data,
             clientState: clientState,
             updateFrame: updateFrame,
@@ -4794,7 +4794,7 @@
                       arr2 = mainArray2[mi];
                   for (var ai = 0; ai < 5; ai++) {
                     if (arr1[ai] != arr2[ai]) {
-                      console.log("not same ", ai, arr1[ai], arr2[ai]);
+                      console.log('not same ', ai, arr1[ai], arr2[ai]);
                       bSame = false;
                       break;
                     }
@@ -4806,7 +4806,7 @@
                       var len = Math.max(arr1.length || 0, arr2.length || 0);
                       for (var ai = 0; ai < len; ai++) {
                         if (arr1[ai] != arr2[ai]) {
-                          console.log("not same array ", ai);
+                          console.log('not same array ', ai);
                           bSame = false;
                           break;
                         }
@@ -4818,8 +4818,8 @@
                     }
                   }
                   if (!bSame) {
-                    console.log("was not the same at array compare");
-                    console.log(serverCmd, "vs", myJ);
+                    console.log('was not the same at array compare');
+                    console.log(serverCmd, 'vs', myJ);
                   }
                 }
               }
@@ -4827,10 +4827,10 @@
               for (var j = 0; j <= 4; j++) {
                 if (myJ[j] != serverCmd[j]) {
                   bSame = false;
-                  if (_hooks["onError"]) {
-                    _hooks["onError"]({
+                  if (_hooks['onError']) {
+                    _hooks['onError']({
                       data: data,
-                      reason: " server datas are different ",
+                      reason: ' server datas are different ',
                       clientState: clientState,
                       updateFrame: updateFrame,
                       serverCmds: updateFrame.c
@@ -4845,11 +4845,11 @@
             var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
             if (cmdRes !== true) {
               // if we get errors then we have some kind of problem
-              console.log("--- setting refresh on because of ---- ");
+              console.log('--- setting refresh on because of ---- ');
               console.log(JSON.stringify(cmdRes));
 
-              if (_hooks["onError"]) {
-                _hooks["onError"]({
+              if (_hooks['onError']) {
+                _hooks['onError']({
                   data: data,
                   reason: cmdRes,
                   clientState: clientState,
@@ -4885,10 +4885,10 @@
               var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
               if (cmdRes !== true) {
 
-                console.log("--- setting refresh on because of ---- ");
+                console.log('--- setting refresh on because of ---- ');
                 console.log(JSON.stringify(cmdRes));
-                if (_hooks["onError"]) {
-                  _hooks["onError"]({
+                if (_hooks['onError']) {
+                  _hooks['onError']({
                     data: data,
                     reason: cmdRes,
                     clientState: clientState,
@@ -4916,7 +4916,7 @@
         return result;
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (t) {
         if (!_hooks) {
@@ -4946,7 +4946,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != _chPolicy._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -4957,1496 +4957,26 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new _chPolicy(a, b, c, d, e, f, g, h);
   };
 
   _chPolicy._classInfo = {
-    name: "_chPolicy"
+    name: '_chPolicy'
   };
   _chPolicy.prototype = new _chPolicy_prototype();
 
   (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_chPolicy"] = _chPolicy;
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['_chPolicy'] = _chPolicy;
       this._chPolicy = _chPolicy;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_chPolicy"] = _chPolicy;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['_chPolicy'] = _chPolicy;
     } else {
       this._chPolicy = _chPolicy;
     }
-  }).call(new Function("return this")());
-
-  var channelClient_prototype = function channelClient_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return t instanceof Array;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _cmdNsMap;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float url
-       */
-      _myTrait_._getNsFromUrl = function (url) {
-        if (_nsShortcuts[url]) {
-          return _nsShortcuts[url];
-        }
-        _nsReverse[_nsIndex] = url;
-        _nsShortcuts[url] = _nsIndex++;
-
-        return _nsShortcuts[url];
-      };
-
-      /**
-       * @param float nsName
-       */
-      _myTrait_._getNsShorthand = function (nsName) {
-
-        if (_nsShortcuts[nsName]) {
-          return _nsShortcuts[nsName];
-        }
-        _nsReverse[_nsIndex] = nsName;
-        _nsShortcuts[nsName] = _nsIndex++;
-
-        return _nsShortcuts[nsName];
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._getReflections = function (t) {
-        return _localReflections;
-      };
-
-      /**
-       * @param float objId
-       */
-      _myTrait_._getReflectionsFor = function (objId) {
-
-        if (_localReflections) {
-          var list = _localReflections[objId];
-          if (list) return list;
-        }
-        return [];
-      };
-
-      /**
-       * @param int index
-       */
-      _myTrait_._getReverseNs = function (index) {
-
-        return _nsReverse[index];
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_._idFromNs = function (id) {
-        if (id) {
-
-          var len = id.length;
-          if (id[len - 1] == "#") {
-            id = id.split("@").shift();
-          }
-        }
-        return id;
-      };
-
-      /**
-       * @param float id
-       * @param float ns
-       */
-      _myTrait_._idToNs = function (id, ns) {
-
-        if (id) {
-          var len = id.length;
-          // longString
-
-          if (id[len - 1] == "#") {
-            var ind = id.indexOf("@");
-            var oldNs = id.substring(ind + 1, len - 1);
-            if (oldNs != ns) {
-              id = id.substring(0, ind) + "@" + ns + "#";
-            }
-          } else {
-            id = id + "@" + ns + "#";
-          }
-        }
-        return id;
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_._nsFromId = function (id) {
-        var ns;
-        if (id) {
-          id = id + "";
-          var len = id.length;
-          if (id[len - 1] == "#") {
-            ns = id.split("@").pop();
-            ns = ns.split("#").shift();
-          }
-        }
-        return ns;
-      };
-
-      /**
-       * @param float cmd
-       * @param float ns
-       */
-      _myTrait_._transformCmdFromNs = function (cmd, ns) {
-
-        if (!ns) ns = this._ns;
-
-        var map = _cmdNsMap,
-            nextCmd = cmd.slice(),
-            swap = map[cmd[0]],
-            me = this;
-        if (swap) {
-          swap.forEach(function (index) {
-            nextCmd[index] = me._idFromNs(nextCmd[index], ns);
-          });
-        }
-        return nextCmd;
-      };
-
-      /**
-       * @param float cmd
-       * @param float ns
-       */
-      _myTrait_._transformCmdToNs = function (cmd, ns) {
-
-        if (!ns) ns = this._ns;
-
-        var map = _cmdNsMap,
-            nextCmd = cmd.slice(),
-            swap = map[cmd[0]],
-            me = this;
-        if (swap) {
-          for (var i = 0; i < swap.length; i++) {
-            var index = swap[i];
-            nextCmd[index] = this._idToNs(nextCmd[index], ns);
-          }
-        }
-        return nextCmd;
-      };
-
-      /**
-       * @param float obj
-       * @param float ns
-       */
-      _myTrait_._transformObjFromNs = function (obj, ns) {
-        if (!ns) ns = this._ns;
-
-        if (obj && obj.__id) {
-          if (obj.__p) obj.__p = this._idFromNs(obj.__p, ns);
-          obj.__id = this._idFromNs(obj.__id, ns);
-          for (var n in obj.data) {
-            if (obj.data.hasOwnProperty(n)) {
-              if (this.isObject(obj.data[n])) this._transformObjFromNs(obj.data[n], ns);
-            }
-          }
-        }
-        return obj;
-      };
-
-      /**
-       * @param float obj
-       * @param float ns
-       */
-      _myTrait_._transformObjToNs = function (obj, ns) {
-        if (!ns) ns = this._ns;
-        if (obj && obj.__id) {
-
-          // the old way, currently the socket ID may be the same, but not used right now
-          /*
-          var nsNext;
-          if(obj.__radioURL) {
-          var nsNext = this._getNsShorthand( obj.__radioURL );
-          }
-          ns = nsNext || ns;
-          */
-
-          // obj = me._transformObjToNs( obj, ns );
-          obj.__id = this._idToNs(obj.__id, ns);
-          if (obj.__p) {
-            obj.__p = this._idToNs(obj.__p, ns);
-          }
-          for (var n in obj.data) {
-            if (obj.data.hasOwnProperty(n)) {
-              if (this.isObject(obj.data[n])) this._transformObjToNs(obj.data[n], ns);
-            }
-          }
-        }
-
-        return obj;
-      };
-
-      /**
-       * @param float obj
-       * @param float parentObj
-       * @param float parentObj2
-       */
-      _myTrait_._transformToNsBeforeInsert = function (obj, parentObj, parentObj2) {
-
-        // OK, so...
-
-        var cmdList = obj.__ctxCmdList;
-        var ns = this._nsFromId(parentObj.__id);
-
-        console.log(" _transformToNsBeforeInsert ");
-
-        var me = this;
-        if (ns) {
-          // console.log("Using namespace "+ns);
-          if (cmdList) {
-            cmdList.forEach(function (c) {
-              c.cmd = me._transformCmdToNs(c.cmd, ns);
-            });
-          }
-          obj = me._transformObjToNs(obj, ns);
-          obj.__ctxCmdList = cmdList;
-          this._addToCache(obj);
-          return obj;
-        }
-        // this._addToCache( obj );
-        return obj;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {
-        if (!_cmdNsMap) {
-          _cmdNsMap = {
-            1: [1],
-            2: [1],
-            4: [4],
-            5: [2, 4],
-            7: [2, 4],
-            8: [2, 4],
-            10: [2, 4],
-            12: [1, 4],
-            13: [4],
-            14: [4],
-            16: [3, 4]
-          };
-        }
-      });
-    })(this);
-
-    (function (_myTrait_) {
-      var _instanceCache;
-      var _dmp;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float channelId
-       */
-      _myTrait_._checkout = function (channelId) {
-
-        var me = this,
-            socket = this._socket;
-
-        return _promise(function (result) {
-
-          if (!me._policy) return;
-          if (me._disconnected) return; // in case disconnected, don't send data
-          if (!me._connected) return;
-
-          socket.send("channelCommand", {
-            channelId: channelId,
-            cmd: "checkout",
-            data: ""
-          }).then(function (res) {
-
-            debugger;
-            console.log("Checkout tree ");
-            console.log(res);
-            result(res);
-          });
-        });
-      };
-
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
-      _myTrait_.__factoryClass.push(function (id, socket) {
-
-        if (!id || !socket) return;
-
-        id = id + socket.getId();
-
-        if (!_instanceCache) _instanceCache = {};
-        if (_instanceCache[id]) return _instanceCache[id];
-        _instanceCache[id] = this;
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_._createTransaction = function (t) {
-
-        // package to be sent to the server
-        this._currentFrame = {
-          id: this.guid(),
-          version: 1,
-          from: this._data.getJournalLine(),
-          fail_tolastok: true,
-          commands: []
-        };
-
-        /*
-        data : {
-            id   : "t2",                   // unique ID for transaction
-            version : 1,                    // channel version
-            from : 1,                      // journal line to start the change
-            to   : 2,                      // the last line ( optionsl, I guess )
-            fail_tolastok : true,           // fail until last ok command
-            // fail_all : true,
-            commands : [
-                [4, "fill", "black", "blue", "id1"]
-            ]                               
-        }
-        */
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_._fetch = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          return obj;
-        }
-      };
-
-      /**
-       * This is the beef of almost everything, when a new frame comes around, what to do with it? There are many options what to do, we just have to pick one strategy.
-       * @param float socket
-       * @param float myNamespace
-       */
-      _myTrait_._incoming = function (socket, myNamespace) {
-
-        var me = this,
-            channelId = this._channelId,
-            fullUpgradeFailCnt = 0;
-
-        socket.on("upgrade_" + this._channelId, function (cmd) {
-
-          me._upgradePending = false;
-          // just don't accept any msgs
-          if (me._disconnected) return;
-          //console.log("upgrade_cmd");
-          //console.log(JSON.stringify(cmd));
-          if (cmd) {
-
-            if (cmd.partial) {
-
-              // should be reversing perhaps first to some line...
-              var dd = me._clientState.data;
-
-              dd.reverseToLine(cmd.partialFrom);
-              // console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
-              var errCnt = 0;
-
-              dd.setClearCreated(true);
-              cmd.partial.forEach(function (c) {
-                if (errCnt > 0) return;
-                var r;
-                var cmdIn = me._transformCmdToNs(c);
-                if (!((r = dd.execCmd(cmdIn, true)) === true)) {
-                  // console.error("Partial ", r);
-                  errCnt++;
-                }
-              });
-              dd.setClearCreated(false);
-
-              if (errCnt == 0) {
-                me._clientState.needsRefresh = false;
-                me._clientState.needsFullRefresh = false;
-
-                dd._journal.length = cmd.partialEnds;
-
-                // The correct position
-                me._clientState.last_update[0] = 0;
-                me._clientState.last_update[1] = dd._journal.length;
-                me._clientState.last_sent[0] = 0;
-                me._clientState.last_sent[1] = dd._journal.length;
-              } else {
-                me._clientState.needsFullRefresh = true;
-              }
-            }
-            if (cmd.data) {
-
-              // full upgrade coming here, must also replace the journal
-
-              var myData = me._clientState.data.getData(); // <- the data
-              me._transformObjToNs(cmd.data);
-
-              var diff = diffEngine().compareFiles(myData, cmd.data);
-              console.log("Diff obj , myData, cmd.data");
-              console.log(diff);
-              console.log(myData);
-              console.log(cmd.data);
-
-              // run the commands for the local data
-              var dd = me._clientState.data;
-              var errCnt = 0;
-
-              dd.setClearCreated(true);
-              diff.cmds.forEach(function (c) {
-                console.log("Diff cmd ", c);
-                if (errCnt > 0) return;
-                var r;
-                /// dd.execCmd(c, true); // the point is just to change the data to something else
-                if (!((r = dd.execCmd(c, true)) === true)) {
-                  console.error("Full error ", r);
-                  console.log("Return value from failed cmd: ", r);
-                  errCnt++;
-                }
-              });
-              dd.setClearCreated(false);
-
-              // and now the hard part, upgrade the local client data.
-              if (errCnt == 0) {
-
-                me._clientState.needsRefresh = false;
-                me._clientState.needsFullRefresh = false;
-
-                console.log("** full update should have gone ok ** ");
-                dd._journal.length = 0;
-                dd._journal.push.apply(dd._journal, cmd.journal);
-                me._clientState.needsRefresh = false;
-                me._clientState.version = cmd.version;
-
-                // dd._journal.length = cmd.updateEnds;
-
-                me._clientState.last_update[0] = 0;
-                me._clientState.last_update[1] = dd._journal.length;
-                me._clientState.last_sent[0] = 0;
-                me._clientState.last_sent[1] = dd._journal.length;
-
-                console.log("Version ", me._clientState.version);
-              } else {
-                fullUpgradeFailCnt++;
-
-                // must stop full refresh at this point
-                console.error("** errors with the full update ** ");
-                if (fullUpgradeFailCnt > 0) {
-                  console.log("--- server command data ---");
-                  console.log(cmd);
-                  console.log("--- the client state ---");
-                  console.log(me._clientState);
-                  me._clientState.needsFullRefresh = false;
-                } else {
-                  me._clientState.needsFullRefresh = true;
-                  me._clientState.fullUpgradeFailCnt = fullUpgradeFailCnt;
-                }
-
-                // re-connections or refreshes appear
-              }
-              /*
-                // the state management
-                me._clientState = {
-                    data : chData,              // The channel data object
-                    client : me,                // The channel client object (for Namespace conversion )
-                    needsRefresh : false,       // true if client is out of sync and needs to reload
-                    version : me._channelStatus.version,               
-                    last_update : [0, chData.getJournalLine()],  // last succesfull server update
-                    last_sent : [0, chData.getJournalLine()]     // last range sent to the server
-                
-                };
-              */
-            }
-
-            if (me._slaveController) {
-              me._slaveController._execCmd({
-                cmd: "masterJournalUpgrade",
-                data: cmd
-              });
-            }
-          }
-        });
-
-        socket.on("s2c_" + this._channelId, function (cmd) {
-
-          // just don't accept any msgs
-          if (me._disconnected) return;
-          if (cmd) {
-
-            var res = me._policy.deltaServerToClient(cmd, me._clientState);
-
-            // if there is a slave controller, send this command as masterUpgrade to
-            // the slave server so that the slave can update it's own data state
-            if (me._slaveController) {
-
-              // --> then try slave to master command building...
-
-              var newList = [];
-              for (var i = 0; i < cmd.c.length; i++) {
-                var c = cmd.c[i].slice();
-                newList.push(me._transformCmdFromNs(c));
-              }
-
-              cmd.c = newList;
-              me._slaveController._execCmd({
-                cmd: "masterUpgrade",
-                data: cmd
-              });
-            }
-          }
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._isNodeJs = function (t) {
-        return new Function("try { return this === global; } catch(e) { return false; }")();
-      };
-
-      /**
-       * @param Object socket
-       */
-      _myTrait_._onFrameLoop = function (socket) {
-
-        var me = this,
-            channelId = this._channelId;
-
-        var _frameFn = function _frameFn() {
-
-          if (!me._policy) return;
-          if (me._disconnected) return; // in case disconnected, don't send data
-
-          if (!me._connected) return;
-          if (!me._clientState) return;
-
-          if (me._clientState.needsRefresh) {
-            // *** if refresh is required, out of sync client **
-
-            if (!me._upgradePending) {
-              // console.log(" needsRefresh && !_upgradePending " );
-              me.askUpgrade(me._clientState.needsFullRefresh);
-            }
-            me._upgradePending = true;
-          }
-
-          var packet = me._policy.constructClientToServer(me._clientState);
-          if (packet) {
-
-            //console.log("Sending packet to server ");
-            //console.log(packet);
-            socket.send("channelCommand", {
-              channelId: channelId,
-              cmd: "c2s",
-              data: packet
-            }).then(function (res) {
-              if (res && res.errors) {
-                // console.error(res.errors);
-                if (res.errors.length > 0) {
-                  var bRefresh = false;
-                  res.errors.forEach(function (err) {
-                    if (err.error == 44) {
-                      bRefresh = true;
-                    }
-                  });
-                  if (bRefresh) {
-                    me._clientState.needsRefresh = true;
-                  }
-                }
-              }
-            });
-          }
-        };
-        later().onFrame(_frameFn);
-      };
-
-      /**
-       * Actions to do when the client reconnects to other server
-       * @param float t
-       */
-      _myTrait_._onReconnect = function (t) {
-
-        // do we have a slave connection???
-        if (this._slave) {
-          console.log("*** reconnect to the master ***");
-        }
-
-        var me = this;
-
-        console.log("_onReconnect");
-
-        // if we have a slave controller...
-        if (me._slaveController) {
-          console.log("_slaveController -> trying to send data ");
-          me._slaveController._sendUnsentToMaster();
-        }
-
-        // first, send the data we have to server, hope it get's through...
-        var packet = me._policy.constructClientToServer(me._clientState);
-        var socket = this._socket;
-        var channelId = this._channelId;
-
-        if (packet) {
-          socket.send("channelCommand", {
-            channelId: channelId,
-            cmd: "c2s",
-            data: packet
-          }).then(function (res) {});
-        }
-        // then, ask upgrade...
-        me.askUpgrade();
-
-        // -->
-
-        // me._sendUnsentToMaster();
-      };
-
-      /**
-       * Add command to next change frame to be sent over the network. TODO: validate the commands against the own channelObject, for example the previous value etc.
-       * @param Array cmd
-       * @param float dontBroadcast
-       */
-      _myTrait_.addCommand = function (cmd, dontBroadcast) {
-        var cmdIn = this._transformCmdToNs(cmd, this._ns);
-        return this._data.execCmd(cmdIn, dontBroadcast);
-      };
-
-      /**
-       * @param bool askFull
-       */
-      _myTrait_.askUpgrade = function (askFull) {
-
-        if (!this._socket) return;
-
-        // do not ask upgrade if failCnt > 0
-        if (this._clientState.fullUpgradeFailCnt) return;
-
-        this._socket.send("channelCommand", {
-          channelId: this._channelId,
-          cmd: "upgradeRequest",
-          data: {
-            version: this._clientState.version,
-            last_update: this._clientState.last_update,
-            askFull: askFull
-          }
-        }).then(function () {});
-      };
-
-      /**
-       * @param float id
-       * @param float index
-       */
-      _myTrait_.at = function (id, index) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          return obj.data[index];
-        }
-      };
-
-      /**
-       * @param float name
-       * @param float description
-       * @param float baseData
-       */
-      _myTrait_.createChannel = function (name, description, baseData) {
-
-        if (this._isLocal) return;
-
-        // a fresh copy of the base data
-        var copyOf = JSON.parse(JSON.stringify(baseData));
-        var chData = _channelData(this.guid(), copyOf, []);
-
-        copyOf = chData.getData();
-        copyOf = this._transformObjFromNs(copyOf);
-
-        // The command to be sent to the server-side
-        var forkCmd = {
-          channelId: name,
-          name: description,
-          chData: copyOf
-        };
-
-        // the fork is being processed, the response is going to be ready after the promise completes
-        var me = this;
-        return _promise(function (results) {
-          me._socket.send("channelCommand", {
-            channelId: me._channelId,
-            cmd: "createChannel",
-            data: forkCmd
-          }).then(function (resp) {
-            results(resp);
-          });
-        });
-      };
-
-      /**
-       * @param float id
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.diffSet = function (id, name, value) {
-
-        if (!_dmp) return;
-
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj && !this.isObject(value)) {
-          var old_value = obj.data[name];
-          if (old_value != value) {
-
-            // this.addCommand([4, name, value, old_value, ns_id ]);
-            var diff1 = _dmp.diff_main(old_value, value);
-            var diff2 = _dmp.diff_main(value, old_value);
-
-            _dmp.diff_cleanupEfficiency(diff1);
-            _dmp.diff_cleanupEfficiency(diff2);
-
-            var t1 = _dmp.patch_toText(_dmp.patch_make(old_value, diff1));
-            var t2 = _dmp.patch_toText(_dmp.patch_make(value, diff2));
-
-            this.addCommand([14, name, t1, t2, ns_id]);
-          }
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.disconnect = function (t) {
-        this._disconnected = true;
-        return this;
-      };
-
-      /**
-       * @param float name
-       * @param float description
-       * @param float options
-       */
-      _myTrait_.fork = function (name, description, options) {
-        /*
-        {
-        version : 1,
-        name : "Initial version",
-        utc : (new Date()).getTime(),
-        journalLine : 0,
-        channelId : "my/channel/fork1/"
-        }
-        */
-        // me._channelStatus = respData.status;
-        /*
-        // has channel + fork information included
-        {   "fromJournalLine":1,
-        "version":1,
-        "journalLine":1,
-        "channelId":"my/channel/myFork",
-        "fromVersion":2,
-        "from":"my/channel",
-        "to":"my/channel/myFork",
-        "name":"test of fork","utc":14839287897}
-        */
-
-        if (this._isLocal) return;
-
-        // ==> OK, ready to send data forward...
-
-        // What is the journal line we are using for the fork???
-        var forkCmd = {
-          version: this._channelStatus.version,
-          channelId: name,
-          name: description,
-          journalLine: 1
-        };
-        /*
-        me._clientState = {
-        data : chData,              // The channel data object
-        client : me,                // The channel client object (for Namespace conversion )
-        needsRefresh : false,       // true if client is out of sync and needs to reload
-        version : me._channelStatus.version,               
-        last_update : [0, chData.getJournalLine()],  // last succesfull server update
-        last_sent : []              // last range sent to the server
-        };
-        */
-        // <= we must be using the last serverupdate, and maybe add the extra lines to the
-        // additional fork information to create a truly dynamic fork of the subject in case
-        // some other client is "resisting" the update...
-        forkCmd.journalLine = this._clientState.last_update[1];
-
-        // the fork is being processed, the response is going to be ready after the promise completes
-        var me = this;
-
-        return _promise(function (results) {
-          me._socket.send("channelCommand", {
-            channelId: me._channelId,
-            cmd: "fork",
-            data: forkCmd
-          }).then(function (resp) {
-            // information from the server.
-            // build new channel object
-            // return it as the promise...
-            results(resp);
-          });
-        });
-      };
-
-      /**
-       * @param Object change
-       */
-      _myTrait_.fromMaster = function (change) {
-        console.log("from master", JSON.stringify(change));
-      };
-
-      /**
-       * @param Object change
-       */
-      _myTrait_.fromSlave = function (change) {
-        console.log("from slave", JSON.stringify(change));
-
-        if (change.cmd == "s2c") {
-
-          // --> we have server to client command coming in..
-          // this is the connection to the master, thus the commands should be run
-          // here as if they were "local" commands which are about to be sent to the
-          // remote server
-          /*
-          return {
-          cmd : "s2c",
-          c : chData._journal.slice( start, end ),
-          start : start,
-          end : end,
-          version : serverState.version
-          };    
-          */
-
-          // this channelClient is only responsible of sending the commands to the
-          // actual master server
-          var me = this;
-          change.c.forEach(function (eCmd) {
-            console.log(eCmd);
-            var r = me.addCommand(eCmd);
-            console.log(JSON.stringify(r));
-            console.log(JSON.stringify(me._data.getData()));
-          });
-        }
-      };
-
-      /**
-       * @param string id
-       * @param float name
-       */
-      _myTrait_.get = function (id, name) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          return obj.data[name];
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getChannelData = function (t) {
-        return this._data;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getData = function (t) {
-        return this._data.getData();
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.indexOf = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            return index;
-          }
-        }
-        return -1;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (channelId, socket, options) {
-
-        if (!_dmp) {
-          if (typeof diff_match_patch != "undefined") {
-            _dmp = new diff_match_patch();
-          } else {
-            // if in node.js try to require the module
-            if (typeof require != "undefined") {
-              var DiffMatchPatch = require("diff-match-patch");
-              _dmp = new DiffMatchPatch();
-            }
-          }
-        }
-
-        if (!this._policy) this._policy = _chPolicy();
-
-        if (options && options.localChannel) {
-
-          this._channelId = channelId;
-          this._options = options;
-          this._socketGUID = this.guid();
-          this._isLocal = true;
-
-          this._socket = _clientSocket(this._socketGUID, 1);
-          var myNamespace = this._socket.getEnum();
-
-          this._ns = myNamespace;
-          this._id = channelId + this._socket.getId();
-          var me = this;
-
-          var mainData = options.localData;
-          mainData = me._transformObjToNs(options.localData, myNamespace);
-
-          var chData = _channelData(me._id, mainData, []);
-          me._data = chData;
-          me.resolve({
-            result: true,
-            channelId: channelId
-          });
-          return;
-        } else {}
-
-        if (!channelId || !socket) return;
-
-        this._channelId = channelId;
-        this._socket = socket;
-        this._options = options;
-        this._changeFrames = [];
-        this._pendingFrames = [];
-
-        var myNamespace = socket.getEnum();
-
-        this._ns = myNamespace;
-
-        this._id = channelId + socket.getId();
-        var me = this;
-
-        this._onFrameLoop(socket, myNamespace);
-        this._incoming(socket, myNamespace);
-
-        this._connCnt = 0;
-
-        socket.on("disconnect", function () {
-          me._connected = false;
-        });
-        socket.on("connect", function () {
-
-          console.log("*** socket reconnect for " + channelId + " *** ");
-          console.log("Connection count " + me._connCnt);
-
-          me._connCnt++;
-
-          // Authenticate...
-          if (options.auth) {
-            socket.send("auth", {
-              userId: options.auth.username,
-              password: options.auth.password
-            }).then(function (resp) {
-
-              if (resp.userId) {
-
-                me._userId = resp.userId;
-                me._logged = true;
-              } else {
-                me._logged = false;
-                return false;
-              }
-              // ask to join the channel with this socket...
-              return socket.send("requestChannel", {
-                channelId: channelId,
-                initWithData: options.initWithData
-              });
-            }).then(function (resp) {
-              // this channel client has been connected to the server ok
-              if (resp && resp.channelId == channelId) {
-
-                me._connected = true;
-                // The next step: to load the channel information for the
-                // local objects to consume
-
-                if (me._connCnt > 1) {
-                  // if reconnecting to the other server, ask upgrade only, not the whole
-                  // build tree...
-                  me._onReconnect();
-                  return false;
-                }
-
-                return socket.send("channelCommand", {
-                  channelId: channelId,
-                  cmd: "readBuildTree",
-                  data: ""
-                });
-              } else {
-                return false;
-              }
-            }).then(function (respData) {
-
-              if (respData) {
-
-                var resp = respData.build;
-
-                // ? should we be updating this or is this just one-time info
-                me._channelStatus = respData.status;
-                /*
-                // has channel + fork information included
-                {   "fromJournalLine":1,
-                  "version":1,
-                  "journalLine":1,
-                  "channelId":"my/channel/myFork",
-                  "fromVersion":2,
-                  "from":"my/channel",
-                  "to":"my/channel/myFork",
-                  "name":"test of fork","utc":14839287897}
-                */
-
-                // The build tree is here now...
-                // Should you transform the objects to other namespaces...?
-
-                var mainData = resp.pop();
-
-                // The data is here... but transforming?
-                mainData = me._transformObjToNs(mainData, myNamespace);
-
-                var chData = _channelData(me._id, mainData, []);
-                var list = resp.pop();
-
-                // should be updating the client
-                // var res = me._policy.deltaServerToClient( cmd, me._clientState);
-                while (list) {
-                  chData._journalPointer = 0;
-                  chData._journal.length = 0; // <-- the journal length, last will be spared
-                  list.forEach(function (c) {
-                    chData.execCmd(me._transformCmdToNs(c, myNamespace), true);
-                  });
-                  list = resp.pop();
-                }
-
-                // the state management
-                me._clientState = {
-                  data: chData, // The channel data object
-                  client: me, // The channel client object (for Namespace conversion )
-                  needsRefresh: false, // true if client is out of sync and needs to reload
-                  version: me._channelStatus.version,
-                  last_update: [0, chData.getJournalLine()], // last succesfull server update
-                  last_sent: [0, chData.getJournalLine()] // last range sent to the server
-
-                };
-
-                me._data = chData;
-                me._createTransaction();
-                me.resolve({
-                  result: true,
-                  channelId: channelId
-                });
-              } else {
-                me.resolve({
-                  result: false,
-                  text: "Authorization or connection failed"
-                });
-              }
-            });
-          }
-        });
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isConnected = function (t) {
-        if (this._disconnected) return false;
-        if (this._connCnt && this._connected) return true;
-
-        return false;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isLocal = function (t) {
-        return this._isLocal;
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.length = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj && obj.data) {
-          return obj.data.length || 0;
-        }
-        return 0;
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.moveDown = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            var newIndex = index - 1;
-            if (newIndex >= 0 && index >= 0 && index != newIndex && parent.data.length > newIndex) {
-              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
-              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float id
-       * @param float newIndex
-       */
-      _myTrait_.moveTo = function (id, newIndex) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            if (index >= 0 && index != newIndex && parent.data.length > newIndex) {
-              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
-              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.moveUp = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            var newIndex = index + 1;
-            if (newIndex >= 0 && index >= 0 && index != newIndex && parent.data.length > newIndex) {
-              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
-              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.reconnect = function (t) {
-        this._disconnected = false;
-        return this;
-      };
-
-      /**
-       * @param float cnt
-       */
-      _myTrait_.redo = function (cnt) {
-        this._data.redo(cnt);
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.redoStep = function (options) {
-        this._data.redoStep(options);
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.remove = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            if (index >= 0) {
-              this.addCommand([8, index, ns_id, 0, parent.__id]);
-              // this.addCommand([4, name, value, old_value, ns_id ]);
-            }
-          }
-          // dataTest.execCmd( [8, 0, "obj1", 0, "array1"], true);
-          // return obj.data[name];
-        }
-      };
-
-      /**
-       * @param float commandName
-       * @param float packet
-       */
-      _myTrait_.sendCommand = function (commandName, packet) {
-        var me = this,
-            channelId = this._channelId,
-            socket = this._socket;
-
-        if (!me._policy) return;
-        if (me._disconnected) return; // in case disconnected, don't send data
-        if (!me._connected) return;
-        if (!socket) return;
-
-        return socket.send("channelCommand", {
-          channelId: channelId,
-          cmd: commandName,
-          data: packet
-        });
-      };
-
-      /**
-       * @param float id
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.set = function (id, name, value) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj && !this.isObject(value)) {
-          var old_value = obj.data[name];
-          if (old_value != value) {
-            console.log("command 4 " + JSON.stringify([4, name, value, old_value, ns_id]));
-            this.addCommand([4, name, value, old_value, ns_id]);
-          }
-        }
-      };
-
-      /**
-       * @param float model
-       */
-      _myTrait_.setChannelModel = function (model) {
-
-        this._serverModel = model;
-      };
-
-      /**
-       * @param float masterConnection
-       */
-      _myTrait_.setMasterConnection = function (masterConnection) {
-        this._master = masterConnection;
-      };
-
-      /**
-       * @param float id
-       * @param float name
-       * @param float propObj
-       */
-      _myTrait_.setObject = function (id, name, propObj) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-
-        if (obj && this.isObject(propObj) && propObj.__id) {
-          var old_value = obj.data[name];
-
-          if (!old_value) {
-            // insert object only if there is no old value
-            this.addCommand([5, name, propObj.__id, null, ns_id]);
-          }
-        }
-      };
-
-      /**
-       * Will set the slave server for this connection
-       * @param Object slaveServer
-       */
-      _myTrait_.setSlaveServer = function (slaveServer) {
-
-        this._slave = slaveServer;
-      };
-
-      /**
-       * Create a new syncable channel...
-       * @param Object syncData
-       */
-      _myTrait_.sync = function (syncData) {
-        /*
-        {
-        "out" : {
-        "channelId" : "sync/test1",
-        "protocol" : "http",
-        "ip" : "localhost",
-        "port" : "1234",
-        "extPort" : "7778",
-        "method" : "node.socket",
-        "username" : "Tero",
-        "password" : "teropw"
-        },
-        "in" : {
-        "channelId" : "sync/test2",
-        "protocol" : "http",
-        "ip" : "localhost",
-        "port" : "1234",
-        "extPort" : "7779",
-        "method" : "node.socket",
-        "username" : "Tero",
-        "password" : "teropw"
-        }
-        }
-        */
-        var socket = this._socket,
-            me = this,
-            channelId = this._channelId;
-        return _promise(function (result) {
-
-          if (!me.isConnected() || !syncData || !syncData.out || !syncData.out.channelId) {
-            result({
-              success: false
-            });
-            return;
-          }
-
-          socket.send("channelCommand", {
-            channelId: channelId,
-            cmd: "sync",
-            data: {
-              sync: syncData
-            }
-          }).then(function (res) {
-            result(res);
-          });
-        });
-      };
-
-      /**
-       * @param int cnt
-       */
-      _myTrait_.undo = function (cnt) {
-        this._data.undo(cnt);
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.undoStep = function (options) {
-        this._data.undoStep(options);
-      };
-
-      /**
-       * @param float id
-       * @param float name
-       */
-      _myTrait_.unset = function (id, name) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj && obj.data) {
-
-          if (this.isObject(obj.data[name])) {
-            this.addCommand([10, name, obj.data[name].__id, null, ns_id]);
-          } else {
-            if (obj.data && typeof obj.data[name] != "undefined") {
-              this.addCommand([10, name, obj.data[name], "value", ns_id]);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.upgradeVersion = function (t) {
-
-        // should start the snapshot command
-        this._socket.send("channelCommand", {
-          channelId: this._channelId,
-          cmd: "snapshot",
-          data: {}
-        }).then(function () {});
-      };
-    })(this);
-  };
-
-  var channelClient = function channelClient(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof channelClient) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != channelClient._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new channelClient(a, b, c, d, e, f, g, h);
-  };
-
-  channelClient_prototype.prototype = _promise.prototype;
-
-  channelClient._classInfo = {
-    name: "channelClient"
-  };
-  channelClient.prototype = new channelClient_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["channelClient"] = channelClient;
-      this.channelClient = channelClient;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["channelClient"] = channelClient;
-    } else {
-      this.channelClient = channelClient;
-    }
-  }).call(new Function("return this")());
+  }).call(new Function('return this')());
 
   var aceCmdConvert_prototype = function aceCmdConvert_prototype() {
 
@@ -6480,16 +5010,16 @@
           }
 
           var range = cmd.range;
-          if (cmd.action == "insertText") {
+          if (cmd.action == 'insertText') {
             newList.push([1, range.start.row, range.start.column, range.end.row, range.end.column, cmd.text]);
           }
-          if (cmd.action == "removeText") {
+          if (cmd.action == 'removeText') {
             newList.push([2, range.start.row, range.start.column, range.end.row, range.end.column, cmd.text]);
           }
-          if (cmd.action == "insertLines") {
+          if (cmd.action == 'insertLines') {
             newList.push([3, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines]);
           }
-          if (cmd.action == "removeLines") {
+          if (cmd.action == 'removeLines') {
             newList.push([4, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines, cmd.nl]);
           }
         });
@@ -6523,16 +5053,16 @@
         cmdList.forEach(function (cmd) {
 
           var range = cmd;
-          if (cmd.action == "insert" && cmd.lines.length == 1) {
+          if (cmd.action == 'insert' && cmd.lines.length == 1) {
             newList.push([1, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines[0]]);
           }
-          if (cmd.action == "remove" && cmd.lines.length == 1) {
+          if (cmd.action == 'remove' && cmd.lines.length == 1) {
             newList.push([2, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines[0]]);
           }
-          if (cmd.action == "insert" && cmd.lines.length > 1) {
+          if (cmd.action == 'insert' && cmd.lines.length > 1) {
             newList.push([3, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines]);
           }
-          if (cmd.action == "remove" && cmd.lines.length > 1) {
+          if (cmd.action == 'remove' && cmd.lines.length > 1) {
             newList.push([4, range.start.row, range.start.column, range.end.row, range.end.column, cmd.lines, cmd.nl]);
           }
         });
@@ -6545,7 +5075,7 @@
         */
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (onFulfilled, onRejected) {});
 
@@ -6611,7 +5141,7 @@
         if (_newAce) return this.runToAce2(cmdList);
 
         var newList = [],
-            _convert = ["", "insertText", "removeText", "insertLines", "removeLines"];
+            _convert = ['', 'insertText', 'removeText', 'insertLines', 'removeLines'];
 
         cmdList.forEach(function (cmd) {
           var c = {
@@ -6632,7 +5162,7 @@
           } else {
             c.lines = cmd[5];
           }
-          if (cmd[0] == 4) c.nl = cmd[6] || "\n";
+          if (cmd[0] == 4) c.nl = cmd[6] || '\n';
           newList.push(c);
         });
         return newList;
@@ -6648,7 +5178,7 @@
        */
       _myTrait_.runToAce2 = function (cmdList) {
         var newList = [],
-            _convert = ["", "insert", "remove", "insert", "remove"];
+            _convert = ['', 'insert', 'remove', 'insert', 'remove'];
         /*
         0: Object
         action: "insert"
@@ -6678,7 +5208,7 @@
           } else {
             c.lines = cmd[5];
           }
-          if (cmd[0] == 4) c.nl = cmd[6] || "\n";
+          if (cmd[0] == 4) c.nl = cmd[6] || '\n';
           newList.push(c);
         });
         return newList;
@@ -6696,21 +5226,21 @@
               endRow = cmd[3],
               endCol = cmd[4];
           if (cmd[0] == 1) {
-            if (cmd[5] == "\n") {
+            if (cmd[5] == '\n') {
               // add the newline can be a bit tricky
               var line = lines.item(row);
               if (!line) {
                 lines.insertAt(row, {
-                  text: ""
+                  text: ''
                 });
                 lines.insertAt(row + 1, {
-                  text: ""
+                  text: ''
                 });
               } else {
                 var txt = line.text();
                 line.text(txt.slice(0, col));
                 var newLine = {
-                  text: txt.slice(col) || ""
+                  text: txt.slice(col) || ''
                 };
                 lines.insertAt(row + 1, newLine);
               }
@@ -6731,7 +5261,7 @@
             }
           }
           if (cmd[0] == 2) {
-            if (cmd[5] == "\n") {
+            if (cmd[5] == '\n') {
               // removing the newline can be a bit tricky
               // lines[row]
               var thisLine = lines.item(row),
@@ -6739,13 +5269,13 @@
 
               // lines[row] = thisLine + nextLine;
               // lines.splice(row+1, 1); // remove the line...
-              var txt1 = "",
-                  txt2 = "";
+              var txt1 = '',
+                  txt2 = '';
               if (thisLine) txt1 = thisLine.text();
               if (nextLine) txt2 = nextLine.text();
               if (!thisLine) {
                 lines.insertAt(row, {
-                  text: ""
+                  text: ''
                 });
               } else {
                 thisLine.text(txt1 + txt2);
@@ -6808,12 +5338,12 @@
        */
       _myTrait_.runToString = function (str, cmdList) {
 
-        if (!cmdList || typeof str == "undefined") {
-          return "";
+        if (!cmdList || typeof str == 'undefined') {
+          return '';
         }
-        str = str + "";
+        str = str + '';
 
-        var lines = str.split("\n");
+        var lines = str.split('\n');
 
         cmdList.forEach(function (cmd) {
           var row = cmd[1],
@@ -6821,27 +5351,27 @@
               endRow = cmd[3],
               endCol = cmd[4];
           if (cmd[0] == 1) {
-            if (cmd[5] == "\n") {
+            if (cmd[5] == '\n') {
               // add the newline can be a bit tricky
-              var line = lines[row] || "";
+              var line = lines[row] || '';
               lines[row] = line.slice(0, col);
-              var newLine = line.slice(col) || "";
+              var newLine = line.slice(col) || '';
               lines.splice(row + 1, 0, newLine);
             } else {
-              var line = lines[row] || "";
+              var line = lines[row] || '';
               lines[row] = line.slice(0, col) + cmd[5] + line.slice(col);
             }
           }
           if (cmd[0] == 2) {
-            if (cmd[5] == "\n") {
+            if (cmd[5] == '\n') {
               // removing the newline can be a bit tricky
               // lines[row]
-              var thisLine = lines[row] || "",
-                  nextLine = lines[row + 1] || "";
+              var thisLine = lines[row] || '',
+                  nextLine = lines[row + 1] || '';
               lines[row] = thisLine + nextLine;
               lines.splice(row + 1, 1); // remove the line...
             } else {
-              var line = lines[row] || "";
+              var line = lines[row] || '';
               // str.slice(0, 4) + str.slice(5, str.length))
               lines[row] = line.slice(0, col) + line.slice(endCol);
             }
@@ -6860,7 +5390,7 @@
           }
         });
 
-        return lines.join("\n");
+        return lines.join('\n');
       };
 
       /**
@@ -6927,7 +5457,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != aceCmdConvert._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -6938,26 +5468,26 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new aceCmdConvert(a, b, c, d, e, f, g, h);
   };
 
   aceCmdConvert._classInfo = {
-    name: "aceCmdConvert"
+    name: 'aceCmdConvert'
   };
   aceCmdConvert.prototype = new aceCmdConvert_prototype();
 
   (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["aceCmdConvert"] = aceCmdConvert;
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['aceCmdConvert'] = aceCmdConvert;
       this.aceCmdConvert = aceCmdConvert;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["aceCmdConvert"] = aceCmdConvert;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['aceCmdConvert'] = aceCmdConvert;
     } else {
       this.aceCmdConvert = aceCmdConvert;
     }
-  }).call(new Function("return this")());
+  }).call(new Function('return this')());
 
   var diffEngine_prototype = function diffEngine_prototype() {
 
@@ -6996,16 +5526,16 @@
        */
       _myTrait_.isArray = function (t) {
 
-        if (typeof t == "undefined") return this.__isA;
+        if (typeof t == 'undefined') return this.__isA;
 
-        return Object.prototype.toString.call(t) === "[object Array]";
+        return Object.prototype.toString.call(t) === '[object Array]';
       };
 
       /**
        * @param float fn
        */
       _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
+        return Object.prototype.toString.call(fn) == '[object Function]';
       };
 
       /**
@@ -7013,7 +5543,7 @@
        */
       _myTrait_.isObject = function (t) {
 
-        if (typeof t == "undefined") return this.__isO;
+        if (typeof t == 'undefined') return this.__isO;
 
         return t === Object(t);
       };
@@ -7228,7 +5758,7 @@
         }
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (t) {});
 
@@ -7377,7 +5907,7 @@
               sourceArrayWork = sourceArray.slice();
 
           res.restack.forEach(function (c) {
-            if (c[0] == "a") {
+            if (c[0] == 'a') {
               var moveItemId = reverseIndex[c[1]],
                   aboveItemId = reverseIndex[c[2]],
                   atIndex = indexArr[aboveItemId],
@@ -7628,9 +6158,9 @@
             while (si < slen) {
               var b = big[bi],
                   s = small[si];
-              if (typeof b == "undefined") {
+              if (typeof b == 'undefined') {
                 while (si < slen) {
-                  cmds.push(["b", indexes[s], indexes[lastb]]);
+                  cmds.push(['b', indexes[s], indexes[lastb]]);
                   // restackXBelowY(dataIn, indexes[s], indexes[lastb]);
                   lastb = s;
                   si++;
@@ -7643,7 +6173,7 @@
                 lastb = b;
                 bi++;
               } else {
-                cmds.push(["a", indexes[s], indexes[b]]);
+                cmds.push(['a', indexes[s], indexes[b]]);
                 // restackXAboveY(dataIn, indexes[s], indexes[b]);
                 si++;
               }
@@ -7669,7 +6199,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != diffEngine._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -7680,13 +6210,13 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new diffEngine(a, b, c, d, e, f, g, h);
   };
 
   diffEngine._classInfo = {
-    name: "diffEngine"
+    name: 'diffEngine'
   };
   diffEngine.prototype = new diffEngine_prototype();
 
@@ -7714,7 +6244,7 @@
        * @param float fn
        */
       _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
+        return Object.prototype.toString.call(fn) == '[object Function]';
       };
 
       /**
@@ -7747,7 +6277,7 @@
             prop = a[1];
 
         if (!obj || !prop) return false;
-        if (typeof obj.data[prop] != "string") return false;
+        if (typeof obj.data[prop] != 'string') return false;
 
         var conv = aceCmdConvert();
         obj.data[prop] = conv.runToString(obj.data[prop], a[2]);
@@ -7778,14 +6308,14 @@
         if (!objId) return {
           error: 21,
           cmd: a,
-          text: "Object ID was null or undefined"
+          text: 'Object ID was null or undefined'
         };
 
         var hash = this._getObjectHash();
         if (hash[objId]) return {
           error: 22,
           cmd: a,
-          text: "Array with ID was already created"
+          text: 'Array with ID was already created'
         };
 
         var newObj;
@@ -7821,7 +6351,7 @@
         if (!objId) return {
           error: 11,
           cmd: a,
-          text: "Object ID was null or undefined"
+          text: 'Object ID was null or undefined'
         };
 
         var hash = this._getObjectHash();
@@ -7830,7 +6360,7 @@
         if (hash[objId]) return {
           error: 12,
           cmd: a,
-          text: "Object ID was already created"
+          text: 'Object ID was already created'
         };
 
         var newObj;
@@ -7865,7 +6395,7 @@
         if (!_dmp) return {
           error: 141,
           cmd: a,
-          text: "diff-match-patch not initialized"
+          text: 'diff-match-patch not initialized'
         };
 
         var obj = this._find(a[4]),
@@ -7874,20 +6404,20 @@
         if (!obj) return {
           error: 41,
           cmd: a,
-          text: "Did not find object with ID (" + a[4] + ") "
+          text: 'Did not find object with ID (' + a[4] + ') '
         };
 
         if (!prop) return {
           error: 42,
           cmd: a,
-          text: "The property was not defined (" + a[1] + ") "
+          text: 'The property was not defined (' + a[1] + ') '
         };
 
         var oldValue = obj.data[prop];
         if (this.isObject(oldValue) || this.isArray(oldValue)) return {
           error: 145,
           cmd: a,
-          text: "Trying to apply text diff/patch to  Object or Array"
+          text: 'Trying to apply text diff/patch to  Object or Array'
         };
 
         // TODO: data -integrity problem, can you verify the reverse diff, this might cause problems...
@@ -7901,19 +6431,19 @@
         if (!this.isArray(newValue)) return {
           error: 146,
           cmd: a,
-          text: "patch_apply failed"
+          text: 'patch_apply failed'
         };
         var list = newValue[1];
         if (!list) return {
           error: 146,
           cmd: a,
-          text: "patch_apply failed"
+          text: 'patch_apply failed'
         };
         for (var i = 0; i < list.length; i++) {
           if (!list[i]) return {
             error: 146,
             cmd: a,
-            text: "patch_apply failed"
+            text: 'patch_apply failed'
           };
         }
         obj.data[prop] = newValue[0]; // the new value for the data property
@@ -7939,14 +6469,14 @@
        */
       _myTrait_._cmd_moveToIndex = function (a, isRemote) {
         var obj = this._find(a[4]),
-            prop = "*",
+            prop = '*',
             len = obj.data.length,
             targetObj;
 
         if (!obj) return {
           error: 2,
           cmd: 1,
-          text: "Object with ID (" + a[4] + ") did not exist"
+          text: 'Object with ID (' + a[4] + ') did not exist'
         };
 
         var oldIndex = null,
@@ -7970,7 +6500,7 @@
           return {
             error: 121,
             cmd: a,
-            text: "The old index was not what expected: " + oldIndex + " cmd have " + a[3]
+            text: 'The old index was not what expected: ' + oldIndex + ' cmd have ' + a[3]
           };
         }
 
@@ -7978,7 +6508,7 @@
           return {
             error: 122,
             cmd: a,
-            text: "Object to be moved (" + a[1] + ") was not in the array"
+            text: 'Object to be moved (' + a[1] + ') was not in the array'
           };
         }
 
@@ -7996,13 +6526,13 @@
         if (isNaN(targetIndex)) return {
           error: 123,
           cmd: a,
-          text: "Target index (" + targetIndex + ") was not a number"
+          text: 'Target index (' + targetIndex + ') was not a number'
         };
 
         if (obj.data.length <= i || i < 0) return {
           error: 124,
           cmd: a,
-          text: "Invalid original index (" + i + ") given"
+          text: 'Invalid original index (' + i + ') given'
         };
 
         _execInfo.fromIndex = i;
@@ -8025,49 +6555,49 @@
             toIndex = parseInt(a[1]),
             oldPos = a[3],
             // old position can also be "null"
-        prop = "*",
+        prop = '*',
             index = parentObj.data.length; // might check if valid...
 
         if (!parentObj) return {
           error: 71,
           cmd: a,
-          text: "Did not find object with ID (" + a[4] + ") "
+          text: 'Did not find object with ID (' + a[4] + ') '
         };
 
         if (!insertedObj) return {
           error: 72,
           cmd: a,
-          text: "Did not find object with ID (" + a[2] + ") "
+          text: 'Did not find object with ID (' + a[2] + ') '
         };
 
         // NOTE: deny inserting object which already has been inserted
         if (insertedObj.__p) {
           if (insertedObj.__p == parentObj.__id) {
             // nothing needs to be done here, unnecessary command though
-            console.log("WARNING : Unnecessary pushToArray");
+            console.log('WARNING : Unnecessary pushToArray');
             console.log(a);
             return true;
           }
           return {
             error: 73,
             cmd: a,
-            text: "The object already had a parent - need to remove first (" + a[2] + ") "
+            text: 'The object already had a parent - need to remove first (' + a[2] + ') '
           };
         }
         if (isNaN(toIndex)) return {
           error: 74,
           cmd: a,
-          text: "toIndex was not a number"
+          text: 'toIndex was not a number'
         };
         if (!this.isArray(parentObj.data)) return {
           error: 75,
           cmd: a,
-          text: "Target Object was not an array"
+          text: 'Target Object was not an array'
         };
         if (toIndex > parentObj.data.length || toIndex < 0) return {
           error: 76,
           cmd: a,
-          text: "toIndex out of range, parent data len " + parentObj.data.length
+          text: 'toIndex out of range, parent data len ' + parentObj.data.length
         };
 
         parentObj.data.splice(toIndex, 0, insertedObj);
@@ -8097,37 +6627,37 @@
         var parentObj = this._find(a[4]),
             removedItem = this._find(a[2]),
             oldPosition = parseInt(a[1]),
-            prop = "*";
+            prop = '*';
 
         if (!parentObj) return {
           error: 81,
           cmd: a,
-          text: "Did not find object with ID (" + a[4] + ") "
+          text: 'Did not find object with ID (' + a[4] + ') '
         };
 
         if (!removedItem) return {
           error: 82,
           cmd: a,
-          text: "Did not find object with ID (" + a[2] + ") "
+          text: 'Did not find object with ID (' + a[2] + ') '
         };
 
         // NOTE: deny inserting object which already has been inserted
         if (!removedItem.__p) return {
           error: 83,
           cmd: a,
-          text: "The removed item did not have a parent (" + a[2] + ") "
+          text: 'The removed item did not have a parent (' + a[2] + ') '
         };
 
         var index = parentObj.data.indexOf(removedItem); // might check if valid...
         if (isNaN(oldPosition)) return {
           error: 84,
           cmd: a,
-          text: "oldPosition was not a number"
+          text: 'oldPosition was not a number'
         };
         if (oldPosition != index) return {
           error: 85,
           cmd: a,
-          text: "oldPosition was not same as current position"
+          text: 'oldPosition was not same as current position'
         };
 
         var _removedHash = this._getRemovedHash();
@@ -8164,8 +6694,8 @@
 
         if (!prop) return false;
 
-        if (prop == "data") return false;
-        if (prop == "__id") return false;
+        if (prop == 'data') return false;
+        if (prop == '__id') return false;
 
         if (obj) {
 
@@ -8195,13 +6725,13 @@
         if (!obj) return {
           error: 41,
           cmd: a,
-          text: "Did not find object with ID (" + a[4] + ") "
+          text: 'Did not find object with ID (' + a[4] + ') '
         };
 
         if (!prop) return {
           error: 42,
           cmd: a,
-          text: "The property was not defined (" + a[1] + ") "
+          text: 'The property was not defined (' + a[1] + ') '
         };
 
         var oldValue = obj.data[prop];
@@ -8209,27 +6739,27 @@
         if (oldValue == a[2]) return {
           error: 43,
           cmd: a,
-          text: "Trying to set the same value to the object twice"
+          text: 'Trying to set the same value to the object twice'
         };
 
-        if (typeof oldValue == "undefined" || oldValue === null) {
-          if (typeof a[3] != "undefined" && a[3] !== null) return {
+        if (typeof oldValue == 'undefined' || oldValue === null) {
+          if (typeof a[3] != 'undefined' && a[3] !== null) return {
             error: 44,
             cmd: a,
-            text: "The old value " + oldValue + " was not the same as the commands old value"
+            text: 'The old value ' + oldValue + ' was not the same as the commands old value'
           };
         } else {
 
           if (this.isObject(oldValue) || this.isArray(oldValue)) return {
             error: 45,
             cmd: a,
-            text: "Trying to set Object or Array value to a scalar property"
+            text: 'Trying to set Object or Array value to a scalar property'
           };
 
           if (oldValue != a[3]) return {
             error: 44,
             cmd: a,
-            text: "The old value " + oldValue + " was not the same as the commands old value"
+            text: 'The old value ' + oldValue + ' was not the same as the commands old value'
           };
         }
 
@@ -8255,13 +6785,13 @@
         if (!obj) return {
           error: 51,
           cmd: a,
-          text: "Did not find object with ID (" + a[4] + ") "
+          text: 'Did not find object with ID (' + a[4] + ') '
         };
 
         if (!prop) return {
           error: 52,
           cmd: a,
-          text: "The property was not defined (" + a[1] + ") "
+          text: 'The property was not defined (' + a[1] + ') '
         };
 
         // if(!obj || !prop)   return false;
@@ -8270,18 +6800,18 @@
         if (!setObj) return {
           error: 53,
           cmd: a,
-          text: "Could not find the Object to be set with ID (" + a[2] + ") "
+          text: 'Could not find the Object to be set with ID (' + a[2] + ') '
         };
 
-        if (typeof obj.data[prop] != "undefined") return {
+        if (typeof obj.data[prop] != 'undefined') return {
           error: 54,
           cmd: a,
-          text: "The property (" + a[1] + ") was already set, try unsetting first "
+          text: 'The property (' + a[1] + ') was already set, try unsetting first '
         };
         if (!this.isObject(obj.data) || this.isArray(obj.data)) return {
           error: 55,
           cmd: a,
-          text: "The object (" + a[2] + ") was not of type Object "
+          text: 'The object (' + a[2] + ') was not of type Object '
         };
 
         obj.data[prop] = setObj; // value is now set...
@@ -8312,19 +6842,19 @@
         if (!obj) return {
           error: 101,
           cmd: a,
-          text: "Did not find object with ID (" + a[4] + ") "
+          text: 'Did not find object with ID (' + a[4] + ') '
         };
 
         if (!prop) return {
           error: 102,
           cmd: a,
-          text: "The property was not defined (" + a[1] + ") "
+          text: 'The property was not defined (' + a[1] + ') '
         };
 
         if (this.isArray(obj.data[prop])) return {
           error: 103,
           cmd: a,
-          text: "The Object data was Array (" + a[4] + ") "
+          text: 'The Object data was Array (' + a[4] + ') '
         };
 
         delete obj.data[prop];
@@ -8339,7 +6869,7 @@
        */
       _myTrait_._fireListener = function (obj, prop) {
         if (_listeners) {
-          var lName = obj.__id + "::" + prop,
+          var lName = obj.__id + '::' + prop,
               eList = _listeners[lName];
           if (eList) {
             eList.forEach(function (fn) {
@@ -8426,7 +6956,7 @@
         if (!_dmp) return {
           error: 141,
           cmd: a,
-          text: "diff-match-patch not initialized"
+          text: 'diff-match-patch not initialized'
         };
 
         var obj = this._find(a[4]),
@@ -8435,20 +6965,20 @@
         if (!obj) return {
           error: 41,
           cmd: a,
-          text: "Did not find object with ID (" + a[4] + ") "
+          text: 'Did not find object with ID (' + a[4] + ') '
         };
 
         if (!prop) return {
           error: 42,
           cmd: a,
-          text: "The property was not defined (" + a[1] + ") "
+          text: 'The property was not defined (' + a[1] + ') '
         };
 
         var oldValue = obj.data[prop];
         if (this.isObject(oldValue) || this.isArray(oldValue)) return {
           error: 145,
           cmd: a,
-          text: "Trying to apply text diff/patch to  Object or Array"
+          text: 'Trying to apply text diff/patch to  Object or Array'
         };
 
         // the reverse command...
@@ -8458,19 +6988,19 @@
         if (!this.isArray(newValue)) return {
           error: 146,
           cmd: a,
-          text: "patch_apply failed"
+          text: 'patch_apply failed'
         };
         var list = newValue[1];
         if (!list) return {
           error: 146,
           cmd: a,
-          text: "patch_apply failed"
+          text: 'patch_apply failed'
         };
         for (var i = 0; i < list.length; i++) {
           if (!list[i]) return {
             error: 146,
             cmd: a,
-            text: "patch_apply failed"
+            text: 'patch_apply failed'
           };
         }
         obj.data[prop] = newValue[0]; // the new value for the data property
@@ -8495,7 +7025,7 @@
        */
       _myTrait_._reverse_moveToIndex = function (a) {
         var obj = this._find(a[4]),
-            prop = "*",
+            prop = '*',
             len = obj.data.length,
             targetObj,
             i = 0;
@@ -8512,7 +7042,7 @@
         }
 
         if (oldIndex != a[2]) {
-          throw "_reverse_moveToIndex with invalid index value";
+          throw '_reverse_moveToIndex with invalid index value';
           return;
         }
 
@@ -8537,7 +7067,7 @@
       _myTrait_._reverse_pushToArray = function (a) {
         var parentObj = this._find(a[4]),
             insertedObj = this._find(a[2]),
-            prop = "*",
+            prop = '*',
             index = parentObj.data.length;
 
         // Moving the object in the array
@@ -8569,7 +7099,7 @@
         var parentObj = this._find(a[4]),
             removedItem = this._find(a[2]),
             oldPosition = a[1],
-            prop = "*",
+            prop = '*',
             index = parentObj.data.indexOf(removedItem); // might check if valid...
 
         // Moving the object in the array
@@ -8647,7 +7177,7 @@
             removedObj = this._find(a[2]),
             prop = a[1];
 
-        if (a[3] != "value") {
+        if (a[3] != 'value') {
           if (obj && prop && removedObj) {
 
             obj.data[prop] = removedObj;
@@ -8705,13 +7235,13 @@
             // do not allow commands when playback is on
             return false;
           }
-          console.log("cmd " + a);
+          console.log('cmd ' + a);
 
           if (c) {
             var rv = c.apply(this, [a, isRemote]);
 
             if (rv !== true) {
-              console.log("ERROR " + JSON.stringify(a));
+              console.log('ERROR ' + JSON.stringify(a));
               console.log(JSON.stringify(rv));
             }
 
@@ -8721,7 +7251,7 @@
 
                 if (a[0] == 4 && _settings.hotMs) {
                   var objid = a[4];
-                  var key = objid + ":" + a[1];
+                  var key = objid + ':' + a[1];
                   var hot = _hotObjs[key];
                   if (!hot) {
                     _hotObjs[key] = {
@@ -8745,17 +7275,17 @@
           } else {
             return {
               error: 199,
-              text: "Invalid command"
+              text: 'Invalid command'
             };
           }
         } catch (e) {
-          var txt = "";
+          var txt = '';
           if (e && e.message) txt = e.message;
           console.error(e, e.message);
           return {
             error: 199,
             cmd: a,
-            text: "Exception raised " + txt
+            text: 'Exception raised ' + txt
           };
         }
       };
@@ -8789,7 +7319,7 @@
         return this._journal;
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (t) {
         if (!_listeners) {
@@ -8802,12 +7332,12 @@
         if (!_cmds) {
 
           if (!_dmp) {
-            if (typeof diff_match_patch != "undefined") {
+            if (typeof diff_match_patch != 'undefined') {
               _dmp = new diff_match_patch();
             } else {
               // if in node.js try to require the module
-              if (typeof require != "undefined") {
-                var DiffMatchPatch = require("diff-match-patch");
+              if (typeof require != 'undefined') {
+                var DiffMatchPatch = require('diff-match-patch');
                 _dmp = new DiffMatchPatch();
               }
             }
@@ -8868,7 +7398,7 @@
 
         var firstMs = this._journal[0][5];
         if (!firstMs) {
-          console.error("journal does not have timestamps");
+          console.error('journal does not have timestamps');
           return;
         }
 
@@ -9102,7 +7632,7 @@
       _myTrait_.undo = function (n) {
 
         if (n === 0) return;
-        if (typeof n == "undefined") n = 1;
+        if (typeof n == 'undefined') n = 1;
 
         this.reverseNLines(n);
       };
@@ -9230,7 +7760,7 @@
         }
       };
 
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
+      if (!_myTrait_.hasOwnProperty('__factoryClass')) _myTrait_.__factoryClass = [];
       _myTrait_.__factoryClass.push(function (id) {
 
         if (!_instanceCache) _instanceCache = {};
@@ -9524,7 +8054,7 @@
         var me = this;
 
         var propFilter = cmd[1];
-        var allProps = workers["*"],
+        var allProps = workers['*'],
             thisProp = workers[propFilter];
 
         if (allProps) {
@@ -9599,7 +8129,7 @@
         var workers = this._workers[cmdIndex][UUID];
 
         var propFilter = cmdFilter[1];
-        if (!propFilter) propFilter = "*";
+        if (!propFilter) propFilter = '*';
 
         if (!workers[propFilter]) workers[propFilter] = [];
 
@@ -9654,7 +8184,7 @@
         return parent.data.indexOf(item);
       };
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (channelId, mainData, journalCmds) {
 
@@ -9723,12 +8253,12 @@
        */
       _myTrait_.toPlainData = function (obj, recursive) {
 
-        if (typeof obj == "undefined") {
+        if (typeof obj == 'undefined') {
           if (recursive) return obj;
           return obj = this._data;
         }
 
-        if (this.isFunction(obj) || typeof obj == "function") {
+        if (this.isFunction(obj) || typeof obj == 'function') {
           return;
         }
         if (!this.isObject(obj)) return obj;
@@ -9764,7 +8294,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != _channelData._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -9775,26 +8305,26 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new _channelData(a, b, c, d, e, f, g, h);
   };
 
   _channelData._classInfo = {
-    name: "_channelData"
+    name: '_channelData'
   };
   _channelData.prototype = new _channelData_prototype();
 
   (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_channelData"] = _channelData;
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['_channelData'] = _channelData;
       this._channelData = _channelData;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_channelData"] = _channelData;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['_channelData'] = _channelData;
     } else {
       this._channelData = _channelData;
     }
-  }).call(new Function("return this")());
+  }).call(new Function('return this')());
 
   var channelObjects_prototype = function channelObjects_prototype() {
 
@@ -9802,7 +8332,7 @@
 
       // Initialize static variables here...
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (options) {});
     })(this);
@@ -9817,7 +8347,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != channelObjects._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -9828,15 +8358,1485 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new channelObjects(a, b, c, d, e, f, g, h);
   };
 
   channelObjects._classInfo = {
-    name: "channelObjects"
+    name: 'channelObjects'
   };
   channelObjects.prototype = new channelObjects_prototype();
+
+  var channelClient_prototype = function channelClient_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == '[object Function]';
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _cmdNsMap;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float url
+       */
+      _myTrait_._getNsFromUrl = function (url) {
+        if (_nsShortcuts[url]) {
+          return _nsShortcuts[url];
+        }
+        _nsReverse[_nsIndex] = url;
+        _nsShortcuts[url] = _nsIndex++;
+
+        return _nsShortcuts[url];
+      };
+
+      /**
+       * @param float nsName
+       */
+      _myTrait_._getNsShorthand = function (nsName) {
+
+        if (_nsShortcuts[nsName]) {
+          return _nsShortcuts[nsName];
+        }
+        _nsReverse[_nsIndex] = nsName;
+        _nsShortcuts[nsName] = _nsIndex++;
+
+        return _nsShortcuts[nsName];
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._getReflections = function (t) {
+        return _localReflections;
+      };
+
+      /**
+       * @param float objId
+       */
+      _myTrait_._getReflectionsFor = function (objId) {
+
+        if (_localReflections) {
+          var list = _localReflections[objId];
+          if (list) return list;
+        }
+        return [];
+      };
+
+      /**
+       * @param int index
+       */
+      _myTrait_._getReverseNs = function (index) {
+
+        return _nsReverse[index];
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_._idFromNs = function (id) {
+        if (id) {
+
+          var len = id.length;
+          if (id[len - 1] == '#') {
+            id = id.split('@').shift();
+          }
+        }
+        return id;
+      };
+
+      /**
+       * @param float id
+       * @param float ns
+       */
+      _myTrait_._idToNs = function (id, ns) {
+
+        if (id) {
+          var len = id.length;
+          // longString
+
+          if (id[len - 1] == '#') {
+            var ind = id.indexOf('@');
+            var oldNs = id.substring(ind + 1, len - 1);
+            if (oldNs != ns) {
+              id = id.substring(0, ind) + '@' + ns + '#';
+            }
+          } else {
+            id = id + '@' + ns + '#';
+          }
+        }
+        return id;
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_._nsFromId = function (id) {
+        var ns;
+        if (id) {
+          id = id + '';
+          var len = id.length;
+          if (id[len - 1] == '#') {
+            ns = id.split('@').pop();
+            ns = ns.split('#').shift();
+          }
+        }
+        return ns;
+      };
+
+      /**
+       * @param float cmd
+       * @param float ns
+       */
+      _myTrait_._transformCmdFromNs = function (cmd, ns) {
+
+        if (!ns) ns = this._ns;
+
+        var map = _cmdNsMap,
+            nextCmd = cmd.slice(),
+            swap = map[cmd[0]],
+            me = this;
+        if (swap) {
+          swap.forEach(function (index) {
+            nextCmd[index] = me._idFromNs(nextCmd[index], ns);
+          });
+        }
+        return nextCmd;
+      };
+
+      /**
+       * @param float cmd
+       * @param float ns
+       */
+      _myTrait_._transformCmdToNs = function (cmd, ns) {
+
+        if (!ns) ns = this._ns;
+
+        var map = _cmdNsMap,
+            nextCmd = cmd.slice(),
+            swap = map[cmd[0]],
+            me = this;
+        if (swap) {
+          for (var i = 0; i < swap.length; i++) {
+            var index = swap[i];
+            nextCmd[index] = this._idToNs(nextCmd[index], ns);
+          }
+        }
+        return nextCmd;
+      };
+
+      /**
+       * @param float obj
+       * @param float ns
+       */
+      _myTrait_._transformObjFromNs = function (obj, ns) {
+        if (!ns) ns = this._ns;
+
+        if (obj && obj.__id) {
+          if (obj.__p) obj.__p = this._idFromNs(obj.__p, ns);
+          obj.__id = this._idFromNs(obj.__id, ns);
+          for (var n in obj.data) {
+            if (obj.data.hasOwnProperty(n)) {
+              if (this.isObject(obj.data[n])) this._transformObjFromNs(obj.data[n], ns);
+            }
+          }
+        }
+        return obj;
+      };
+
+      /**
+       * @param float obj
+       * @param float ns
+       */
+      _myTrait_._transformObjToNs = function (obj, ns) {
+        if (!ns) ns = this._ns;
+        if (obj && obj.__id) {
+
+          // the old way, currently the socket ID may be the same, but not used right now
+          /*
+          var nsNext;
+          if(obj.__radioURL) {
+          var nsNext = this._getNsShorthand( obj.__radioURL );
+          }
+          ns = nsNext || ns;
+          */
+
+          // obj = me._transformObjToNs( obj, ns );
+          obj.__id = this._idToNs(obj.__id, ns);
+          if (obj.__p) {
+            obj.__p = this._idToNs(obj.__p, ns);
+          }
+          for (var n in obj.data) {
+            if (obj.data.hasOwnProperty(n)) {
+              if (this.isObject(obj.data[n])) this._transformObjToNs(obj.data[n], ns);
+            }
+          }
+        }
+
+        return obj;
+      };
+
+      /**
+       * @param float obj
+       * @param float parentObj
+       * @param float parentObj2
+       */
+      _myTrait_._transformToNsBeforeInsert = function (obj, parentObj, parentObj2) {
+
+        // OK, so...
+
+        var cmdList = obj.__ctxCmdList;
+        var ns = this._nsFromId(parentObj.__id);
+
+        console.log(' _transformToNsBeforeInsert ');
+
+        var me = this;
+        if (ns) {
+          // console.log("Using namespace "+ns);
+          if (cmdList) {
+            cmdList.forEach(function (c) {
+              c.cmd = me._transformCmdToNs(c.cmd, ns);
+            });
+          }
+          obj = me._transformObjToNs(obj, ns);
+          obj.__ctxCmdList = cmdList;
+          this._addToCache(obj);
+          return obj;
+        }
+        // this._addToCache( obj );
+        return obj;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {
+        if (!_cmdNsMap) {
+          _cmdNsMap = {
+            1: [1],
+            2: [1],
+            4: [4],
+            5: [2, 4],
+            7: [2, 4],
+            8: [2, 4],
+            10: [2, 4],
+            12: [1, 4],
+            13: [4],
+            14: [4],
+            16: [3, 4]
+          };
+        }
+      });
+    })(this);
+
+    (function (_myTrait_) {
+      var _instanceCache;
+      var _dmp;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float channelId
+       */
+      _myTrait_._checkout = function (channelId) {
+
+        var me = this,
+            socket = this._socket;
+
+        return _promise(function (result) {
+
+          if (!me._policy) return;
+          if (me._disconnected) return; // in case disconnected, don't send data
+          if (!me._connected) return;
+
+          socket.send('channelCommand', {
+            channelId: channelId,
+            cmd: 'checkout',
+            data: ''
+          }).then(function (res) {
+
+            debugger;
+            console.log('Checkout tree ');
+            console.log(res);
+            result(res);
+          });
+        });
+      };
+
+      if (!_myTrait_.hasOwnProperty('__factoryClass')) _myTrait_.__factoryClass = [];
+      _myTrait_.__factoryClass.push(function (id, socket) {
+
+        if (!id || !socket) return;
+
+        id = id + socket.getId();
+
+        if (!_instanceCache) _instanceCache = {};
+        if (_instanceCache[id]) return _instanceCache[id];
+        _instanceCache[id] = this;
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_._createTransaction = function (t) {
+
+        // package to be sent to the server
+        this._currentFrame = {
+          id: this.guid(),
+          version: 1,
+          from: this._data.getJournalLine(),
+          fail_tolastok: true,
+          commands: []
+        };
+
+        /*
+        data : {
+            id   : "t2",                   // unique ID for transaction
+            version : 1,                    // channel version
+            from : 1,                      // journal line to start the change
+            to   : 2,                      // the last line ( optionsl, I guess )
+            fail_tolastok : true,           // fail until last ok command
+            // fail_all : true,
+            commands : [
+                [4, "fill", "black", "blue", "id1"]
+            ]                               
+        }
+        */
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_._fetch = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          return obj;
+        }
+      };
+
+      /**
+       * This is the beef of almost everything, when a new frame comes around, what to do with it? There are many options what to do, we just have to pick one strategy.
+       * @param float socket
+       * @param float myNamespace
+       */
+      _myTrait_._incoming = function (socket, myNamespace) {
+
+        var me = this,
+            channelId = this._channelId,
+            fullUpgradeFailCnt = 0;
+
+        socket.on('upgrade_' + this._channelId, function (cmd) {
+
+          me._upgradePending = false;
+          // just don't accept any msgs
+          if (me._disconnected) return;
+          //console.log("upgrade_cmd");
+          //console.log(JSON.stringify(cmd));
+          if (cmd) {
+
+            if (cmd.partial) {
+
+              // should be reversing perhaps first to some line...
+              var dd = me._clientState.data;
+
+              dd.reverseToLine(cmd.partialFrom);
+              // console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
+              var errCnt = 0;
+
+              dd.setClearCreated(true);
+              cmd.partial.forEach(function (c) {
+                if (errCnt > 0) return;
+                var r;
+                var cmdIn = me._transformCmdToNs(c);
+                if (!((r = dd.execCmd(cmdIn, true)) === true)) {
+                  // console.error("Partial ", r);
+                  errCnt++;
+                }
+              });
+              dd.setClearCreated(false);
+
+              if (errCnt == 0) {
+                me._clientState.needsRefresh = false;
+                me._clientState.needsFullRefresh = false;
+
+                dd._journal.length = cmd.partialEnds;
+
+                // The correct position
+                me._clientState.last_update[0] = 0;
+                me._clientState.last_update[1] = dd._journal.length;
+                me._clientState.last_sent[0] = 0;
+                me._clientState.last_sent[1] = dd._journal.length;
+              } else {
+                me._clientState.needsFullRefresh = true;
+              }
+            }
+            if (cmd.data) {
+
+              // full upgrade coming here, must also replace the journal
+
+              var myData = me._clientState.data.getData(); // <- the data
+              me._transformObjToNs(cmd.data);
+
+              var diff = diffEngine().compareFiles(myData, cmd.data);
+              console.log('Diff obj , myData, cmd.data');
+              console.log(diff);
+              console.log(myData);
+              console.log(cmd.data);
+
+              // run the commands for the local data
+              var dd = me._clientState.data;
+              var errCnt = 0;
+
+              dd.setClearCreated(true);
+              diff.cmds.forEach(function (c) {
+                console.log('Diff cmd ', c);
+                if (errCnt > 0) return;
+                var r;
+                /// dd.execCmd(c, true); // the point is just to change the data to something else
+                if (!((r = dd.execCmd(c, true)) === true)) {
+                  console.error('Full error ', r);
+                  console.log('Return value from failed cmd: ', r);
+                  errCnt++;
+                }
+              });
+              dd.setClearCreated(false);
+
+              // and now the hard part, upgrade the local client data.
+              if (errCnt == 0) {
+
+                me._clientState.needsRefresh = false;
+                me._clientState.needsFullRefresh = false;
+
+                console.log('** full update should have gone ok ** ');
+                dd._journal.length = 0;
+                dd._journal.push.apply(dd._journal, cmd.journal);
+                me._clientState.needsRefresh = false;
+                me._clientState.version = cmd.version;
+
+                // dd._journal.length = cmd.updateEnds;
+
+                me._clientState.last_update[0] = 0;
+                me._clientState.last_update[1] = dd._journal.length;
+                me._clientState.last_sent[0] = 0;
+                me._clientState.last_sent[1] = dd._journal.length;
+
+                console.log('Version ', me._clientState.version);
+              } else {
+                fullUpgradeFailCnt++;
+
+                // must stop full refresh at this point
+                console.error('** errors with the full update ** ');
+                if (fullUpgradeFailCnt > 0) {
+                  console.log('--- server command data ---');
+                  console.log(cmd);
+                  console.log('--- the client state ---');
+                  console.log(me._clientState);
+                  me._clientState.needsFullRefresh = false;
+                } else {
+                  me._clientState.needsFullRefresh = true;
+                  me._clientState.fullUpgradeFailCnt = fullUpgradeFailCnt;
+                }
+
+                // re-connections or refreshes appear
+              }
+              /*
+                // the state management
+                me._clientState = {
+                    data : chData,              // The channel data object
+                    client : me,                // The channel client object (for Namespace conversion )
+                    needsRefresh : false,       // true if client is out of sync and needs to reload
+                    version : me._channelStatus.version,               
+                    last_update : [0, chData.getJournalLine()],  // last succesfull server update
+                    last_sent : [0, chData.getJournalLine()]     // last range sent to the server
+                
+                };
+              */
+            }
+
+            if (me._slaveController) {
+              me._slaveController._execCmd({
+                cmd: 'masterJournalUpgrade',
+                data: cmd
+              });
+            }
+          }
+        });
+
+        socket.on('s2c_' + this._channelId, function (cmd) {
+
+          // just don't accept any msgs
+          if (me._disconnected) return;
+          if (cmd) {
+
+            var res = me._policy.deltaServerToClient(cmd, me._clientState);
+
+            // if there is a slave controller, send this command as masterUpgrade to
+            // the slave server so that the slave can update it's own data state
+            if (me._slaveController) {
+
+              // --> then try slave to master command building...
+
+              var newList = [];
+              for (var i = 0; i < cmd.c.length; i++) {
+                var c = cmd.c[i].slice();
+                newList.push(me._transformCmdFromNs(c));
+              }
+
+              cmd.c = newList;
+              me._slaveController._execCmd({
+                cmd: 'masterUpgrade',
+                data: cmd
+              });
+            }
+          }
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._isNodeJs = function (t) {
+        return new Function('try { return this === global; } catch(e) { return false; }')();
+      };
+
+      /**
+       * @param Object socket
+       */
+      _myTrait_._onFrameLoop = function (socket) {
+
+        var me = this,
+            channelId = this._channelId;
+
+        var _frameFn = function _frameFn() {
+
+          if (!me._policy) return;
+          if (me._disconnected) return; // in case disconnected, don't send data
+
+          if (!me._connected) return;
+          if (!me._clientState) return;
+
+          if (me._clientState.needsRefresh) {
+            // *** if refresh is required, out of sync client **
+
+            if (!me._upgradePending) {
+              // console.log(" needsRefresh && !_upgradePending " );
+              me.askUpgrade(me._clientState.needsFullRefresh);
+            }
+            me._upgradePending = true;
+          }
+
+          var packet = me._policy.constructClientToServer(me._clientState);
+          if (packet) {
+
+            //console.log("Sending packet to server ");
+            //console.log(packet);
+            socket.send('channelCommand', {
+              channelId: channelId,
+              cmd: 'c2s',
+              data: packet
+            }).then(function (res) {
+              if (res && res.errors) {
+                // console.error(res.errors);
+                if (res.errors.length > 0) {
+                  var bRefresh = false;
+                  res.errors.forEach(function (err) {
+                    if (err.error == 44) {
+                      bRefresh = true;
+                    }
+                  });
+                  if (bRefresh) {
+                    me._clientState.needsRefresh = true;
+                  }
+                }
+              }
+            });
+          }
+        };
+        later().onFrame(_frameFn);
+      };
+
+      /**
+       * Actions to do when the client reconnects to other server
+       * @param float t
+       */
+      _myTrait_._onReconnect = function (t) {
+
+        // do we have a slave connection???
+        if (this._slave) {
+          console.log('*** reconnect to the master ***');
+        }
+
+        var me = this;
+
+        console.log('_onReconnect');
+
+        // if we have a slave controller...
+        if (me._slaveController) {
+          console.log('_slaveController -> trying to send data ');
+          me._slaveController._sendUnsentToMaster();
+        }
+
+        // first, send the data we have to server, hope it get's through...
+        var packet = me._policy.constructClientToServer(me._clientState);
+        var socket = this._socket;
+        var channelId = this._channelId;
+
+        if (packet) {
+          socket.send('channelCommand', {
+            channelId: channelId,
+            cmd: 'c2s',
+            data: packet
+          }).then(function (res) {});
+        }
+        // then, ask upgrade...
+        me.askUpgrade();
+
+        // -->
+
+        // me._sendUnsentToMaster();
+      };
+
+      /**
+       * Add command to next change frame to be sent over the network. TODO: validate the commands against the own channelObject, for example the previous value etc.
+       * @param Array cmd
+       * @param float dontBroadcast
+       */
+      _myTrait_.addCommand = function (cmd, dontBroadcast) {
+        var cmdIn = this._transformCmdToNs(cmd, this._ns);
+        return this._data.execCmd(cmdIn, dontBroadcast);
+      };
+
+      /**
+       * @param bool askFull
+       */
+      _myTrait_.askUpgrade = function (askFull) {
+
+        if (!this._socket) return;
+
+        // do not ask upgrade if failCnt > 0
+        if (this._clientState.fullUpgradeFailCnt) return;
+
+        this._socket.send('channelCommand', {
+          channelId: this._channelId,
+          cmd: 'upgradeRequest',
+          data: {
+            version: this._clientState.version,
+            last_update: this._clientState.last_update,
+            askFull: askFull
+          }
+        }).then(function () {});
+      };
+
+      /**
+       * @param float id
+       * @param float index
+       */
+      _myTrait_.at = function (id, index) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          return obj.data[index];
+        }
+      };
+
+      /**
+       * @param float name
+       * @param float description
+       * @param float baseData
+       */
+      _myTrait_.createChannel = function (name, description, baseData) {
+
+        if (this._isLocal) return;
+
+        // a fresh copy of the base data
+        var copyOf = JSON.parse(JSON.stringify(baseData));
+        var chData = _channelData(this.guid(), copyOf, []);
+
+        copyOf = chData.getData();
+        copyOf = this._transformObjFromNs(copyOf);
+
+        // The command to be sent to the server-side
+        var forkCmd = {
+          channelId: name,
+          name: description,
+          chData: copyOf
+        };
+
+        // the fork is being processed, the response is going to be ready after the promise completes
+        var me = this;
+        return _promise(function (results) {
+          me._socket.send('channelCommand', {
+            channelId: me._channelId,
+            cmd: 'createChannel',
+            data: forkCmd
+          }).then(function (resp) {
+            results(resp);
+          });
+        });
+      };
+
+      /**
+       * @param float id
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.diffSet = function (id, name, value) {
+
+        if (!_dmp) return;
+
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && !this.isObject(value)) {
+          var old_value = obj.data[name];
+          if (old_value != value) {
+
+            // this.addCommand([4, name, value, old_value, ns_id ]);
+            var diff1 = _dmp.diff_main(old_value, value);
+            var diff2 = _dmp.diff_main(value, old_value);
+
+            _dmp.diff_cleanupEfficiency(diff1);
+            _dmp.diff_cleanupEfficiency(diff2);
+
+            var t1 = _dmp.patch_toText(_dmp.patch_make(old_value, diff1));
+            var t2 = _dmp.patch_toText(_dmp.patch_make(value, diff2));
+
+            this.addCommand([14, name, t1, t2, ns_id]);
+          }
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.disconnect = function (t) {
+        this._disconnected = true;
+        return this;
+      };
+
+      /**
+       * @param float name
+       * @param float description
+       * @param float options
+       */
+      _myTrait_.fork = function (name, description, options) {
+        /*
+        {
+        version : 1,
+        name : "Initial version",
+        utc : (new Date()).getTime(),
+        journalLine : 0,
+        channelId : "my/channel/fork1/"
+        }
+        */
+        // me._channelStatus = respData.status;
+        /*
+        // has channel + fork information included
+        {   "fromJournalLine":1,
+        "version":1,
+        "journalLine":1,
+        "channelId":"my/channel/myFork",
+        "fromVersion":2,
+        "from":"my/channel",
+        "to":"my/channel/myFork",
+        "name":"test of fork","utc":14839287897}
+        */
+
+        if (this._isLocal) return;
+
+        // ==> OK, ready to send data forward...
+
+        // What is the journal line we are using for the fork???
+        var forkCmd = {
+          version: this._channelStatus.version,
+          channelId: name,
+          name: description,
+          journalLine: 1
+        };
+        /*
+        me._clientState = {
+        data : chData,              // The channel data object
+        client : me,                // The channel client object (for Namespace conversion )
+        needsRefresh : false,       // true if client is out of sync and needs to reload
+        version : me._channelStatus.version,               
+        last_update : [0, chData.getJournalLine()],  // last succesfull server update
+        last_sent : []              // last range sent to the server
+        };
+        */
+        // <= we must be using the last serverupdate, and maybe add the extra lines to the
+        // additional fork information to create a truly dynamic fork of the subject in case
+        // some other client is "resisting" the update...
+        forkCmd.journalLine = this._clientState.last_update[1];
+
+        // the fork is being processed, the response is going to be ready after the promise completes
+        var me = this;
+
+        return _promise(function (results) {
+          me._socket.send('channelCommand', {
+            channelId: me._channelId,
+            cmd: 'fork',
+            data: forkCmd
+          }).then(function (resp) {
+            // information from the server.
+            // build new channel object
+            // return it as the promise...
+            results(resp);
+          });
+        });
+      };
+
+      /**
+       * @param Object change
+       */
+      _myTrait_.fromMaster = function (change) {
+        console.log('from master', JSON.stringify(change));
+      };
+
+      /**
+       * @param Object change
+       */
+      _myTrait_.fromSlave = function (change) {
+        console.log('from slave', JSON.stringify(change));
+
+        if (change.cmd == 's2c') {
+
+          // --> we have server to client command coming in..
+          // this is the connection to the master, thus the commands should be run
+          // here as if they were "local" commands which are about to be sent to the
+          // remote server
+          /*
+          return {
+          cmd : "s2c",
+          c : chData._journal.slice( start, end ),
+          start : start,
+          end : end,
+          version : serverState.version
+          };    
+          */
+
+          // this channelClient is only responsible of sending the commands to the
+          // actual master server
+          var me = this;
+          change.c.forEach(function (eCmd) {
+            console.log(eCmd);
+            var r = me.addCommand(eCmd);
+            console.log(JSON.stringify(r));
+            console.log(JSON.stringify(me._data.getData()));
+          });
+        }
+      };
+
+      /**
+       * @param string id
+       * @param float name
+       */
+      _myTrait_.get = function (id, name) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          return obj.data[name];
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getChannelData = function (t) {
+        return this._data;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getData = function (t) {
+        return this._data.getData();
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.indexOf = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            return index;
+          }
+        }
+        return -1;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (channelId, socket, options) {
+
+        if (!_dmp) {
+          if (typeof diff_match_patch != 'undefined') {
+            _dmp = new diff_match_patch();
+          } else {
+            // if in node.js try to require the module
+            if (typeof require != 'undefined') {
+              var DiffMatchPatch = require('diff-match-patch');
+              _dmp = new DiffMatchPatch();
+            }
+          }
+        }
+
+        if (!this._policy) this._policy = _chPolicy();
+
+        if (options && options.localChannel) {
+
+          this._channelId = channelId;
+          this._options = options;
+          this._socketGUID = this.guid();
+          this._isLocal = true;
+
+          this._socket = _clientSocket(this._socketGUID, 1);
+          var myNamespace = this._socket.getEnum();
+
+          this._ns = myNamespace;
+          this._id = channelId + this._socket.getId();
+          var me = this;
+
+          var mainData = options.localData;
+          mainData = me._transformObjToNs(options.localData, myNamespace);
+
+          var chData = _channelData(me._id, mainData, []);
+          me._data = chData;
+          me.resolve({
+            result: true,
+            channelId: channelId
+          });
+          return;
+        } else {}
+
+        if (!channelId || !socket) return;
+
+        this._channelId = channelId;
+        this._socket = socket;
+        this._options = options;
+        this._changeFrames = [];
+        this._pendingFrames = [];
+
+        var myNamespace = socket.getEnum();
+
+        this._ns = myNamespace;
+
+        this._id = channelId + socket.getId();
+        var me = this;
+
+        this._onFrameLoop(socket, myNamespace);
+        this._incoming(socket, myNamespace);
+
+        this._connCnt = 0;
+
+        socket.on('disconnect', function () {
+          me._connected = false;
+        });
+        socket.on('connect', function () {
+
+          console.log('*** socket reconnect for ' + channelId + ' *** ');
+          console.log('Connection count ' + me._connCnt);
+
+          me._connCnt++;
+
+          // Authenticate...
+          if (options.auth) {
+            socket.send('auth', {
+              userId: options.auth.username,
+              password: options.auth.password
+            }).then(function (resp) {
+
+              if (resp.userId) {
+
+                me._userId = resp.userId;
+                me._logged = true;
+              } else {
+                me._logged = false;
+                return false;
+              }
+              // ask to join the channel with this socket...
+              return socket.send('requestChannel', {
+                channelId: channelId,
+                initWithData: options.initWithData
+              });
+            }).then(function (resp) {
+              // this channel client has been connected to the server ok
+              if (resp && resp.channelId == channelId) {
+
+                me._connected = true;
+                // The next step: to load the channel information for the
+                // local objects to consume
+
+                if (me._connCnt > 1) {
+                  // if reconnecting to the other server, ask upgrade only, not the whole
+                  // build tree...
+                  me._onReconnect();
+                  return false;
+                }
+
+                return socket.send('channelCommand', {
+                  channelId: channelId,
+                  cmd: 'readBuildTree',
+                  data: ''
+                });
+              } else {
+                return false;
+              }
+            }).then(function (respData) {
+
+              if (respData) {
+
+                var resp = respData.build;
+
+                // ? should we be updating this or is this just one-time info
+                me._channelStatus = respData.status;
+                /*
+                // has channel + fork information included
+                {   "fromJournalLine":1,
+                  "version":1,
+                  "journalLine":1,
+                  "channelId":"my/channel/myFork",
+                  "fromVersion":2,
+                  "from":"my/channel",
+                  "to":"my/channel/myFork",
+                  "name":"test of fork","utc":14839287897}
+                */
+
+                // The build tree is here now...
+                // Should you transform the objects to other namespaces...?
+
+                var mainData = resp.pop();
+
+                // The data is here... but transforming?
+                mainData = me._transformObjToNs(mainData, myNamespace);
+
+                var chData = _channelData(me._id, mainData, []);
+                var list = resp.pop();
+
+                // should be updating the client
+                // var res = me._policy.deltaServerToClient( cmd, me._clientState);
+                while (list) {
+                  chData._journalPointer = 0;
+                  chData._journal.length = 0; // <-- the journal length, last will be spared
+                  list.forEach(function (c) {
+                    chData.execCmd(me._transformCmdToNs(c, myNamespace), true);
+                  });
+                  list = resp.pop();
+                }
+
+                // the state management
+                me._clientState = {
+                  data: chData, // The channel data object
+                  client: me, // The channel client object (for Namespace conversion )
+                  needsRefresh: false, // true if client is out of sync and needs to reload
+                  version: me._channelStatus.version,
+                  last_update: [0, chData.getJournalLine()], // last succesfull server update
+                  last_sent: [0, chData.getJournalLine()] // last range sent to the server
+
+                };
+
+                me._data = chData;
+                me._createTransaction();
+                me.resolve({
+                  result: true,
+                  channelId: channelId
+                });
+              } else {
+                me.resolve({
+                  result: false,
+                  text: 'Authorization or connection failed'
+                });
+              }
+            });
+          }
+        });
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isConnected = function (t) {
+        if (this._disconnected) return false;
+        if (this._connCnt && this._connected) return true;
+
+        return false;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isLocal = function (t) {
+        return this._isLocal;
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.length = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && obj.data) {
+          return obj.data.length || 0;
+        }
+        return 0;
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.moveDown = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            var newIndex = index - 1;
+            if (newIndex >= 0 && index >= 0 && index != newIndex && parent.data.length > newIndex) {
+              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
+              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float id
+       * @param float newIndex
+       */
+      _myTrait_.moveTo = function (id, newIndex) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            if (index >= 0 && index != newIndex && parent.data.length > newIndex) {
+              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
+              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.moveUp = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            var newIndex = index + 1;
+            if (newIndex >= 0 && index >= 0 && index != newIndex && parent.data.length > newIndex) {
+              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
+              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.reconnect = function (t) {
+        this._disconnected = false;
+        return this;
+      };
+
+      /**
+       * @param float cnt
+       */
+      _myTrait_.redo = function (cnt) {
+        this._data.redo(cnt);
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.redoStep = function (options) {
+        this._data.redoStep(options);
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.remove = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            if (index >= 0) {
+              this.addCommand([8, index, ns_id, 0, parent.__id]);
+              // this.addCommand([4, name, value, old_value, ns_id ]);
+            }
+          }
+          // dataTest.execCmd( [8, 0, "obj1", 0, "array1"], true);
+          // return obj.data[name];
+        }
+      };
+
+      /**
+       * @param float commandName
+       * @param float packet
+       */
+      _myTrait_.sendCommand = function (commandName, packet) {
+        var me = this,
+            channelId = this._channelId,
+            socket = this._socket;
+
+        if (!me._policy) return;
+        if (me._disconnected) return; // in case disconnected, don't send data
+        if (!me._connected) return;
+        if (!socket) return;
+
+        return socket.send('channelCommand', {
+          channelId: channelId,
+          cmd: commandName,
+          data: packet
+        });
+      };
+
+      /**
+       * @param float id
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.set = function (id, name, value) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && !this.isObject(value)) {
+          var old_value = obj.data[name];
+          if (old_value != value) {
+            console.log('command 4 ' + JSON.stringify([4, name, value, old_value, ns_id]));
+            this.addCommand([4, name, value, old_value, ns_id]);
+          }
+        }
+      };
+
+      /**
+       * @param float model
+       */
+      _myTrait_.setChannelModel = function (model) {
+
+        this._serverModel = model;
+      };
+
+      /**
+       * @param float masterConnection
+       */
+      _myTrait_.setMasterConnection = function (masterConnection) {
+        this._master = masterConnection;
+      };
+
+      /**
+       * @param float id
+       * @param float name
+       * @param float propObj
+       */
+      _myTrait_.setObject = function (id, name, propObj) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+
+        if (obj && this.isObject(propObj) && propObj.__id) {
+          var old_value = obj.data[name];
+
+          if (!old_value) {
+            // insert object only if there is no old value
+            this.addCommand([5, name, propObj.__id, null, ns_id]);
+          }
+        }
+      };
+
+      /**
+       * Will set the slave server for this connection
+       * @param Object slaveServer
+       */
+      _myTrait_.setSlaveServer = function (slaveServer) {
+
+        this._slave = slaveServer;
+      };
+
+      /**
+       * Create a new syncable channel...
+       * @param Object syncData
+       */
+      _myTrait_.sync = function (syncData) {
+        /*
+        {
+        "out" : {
+        "channelId" : "sync/test1",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7778",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        },
+        "in" : {
+        "channelId" : "sync/test2",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7779",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        }
+        }
+        */
+        var socket = this._socket,
+            me = this,
+            channelId = this._channelId;
+        return _promise(function (result) {
+
+          if (!me.isConnected() || !syncData || !syncData.out || !syncData.out.channelId) {
+            result({
+              success: false
+            });
+            return;
+          }
+
+          socket.send('channelCommand', {
+            channelId: channelId,
+            cmd: 'sync',
+            data: {
+              sync: syncData
+            }
+          }).then(function (res) {
+            result(res);
+          });
+        });
+      };
+
+      /**
+       * @param int cnt
+       */
+      _myTrait_.undo = function (cnt) {
+        this._data.undo(cnt);
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.undoStep = function (options) {
+        this._data.undoStep(options);
+      };
+
+      /**
+       * @param float id
+       * @param float name
+       */
+      _myTrait_.unset = function (id, name) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && obj.data) {
+
+          if (this.isObject(obj.data[name])) {
+            this.addCommand([10, name, obj.data[name].__id, null, ns_id]);
+          } else {
+            if (obj.data && typeof obj.data[name] != 'undefined') {
+              this.addCommand([10, name, obj.data[name], 'value', ns_id]);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.upgradeVersion = function (t) {
+
+        // should start the snapshot command
+        this._socket.send('channelCommand', {
+          channelId: this._channelId,
+          cmd: 'snapshot',
+          data: {}
+        }).then(function () {});
+      };
+    })(this);
+  };
+
+  var channelClient = function channelClient(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof channelClient) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == 'function') {
+          if (res._classInfo.name != channelClient._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == 'function') m.init.apply(m, args);
+      }
+    } else return new channelClient(a, b, c, d, e, f, g, h);
+  };
+
+  channelClient_prototype.prototype = _promise.prototype;
+
+  channelClient._classInfo = {
+    name: 'channelClient'
+  };
+  channelClient.prototype = new channelClient_prototype();
+
+  (function () {
+    if (typeof define !== 'undefined' && define !== null && define.amd != null) {
+      __amdDefs__['channelClient'] = channelClient;
+      this.channelClient = channelClient;
+    } else if (typeof module !== 'undefined' && module !== null && module.exports != null) {
+      module.exports['channelClient'] = channelClient;
+    } else {
+      this.channelClient = channelClient;
+    }
+  }).call(new Function('return this')());
 
   var moshModule_prototype = function moshModule_prototype() {
 
@@ -9844,7 +9844,7 @@
 
       // Initialize static variables here...
 
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty('__traitInit')) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (main) {});
     })(this);
@@ -9859,7 +9859,7 @@
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
-        if (typeof res == "function") {
+        if (typeof res == 'function') {
           if (res._classInfo.name != moshModule._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
@@ -9870,20 +9870,20 @@
           initF.apply(m, args);
         });
       } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
+        if (typeof m.init == 'function') m.init.apply(m, args);
       }
     } else return new moshModule(a, b, c, d, e, f, g, h);
   };
 
   moshModule._classInfo = {
-    name: "moshModule"
+    name: 'moshModule'
   };
   moshModule.prototype = new moshModule_prototype();
 
-  if (typeof define !== "undefined" && define !== null && define.amd != null) {
+  if (typeof define !== 'undefined' && define !== null && define.amd != null) {
     define(__amdDefs__);
   }
-}).call(new Function("return this")());
+}).call(new Function('return this')());
 
 // console.log("The socket was not connected");
 

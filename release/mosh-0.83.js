@@ -4,370 +4,314 @@
 
   var __amdDefs__ = {};
 
-  var moshEnv_prototype = function moshEnv_prototype() {
+  var later_prototype = function later_prototype() {
 
     (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (options) {});
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isNode = function (t) {
-        return new Function("try { return this === global; } catch(e) { return false; }")();
-      };
-    })(this);
-  };
-
-  var moshEnv = function moshEnv(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof moshEnv) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != moshEnv._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new moshEnv(a, b, c, d, e, f, g, h);
-  };
-
-  moshEnv._classInfo = {
-    name: "moshEnv"
-  };
-  moshEnv.prototype = new moshEnv_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["moshEnv"] = moshEnv;
-      this.moshEnv = moshEnv;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["moshEnv"] = moshEnv;
-    } else {
-      this.moshEnv = moshEnv;
-    }
-  }).call(new Function("return this")());
-
-  var testFs_prototype = function testFs_prototype() {
-
-    (function (_myTrait_) {
-      var _instanceCache;
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {});
-    })(this);
-  };
-
-  var testFs = function testFs(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof testFs) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != testFs._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new testFs(a, b, c, d, e, f, g, h);
-  };
-
-  testFs._classInfo = {
-    name: "testFs"
-  };
-  testFs.prototype = new testFs_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["testFs"] = testFs;
-      this.testFs = testFs;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["testFs"] = testFs;
-    } else {
-      this.testFs = testFs;
-    }
-  }).call(new Function("return this")());
-
-  var channelTesting_prototype = function channelTesting_prototype() {
-
-    (function (_myTrait_) {
+      var _initDone;
+      var _callers;
+      var _oneTimers;
+      var _everies;
+      var _framers;
+      var _localCnt;
+      var _easings;
+      var _easeFns;
 
       // Initialize static variables here...
 
       /**
        * @param float t
        */
-      _myTrait_.guid = function (t) {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      _myTrait_._easeFns = function (t) {
+        _easings = {
+          easeIn: function easeIn(t) {
+            return t * t;
+          },
+          easeOut: function easeOut(t) {
+            return -1 * t * (t - 2);
+          },
+          easeInOut: function easeInOut(t) {
+            if (t < 0.5) return t * t;
+            return -1 * t * (t - 2);
+          },
+          easeInCubic: function easeInCubic(t) {
+            return t * t * t;
+          },
+          easeOutCubic: function easeOutCubic(t) {
+            return (1 - t) * (1 - t) * (1 - t) + 1;
+          },
+          pow: function pow(t) {
+            return Math.pow(t, parseFloat(1.5 - t));
+          },
+          linear: function linear(t) {
+            return t;
+          }
+        };
       };
 
       /**
-       * @param float t
+       * @param function fn
+       * @param float thisObj
+       * @param float args
        */
-      _myTrait_.isArray = function (t) {
-        return t instanceof Array;
+      _myTrait_.add = function (fn, thisObj, args) {
+        if (thisObj || args) {
+          var tArgs;
+          if (Object.prototype.toString.call(args) === "[object Array]") {
+            tArgs = args;
+          } else {
+            tArgs = Array.prototype.slice.call(arguments, 2);
+            if (!tArgs) tArgs = [];
+          }
+          _callers.push([thisObj, fn, tArgs]);
+        } else {
+          _callers.push(fn);
+        }
+      };
+
+      /**
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.addEasingFn = function (name, fn) {
+        _easings[name] = fn;
+      };
+
+      /**
+       * @param float seconds
+       * @param float fn
+       * @param float name
+       */
+      _myTrait_.after = function (seconds, fn, name) {
+
+        if (!name) {
+          name = "aft_" + _localCnt++;
+        }
+
+        _everies[name] = {
+          step: Math.floor(seconds * 1000),
+          fn: fn,
+          nextTime: 0,
+          remove: true
+        };
+      };
+
+      /**
+       * @param function fn
+       */
+      _myTrait_.asap = function (fn) {
+        this.add(fn);
+      };
+
+      /**
+       * @param String name  - Name of the easing to use
+       * @param int delay  - Delay of the transformation in ms
+       * @param function callback  - Callback to set the values
+       * @param function over  - When animation is over
+       */
+      _myTrait_.ease = function (name, delay, callback, over) {
+
+        var fn = _easings[name];
+        if (!fn) fn = _easings.pow;
+        var id_name = "e_" + _localCnt++;
+        _easeFns[id_name] = {
+          easeFn: fn,
+          duration: delay,
+          cb: callback,
+          over: over
+        };
+      };
+
+      /**
+       * @param float seconds
+       * @param float fn
+       * @param float name
+       */
+      _myTrait_.every = function (seconds, fn, name) {
+
+        if (!name) {
+          name = "t7491_" + _localCnt++;
+        }
+
+        _everies[name] = {
+          step: Math.floor(seconds * 1000),
+          fn: fn,
+          nextTime: 0
+        };
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (interval, fn) {
+        if (!_initDone) {
+          this._easeFns();
+          _localCnt = 1;
+
+          var frame, cancelFrame;
+          if (typeof window != "undefined") {
+            var frame = window["requestAnimationFrame"],
+                cancelFrame = window["cancelRequestAnimationFrame"];
+            ["", "ms", "moz", "webkit", "o"].forEach(function (x) {
+              if (!frame) {
+                frame = window[x + "RequestAnimationFrame"];
+                cancelFrame = window[x + "CancelAnimationFrame"] || window[x + "CancelRequestAnimationFrame"];
+              }
+            });
+          }
+
+          var is_node_js = new Function("try { return this == global; } catch(e) { return false; }")();
+
+          if (is_node_js) {
+            frame = function (cb) {
+              return setImmediate(cb); // (cb,1);
+            };
+          } else {
+            if (!frame) {
+              frame = function (cb) {
+                return setTimeout(cb, 16);
+              };
+            }
+          }
+
+          if (!cancelFrame) cancelFrame = function (id) {
+            clearTimeout(id);
+          };
+
+          _callers = [];
+          _oneTimers = {};
+          _everies = {};
+          _framers = [];
+          _easeFns = {};
+          var lastMs = 0;
+
+          var _callQueQue = function _callQueQue() {
+            var ms = new Date().getTime(),
+                elapsed = lastMs - ms;
+
+            if (lastMs == 0) elapsed = 0;
+            var fn;
+            while (fn = _callers.shift()) {
+              if (Object.prototype.toString.call(fn) === "[object Array]") {
+                fn[1].apply(fn[0], fn[2]);
+              } else {
+                fn();
+              }
+            }
+
+            for (var i = 0; i < _framers.length; i++) {
+              var fFn = _framers[i];
+              fFn();
+            }
+            /*
+            _easeFns.push({
+            easeFn : fn,
+            duration : delay,
+            cb : callback
+            });
+               */
+            for (var n in _easeFns) {
+              if (_easeFns.hasOwnProperty(n)) {
+                var v = _easeFns[n];
+                if (!v.start) v.start = ms;
+                var delta = ms - v.start,
+                    dt = delta / v.duration;
+                if (dt >= 1) {
+                  dt = 1;
+                  delete _easeFns[n];
+                }
+                v.cb(v.easeFn(dt));
+                if (dt == 1 && v.over) v.over();
+              }
+            }
+
+            for (var n in _oneTimers) {
+              if (_oneTimers.hasOwnProperty(n)) {
+                var v = _oneTimers[n];
+                v[0](v[1]);
+                delete _oneTimers[n];
+              }
+            }
+
+            for (var n in _everies) {
+              if (_everies.hasOwnProperty(n)) {
+                var v = _everies[n];
+                if (v.nextTime < ms) {
+                  if (v.remove) {
+                    if (v.nextTime > 0) {
+                      v.fn();
+                      delete _everies[n];
+                    } else {
+                      v.nextTime = ms + v.step;
+                    }
+                  } else {
+                    v.fn();
+                    v.nextTime = ms + v.step;
+                  }
+                }
+                if (v.until) {
+                  if (v.until < ms) {
+                    delete _everies[n];
+                  }
+                }
+              }
+            }
+
+            frame(_callQueQue);
+            lastMs = ms;
+          };
+          _callQueQue();
+          _initDone = true;
+        }
+      });
+
+      /**
+       * @param  key
+       * @param float fn
+       * @param float value
+       */
+      _myTrait_.once = function (key, fn, value) {
+        // _oneTimers
+
+        _oneTimers[key] = [fn, value];
+      };
+
+      /**
+       * @param function fn
+       */
+      _myTrait_.onFrame = function (fn) {
+
+        _framers.push(fn);
       };
 
       /**
        * @param float fn
        */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
+      _myTrait_.removeFrameFn = function (fn) {
 
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {});
-
-      /**
-       * The test users are &quot;Tero&quot; with password &quot;teropw&quot; and &quot;Juha&quot; with password &quot;juhapw&quot;. Juha has groups &quot;users&quot; and Tero has groups &quot;users&quot; and &quot;admins&quot;
-       * @param float t
-       */
-      _myTrait_.pwFilesystem = function (t) {
-
-        // The password and user infra, in the simulation environment:
-
-        var pwData = {
-          "groups": {},
-          "domains": {},
-          "users": {
-            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
-            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
-          },
-          "udata": {
-            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
-            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
+        var i = _framers.indexOf(fn);
+        if (i >= 0) {
+          if (fn._onRemove) {
+            fn._onRemove();
           }
-        };
-
-        var pwFiles = fsServerMemory("pwServer1", pwData);
-
-        return pwFiles;
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.serverSetup1 = function (options) {
-
-        options = options || {};
-        var readyPromise = _promise();
-
-        var baseData = {
-          data: {
-            path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
-            fill: "red",
-            stroke: "black",
-            sub: {
-              data: {
-                value1: "abba"
-              },
-              __id: "sub1"
-            }
-          },
-          __id: "id1",
-          __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
-        };
-
-        if (options && options.data) {
-          baseData.data = options.data;
+          _framers.splice(i, 1);
+          return true;
+        } else {
+          return false;
         }
-
-        // create a channel files
-        var fsData = {
-          "my": {
-            "channel": {
-              "journal.1": "",
-              "file.2": JSON.stringify(baseData),
-              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
-              "ch.settings": JSON.stringify({
-                version: 2, // version of the channel
-                channelId: "my/channel", // ID of this channel
-                journalLine: 1,
-                utc: 14839287897 // UTC timestamp of creation               
-              }),
-              "forks": JSON.stringify({ // == forks on list of forks
-                fromJournalLine: 1,
-                version: 1,
-                channelId: "my/channel/myFork",
-                fromVersion: 2,
-                from: "my/channel",
-                to: "my/channel/myFork",
-                name: "test of fork",
-                utc: 14839287897
-              }),
-              "myFork": {
-                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
-                "ch.settings": JSON.stringify({
-                  fromJournalLine: 1, // from which line the fork starts
-                  version: 1, // version of the channel
-                  channelId: "my/channel/myFork", // ID of this channel
-                  fromVersion: 2, // version of the fork's source
-                  from: "my/channel", // the fork channels ID
-                  to: "my/channel/myFork", // forks target channel
-                  journalLine: 1,
-                  name: "test of fork",
-                  utc: 14839287897 // UTC timestamp of creation
-                })
-              }
-            }
-          }
-        };
-
-        if (options && options.fileSystemData) {
-          fsData = options.fileSystemData;
-        }
-
-        var filesystem = fsServerMemory("ms" + this.guid(), fsData);
-
-        // The password and user infra, in the simulation environment:
-        var pwData = {
-          "groups": {},
-          "domains": {},
-          "users": {
-            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
-            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
-          },
-          "udata": {
-            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
-            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
-          }
-        };
-
-        var pwFiles = fsServerMemory("pw" + this.guid(), pwData);
-        pwFiles.then(function () {
-          return filesystem;
-        }).then(function () {
-
-          // Setting up the server       
-          var root = pwFiles.getRootFolder();
-          var auth = authFuzz(root);
-          var fsRoot = filesystem.getRootFolder();
-
-          var server = _serverSocket((options.protocol || "http") + "://" + (options.ip || "localhost"), options.port || 1234);
-          var manager = _serverChannelMgr(server, filesystem.getRootFolder(), auth);
-
-          readyPromise.resolve({
-            server: server,
-            manager: manager,
-            fsRoot: fsRoot,
-            auth: auth,
-            pwRoot: root
-          });
-        });
-
-        return readyPromise;
-      };
-
-      /**
-       * Test filesystem 1 represents a channel &quot;my/channel&quot; with one fork with channelID &quot;my/channel/myFork&quot;.
-       * @param float t
-       */
-      _myTrait_.testFilesystem1 = function (t) {
-        var fsData = {
-          "my": {
-            "channel": {
-              "journal.1": "",
-              "file.2": JSON.stringify({
-                data: {
-                  path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
-                  fill: "red"
-                },
-                __id: "id1",
-                __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
-              }),
-              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
-              "ch.settings": JSON.stringify({
-                version: 2, // version of the channel
-                channelId: "my/channel", // ID of this channel
-                journalLine: 1,
-                utc: 14839287897 // UTC timestamp of creation               
-              }),
-              "forks": JSON.stringify({ // == forks on list of forks
-                fromJournalLine: 1,
-                version: 1,
-                channelId: "my/channel/myFork",
-                fromVersion: 2,
-                from: "my/channel",
-                to: "my/channel/myFork",
-                name: "test of fork",
-                utc: 14839287897
-              }),
-              "myFork": {
-                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
-                "ch.settings": JSON.stringify({
-                  fromJournalLine: 1, // from which line the fork starts
-                  version: 1, // version of the channel
-                  channelId: "my/channel/myFork", // ID of this channel
-                  fromVersion: 2, // version of the fork's source
-                  from: "my/channel", // the fork channels ID
-                  to: "my/channel/myFork", // forks target channel
-                  name: "test of fork",
-                  utc: 14839287897 // UTC timestamp of creation
-                })
-              }
-            }
-          }
-        };
-
-        return;
       };
     })(this);
   };
 
-  var channelTesting = function channelTesting(a, b, c, d, e, f, g, h) {
+  var later = function later(a, b, c, d, e, f, g, h) {
     var m = this,
         res;
-    if (m instanceof channelTesting) {
+    if (m instanceof later) {
       var args = [a, b, c, d, e, f, g, h];
       if (m.__factoryClass) {
         m.__factoryClass.forEach(function (initF) {
           res = initF.apply(m, args);
         });
         if (typeof res == "function") {
-          if (res._classInfo.name != channelTesting._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+          if (res._classInfo.name != later._classInfo.name) return new res(a, b, c, d, e, f, g, h);
         } else {
           if (res) return res;
         }
@@ -379,22 +323,22 @@
       } else {
         if (typeof m.init == "function") m.init.apply(m, args);
       }
-    } else return new channelTesting(a, b, c, d, e, f, g, h);
+    } else return new later(a, b, c, d, e, f, g, h);
   };
 
-  channelTesting._classInfo = {
-    name: "channelTesting"
+  later._classInfo = {
+    name: "later"
   };
-  channelTesting.prototype = new channelTesting_prototype();
+  later.prototype = new later_prototype();
 
   (function () {
     if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["channelTesting"] = channelTesting;
-      this.channelTesting = channelTesting;
+      __amdDefs__["later"] = later;
+      this.later = later;
     } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["channelTesting"] = channelTesting;
+      module.exports["later"] = later;
     } else {
-      this.channelTesting = channelTesting;
+      this.later = later;
     }
   }).call(new Function("return this")());
 
@@ -1362,6 +1306,400 @@
       module.exports["_promise"] = _promise;
     } else {
       this._promise = _promise;
+    }
+  }).call(new Function("return this")());
+
+  var moshEnv_prototype = function moshEnv_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (options) {});
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isNode = function (t) {
+        return new Function("try { return this === global; } catch(e) { return false; }")();
+      };
+    })(this);
+  };
+
+  var moshEnv = function moshEnv(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof moshEnv) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != moshEnv._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new moshEnv(a, b, c, d, e, f, g, h);
+  };
+
+  moshEnv._classInfo = {
+    name: "moshEnv"
+  };
+  moshEnv.prototype = new moshEnv_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["moshEnv"] = moshEnv;
+      this.moshEnv = moshEnv;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["moshEnv"] = moshEnv;
+    } else {
+      this.moshEnv = moshEnv;
+    }
+  }).call(new Function("return this")());
+
+  var testFs_prototype = function testFs_prototype() {
+
+    (function (_myTrait_) {
+      var _instanceCache;
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {});
+    })(this);
+  };
+
+  var testFs = function testFs(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof testFs) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != testFs._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new testFs(a, b, c, d, e, f, g, h);
+  };
+
+  testFs._classInfo = {
+    name: "testFs"
+  };
+  testFs.prototype = new testFs_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["testFs"] = testFs;
+      this.testFs = testFs;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["testFs"] = testFs;
+    } else {
+      this.testFs = testFs;
+    }
+  }).call(new Function("return this")());
+
+  var channelTesting_prototype = function channelTesting_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {});
+
+      /**
+       * The test users are &quot;Tero&quot; with password &quot;teropw&quot; and &quot;Juha&quot; with password &quot;juhapw&quot;. Juha has groups &quot;users&quot; and Tero has groups &quot;users&quot; and &quot;admins&quot;
+       * @param float t
+       */
+      _myTrait_.pwFilesystem = function (t) {
+
+        // The password and user infra, in the simulation environment:
+
+        var pwData = {
+          "groups": {},
+          "domains": {},
+          "users": {
+            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
+            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
+          },
+          "udata": {
+            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
+            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
+          }
+        };
+
+        var pwFiles = fsServerMemory("pwServer1", pwData);
+
+        return pwFiles;
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.serverSetup1 = function (options) {
+
+        options = options || {};
+        var readyPromise = _promise();
+
+        var baseData = {
+          data: {
+            path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
+            fill: "red",
+            stroke: "black",
+            sub: {
+              data: {
+                value1: "abba"
+              },
+              __id: "sub1"
+            }
+          },
+          __id: "id1",
+          __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
+        };
+
+        if (options && options.data) {
+          baseData.data = options.data;
+        }
+
+        // create a channel files
+        var fsData = {
+          "my": {
+            "channel": {
+              "journal.1": "",
+              "file.2": JSON.stringify(baseData),
+              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
+              "ch.settings": JSON.stringify({
+                version: 2, // version of the channel
+                channelId: "my/channel", // ID of this channel
+                journalLine: 1,
+                utc: 14839287897 // UTC timestamp of creation               
+              }),
+              "forks": JSON.stringify({ // == forks on list of forks
+                fromJournalLine: 1,
+                version: 1,
+                channelId: "my/channel/myFork",
+                fromVersion: 2,
+                from: "my/channel",
+                to: "my/channel/myFork",
+                name: "test of fork",
+                utc: 14839287897
+              }),
+              "myFork": {
+                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
+                "ch.settings": JSON.stringify({
+                  fromJournalLine: 1, // from which line the fork starts
+                  version: 1, // version of the channel
+                  channelId: "my/channel/myFork", // ID of this channel
+                  fromVersion: 2, // version of the fork's source
+                  from: "my/channel", // the fork channels ID
+                  to: "my/channel/myFork", // forks target channel
+                  journalLine: 1,
+                  name: "test of fork",
+                  utc: 14839287897 // UTC timestamp of creation
+                })
+              }
+            }
+          }
+        };
+
+        if (options && options.fileSystemData) {
+          fsData = options.fileSystemData;
+        }
+
+        var filesystem = fsServerMemory("ms" + this.guid(), fsData);
+
+        // The password and user infra, in the simulation environment:
+        var pwData = {
+          "groups": {},
+          "domains": {},
+          "users": {
+            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
+            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
+          },
+          "udata": {
+            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
+            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
+          }
+        };
+
+        var pwFiles = fsServerMemory("pw" + this.guid(), pwData);
+        pwFiles.then(function () {
+          return filesystem;
+        }).then(function () {
+
+          // Setting up the server       
+          var root = pwFiles.getRootFolder();
+          var auth = authFuzz(root);
+          var fsRoot = filesystem.getRootFolder();
+
+          var server = _serverSocket((options.protocol || "http") + "://" + (options.ip || "localhost"), options.port || 1234);
+          var manager = _serverChannelMgr(server, filesystem.getRootFolder(), auth);
+
+          readyPromise.resolve({
+            server: server,
+            manager: manager,
+            fsRoot: fsRoot,
+            auth: auth,
+            pwRoot: root
+          });
+        });
+
+        return readyPromise;
+      };
+
+      /**
+       * Test filesystem 1 represents a channel &quot;my/channel&quot; with one fork with channelID &quot;my/channel/myFork&quot;.
+       * @param float t
+       */
+      _myTrait_.testFilesystem1 = function (t) {
+        var fsData = {
+          "my": {
+            "channel": {
+              "journal.1": "",
+              "file.2": JSON.stringify({
+                data: {
+                  path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
+                  fill: "red"
+                },
+                __id: "id1",
+                __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
+              }),
+              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
+              "ch.settings": JSON.stringify({
+                version: 2, // version of the channel
+                channelId: "my/channel", // ID of this channel
+                journalLine: 1,
+                utc: 14839287897 // UTC timestamp of creation               
+              }),
+              "forks": JSON.stringify({ // == forks on list of forks
+                fromJournalLine: 1,
+                version: 1,
+                channelId: "my/channel/myFork",
+                fromVersion: 2,
+                from: "my/channel",
+                to: "my/channel/myFork",
+                name: "test of fork",
+                utc: 14839287897
+              }),
+              "myFork": {
+                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
+                "ch.settings": JSON.stringify({
+                  fromJournalLine: 1, // from which line the fork starts
+                  version: 1, // version of the channel
+                  channelId: "my/channel/myFork", // ID of this channel
+                  fromVersion: 2, // version of the fork's source
+                  from: "my/channel", // the fork channels ID
+                  to: "my/channel/myFork", // forks target channel
+                  name: "test of fork",
+                  utc: 14839287897 // UTC timestamp of creation
+                })
+              }
+            }
+          }
+        };
+
+        return;
+      };
+    })(this);
+  };
+
+  var channelTesting = function channelTesting(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof channelTesting) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != channelTesting._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new channelTesting(a, b, c, d, e, f, g, h);
+  };
+
+  channelTesting._classInfo = {
+    name: "channelTesting"
+  };
+  channelTesting.prototype = new channelTesting_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["channelTesting"] = channelTesting;
+      this.channelTesting = channelTesting;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["channelTesting"] = channelTesting;
+    } else {
+      this.channelTesting = channelTesting;
     }
   }).call(new Function("return this")());
 
@@ -2554,175 +2892,6 @@
     })(this);
 
     (function (_myTrait_) {
-      var _eventOn;
-      var _bindLock;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float dataObj
-       * @param float obj
-       * @param float parentPlain
-       * @param float parentObserver
-       */
-      _myTrait_._es7Observe = function (dataObj, obj, parentPlain, parentObserver) {
-
-        if (!dataObj.getData) return dataObj;
-
-        var obj = dataObj.getData();
-
-        if (!this.isObject(obj) && !this.isArray(obj)) return obj;
-
-        var plain,
-            me = this;
-        var dataCh = dataObj._client.getChannelData();
-
-        var moshId = Symbol("_mosh_id_");
-
-        if (dataObj.isArray()) {
-
-          // The new array to observe
-          plain = [];
-
-          var myObserver = function myObserver(changes) {
-            var bLock = false;
-
-            changes.forEach(function (ch) {
-              if (bLock) return;
-              bLock = true;
-              if (ch.type == "update") {}
-              if (ch.type == "splice") {
-                // TODO: handle removes
-                ch.removed.forEach(function (oldObj) {
-                  if (!oldObj[moshId]) {
-                    return;
-                  }
-                  try {
-                    var id = oldObj[moshId];
-                    var dataObj = _data(id);
-                    // we should have this object
-                    if (dataObj.isFulfilled()) {
-                      if (!dataObj.parent()) {
-                        return;
-                      }
-                      me._atObserveEvent(true);
-                      dataObj.remove();
-                      me._atObserveEvent(false);
-                    }
-                  } catch (e) {}
-                });
-                // inserts
-                var objCnt = ch.addedCount;
-                var i = ch.index;
-                while (objCnt--) {
-                  var newObj = ch.object[i];
-                  /*
-                    if(newObj.__oid && plain[i].__oid && ( newObj.__oid() ==  plain[i].__oid()) ) {
-                        i++;
-                        continue;
-                    }
-                    */
-                  dataObj.push(newObj, i);
-                  i++;
-                }
-              }
-              bLock = false;
-            });
-          };
-
-          var len = obj.data.length;
-          for (var i = 0; i < len; i++) {
-            var o = dataObj.at(i);
-            // console.log("item ", o );
-            (function (o) {
-              plain[i] = me._es7Observe(o, null, plain, myObserver);
-              plain[moshId] = o.getID();
-            })(o);
-          }
-
-          dataCh.createWorker("_obs_7", // worker ID
-          [7, "*", null, null, dataObj.getID()], // filter
-          {
-            target: plain,
-            parentObserver: myObserver
-          });
-
-          Array.observe(plain, myObserver);
-        } else {
-          // The new object to observe
-          plain = {};
-          plain[moshId] = dataObj.getID();
-
-          dataCh.createWorker("_obs_8", // worker ID
-          [8, "*", null, null, dataObj.getID()], // filter
-          {
-            target: parentPlain,
-            parentObserver: parentObserver
-          });
-          dataCh.createWorker("_obs_12", // worker ID
-          [12, "*", null, null, dataObj.getID()], // filter
-          {
-            target: parentPlain,
-            parentObserver: parentObserver
-          });
-          for (var n in obj.data) {
-            if (obj.data.hasOwnProperty(n)) {
-              if (this.isObject(obj.data[n])) {
-                plain[n] = this._es7Observe(dataObj[n], null, plain);
-              } else {
-                plain[n] = obj.data[n];
-              }
-              // "_obs_4"
-              dataCh.createWorker("_obs_4", // worker ID
-              [4, n, null, null, dataObj.getID()], // filter
-              {
-                target: plain
-              });
-            }
-          }
-          Object.observe(plain, function (changes) {
-
-            var bLock = false;
-            changes.forEach(function (ch) {
-              if (bLock) return;
-              bLock = true;
-              if (ch.type == "add") {
-                var newValue = ch.object[ch.name];
-                dataObj.set(ch.name, newValue);
-              }
-              if (ch.type == "update") {
-                var newValue = ch.object[ch.name];
-                dataObj.set(ch.name, newValue);
-              }
-              if (ch.type == "delete") {
-                dataObj.unset(ch.name);
-              }
-              bLock = false;
-            });
-          });
-        }
-
-        return plain;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._setBindLock = function (t) {
-        _bindLock = t;
-      };
-
-      /**
-       * @param float parentPlain
-       * @param float parentObserver
-       */
-      _myTrait_.toObservable = function (parentPlain, parentObserver) {
-
-        return this._es7Observe(this, null, parentPlain, parentObserver);
-      };
-    })(this);
-
-    (function (_myTrait_) {
       var _up;
       var _factoryProperties;
       var _registry;
@@ -3896,472 +4065,6 @@
     name: "later"
   };
   later.prototype = new later_prototype();
-
-  var _promise_prototype = function _promise_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float someVar
-       */
-      _myTrait_.isArray = function (someVar) {
-        return Object.prototype.toString.call(someVar) === "[object Array]";
-      };
-
-      /**
-       * @param Function fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param Object obj
-       */
-      _myTrait_.isObject = function (obj) {
-        return obj === Object(obj);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param Array firstArg
-       */
-      _myTrait_.all = function (firstArg) {
-
-        var args;
-        if (this.isArray(firstArg)) {
-          args = firstArg;
-        } else {
-          args = Array.prototype.slice.call(arguments, 0);
-        }
-        // console.log(args);
-        var targetLen = args.length,
-            rCnt = 0,
-            myPromises = [],
-            myResults = new Array(targetLen);
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          if (args.length == 0) {
-            allPromise.resolve([]);
-          }
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                myResults[index] = v;
-                rCnt++;
-                if (rCnt == targetLen) {
-
-                  allPromise.resolve(myResults);
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject("Not list of promises");
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
-       * @param function collectFn
-       * @param array promiseList
-       * @param Object results
-       */
-      _myTrait_.collect = function (collectFn, promiseList, results) {
-
-        var args;
-        if (this.isArray(promiseList)) {
-          args = promiseList;
-        } else {
-          args = [promiseList];
-        }
-
-        // console.log(args);
-        var targetLen = args.length,
-            isReady = false,
-            noMore = false,
-            rCnt = 0,
-            myPromises = [],
-            myResults = results || {};
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                rCnt++;
-                isReady = collectFn(v, myResults);
-                if (isReady && !noMore || noMore == false && targetLen == rCnt) {
-                  allPromise.resolve(myResults);
-                  noMore = true;
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject("Not list of promises");
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.fail = function (fn) {
-        return this.then(null, fn);
-      };
-
-      /**
-       * @param float withValue
-       */
-      _myTrait_.fulfill = function (withValue) {
-        // if(this._fulfilled || this._rejected) return;
-
-        if (this._rejected) return;
-        if (this._fulfilled && withValue != this._stateValue) {
-          return;
-        }
-
-        var me = this;
-        this._fulfilled = true;
-        this._stateValue = withValue;
-
-        var chCnt = this._childPromises.length;
-
-        while (chCnt--) {
-          var p = this._childPromises.shift();
-          if (p._onFulfill) {
-            try {
-              var x = p._onFulfill(withValue);
-              // console.log("Returned ",x);
-              if (typeof x != "undefined") {
-                p.resolve(x);
-              } else {
-                p.fulfill(withValue);
-              }
-            } catch (e) {
-              // console.error(e);
-              /*
-                If either onFulfilled or onRejected throws an exception e, promise2 
-                must be rejected with e as the reason.            
-              */
-              p.reject(e);
-            }
-          } else {
-            /*
-            If onFulfilled is not a function and promise1 is fulfilled, promise2 must be 
-            fulfilled with the same value as promise1        
-            */
-            p.fulfill(withValue);
-          }
-        };
-        // this._childPromises.length = 0;
-        this._state = 1;
-        this.triggerStateChange();
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (onFulfilled, onRejected) {
-        // 0 = pending
-        // 1 = fullfilled
-        // 2 = error
-
-        this._state = 0;
-        this._stateValue = null;
-        this._isAPromise = true;
-        this._childPromises = [];
-
-        if (this.isFunction(onFulfilled)) this._onFulfill = onFulfilled;
-        if (this.isFunction(onRejected)) this._onReject = onRejected;
-
-        if (!onRejected && this.isFunction(onFulfilled)) {
-
-          var me = this;
-          later().asap(function () {
-            onFulfilled(function (v) {
-              me.resolve(v);
-            }, function (v) {
-              me.reject(v);
-            });
-          });
-        }
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isFulfilled = function (t) {
-        return this._state == 1;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isPending = function (t) {
-        return this._state == 0;
-      };
-
-      /**
-       * @param bool v
-       */
-      _myTrait_.isRejected = function (v) {
-        return this._state == 2;
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.onStateChange = function (fn) {
-
-        if (!this._listeners) this._listeners = [];
-
-        this._listeners.push(fn);
-      };
-
-      /**
-       * @param Object withReason
-       */
-      _myTrait_.reject = function (withReason) {
-
-        // if(this._rejected || this._fulfilled) return;
-
-        // conso
-
-        if (this._fulfilled) return;
-        if (this._rejected && withReason != this._rejectReason) return;
-
-        this._state = 2;
-        this._rejected = true;
-        this._rejectReason = withReason;
-        var me = this;
-
-        var chCnt = this._childPromises.length;
-        while (chCnt--) {
-          var p = this._childPromises.shift();
-
-          if (p._onReject) {
-            try {
-              p._onReject(withReason);
-              p.reject(withReason);
-            } catch (e) {
-              /*
-                If either onFulfilled or onRejected throws an exception e, promise2 
-                must be rejected with e as the reason.            
-              */
-              p.reject(e);
-            }
-          } else {
-            /*
-            If onFulfilled is not a function and promise1 is fulfilled, promise2 must be 
-            fulfilled with the same value as promise1        
-            */
-            p.reject(withReason);
-          }
-        };
-
-        // this._childPromises.length = 0;
-        this.triggerStateChange();
-      };
-
-      /**
-       * @param Object reason
-       */
-      _myTrait_.rejectReason = function (reason) {
-        if (reason) {
-          this._rejectReason = reason;
-          return;
-        }
-        return this._rejectReason;
-      };
-
-      /**
-       * @param Object x
-       */
-      _myTrait_.resolve = function (x) {
-
-        // console.log("Resolving ", x);
-
-        // can not do this many times...
-        if (this._state > 0) return;
-
-        if (x == this) {
-          // error
-          this._rejectReason = "TypeError";
-          this.reject(this._rejectReason);
-          return;
-        }
-
-        if (this.isObject(x) && x._isAPromise) {
-
-          //
-          this._state = x._state;
-          this._stateValue = x._stateValue;
-          this._rejectReason = x._rejectReason;
-          // ...
-          if (this._state === 0) {
-            var me = this;
-            x.onStateChange(function () {
-              if (x._state == 1) {
-                // console.log("State change");
-                me.resolve(x.value());
-              }
-              if (x._state == 2) {
-                me.reject(x.rejectReason());
-              }
-            });
-          }
-          if (this._state == 1) {
-            // console.log("Resolved to be Promise was fulfilled ", x._stateValue);
-            this.fulfill(this._stateValue);
-          }
-          if (this._state == 2) {
-            // console.log("Relved to be Promise was rejected ", x._rejectReason);
-            this.reject(this._rejectReason);
-          }
-          return;
-        }
-        if (this.isObject(x) && x.then && this.isFunction(x.then)) {
-          // console.log("Thenable ", x);
-          var didCall = false;
-          try {
-            // Call the x.then
-            var me = this;
-            x.then.call(x, function (y) {
-              if (didCall) return;
-              // we have now value for the promise...
-              // console.log("Got value from Thenable ", y);
-              me.resolve(y);
-              didCall = true;
-            }, function (r) {
-              if (didCall) return;
-              // console.log("Got reject from Thenable ", r);
-              me.reject(r);
-              didCall = true;
-            });
-          } catch (e) {
-            if (!didCall) this.reject(e);
-          }
-          return;
-        }
-        this._state = 1;
-        this._stateValue = x;
-
-        // fulfill the promise...
-        this.fulfill(x);
-      };
-
-      /**
-       * @param float newState
-       */
-      _myTrait_.state = function (newState) {
-        if (typeof newState != "undefined") {
-          this._state = newState;
-        }
-        return this._state;
-      };
-
-      /**
-       * @param function onFulfilled
-       * @param function onRejected
-       */
-      _myTrait_.then = function (onFulfilled, onRejected) {
-
-        if (!onRejected) onRejected = function () {};
-
-        var p = new _promise(onFulfilled, onRejected);
-        var me = this;
-
-        if (this._state == 1) {
-          later().asap(function () {
-            me.fulfill(me.value());
-          });
-        }
-        if (this._state == 2) {
-          later().asap(function () {
-            me.reject(me.rejectReason());
-          });
-        }
-        this._childPromises.push(p);
-        return p;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.triggerStateChange = function (t) {
-        var me = this;
-        if (!this._listeners) return;
-        this._listeners.forEach(function (fn) {
-          fn(me);
-        });
-        // one-timer
-        this._listeners.length = 0;
-      };
-
-      /**
-       * @param float v
-       */
-      _myTrait_.value = function (v) {
-        if (typeof v != "undefined") {
-          this._stateValue = v;
-          return this;
-        }
-        return this._stateValue;
-      };
-    })(this);
-  };
-
-  var _promise = function _promise(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _promise) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _promise._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _promise(a, b, c, d, e, f, g, h);
-  };
-
-  _promise._classInfo = {
-    name: "_promise"
-  };
-  _promise.prototype = new _promise_prototype();
 
   var sequenceStepper_prototype = function sequenceStepper_prototype() {
 
@@ -6715,107 +6418,6 @@
             console.log(JSON.stringify(res));
             result(res);
           },
-          masterJournalUpgrade: function masterJournalUpgrade(cmd, result, socket) {
-
-            console.log("masterJournalUpgrade " + JSON.stringify(cmd));
-            result({
-              ok: true
-            });
-
-            // PARTIAL update:
-            // {"cmd":"masterJournalUpgrade","data":{"partialFrom":2,"partialEnds":2,"partial":[]}}
-
-            // FULL update is something like this:
-            /*
-            info.socket.emit("upgrade_"+me._channelId, {
-                version : me._serverState.version,
-                journal : me._serverState.data._journal,
-                data : fullData
-            });          
-            */
-            // QUESTIONS:
-            // 1. how to emulate the behaviour
-            // 2. how to update _doClientUpdate to send the new data, perhaps the client
-            //    update must request upgrade if status for clients which have been dramatically changed
-
-            /*
-            if(cmd.partial) {
-                       // should be reversing perhaps first to some line...
-            var dd = me._clientState.data;
-            dd.reverseToLine(cmd.partialFrom);
-            console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
-            var errCnt=0;
-            cmd.partial.forEach( function(c) {
-               if(errCnt > 0 ) return;
-               var r;
-               var cmdIn  = me._transformCmdToNs(c);
-               if(! ((r=dd.execCmd(cmdIn,true))===true ) ) {
-                   console.error("Partial ", r);
-                   errCnt++;
-               }
-            });
-            if(errCnt==0) {
-               me._clientState.needsRefresh = false;
-               me._clientState.needsFullRefresh = false;
-               
-               dd._journal.length = cmd.partialEnds;
-               
-               // The correct position 
-               me._clientState.last_update[0] = 0;
-               me._clientState.last_update[1] = dd._journal.length;
-               me._clientState.last_sent[0] = 0;
-               me._clientState.last_sent[1] = dd._journal.length;               
-            } else {
-               me._clientState.needsFullRefresh = true;
-            }
-                   }
-            if(cmd.data) {
-                       // full upgrade coming here, must also replace the journal
-                       var myData = me._clientState.data.getData(); // <- the data
-            me._transformObjToNs(cmd.data);
-                       var diff = diffEngine().compareFiles(myData, cmd.data );
-            console.log("The diff ", JSON.stringify(diff));
-            // run the commands for the local data
-            var dd = me._clientState.data;
-            var errCnt = 0;
-            diff.cmds.forEach(function(c) {
-               console.log("Diff cmd ", c);
-               if(errCnt > 0 ) return;
-               var r;
-               /// dd.execCmd(c, true); // the point is just to change the data to something else
-               if(! ((r=dd.execCmd(c,true))===true ) ) {
-                   console.error("Full error ", r);
-                   errCnt++;
-               }               
-            });
-                       // and now the hard part, upgrade the local client data.
-            if(errCnt==0) {
-               
-               me._clientState.needsRefresh = false;
-               me._clientState.needsFullRefresh = false;               
-               
-               console.log("** full update should have gone ok ** ");
-               dd._journal.length = 0;
-               dd._journal.push.apply(dd._journal, cmd.journal);
-               me._clientState.needsRefresh = false;
-               me._clientState.version = cmd.version;
-               
-               // dd._journal.length = cmd.updateEnds;
-               
-               me._clientState.last_update[0] = 0;
-               me._clientState.last_update[1] = dd._journal.length;
-               me._clientState.last_sent[0] = 0;
-               me._clientState.last_sent[1] = dd._journal.length;    
-               
-               console.log("Version ", me._clientState.version);
-               
-            } else {
-               console.error("** errors with the full update ** ");
-               me._clientState.needsFullRefresh = true;
-            }
-            }       
-            */
-          },
           changeFrame: function changeFrame(cmd, result, socket) {
 
             if (!me._groupACL(socket, "w", cmd)) {
@@ -6845,38 +6447,7 @@
             result({ ok : true}); 
             });
             */
-          },
-          writeJournal: function writeJournal(cmd, result, socket) {
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-            me._model.writeToJournal(cmd.data).then(function (r) {
-              socket.broadcast.to(cmd.channelId).emit("ch_" + cmd.channelId, cmd);
-              result({
-                ok: true
-              });
-            });
-          },
-          readJournal: function readJournal(cmd, result, socket) {
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-            me._model.readJournal().then(function (r) {
-              result(r);
-            });
-          },
-          readJournalVersion: function readJournalVersion(cmd, result, socket) {
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-            me._model.readJournal(cmd.data).then(function (r) {
-              result(r);
-            });
-          }
-        };
+          } };
       };
 
       /**
@@ -7195,691 +6766,6 @@
     name: "_channels"
   };
   _channels.prototype = new _channels_prototype();
-
-  var later_prototype = function later_prototype() {
-
-    (function (_myTrait_) {
-      var _initDone;
-      var _callers;
-      var _oneTimers;
-      var _everies;
-      var _framers;
-
-      // Initialize static variables here...
-
-      /**
-       * @param function fn
-       * @param float thisObj
-       * @param float args
-       */
-      _myTrait_.add = function (fn, thisObj, args) {
-        if (thisObj || args) {
-          var tArgs;
-          if (Object.prototype.toString.call(args) === "[object Array]") {
-            tArgs = args;
-          } else {
-            tArgs = Array.prototype.slice.call(arguments, 2);
-            if (!tArgs) tArgs = [];
-          }
-          _callers.push([thisObj, fn, tArgs]);
-        } else {
-          _callers.push(fn);
-        }
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.asap = function (fn) {
-        this.add(fn);
-      };
-
-      /**
-       * @param float seconds
-       * @param float fn
-       * @param float name
-       */
-      _myTrait_.every = function (seconds, fn, name) {
-
-        if (!name) {
-          name = "time" + new Date().getTime() + Math.random(10000000);
-        }
-
-        _everies[name] = {
-          step: Math.floor(seconds * 1000),
-          fn: fn,
-          nextTime: 0
-        };
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (interval, fn) {
-        if (!_initDone) {
-
-          var frame, cancelFrame;
-
-          this.polyfill();
-
-          if (typeof window != "undefined") {
-            var frame = window["requestAnimationFrame"],
-                cancelFrame = window["cancelRequestAnimationFrame"];
-            ["", "ms", "moz", "webkit", "o"].forEach(function (x) {
-              if (!frame) {
-                frame = window[x + "RequestAnimationFrame"];
-                cancelFrame = window[x + "CancelAnimationFrame"] || window[x + "CancelRequestAnimationFrame"];
-              }
-            });
-          }
-
-          var is_node_js = new Function("try { return this == global; } catch(e) { return false; }")();
-          if (is_node_js) {
-            frame = function (cb) {
-              return setImmediate(cb);
-            };
-          } else {
-            if (!frame) {
-              frame = function (cb) {
-                return setTimeout(cb, 16);
-              };
-            }
-          }
-
-          if (!cancelFrame) cancelFrame = function (id) {
-            clearTimeout(id);
-          };
-
-          _callers = [];
-          _oneTimers = {};
-          _everies = {};
-          _framers = [];
-          var lastMs = 0;
-
-          var _callQueQue = function _callQueQue() {
-            var ms = new Date().getTime();
-            var fn;
-            while (fn = _callers.shift()) {
-              if (Object.prototype.toString.call(fn) === "[object Array]") {
-                fn[1].apply(fn[0], fn[2]);
-              } else {
-                fn();
-              }
-            }
-
-            for (var i = 0; i < _framers.length; i++) {
-              var fFn = _framers[i];
-              fFn();
-            }
-
-            for (var n in _oneTimers) {
-              if (_oneTimers.hasOwnProperty(n)) {
-                var v = _oneTimers[n];
-                v[0](v[1]);
-                delete _oneTimers[n];
-              }
-            }
-
-            for (var n in _everies) {
-              if (_everies.hasOwnProperty(n)) {
-                var v = _everies[n];
-                if (v.nextTime < ms) {
-                  v.fn();
-                  v.nextTime = ms + v.step;
-                }
-                if (v.until) {
-                  if (v.until < ms) {
-                    delete _everies[n];
-                  }
-                }
-              }
-            }
-
-            frame(_callQueQue);
-            lastMs = ms;
-          };
-          _callQueQue();
-          _initDone = true;
-        }
-      });
-
-      /**
-       * @param  key
-       * @param float fn
-       * @param float value
-       */
-      _myTrait_.once = function (key, fn, value) {
-        // _oneTimers
-
-        _oneTimers[key] = [fn, value];
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.onFrame = function (fn) {
-
-        _framers.push(fn);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.polyfill = function (t) {};
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.removeFrameFn = function (fn) {
-
-        var i = _framers.indexOf(fn);
-        if (i >= 0) {
-          if (fn._onRemove) {
-            fn._onRemove();
-          }
-          _framers.splice(i, 1);
-          return true;
-        } else {
-          return false;
-        }
-      };
-    })(this);
-  };
-
-  var later = function later(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof later) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != later._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new later(a, b, c, d, e, f, g, h);
-  };
-
-  later._classInfo = {
-    name: "later"
-  };
-  later.prototype = new later_prototype();
-
-  var _promise_prototype = function _promise_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float someVar
-       */
-      _myTrait_.isArray = function (someVar) {
-        return Object.prototype.toString.call(someVar) === "[object Array]";
-      };
-
-      /**
-       * @param Function fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param Object obj
-       */
-      _myTrait_.isObject = function (obj) {
-        return obj === Object(obj);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param Array firstArg
-       */
-      _myTrait_.all = function (firstArg) {
-
-        var args;
-        if (this.isArray(firstArg)) {
-          args = firstArg;
-        } else {
-          args = Array.prototype.slice.call(arguments, 0);
-        }
-        // console.log(args);
-        var targetLen = args.length,
-            rCnt = 0,
-            myPromises = [],
-            myResults = new Array(targetLen);
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          if (args.length == 0) {
-            allPromise.resolve([]);
-          }
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                myResults[index] = v;
-                rCnt++;
-                if (rCnt == targetLen) {
-
-                  allPromise.resolve(myResults);
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject("Not list of promises");
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
-       * @param function collectFn
-       * @param array promiseList
-       * @param Object results
-       */
-      _myTrait_.collect = function (collectFn, promiseList, results) {
-
-        var args;
-        if (this.isArray(promiseList)) {
-          args = promiseList;
-        } else {
-          args = [promiseList];
-        }
-
-        // console.log(args);
-        var targetLen = args.length,
-            isReady = false,
-            noMore = false,
-            rCnt = 0,
-            myPromises = [],
-            myResults = results || {};
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                rCnt++;
-                isReady = collectFn(v, myResults);
-                if (isReady && !noMore || noMore == false && targetLen == rCnt) {
-                  allPromise.resolve(myResults);
-                  noMore = true;
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject("Not list of promises");
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.fail = function (fn) {
-        return this.then(null, fn);
-      };
-
-      /**
-       * @param float withValue
-       */
-      _myTrait_.fulfill = function (withValue) {
-        // if(this._fulfilled || this._rejected) return;
-
-        if (this._rejected) return;
-        if (this._fulfilled && withValue != this._stateValue) {
-          return;
-        }
-
-        var me = this;
-        this._fulfilled = true;
-        this._stateValue = withValue;
-
-        var chCnt = this._childPromises.length;
-
-        while (chCnt--) {
-          var p = this._childPromises.shift();
-          if (p._onFulfill) {
-            try {
-              var x = p._onFulfill(withValue);
-              // console.log("Returned ",x);
-              if (typeof x != "undefined") {
-                p.resolve(x);
-              } else {
-                p.fulfill(withValue);
-              }
-            } catch (e) {
-              // console.error(e);
-              /*
-                If either onFulfilled or onRejected throws an exception e, promise2 
-                must be rejected with e as the reason.            
-              */
-              p.reject(e);
-            }
-          } else {
-            /*
-            If onFulfilled is not a function and promise1 is fulfilled, promise2 must be 
-            fulfilled with the same value as promise1        
-            */
-            p.fulfill(withValue);
-          }
-        };
-        // this._childPromises.length = 0;
-        this._state = 1;
-        this.triggerStateChange();
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (onFulfilled, onRejected) {
-        // 0 = pending
-        // 1 = fullfilled
-        // 2 = error
-
-        this._state = 0;
-        this._stateValue = null;
-        this._isAPromise = true;
-        this._childPromises = [];
-
-        if (this.isFunction(onFulfilled)) this._onFulfill = onFulfilled;
-        if (this.isFunction(onRejected)) this._onReject = onRejected;
-
-        if (!onRejected && this.isFunction(onFulfilled)) {
-
-          var me = this;
-          later().asap(function () {
-            onFulfilled(function (v) {
-              me.resolve(v);
-            }, function (v) {
-              me.reject(v);
-            });
-          });
-        }
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isFulfilled = function (t) {
-        return this._state == 1;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isPending = function (t) {
-        return this._state == 0;
-      };
-
-      /**
-       * @param bool v
-       */
-      _myTrait_.isRejected = function (v) {
-        return this._state == 2;
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.onStateChange = function (fn) {
-
-        if (!this._listeners) this._listeners = [];
-
-        this._listeners.push(fn);
-      };
-
-      /**
-       * @param Object withReason
-       */
-      _myTrait_.reject = function (withReason) {
-
-        // if(this._rejected || this._fulfilled) return;
-
-        // conso
-
-        if (this._fulfilled) return;
-        if (this._rejected && withReason != this._rejectReason) return;
-
-        this._state = 2;
-        this._rejected = true;
-        this._rejectReason = withReason;
-        var me = this;
-
-        var chCnt = this._childPromises.length;
-        while (chCnt--) {
-          var p = this._childPromises.shift();
-
-          if (p._onReject) {
-            try {
-              p._onReject(withReason);
-              p.reject(withReason);
-            } catch (e) {
-              /*
-                If either onFulfilled or onRejected throws an exception e, promise2 
-                must be rejected with e as the reason.            
-              */
-              p.reject(e);
-            }
-          } else {
-            /*
-            If onFulfilled is not a function and promise1 is fulfilled, promise2 must be 
-            fulfilled with the same value as promise1        
-            */
-            p.reject(withReason);
-          }
-        };
-
-        // this._childPromises.length = 0;
-        this.triggerStateChange();
-      };
-
-      /**
-       * @param Object reason
-       */
-      _myTrait_.rejectReason = function (reason) {
-        if (reason) {
-          this._rejectReason = reason;
-          return;
-        }
-        return this._rejectReason;
-      };
-
-      /**
-       * @param Object x
-       */
-      _myTrait_.resolve = function (x) {
-
-        // console.log("Resolving ", x);
-
-        // can not do this many times...
-        if (this._state > 0) return;
-
-        if (x == this) {
-          // error
-          this._rejectReason = "TypeError";
-          this.reject(this._rejectReason);
-          return;
-        }
-
-        if (this.isObject(x) && x._isAPromise) {
-
-          //
-          this._state = x._state;
-          this._stateValue = x._stateValue;
-          this._rejectReason = x._rejectReason;
-          // ...
-          if (this._state === 0) {
-            var me = this;
-            x.onStateChange(function () {
-              if (x._state == 1) {
-                // console.log("State change");
-                me.resolve(x.value());
-              }
-              if (x._state == 2) {
-                me.reject(x.rejectReason());
-              }
-            });
-          }
-          if (this._state == 1) {
-            // console.log("Resolved to be Promise was fulfilled ", x._stateValue);
-            this.fulfill(this._stateValue);
-          }
-          if (this._state == 2) {
-            // console.log("Relved to be Promise was rejected ", x._rejectReason);
-            this.reject(this._rejectReason);
-          }
-          return;
-        }
-        if (this.isObject(x) && x.then && this.isFunction(x.then)) {
-          // console.log("Thenable ", x);
-          var didCall = false;
-          try {
-            // Call the x.then
-            var me = this;
-            x.then.call(x, function (y) {
-              if (didCall) return;
-              // we have now value for the promise...
-              // console.log("Got value from Thenable ", y);
-              me.resolve(y);
-              didCall = true;
-            }, function (r) {
-              if (didCall) return;
-              // console.log("Got reject from Thenable ", r);
-              me.reject(r);
-              didCall = true;
-            });
-          } catch (e) {
-            if (!didCall) this.reject(e);
-          }
-          return;
-        }
-        this._state = 1;
-        this._stateValue = x;
-
-        // fulfill the promise...
-        this.fulfill(x);
-      };
-
-      /**
-       * @param float newState
-       */
-      _myTrait_.state = function (newState) {
-        if (typeof newState != "undefined") {
-          this._state = newState;
-        }
-        return this._state;
-      };
-
-      /**
-       * @param function onFulfilled
-       * @param function onRejected
-       */
-      _myTrait_.then = function (onFulfilled, onRejected) {
-
-        if (!onRejected) onRejected = function () {};
-
-        var p = new _promise(onFulfilled, onRejected);
-        var me = this;
-
-        if (this._state == 1) {
-          later().asap(function () {
-            me.fulfill(me.value());
-          });
-        }
-        if (this._state == 2) {
-          later().asap(function () {
-            me.reject(me.rejectReason());
-          });
-        }
-        this._childPromises.push(p);
-        return p;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.triggerStateChange = function (t) {
-        var me = this;
-        if (!this._listeners) return;
-        this._listeners.forEach(function (fn) {
-          fn(me);
-        });
-        // one-timer
-        this._listeners.length = 0;
-      };
-
-      /**
-       * @param float v
-       */
-      _myTrait_.value = function (v) {
-        if (typeof v != "undefined") {
-          this._stateValue = v;
-          return this;
-        }
-        return this._stateValue;
-      };
-    })(this);
-  };
-
-  var _promise = function _promise(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _promise) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _promise._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _promise(a, b, c, d, e, f, g, h);
-  };
-
-  _promise._classInfo = {
-    name: "_promise"
-  };
-  _promise.prototype = new _promise_prototype();
 
   var channelClient_prototype = function channelClient_prototype() {
 
@@ -11203,691 +10089,6 @@
     }
   }).call(new Function("return this")());
 
-  var later_prototype = function later_prototype() {
-
-    (function (_myTrait_) {
-      var _initDone;
-      var _callers;
-      var _oneTimers;
-      var _everies;
-      var _framers;
-
-      // Initialize static variables here...
-
-      /**
-       * @param function fn
-       * @param float thisObj
-       * @param float args
-       */
-      _myTrait_.add = function (fn, thisObj, args) {
-        if (thisObj || args) {
-          var tArgs;
-          if (Object.prototype.toString.call(args) === "[object Array]") {
-            tArgs = args;
-          } else {
-            tArgs = Array.prototype.slice.call(arguments, 2);
-            if (!tArgs) tArgs = [];
-          }
-          _callers.push([thisObj, fn, tArgs]);
-        } else {
-          _callers.push(fn);
-        }
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.asap = function (fn) {
-        this.add(fn);
-      };
-
-      /**
-       * @param float seconds
-       * @param float fn
-       * @param float name
-       */
-      _myTrait_.every = function (seconds, fn, name) {
-
-        if (!name) {
-          name = "time" + new Date().getTime() + Math.random(10000000);
-        }
-
-        _everies[name] = {
-          step: Math.floor(seconds * 1000),
-          fn: fn,
-          nextTime: 0
-        };
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (interval, fn) {
-        if (!_initDone) {
-
-          var frame, cancelFrame;
-
-          this.polyfill();
-
-          if (typeof window != "undefined") {
-            var frame = window["requestAnimationFrame"],
-                cancelFrame = window["cancelRequestAnimationFrame"];
-            ["", "ms", "moz", "webkit", "o"].forEach(function (x) {
-              if (!frame) {
-                frame = window[x + "RequestAnimationFrame"];
-                cancelFrame = window[x + "CancelAnimationFrame"] || window[x + "CancelRequestAnimationFrame"];
-              }
-            });
-          }
-          var is_node_js = new Function("try { return this == global; } catch(e) { return false; }")();
-
-          if (is_node_js) {
-            frame = function (cb) {
-              return setImmediate(cb); // (cb,1);
-            };
-          } else {
-            if (!frame) {
-              frame = function (cb) {
-                return setTimeout(cb, 16);
-              };
-            }
-          }
-
-          if (!cancelFrame) cancelFrame = function (id) {
-            clearTimeout(id);
-          };
-
-          _callers = [];
-          _oneTimers = {};
-          _everies = {};
-          _framers = [];
-          var lastMs = 0;
-
-          var _callQueQue = function _callQueQue() {
-            var ms = new Date().getTime();
-            var fn;
-            while (fn = _callers.shift()) {
-              if (Object.prototype.toString.call(fn) === "[object Array]") {
-                fn[1].apply(fn[0], fn[2]);
-              } else {
-                fn();
-              }
-            }
-
-            for (var i = 0; i < _framers.length; i++) {
-              var fFn = _framers[i];
-              fFn();
-            }
-
-            for (var n in _oneTimers) {
-              if (_oneTimers.hasOwnProperty(n)) {
-                var v = _oneTimers[n];
-                v[0](v[1]);
-                delete _oneTimers[n];
-              }
-            }
-
-            for (var n in _everies) {
-              if (_everies.hasOwnProperty(n)) {
-                var v = _everies[n];
-                if (v.nextTime < ms) {
-                  v.fn();
-                  v.nextTime = ms + v.step;
-                }
-                if (v.until) {
-                  if (v.until < ms) {
-                    delete _everies[n];
-                  }
-                }
-              }
-            }
-
-            frame(_callQueQue);
-            lastMs = ms;
-          };
-          _callQueQue();
-          _initDone = true;
-        }
-      });
-
-      /**
-       * @param  key
-       * @param float fn
-       * @param float value
-       */
-      _myTrait_.once = function (key, fn, value) {
-        // _oneTimers
-
-        _oneTimers[key] = [fn, value];
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.onFrame = function (fn) {
-
-        _framers.push(fn);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.polyfill = function (t) {};
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.removeFrameFn = function (fn) {
-
-        var i = _framers.indexOf(fn);
-        if (i >= 0) {
-          if (fn._onRemove) {
-            fn._onRemove();
-          }
-          _framers.splice(i, 1);
-          return true;
-        } else {
-          return false;
-        }
-      };
-    })(this);
-  };
-
-  var later = function later(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof later) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != later._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new later(a, b, c, d, e, f, g, h);
-  };
-
-  later._classInfo = {
-    name: "later"
-  };
-  later.prototype = new later_prototype();
-
-  var _promise_prototype = function _promise_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float someVar
-       */
-      _myTrait_.isArray = function (someVar) {
-        return Object.prototype.toString.call(someVar) === "[object Array]";
-      };
-
-      /**
-       * @param Function fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param Object obj
-       */
-      _myTrait_.isObject = function (obj) {
-        return obj === Object(obj);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param Array firstArg
-       */
-      _myTrait_.all = function (firstArg) {
-
-        var args;
-        if (this.isArray(firstArg)) {
-          args = firstArg;
-        } else {
-          args = Array.prototype.slice.call(arguments, 0);
-        }
-        // console.log(args);
-        var targetLen = args.length,
-            rCnt = 0,
-            myPromises = [],
-            myResults = new Array(targetLen);
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          if (args.length == 0) {
-            allPromise.resolve([]);
-          }
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                myResults[index] = v;
-                rCnt++;
-                if (rCnt == targetLen) {
-
-                  allPromise.resolve(myResults);
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject("Not list of promises");
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
-       * @param function collectFn
-       * @param array promiseList
-       * @param Object results
-       */
-      _myTrait_.collect = function (collectFn, promiseList, results) {
-
-        var args;
-        if (this.isArray(promiseList)) {
-          args = promiseList;
-        } else {
-          args = [promiseList];
-        }
-
-        // console.log(args);
-        var targetLen = args.length,
-            isReady = false,
-            noMore = false,
-            rCnt = 0,
-            myPromises = [],
-            myResults = results || {};
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                rCnt++;
-                isReady = collectFn(v, myResults);
-                if (isReady && !noMore || noMore == false && targetLen == rCnt) {
-                  allPromise.resolve(myResults);
-                  noMore = true;
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject("Not list of promises");
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.fail = function (fn) {
-        return this.then(null, fn);
-      };
-
-      /**
-       * @param float withValue
-       */
-      _myTrait_.fulfill = function (withValue) {
-        // if(this._fulfilled || this._rejected) return;
-
-        if (this._rejected) return;
-        if (this._fulfilled && withValue != this._stateValue) {
-          return;
-        }
-
-        var me = this;
-        this._fulfilled = true;
-        this._stateValue = withValue;
-
-        var chCnt = this._childPromises.length;
-
-        while (chCnt--) {
-          var p = this._childPromises.shift();
-          if (p._onFulfill) {
-            try {
-              var x = p._onFulfill(withValue);
-              // console.log("Returned ",x);
-              if (typeof x != "undefined") {
-                p.resolve(x);
-              } else {
-                p.fulfill(withValue);
-              }
-            } catch (e) {
-              // console.error(e);
-              /*
-                If either onFulfilled or onRejected throws an exception e, promise2 
-                must be rejected with e as the reason.            
-              */
-              p.reject(e);
-            }
-          } else {
-            /*
-            If onFulfilled is not a function and promise1 is fulfilled, promise2 must be 
-            fulfilled with the same value as promise1        
-            */
-            p.fulfill(withValue);
-          }
-        };
-        // this._childPromises.length = 0;
-        this._state = 1;
-        this.triggerStateChange();
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (onFulfilled, onRejected) {
-        // 0 = pending
-        // 1 = fullfilled
-        // 2 = error
-
-        this._state = 0;
-        this._stateValue = null;
-        this._isAPromise = true;
-        this._childPromises = [];
-
-        if (this.isFunction(onFulfilled)) this._onFulfill = onFulfilled;
-        if (this.isFunction(onRejected)) this._onReject = onRejected;
-
-        if (!onRejected && this.isFunction(onFulfilled)) {
-
-          var me = this;
-          later().asap(function () {
-            onFulfilled(function (v) {
-              me.resolve(v);
-            }, function (v) {
-              me.reject(v);
-            });
-          });
-        }
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isFulfilled = function (t) {
-        return this._state == 1;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isPending = function (t) {
-        return this._state == 0;
-      };
-
-      /**
-       * @param bool v
-       */
-      _myTrait_.isRejected = function (v) {
-        return this._state == 2;
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.onStateChange = function (fn) {
-
-        if (!this._listeners) this._listeners = [];
-
-        this._listeners.push(fn);
-      };
-
-      /**
-       * @param Object withReason
-       */
-      _myTrait_.reject = function (withReason) {
-
-        // if(this._rejected || this._fulfilled) return;
-
-        // conso
-
-        if (this._fulfilled) return;
-        if (this._rejected && withReason != this._rejectReason) return;
-
-        this._state = 2;
-        this._rejected = true;
-        this._rejectReason = withReason;
-        var me = this;
-
-        var chCnt = this._childPromises.length;
-        while (chCnt--) {
-          var p = this._childPromises.shift();
-
-          if (p._onReject) {
-            try {
-              p._onReject(withReason);
-              p.reject(withReason);
-            } catch (e) {
-              /*
-                If either onFulfilled or onRejected throws an exception e, promise2 
-                must be rejected with e as the reason.            
-              */
-              p.reject(e);
-            }
-          } else {
-            /*
-            If onFulfilled is not a function and promise1 is fulfilled, promise2 must be 
-            fulfilled with the same value as promise1        
-            */
-            p.reject(withReason);
-          }
-        };
-
-        // this._childPromises.length = 0;
-        this.triggerStateChange();
-      };
-
-      /**
-       * @param Object reason
-       */
-      _myTrait_.rejectReason = function (reason) {
-        if (reason) {
-          this._rejectReason = reason;
-          return;
-        }
-        return this._rejectReason;
-      };
-
-      /**
-       * @param Object x
-       */
-      _myTrait_.resolve = function (x) {
-
-        // console.log("Resolving ", x);
-
-        // can not do this many times...
-        if (this._state > 0) return;
-
-        if (x == this) {
-          // error
-          this._rejectReason = "TypeError";
-          this.reject(this._rejectReason);
-          return;
-        }
-
-        if (this.isObject(x) && x._isAPromise) {
-
-          //
-          this._state = x._state;
-          this._stateValue = x._stateValue;
-          this._rejectReason = x._rejectReason;
-          // ...
-          if (this._state === 0) {
-            var me = this;
-            x.onStateChange(function () {
-              if (x._state == 1) {
-                // console.log("State change");
-                me.resolve(x.value());
-              }
-              if (x._state == 2) {
-                me.reject(x.rejectReason());
-              }
-            });
-          }
-          if (this._state == 1) {
-            // console.log("Resolved to be Promise was fulfilled ", x._stateValue);
-            this.fulfill(this._stateValue);
-          }
-          if (this._state == 2) {
-            // console.log("Relved to be Promise was rejected ", x._rejectReason);
-            this.reject(this._rejectReason);
-          }
-          return;
-        }
-        if (this.isObject(x) && x.then && this.isFunction(x.then)) {
-          // console.log("Thenable ", x);
-          var didCall = false;
-          try {
-            // Call the x.then
-            var me = this;
-            x.then.call(x, function (y) {
-              if (didCall) return;
-              // we have now value for the promise...
-              // console.log("Got value from Thenable ", y);
-              me.resolve(y);
-              didCall = true;
-            }, function (r) {
-              if (didCall) return;
-              // console.log("Got reject from Thenable ", r);
-              me.reject(r);
-              didCall = true;
-            });
-          } catch (e) {
-            if (!didCall) this.reject(e);
-          }
-          return;
-        }
-        this._state = 1;
-        this._stateValue = x;
-
-        // fulfill the promise...
-        this.fulfill(x);
-      };
-
-      /**
-       * @param float newState
-       */
-      _myTrait_.state = function (newState) {
-        if (typeof newState != "undefined") {
-          this._state = newState;
-        }
-        return this._state;
-      };
-
-      /**
-       * @param function onFulfilled
-       * @param function onRejected
-       */
-      _myTrait_.then = function (onFulfilled, onRejected) {
-
-        if (!onRejected) onRejected = function () {};
-
-        var p = new _promise(onFulfilled, onRejected);
-        var me = this;
-
-        if (this._state == 1) {
-          later().asap(function () {
-            me.fulfill(me.value());
-          });
-        }
-        if (this._state == 2) {
-          later().asap(function () {
-            me.reject(me.rejectReason());
-          });
-        }
-        this._childPromises.push(p);
-        return p;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.triggerStateChange = function (t) {
-        var me = this;
-        if (!this._listeners) return;
-        this._listeners.forEach(function (fn) {
-          fn(me);
-        });
-        // one-timer
-        this._listeners.length = 0;
-      };
-
-      /**
-       * @param float v
-       */
-      _myTrait_.value = function (v) {
-        if (typeof v != "undefined") {
-          this._stateValue = v;
-          return this;
-        }
-        return this._stateValue;
-      };
-    })(this);
-  };
-
-  var _promise = function _promise(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _promise) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _promise._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _promise(a, b, c, d, e, f, g, h);
-  };
-
-  _promise._classInfo = {
-    name: "_promise"
-  };
-  _promise.prototype = new _promise_prototype();
-
   var authFuzz_prototype = function authFuzz_prototype() {
 
     (function (_myTrait_) {
@@ -12849,810 +11050,6 @@
     name: "authModule"
   };
   authModule.prototype = new authModule_prototype();
-
-  var later_prototype = function later_prototype() {
-
-    (function (_myTrait_) {
-      var _initDone;
-      var _callers;
-      var _oneTimers;
-      var _everies;
-      var _framers;
-      var _localCnt;
-      var _easings;
-      var _easeFns;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_._easeFns = function (t) {
-        _easings = {
-          easeIn: function easeIn(t) {
-            return t * t;
-          },
-          easeOut: function easeOut(t) {
-            return -1 * t * (t - 2);
-          },
-          easeInOut: function easeInOut(t) {
-            if (t < 0.5) return t * t;
-            return -1 * t * (t - 2);
-          },
-          easeInCubic: function easeInCubic(t) {
-            return t * t * t;
-          },
-          easeOutCubic: function easeOutCubic(t) {
-            return (1 - t) * (1 - t) * (1 - t) + 1;
-          },
-          pow: function pow(t) {
-            return Math.pow(t, parseFloat(1.5 - t));
-          },
-          linear: function linear(t) {
-            return t;
-          }
-        };
-      };
-
-      /**
-       * @param function fn
-       * @param float thisObj
-       * @param float args
-       */
-      _myTrait_.add = function (fn, thisObj, args) {
-        if (thisObj || args) {
-          var tArgs;
-          if (Object.prototype.toString.call(args) === "[object Array]") {
-            tArgs = args;
-          } else {
-            tArgs = Array.prototype.slice.call(arguments, 2);
-            if (!tArgs) tArgs = [];
-          }
-          _callers.push([thisObj, fn, tArgs]);
-        } else {
-          _callers.push(fn);
-        }
-      };
-
-      /**
-       * @param float name
-       * @param float fn
-       */
-      _myTrait_.addEasingFn = function (name, fn) {
-        _easings[name] = fn;
-      };
-
-      /**
-       * @param float seconds
-       * @param float fn
-       * @param float name
-       */
-      _myTrait_.after = function (seconds, fn, name) {
-
-        if (!name) {
-          name = "aft_" + _localCnt++;
-        }
-
-        _everies[name] = {
-          step: Math.floor(seconds * 1000),
-          fn: fn,
-          nextTime: 0,
-          remove: true
-        };
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.asap = function (fn) {
-        this.add(fn);
-      };
-
-      /**
-       * @param String name  - Name of the easing to use
-       * @param int delay  - Delay of the transformation in ms
-       * @param function callback  - Callback to set the values
-       * @param function over  - When animation is over
-       */
-      _myTrait_.ease = function (name, delay, callback, over) {
-
-        var fn = _easings[name];
-        if (!fn) fn = _easings.pow;
-        var id_name = "e_" + _localCnt++;
-        _easeFns[id_name] = {
-          easeFn: fn,
-          duration: delay,
-          cb: callback,
-          over: over
-        };
-      };
-
-      /**
-       * @param float seconds
-       * @param float fn
-       * @param float name
-       */
-      _myTrait_.every = function (seconds, fn, name) {
-
-        if (!name) {
-          name = "t7491_" + _localCnt++;
-        }
-
-        _everies[name] = {
-          step: Math.floor(seconds * 1000),
-          fn: fn,
-          nextTime: 0
-        };
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (interval, fn) {
-        if (!_initDone) {
-          this._easeFns();
-          _localCnt = 1;
-
-          var frame, cancelFrame;
-          if (typeof window != "undefined") {
-            var frame = window["requestAnimationFrame"],
-                cancelFrame = window["cancelRequestAnimationFrame"];
-            ["", "ms", "moz", "webkit", "o"].forEach(function (x) {
-              if (!frame) {
-                frame = window[x + "RequestAnimationFrame"];
-                cancelFrame = window[x + "CancelAnimationFrame"] || window[x + "CancelRequestAnimationFrame"];
-              }
-            });
-          }
-
-          var is_node_js = new Function("try { return this == global; } catch(e) { return false; }")();
-
-          if (is_node_js) {
-            frame = function (cb) {
-              return setImmediate(cb); // (cb,1);
-            };
-          } else {
-            if (!frame) {
-              frame = function (cb) {
-                return setTimeout(cb, 16);
-              };
-            }
-          }
-
-          if (!cancelFrame) cancelFrame = function (id) {
-            clearTimeout(id);
-          };
-
-          _callers = [];
-          _oneTimers = {};
-          _everies = {};
-          _framers = [];
-          _easeFns = {};
-          var lastMs = 0;
-
-          var _callQueQue = function _callQueQue() {
-            var ms = new Date().getTime(),
-                elapsed = lastMs - ms;
-
-            if (lastMs == 0) elapsed = 0;
-            var fn;
-            while (fn = _callers.shift()) {
-              if (Object.prototype.toString.call(fn) === "[object Array]") {
-                fn[1].apply(fn[0], fn[2]);
-              } else {
-                fn();
-              }
-            }
-
-            for (var i = 0; i < _framers.length; i++) {
-              var fFn = _framers[i];
-              fFn();
-            }
-            /*
-            _easeFns.push({
-            easeFn : fn,
-            duration : delay,
-            cb : callback
-            });
-               */
-            for (var n in _easeFns) {
-              if (_easeFns.hasOwnProperty(n)) {
-                var v = _easeFns[n];
-                if (!v.start) v.start = ms;
-                var delta = ms - v.start,
-                    dt = delta / v.duration;
-                if (dt >= 1) {
-                  dt = 1;
-                  delete _easeFns[n];
-                }
-                v.cb(v.easeFn(dt));
-                if (dt == 1 && v.over) v.over();
-              }
-            }
-
-            for (var n in _oneTimers) {
-              if (_oneTimers.hasOwnProperty(n)) {
-                var v = _oneTimers[n];
-                v[0](v[1]);
-                delete _oneTimers[n];
-              }
-            }
-
-            for (var n in _everies) {
-              if (_everies.hasOwnProperty(n)) {
-                var v = _everies[n];
-                if (v.nextTime < ms) {
-                  if (v.remove) {
-                    if (v.nextTime > 0) {
-                      v.fn();
-                      delete _everies[n];
-                    } else {
-                      v.nextTime = ms + v.step;
-                    }
-                  } else {
-                    v.fn();
-                    v.nextTime = ms + v.step;
-                  }
-                }
-                if (v.until) {
-                  if (v.until < ms) {
-                    delete _everies[n];
-                  }
-                }
-              }
-            }
-
-            frame(_callQueQue);
-            lastMs = ms;
-          };
-          _callQueQue();
-          _initDone = true;
-        }
-      });
-
-      /**
-       * @param  key
-       * @param float fn
-       * @param float value
-       */
-      _myTrait_.once = function (key, fn, value) {
-        // _oneTimers
-
-        _oneTimers[key] = [fn, value];
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.onFrame = function (fn) {
-
-        _framers.push(fn);
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.removeFrameFn = function (fn) {
-
-        var i = _framers.indexOf(fn);
-        if (i >= 0) {
-          if (fn._onRemove) {
-            fn._onRemove();
-          }
-          _framers.splice(i, 1);
-          return true;
-        } else {
-          return false;
-        }
-      };
-    })(this);
-  };
-
-  var later = function later(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof later) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != later._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new later(a, b, c, d, e, f, g, h);
-  };
-
-  later._classInfo = {
-    name: "later"
-  };
-  later.prototype = new later_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["later"] = later;
-      this.later = later;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["later"] = later;
-    } else {
-      this.later = later;
-    }
-  }).call(new Function("return this")());
-
-  var _promise_prototype = function _promise_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float someVar
-       */
-      _myTrait_.isArray = function (someVar) {
-        return Object.prototype.toString.call(someVar) === "[object Array]";
-      };
-
-      /**
-       * @param Function fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param Object obj
-       */
-      _myTrait_.isObject = function (obj) {
-        return obj === Object(obj);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param Array firstArg
-       */
-      _myTrait_.all = function (firstArg) {
-
-        var args;
-        if (this.isArray(firstArg)) {
-          args = firstArg;
-        } else {
-          args = Array.prototype.slice.call(arguments, 0);
-        }
-        // console.log(args);
-        var targetLen = args.length,
-            rCnt = 0,
-            myPromises = [],
-            myResults = new Array(targetLen);
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          if (args.length == 0) {
-            allPromise.resolve([]);
-          }
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                myResults[index] = v;
-                rCnt++;
-                if (rCnt == targetLen) {
-
-                  allPromise.resolve(myResults);
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject("Not list of promises");
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
-       * @param function collectFn
-       * @param array promiseList
-       * @param Object results
-       */
-      _myTrait_.collect = function (collectFn, promiseList, results) {
-
-        var args;
-        if (this.isArray(promiseList)) {
-          args = promiseList;
-        } else {
-          args = [promiseList];
-        }
-
-        // console.log(args);
-        var targetLen = args.length,
-            isReady = false,
-            noMore = false,
-            rCnt = 0,
-            myPromises = [],
-            myResults = results || {};
-
-        return this.then(function () {
-
-          var allPromise = _promise();
-          args.forEach(function (b, index) {
-            if (b.then) {
-              // console.log("All, looking for ", b, " state = ", b._state);
-              myPromises.push(b);
-
-              b.then(function (v) {
-                rCnt++;
-                isReady = collectFn(v, myResults);
-                if (isReady && !noMore || noMore == false && targetLen == rCnt) {
-                  allPromise.resolve(myResults);
-                  noMore = true;
-                }
-              }, function (v) {
-                allPromise.reject(v);
-              });
-            } else {
-              allPromise.reject("Not list of promises");
-            }
-          });
-
-          return allPromise;
-        });
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.fail = function (fn) {
-        return this.then(null, fn);
-      };
-
-      /**
-       * @param float withValue
-       */
-      _myTrait_.fulfill = function (withValue) {
-        // if(this._fulfilled || this._rejected) return;
-
-        if (this._rejected) return;
-        if (this._fulfilled && withValue != this._stateValue) {
-          return;
-        }
-
-        var me = this;
-        this._fulfilled = true;
-        this._stateValue = withValue;
-
-        var chCnt = this._childPromises.length;
-
-        while (chCnt--) {
-          var p = this._childPromises.shift();
-          if (p._onFulfill) {
-            try {
-              var x = p._onFulfill(withValue);
-              // console.log("Returned ",x);
-              if (typeof x != "undefined") {
-                p.resolve(x);
-              } else {
-                p.fulfill(withValue);
-              }
-            } catch (e) {
-              // console.error(e);
-              /*
-                If either onFulfilled or onRejected throws an exception e, promise2 
-                must be rejected with e as the reason.            
-              */
-              p.reject(e);
-            }
-          } else {
-            /*
-            If onFulfilled is not a function and promise1 is fulfilled, promise2 must be 
-            fulfilled with the same value as promise1        
-            */
-            p.fulfill(withValue);
-          }
-        };
-        // this._childPromises.length = 0;
-        this._state = 1;
-        this.triggerStateChange();
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (onFulfilled, onRejected) {
-        // 0 = pending
-        // 1 = fullfilled
-        // 2 = error
-
-        this._state = 0;
-        this._stateValue = null;
-        this._isAPromise = true;
-        this._childPromises = [];
-
-        if (this.isFunction(onFulfilled)) this._onFulfill = onFulfilled;
-        if (this.isFunction(onRejected)) this._onReject = onRejected;
-
-        if (!onRejected && this.isFunction(onFulfilled)) {
-
-          var me = this;
-          later().asap(function () {
-            onFulfilled(function (v) {
-              me.resolve(v);
-            }, function (v) {
-              me.reject(v);
-            });
-          });
-        }
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isFulfilled = function (t) {
-        return this._state == 1;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isPending = function (t) {
-        return this._state == 0;
-      };
-
-      /**
-       * @param bool v
-       */
-      _myTrait_.isRejected = function (v) {
-        return this._state == 2;
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.onStateChange = function (fn) {
-
-        if (!this._listeners) this._listeners = [];
-
-        this._listeners.push(fn);
-      };
-
-      /**
-       * @param Object withReason
-       */
-      _myTrait_.reject = function (withReason) {
-
-        // if(this._rejected || this._fulfilled) return;
-
-        // conso
-
-        if (this._fulfilled) return;
-        if (this._rejected && withReason != this._rejectReason) return;
-
-        this._state = 2;
-        this._rejected = true;
-        this._rejectReason = withReason;
-        var me = this;
-
-        var chCnt = this._childPromises.length;
-        while (chCnt--) {
-          var p = this._childPromises.shift();
-
-          if (p._onReject) {
-            try {
-              p._onReject(withReason);
-              p.reject(withReason);
-            } catch (e) {
-              /*
-                If either onFulfilled or onRejected throws an exception e, promise2 
-                must be rejected with e as the reason.            
-              */
-              p.reject(e);
-            }
-          } else {
-            /*
-            If onFulfilled is not a function and promise1 is fulfilled, promise2 must be 
-            fulfilled with the same value as promise1        
-            */
-            p.reject(withReason);
-          }
-        };
-
-        // this._childPromises.length = 0;
-        this.triggerStateChange();
-      };
-
-      /**
-       * @param Object reason
-       */
-      _myTrait_.rejectReason = function (reason) {
-        if (reason) {
-          this._rejectReason = reason;
-          return;
-        }
-        return this._rejectReason;
-      };
-
-      /**
-       * @param Object x
-       */
-      _myTrait_.resolve = function (x) {
-
-        // console.log("Resolving ", x);
-
-        // can not do this many times...
-        if (this._state > 0) return;
-
-        if (x == this) {
-          // error
-          this._rejectReason = "TypeError";
-          this.reject(this._rejectReason);
-          return;
-        }
-
-        if (this.isObject(x) && x._isAPromise) {
-
-          //
-          this._state = x._state;
-          this._stateValue = x._stateValue;
-          this._rejectReason = x._rejectReason;
-          // ...
-          if (this._state === 0) {
-            var me = this;
-            x.onStateChange(function () {
-              if (x._state == 1) {
-                // console.log("State change");
-                me.resolve(x.value());
-              }
-              if (x._state == 2) {
-                me.reject(x.rejectReason());
-              }
-            });
-          }
-          if (this._state == 1) {
-            // console.log("Resolved to be Promise was fulfilled ", x._stateValue);
-            this.fulfill(this._stateValue);
-          }
-          if (this._state == 2) {
-            // console.log("Relved to be Promise was rejected ", x._rejectReason);
-            this.reject(this._rejectReason);
-          }
-          return;
-        }
-        if (this.isObject(x) && x.then && this.isFunction(x.then)) {
-          // console.log("Thenable ", x);
-          var didCall = false;
-          try {
-            // Call the x.then
-            var me = this;
-            x.then.call(x, function (y) {
-              if (didCall) return;
-              // we have now value for the promise...
-              // console.log("Got value from Thenable ", y);
-              me.resolve(y);
-              didCall = true;
-            }, function (r) {
-              if (didCall) return;
-              // console.log("Got reject from Thenable ", r);
-              me.reject(r);
-              didCall = true;
-            });
-          } catch (e) {
-            if (!didCall) this.reject(e);
-          }
-          return;
-        }
-        this._state = 1;
-        this._stateValue = x;
-
-        // fulfill the promise...
-        this.fulfill(x);
-      };
-
-      /**
-       * @param float newState
-       */
-      _myTrait_.state = function (newState) {
-        if (typeof newState != "undefined") {
-          this._state = newState;
-        }
-        return this._state;
-      };
-
-      /**
-       * @param function onFulfilled
-       * @param function onRejected
-       */
-      _myTrait_.then = function (onFulfilled, onRejected) {
-
-        if (!onRejected) onRejected = function () {};
-
-        var p = new _promise(onFulfilled, onRejected);
-        var me = this;
-
-        if (this._state == 1) {
-          later().asap(function () {
-            me.fulfill(me.value());
-          });
-        }
-        if (this._state == 2) {
-          later().asap(function () {
-            me.reject(me.rejectReason());
-          });
-        }
-        this._childPromises.push(p);
-        return p;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.triggerStateChange = function (t) {
-        var me = this;
-        if (!this._listeners) return;
-        this._listeners.forEach(function (fn) {
-          fn(me);
-        });
-        // one-timer
-        this._listeners.length = 0;
-      };
-
-      /**
-       * @param float v
-       */
-      _myTrait_.value = function (v) {
-        if (typeof v != "undefined") {
-          this._stateValue = v;
-          return this;
-        }
-        return this._stateValue;
-      };
-    })(this);
-  };
-
-  var _promise = function _promise(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _promise) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _promise._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _promise(a, b, c, d, e, f, g, h);
-  };
-
-  _promise._classInfo = {
-    name: "_promise"
-  };
-  _promise.prototype = new _promise_prototype();
 
   var memoryFsFolder_prototype = function memoryFsFolder_prototype() {
 
@@ -15752,14 +13149,7 @@
 
   var channelPolicyModule_prototype = function channelPolicyModule_prototype() {
 
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {});
-    })(this);
+    (function (_myTrait_) {})(this);
   };
 
   var channelPolicyModule = function channelPolicyModule(a, b, c, d, e, f, g, h) {
@@ -19231,8 +16621,6 @@
 
 // console.log("Strange... no emit value in ", this._parent);
 
-// The update type is not supported
-
 // objectCache[data.__id] = this;
 
 // --- let's not ---
@@ -19242,8 +16630,6 @@ this._commands = sequenceStepper(channelId);
 this._chManager = chManager;
 */
 
-// --- let's not ---
-
 // console.log("The socket was not connected");
 
 // --- let's not ---
@@ -19252,8 +16638,6 @@ this._chManager = chManager;
 
 // var socket = io('http://localhost');
 
-// --- let's not ---
-
 // result( { result : false,  text : "Login failed"} );
 
 /*
@@ -19261,6 +16645,8 @@ serverState.model.writeToJournal( goodList ).then( function() {
 // done(result);
 });
 */
+
+// Initialize static variables here...
 
 // skip, if next should be taken instead
 

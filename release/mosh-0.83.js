@@ -1031,340 +1031,6 @@
     }
   }).call(new Function("return this")());
 
-  var testFs_prototype = function testFs_prototype() {
-
-    (function (_myTrait_) {
-      var _instanceCache;
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {});
-    })(this);
-  };
-
-  var testFs = function testFs(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof testFs) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != testFs._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new testFs(a, b, c, d, e, f, g, h);
-  };
-
-  testFs._classInfo = {
-    name: "testFs"
-  };
-  testFs.prototype = new testFs_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["testFs"] = testFs;
-      this.testFs = testFs;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["testFs"] = testFs;
-    } else {
-      this.testFs = testFs;
-    }
-  }).call(new Function("return this")());
-
-  var channelTesting_prototype = function channelTesting_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return t instanceof Array;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {});
-
-      /**
-       * The test users are &quot;Tero&quot; with password &quot;teropw&quot; and &quot;Juha&quot; with password &quot;juhapw&quot;. Juha has groups &quot;users&quot; and Tero has groups &quot;users&quot; and &quot;admins&quot;
-       * @param float t
-       */
-      _myTrait_.pwFilesystem = function (t) {
-
-        // The password and user infra, in the simulation environment:
-
-        var pwData = {
-          "groups": {},
-          "domains": {},
-          "users": {
-            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
-            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
-          },
-          "udata": {
-            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
-            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
-          }
-        };
-
-        var pwFiles = fsServerMemory("pwServer1", pwData);
-
-        return pwFiles;
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.serverSetup1 = function (options) {
-
-        options = options || {};
-        var readyPromise = _promise();
-
-        var baseData = {
-          data: {
-            path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
-            fill: "red",
-            stroke: "black",
-            sub: {
-              data: {
-                value1: "abba"
-              },
-              __id: "sub1"
-            }
-          },
-          __id: "id1",
-          __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
-        };
-
-        if (options && options.data) {
-          baseData.data = options.data;
-        }
-
-        // create a channel files
-        var fsData = {
-          "my": {
-            "channel": {
-              "journal.1": "",
-              "file.2": JSON.stringify(baseData),
-              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
-              "ch.settings": JSON.stringify({
-                version: 2, // version of the channel
-                channelId: "my/channel", // ID of this channel
-                journalLine: 1,
-                utc: 14839287897 // UTC timestamp of creation               
-              }),
-              "forks": JSON.stringify({ // == forks on list of forks
-                fromJournalLine: 1,
-                version: 1,
-                channelId: "my/channel/myFork",
-                fromVersion: 2,
-                from: "my/channel",
-                to: "my/channel/myFork",
-                name: "test of fork",
-                utc: 14839287897
-              }),
-              "myFork": {
-                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
-                "ch.settings": JSON.stringify({
-                  fromJournalLine: 1, // from which line the fork starts
-                  version: 1, // version of the channel
-                  channelId: "my/channel/myFork", // ID of this channel
-                  fromVersion: 2, // version of the fork's source
-                  from: "my/channel", // the fork channels ID
-                  to: "my/channel/myFork", // forks target channel
-                  journalLine: 1,
-                  name: "test of fork",
-                  utc: 14839287897 // UTC timestamp of creation
-                })
-              }
-            }
-          }
-        };
-
-        if (options && options.fileSystemData) {
-          fsData = options.fileSystemData;
-        }
-
-        var filesystem = fsServerMemory("ms" + this.guid(), fsData);
-
-        // The password and user infra, in the simulation environment:
-        var pwData = {
-          "groups": {},
-          "domains": {},
-          "users": {
-            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
-            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
-          },
-          "udata": {
-            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
-            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
-          }
-        };
-
-        var pwFiles = fsServerMemory("pw" + this.guid(), pwData);
-        pwFiles.then(function () {
-          return filesystem;
-        }).then(function () {
-
-          // Setting up the server       
-          var root = pwFiles.getRootFolder();
-          var auth = authFuzz(root);
-          var fsRoot = filesystem.getRootFolder();
-
-          var server = _serverSocket((options.protocol || "http") + "://" + (options.ip || "localhost"), options.port || 1234);
-          var manager = _serverChannelMgr(server, filesystem.getRootFolder(), auth);
-
-          readyPromise.resolve({
-            server: server,
-            manager: manager,
-            fsRoot: fsRoot,
-            auth: auth,
-            pwRoot: root
-          });
-        });
-
-        return readyPromise;
-      };
-
-      /**
-       * Test filesystem 1 represents a channel &quot;my/channel&quot; with one fork with channelID &quot;my/channel/myFork&quot;.
-       * @param float t
-       */
-      _myTrait_.testFilesystem1 = function (t) {
-        var fsData = {
-          "my": {
-            "channel": {
-              "journal.1": "",
-              "file.2": JSON.stringify({
-                data: {
-                  path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
-                  fill: "red"
-                },
-                __id: "id1",
-                __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
-              }),
-              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
-              "ch.settings": JSON.stringify({
-                version: 2, // version of the channel
-                channelId: "my/channel", // ID of this channel
-                journalLine: 1,
-                utc: 14839287897 // UTC timestamp of creation               
-              }),
-              "forks": JSON.stringify({ // == forks on list of forks
-                fromJournalLine: 1,
-                version: 1,
-                channelId: "my/channel/myFork",
-                fromVersion: 2,
-                from: "my/channel",
-                to: "my/channel/myFork",
-                name: "test of fork",
-                utc: 14839287897
-              }),
-              "myFork": {
-                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
-                "ch.settings": JSON.stringify({
-                  fromJournalLine: 1, // from which line the fork starts
-                  version: 1, // version of the channel
-                  channelId: "my/channel/myFork", // ID of this channel
-                  fromVersion: 2, // version of the fork's source
-                  from: "my/channel", // the fork channels ID
-                  to: "my/channel/myFork", // forks target channel
-                  name: "test of fork",
-                  utc: 14839287897 // UTC timestamp of creation
-                })
-              }
-            }
-          }
-        };
-
-        return;
-      };
-    })(this);
-  };
-
-  var channelTesting = function channelTesting(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof channelTesting) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != channelTesting._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new channelTesting(a, b, c, d, e, f, g, h);
-  };
-
-  channelTesting._classInfo = {
-    name: "channelTesting"
-  };
-  channelTesting.prototype = new channelTesting_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["channelTesting"] = channelTesting;
-      this.channelTesting = channelTesting;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["channelTesting"] = channelTesting;
-    } else {
-      this.channelTesting = channelTesting;
-    }
-  }).call(new Function("return this")());
-
   var _data_prototype = function _data_prototype() {
 
     (function (_myTrait_) {
@@ -3509,4219 +3175,6 @@
     }
   }).call(new Function("return this")());
 
-  var sequenceStepper_prototype = function sequenceStepper_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return Object.prototype.toString.call(t) === "[object Array]";
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _instances;
-
-      // Initialize static variables here...
-
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
-      _myTrait_.__factoryClass.push(function (id, manual) {
-
-        if (id === false && manual) return;
-
-        if (!_instances) {
-          _instances = {};
-        }
-
-        if (_instances[id]) {
-          return _instances[id];
-        } else {
-          _instances[id] = this;
-        }
-      });
-
-      /**
-       * @param float cmdFunction
-       * @param float failure
-       */
-      _myTrait_.addCommands = function (cmdFunction, failure) {
-
-        if (this.isArray(cmdFunction)) {
-          var me = this;
-          cmdFunction.forEach(function (c) {
-            me.addCommands(c);
-          });
-          return this;
-        }
-
-        this._commands.push({
-          fnCmd: cmdFunction,
-          fnFail: failure,
-          async: true
-        });
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (myId, manual) {
-
-        if (!this._commands) {
-          this._commands = [];
-          this.waitingList = [];
-          this._index = 0;
-        }
-
-        var me = this;
-        if (!manual) {
-          var _secStep = function _secStep() {
-            me.step();
-          };
-          if (moshEnv().isNode()) {
-            later().onFrame(_secStep);
-          } else {
-            later().every(1 / 30, _secStep);
-          }
-        }
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.step = function (t) {
-        var i = this._index,
-            len = this._commands.length;
-
-        if (i == len) return;
-
-        var first = _promise(),
-            currentProm = first,
-            myPromise = _promise(),
-            me = this;
-
-        while (i < len) {
-          var fn = this._commands[i];
-          (function (fn) {
-            currentProm = currentProm.then(function () {
-              var p = _promise();
-              fn.fnCmd(function (res) {
-                p.resolve(true);
-              }, function (failReason) {
-                p.resolve(true);
-                if (fn.fnFail) fn.fnFail(failReason);
-              });
-
-              return p;
-            }).fail(function (reason) {
-              if (fn.fnFail) fn.fnFail(reason);
-            });
-          })(fn);
-          this._index++;
-          i++;
-        }
-
-        currentProm.then(function () {
-          me.waitingList.shift(); // remvoe this promise from the queque
-          myPromise.resolve(true);
-          if (me.waitingList.length) {
-            var newP = me.waitingList[0];
-            newP.resolve(true);
-          }
-        }).fail(function (m) {});
-
-        this.waitingList.push(first);
-        if (this.waitingList.length == 1) {
-          first.resolve(true);
-        }
-        return myPromise;
-      };
-    })(this);
-  };
-
-  var sequenceStepper = function sequenceStepper(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof sequenceStepper) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != sequenceStepper._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new sequenceStepper(a, b, c, d, e, f, g, h);
-  };
-
-  sequenceStepper._classInfo = {
-    name: "sequenceStepper"
-  };
-  sequenceStepper.prototype = new sequenceStepper_prototype();
-
-  var _serverChannelMgr_prototype = function _serverChannelMgr_prototype() {
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _rooms;
-      var _socketRooms;
-      var _authExtension;
-      var _accessManager;
-      var _autoCreateFn;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float chId
-       * @param float socket
-       */
-      _myTrait_.addSocketToCh = function (chId, socket) {
-
-        if (!this._channelSockets[chId]) {
-          this._channelSockets[chId] = [];
-        }
-        if (this._channelSockets[chId].indexOf(socket) < 0) {
-          this._channelSockets[chId].push(socket);
-          console.log("-- client joined " + chId + ", now  " + this._channelSockets[chId].length + " connected");
-        }
-      };
-
-      /**
-       * Returns the access manager, if defined
-       * @param float t
-       */
-      _myTrait_.getAccessManager = function (t) {
-        return _accessManager;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getServerSocket = function (t) {
-        return this._server;
-      };
-
-      /**
-       * @param float chId
-       */
-      _myTrait_.getSocketsFromCh = function (chId) {
-        if (!this._channelSockets[chId]) return [];
-
-        return this._channelSockets[chId];
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (serverSocket, fileSystem, authManager) {
-
-        this._server = serverSocket;
-        this._auth = authManager;
-
-        this._channelSockets = {};
-
-        var me = this;
-
-        // The server which manages the client connections is here..
-
-        this._server.on("connect", function (socket) {
-
-          // keeps track of channels the socket is registered into   
-          var _socketChannels = [];
-          var ctrl; // the channel controller
-
-          if (!socket.__channels) socket.__channels = [];
-
-          socket.on("requestChannel", function (cData, responseFn) {
-
-            // Request channel -> possible also autocreate channels, if they don't exist
-
-            fileSystem.findPath(cData.channelId).then(function (fold) {
-              if (fold) {
-
-                // require first to authenticate, at least read access to join
-                ctrl = _channelController(cData.channelId, fileSystem, me);
-                ctrl.then(function () {
-                  if (ctrl._groupACL(socket, "r")) {
-                    socket.join(cData.channelId);
-                    me.addSocketToCh(cData.channelId, socket);
-                    socket.__channels.push(cData.channelId);
-                    responseFn({
-                      success: true,
-                      channelId: cData.channelId
-                    });
-                  } else {
-                    responseFn({
-                      success: false,
-                      channelId: null
-                    });
-                  }
-                });
-              } else {
-                /*
-                if(chData && !chData.__acl) {
-                chData.__acl = chSettings.__acl;
-                }
-                 if(!chSettings.channelId || !chSettings._userId ) {
-                response({
-                result : false,
-                text : "Could not create the channel, missing information"
-                });             
-                return;
-                }
-                 var obj = {
-                version : 2,    // with pre-initialized data, the first version is 2
-                channelId : chSettings.channelId,
-                userId : chSettings._userId,
-                name : chSettings.name || "",
-                utc : (new Date()).getTime()
-                };                
-                */
-                if (_autoCreateFn) {
-                  // ---
-                  console.log("** Starting to autocreate channel **" + cData.channelId);
-                  _autoCreateFn(cData, socket, function (shouldCreate, withData) {
-                    if (shouldCreate && withData) {
-                      // --> creates a new channel...
-                      var model = _localChannelModel(null, fileSystem);
-                      model.createChannel({
-                        chData: withData,
-                        _userId: socket.getUserId(),
-                        name: "autocreated",
-                        channelId: cData.channelId
-                      }).then(function (r) {
-                        if (!r.result) {
-                          responseFn({
-                            success: false,
-                            channelId: null
-                          });
-                          return;
-                        }
-                        ctrl = _channelController(cData.channelId, fileSystem, me);
-                        ctrl.then(function () {
-                          if (ctrl._groupACL(socket, "r")) {
-                            console.log("** autocreated a channel **" + cData.channelId);
-                            socket.join(cData.channelId);
-                            me.addSocketToCh(cData.channelId, socket);
-                            socket.__channels.push(cData.channelId);
-                            responseFn({
-                              success: true,
-                              channelId: cData.channelId
-                            });
-                          } else {
-                            responseFn({
-                              success: false,
-                              channelId: null
-                            });
-                          }
-                        });
-                      });
-                    } else {
-                      responseFn({
-                        success: false,
-                        channelId: null
-                      });
-                    }
-                  });
-                } else {
-                  responseFn({
-                    success: false,
-                    channelId: null
-                  });
-                }
-              }
-            });
-          });
-
-          socket.on("disconnect", function () {
-            // console.log("--- channel manager got disconnect to the service pool ---- ");
-            // console.log("TODO: remove the channel so that it will not leak memory");
-            // me.removeSocketFromCh(  socket );
-            console.log("Socket is in " + socket.__channels.length + " channels ");
-            socket.__channels.forEach(function (chId) {
-              me.removeSocketFromCh(chId, socket);
-            });
-          });
-
-          socket.on("auth", function (cData, responseFn) {
-
-            if (_authExtension) {
-              try {
-                _authExtension(cData, function (success, userid, groups) {
-                  if (success === true) {
-                    var UID = userid;
-                    console.log("custom authentication into ", groups);
-                    socket.setAuthInfo(UID, groups);
-                    responseFn({
-                      success: true,
-                      userId: socket.getUserId(),
-                      groups: groups
-                    });
-                  } else {
-                    responseFn({
-                      success: false,
-                      userId: null
-                    });
-                  }
-                });
-              } catch (e) {
-                responseFn({
-                  success: false,
-                  userId: null
-                });
-              }
-            } else {
-              if (authManager) {
-                authManager.login(cData.userId, cData.password).then(function (res) {
-                  if (res.result === true) {
-                    var UID = res.userId;
-                    var groups = res.groups;
-                    console.log("AUTH groups ", res.groups);
-                    socket.setAuthInfo(UID, groups);
-                    responseFn({
-                      success: true,
-                      userId: socket.getUserId(),
-                      groups: res.groups
-                    });
-                  } else {
-                    responseFn({
-                      success: false,
-                      userId: null
-                    });
-                  }
-                });
-              } else {
-                responseFn({
-                  success: false,
-                  userId: null
-                });
-              }
-            }
-          });
-
-          // messages to the channel from the socket
-          socket.on("channelCommand", function (cmd, responseFn) {
-
-            if (!socket.getUserId()) {
-              responseFn({
-                success: false,
-                reason: "socket is not authenticated."
-              });
-              return;
-            }
-
-            if (!socket.isInRoom(cmd.channelId)) {
-              responseFn({
-                success: false,
-                reason: "not in room"
-              });
-              return;
-            }
-
-            // console.log("Command "+JSON.stringify(cmd));
-
-            console.time("cmd_emit_done");
-
-            var ms = new Date().getTime();
-
-            // the command for the channel controller...
-            ctrl.run(cmd, function (resp) {
-              var msEnd = new Date().getTime();
-              console.log("Command " + cmd.cmd + " took " + (msEnd - ms));
-              if (responseFn) responseFn(resp);
-            }, socket);
-          });
-        });
-      });
-
-      /**
-       * @param float chId
-       * @param float socket
-       */
-      _myTrait_.removeSocketFromCh = function (chId, socket) {
-        if (!this._channelSockets[chId]) return;
-
-        var list = this._channelSockets[chId];
-        var i = list.indexOf(socket);
-        if (i >= 0) {
-          list.splice(i, 1);
-        }
-
-        if (list.length == 0) {
-          console.log("-- all clients have left " + chId + " => should close the channel --- ");
-        } else {
-          console.log("-- client left " + chId + " still  " + list.length + " connected");
-        }
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.setAccessManager = function (fn) {
-        _accessManager = fn;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.setAuthExtension = function (fn) {
-        _authExtension = fn;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.setAutoCreateFn = function (fn) {
-        _autoCreateFn = fn;
-      };
-    })(this);
-  };
-
-  var _serverChannelMgr = function _serverChannelMgr(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _serverChannelMgr) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _serverChannelMgr._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _serverChannelMgr(a, b, c, d, e, f, g, h);
-  };
-
-  _serverChannelMgr._classInfo = {
-    name: "_serverChannelMgr"
-  };
-  _serverChannelMgr.prototype = new _serverChannelMgr_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_serverChannelMgr"] = _serverChannelMgr;
-      this._serverChannelMgr = _serverChannelMgr;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_serverChannelMgr"] = _serverChannelMgr;
-    } else {
-      this._serverChannelMgr = _serverChannelMgr;
-    }
-  }).call(new Function("return this")());
-
-  var _localChannelModel_prototype = function _localChannelModel_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return Object.prototype.toString.call(t) === "[object Array]";
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _instances;
-
-      // Initialize static variables here...
-
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
-      _myTrait_.__factoryClass.push(function (id, fileSystem) {
-
-        if (!_instances) {
-          _instances = {};
-        }
-
-        id = id + fileSystem.id();
-
-        if (_instances[id]) {
-          return _instances[id];
-        } else {
-          _instances[id] = this;
-        }
-      });
-
-      /**
-       * The channel ID should follow a normal path format like path/to/my/channel
-       * @param String channelId
-       */
-      _myTrait_._createChannelDir = function (channelId) {
-
-        var str = channelId;
-        if (str.charAt(0) == "/") str = str.substring(1);
-
-        var parts = str.split("/");
-        var fs = this._fs,
-            activeFolder = fs;
-
-        var actPromise = _promise();
-        var originalPromise = actPromise;
-        var me = this;
-
-        parts.forEach(function (pathStr) {
-          pathStr = pathStr.trim();
-          if (pathStr.length == 0) return;
-
-          actPromise = actPromise.then(function () {
-            return activeFolder.isFolder(pathStr);
-          }).then(function (bCreate) {
-            if (!bCreate) {
-              return activeFolder.createDir(pathStr);
-            } else {
-              return true;
-            }
-          }).then(function () {
-            return activeFolder.getFolder(pathStr);
-          }).then(function (f) {
-            activeFolder = f;
-          });
-        });
-
-        // after all done, place the active folder for our fs pointer
-        actPromise = actPromise.then(function () {
-          me._folder = activeFolder;
-        });
-        originalPromise.resolve(true);
-
-        return actPromise;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._createChannelSettings = function (t) {
-        // The basic settings are like this:
-        /*
-            obj.fromJournalLine = cnt;
-            obj.version = 1;
-            obj.fromVersion = me._latestVersion;
-            obj.from = me._channelId;
-            obj.to = forkData.channelId;
-            obj.name = forkData.name;
-            obj.utc = (new Date()).getTime();
-        */
-
-        var folder = this._folder;
-        var me = this;
-        return _promise(function (result) {
-          var bIsNew = false;
-          folder.isFile("ch.settings").then(function (is_file) {
-            if (!is_file) {
-              bIsNew = true;
-              return folder.writeFile("ch.settings", JSON.stringify({
-                version: 1,
-                name: "Automatic first version",
-                utc: new Date().getTime(),
-                channelId: me._channelId,
-                journalLine: 0
-              }));
-            }
-            return true;
-          }).then(function () {
-            return folder.readFile("ch.settings");
-          }).then(function (jsonData) {
-            var data = JSON.parse(jsonData);
-            me._settings = data;
-            result(me._settings);
-          });
-        });
-      };
-
-      /**
-       * @param string channelId
-       */
-      _myTrait_._isFreeToFork = function (channelId) {
-        var str = channelId;
-        if (str.charAt(0) == "/") str = str.substring(1);
-
-        var parts = str.split("/");
-        var fs = this._fs,
-            activeFolder = fs;
-
-        var actPromise = _promise();
-        var originalPromise = actPromise;
-        var me = this,
-            isFree = false;
-
-        parts.forEach(function (pathStr) {
-
-          pathStr = pathStr.trim();
-          if (pathStr.length == 0) return;
-          actPromise = actPromise.then(function () {
-            if (isFree) return isFree;
-            return activeFolder.isFolder(pathStr);
-          }).then(function (isFolder) {
-            if (isFree) return;
-            if (!isFolder) {
-              isFree = true; // the folder path is free...
-              return isFree;
-            } else {
-              return isFree;
-            }
-          }).then(function () {
-            if (isFree) return isFree;
-            // get next level..
-            return activeFolder.getFolder(pathStr);
-          }).then(function (f) {
-            if (isFree) return isFree;
-            activeFolder = f;
-          });
-        });
-
-        // after all done, place the active folder for our fs pointer
-        actPromise = actPromise.then(function () {
-          return isFree;
-        });
-        originalPromise.resolve(true);
-
-        return actPromise;
-      };
-
-      /**
-       * @param string str
-       */
-      _myTrait_._textLinesToArray = function (str) {
-        if (!str || typeof str != "string") return [];
-        var a = str.split("\n");
-        var res = [];
-        a.forEach(function (line) {
-          if (line.trim().length == 0) return;
-          res.push(JSON.parse(line));
-        });
-        return res;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._writeSettings = function (t) {
-        return this._folder.writeFile("ch.settings", JSON.stringify(this._settings));
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.childForkTree = function (t) {
-        var local = this._folder,
-            me = this;
-        return _promise(function (response) {
-          me.getForks().then(function (forks) {
-            var list = [],
-                results = [];
-            if (!forks || forks.length == 0) {
-              response([]);
-              return;
-            }
-            forks.forEach(function (fork) {
-              var forkModel = _localChannelModel(fork.to, me._fs);
-              list.push(forkModel.childForkTree());
-            });
-            var prom = _promise();
-            prom.all(list).then(function (childTrees) {
-              forks.forEach(function (fork, i) {
-                fork.children = childTrees[i];
-                results.push(fork);
-              });
-              response(results);
-            });
-            prom.resolve(true);
-          });
-        });
-      };
-
-      /**
-       * Creates a new channel with pre-initialized data.
-       * @param float chSettings
-       * @param float notUsed
-       */
-      _myTrait_.createChannel = function (chSettings, notUsed) {
-        var local = this._folder,
-            me = this,
-            chData;
-        return _promise(function (response) {
-
-          chData = chSettings.chData;
-          if (!chData) {
-            chData = {
-              data: {},
-              __id: me.guid(),
-              __acl: chSettings.__acl
-            };
-          }
-          if (chData && !chData.__acl) {
-            chData.__acl = chSettings.__acl;
-          }
-
-          if (!chSettings.channelId || !chSettings._userId) {
-            response({
-              result: false,
-              text: "Could not create the channel, missing information"
-            });
-            return;
-          }
-
-          var obj = {
-            version: 2, // with pre-initialized data, the first version is 2
-            channelId: chSettings.channelId,
-            userId: chSettings._userId,
-            name: chSettings.name || "",
-            utc: new Date().getTime()
-          };
-
-          // got to check first if the channel is free to be forked
-          me._isFreeToFork(chSettings.channelId).then(function (yesNo) {
-            if (yesNo == true) {
-              var newChann = _localChannelModel(chSettings.channelId, me._fs);
-              newChann.then(function () {
-                return newChann.writeFile("file.2", JSON.stringify(chData));
-              }).then(function () {
-                return newChann.set(obj);
-              }).then(function () {
-                response({
-                  result: true,
-                  channelId: chSettings.channelId
-                });
-              }).fail(function (e) {
-                var msg = "";
-                if (e && e.message) msg = e.message;
-                response({
-                  result: false,
-                  text: "Failed to create channel " + msg
-                });
-              });
-            } else {
-              console.error("Channel already created");
-              response({
-                result: false,
-                text: "Channel is already in use"
-              });
-            }
-          }).fail(function (e) {
-            console.error(e);
-            response({
-              result: false,
-              text: "Creating the new channel failed"
-            });
-          });
-        });
-      };
-
-      /**
-       * @param float cmd
-       */
-      _myTrait_.createSyncedModel = function (cmd) {
-        var me = this;
-        var cc = null; // <-- connect to the channel
-
-        // master-sync file contents
-        // [2,621]
-
-        // The sync file contents
-        /*
-        {
-        "out" : {
-        "channelId" : "sync/test1",
-        "protocol" : "http",
-        "ip" : "localhost",
-        "port" : "1234",
-        "extPort" : "7778",
-        "method" : "node.socket",
-        "username" : "Tero",
-        "password" : "teropw"
-        },
-        "in" : {
-        "channelId" : "sync/test2",
-        "protocol" : "http",
-        "ip" : "localhost",
-        "port" : "1234",
-        "extPort" : "7779",
-        "method" : "node.socket",
-        "username" : "Tero",
-        "password" : "teropw"
-        }
-        }
-        */
-
-        console.log("** startin createSyncedModel with data **");
-        console.log(JSON.stringify(cmd));
-
-        return _promise(function (syncReady, syncFail) {
-
-          // -> channel to checkout...
-          var sync = cmd.sync; // <-- the sync file contents
-          var outSocket;
-
-          if (sync.out.method == "memory.socket") {
-            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port);
-          }
-
-          if (sync.out.method == "node.socket") {
-            var ioLib = require("socket.io-client");
-            var realSocket1 = ioLib.connect(sync.out.protocol + "://" + sync.out.ip + ":" + (sync.out.extPort || sync.out.port));
-            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port, realSocket1);
-          }
-
-          // cc = HERE the slave connection which the server1 has to server2
-          // slave <-> master connection
-          var cc = channelClient(sync.out.channelId, outSocket, {
-            auth: {
-              username: sync.out.username,
-              password: sync.out.password
-            }
-          });
-
-          cc.then(function () {
-            cc._checkout(sync.out.channelId).then(function (r) {
-
-              debugger;
-              console.log("Checkout returned ");
-              console.log(JSON.stringify(r));
-
-              // the channel has been now checked out
-              /*
-              {"ch":"my/channel",
-              "file":"ch.settings",
-              "data":"{\"version\":2,\"channelId\":\"my/channel\",\"journalLine\":1,\"utc\":14839287897}"}        
-              */
-              var wait = _promise();
-              var start = wait;
-
-              var fileSystem = me.getFilesystem(); // <- the root filesystem for the checkout process
-
-              // TODO: this is all overriding sync, what if the channel already does exist?
-              if (r.build) r.build.forEach(function (fileData) {
-                var m;
-                wait = wait.then(function () {
-
-                  var chName = fileData.ch;
-                  if (fileData.ch == sync.out.channelId) {
-                    chName = sync["in"].channelId;
-                  }
-
-                  m = _localChannelModel(chName, fileSystem);
-                  return m;
-                }).then(function () {
-                  return m.folder().isFile(fileData.file);
-                }).then(function (is_file) {
-
-                  if (fileData.file == "ch.settings") {
-                    var data = JSON.parse(fileData.data);
-                    data.channelId = sync["in"].channelId;
-                    return m.writeFile(fileData.file, JSON.stringify(data));
-                  } else {
-                    // if the local file already does exist then do not write it
-                    if (!is_file) {
-                      return m.writeFile(fileData.file, fileData.data);
-                    } else {
-                      return is_file;
-                    }
-                  }
-                });
-              });
-
-              // after this has been done, the data should be loaded and the checkout is ready to be used by any
-              // connection which opens it
-              var folder = me.folder();
-              wait.then(function () {
-                return folder.isFile("sync");
-              }).then(function (is_file) {
-                if (!is_file) {
-                  return folder.writeFile("sync", JSON.stringify(sync));
-                }
-              }).then(function (is_file) {
-                return folder.isFile("master-sync");
-              }).then(function (is_file) {
-                if (!is_file) {
-                  var ms = [cc._clientState.version, cc._clientState.data.getJournalLine()];
-                  return folder.writeFile("master-sync", JSON.stringify(ms));
-                }
-              }).then(function () {
-                return me._createChannelSettings();
-              }).then(function () {
-                syncReady(sync);
-              }).fail(syncFail);
-
-              start.resolve(true);
-            }).fail(syncFail);
-          }).fail(syncFail);
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.folder = function (t) {
-        return this._folder;
-      };
-
-      /**
-       * The forkData is object having properties &quot;channelId&quot; and &quot;name&quot;
-       * @param Object forkData  - Object with { channelId : &quot;path/to/the/challe&quot;,  name:&quot;name&quot;}
-       */
-      _myTrait_.fork = function (forkData) {
-        var local = this._folder,
-            me = this;
-        /*
-        // The basic data is like this
-        {
-        version : 1,
-        name : "Initial version",
-        utc : (new Date()).getTime(),
-        journalLine : 0,
-        channelId : "my/channel/fork1/"
-        }
-        */
-
-        return _promise(function (response) {
-
-          // ?? should we use the journal line provided by the forkData
-          var settings = me._settings;
-
-          var fromLine = settings.journalLine || 0;
-          if (typeof forkData.journalLine != "undefined") {
-            fromLine = forkData.journalLine;
-          }
-
-          var obj = {
-            fromJournalLine: fromLine,
-            version: 1, // the fork version is always 1
-            channelId: forkData.channelId,
-            fromVersion: settings.version,
-            from: me._channelId,
-            to: forkData.channelId,
-            userId: forkData._userId,
-            name: forkData.name,
-            utc: new Date().getTime()
-          };
-          console.log("fork called with ");
-          console.log(obj);
-
-          // got to check first if the channel is free to be forked
-          me._isFreeToFork(forkData.channelId).then(function (yesNo) {
-            if (yesNo == true) {
-              // TODO: check that the forked channel is valid here
-              local.appendFile("forks", JSON.stringify(obj) + "\n").then(function () {
-                var newChann = _localChannelModel(forkData.channelId, me._fs);
-                newChann.then(function () {
-                  return newChann.set(obj);
-                }).then(function () {
-                  response(obj);
-                });
-              });
-            } else {
-              console.error("Channel already created");
-              response({
-                result: false,
-                text: "Channel is already in use"
-              });
-            }
-          }).fail(function (e) {
-            console.error(e);
-            response({
-              result: false,
-              text: "Creating the fork failed"
-            });
-          });
-        });
-      };
-
-      /**
-       * @param String name
-       */
-      _myTrait_.get = function (name) {
-        var local = this._db,
-            me = this;
-        return _promise(function (response) {
-          me.then(function () {
-            var settings = local.table("settings");
-            settings.get(name).then(function (v) {
-              response(v.value);
-            });
-          });
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getCurrentVersion = function (t) {
-        var local = this._folder,
-            me = this;
-        return _promise(function (result) {
-          result(me._settings.version);
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getFilesystem = function (t) {
-        return this._fs;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getForks = function (t) {
-        var local = this._folder,
-            me = this;
-        return _promise(function (result) {
-
-          me.then(function () {
-            return local.readFile("forks");
-          }).then(function (res) {
-            if (res) {
-              result(me._textLinesToArray(res));
-            } else {
-              result([]);
-            }
-          }).fail(function () {
-            result([]);
-          });
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getJournalSize = function (t) {
-        return this._settings.journalSize;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.incrementVersion = function (t) {
-        var local = this._folder,
-            me = this;
-        return _promise(function (result) {
-          me.then(function () {
-
-            var settings = me._settings;
-
-            settings.version++;
-            settings.journalLine = 0;
-
-            me._writeSettings().then(function () {
-              result(settings.version);
-            });
-          });
-        });
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (channelId, fileSystem) {
-
-        this._channelId = channelId;
-        this._latestVersion = 1;
-
-        this._fs = fileSystem;
-
-        var me = this;
-
-        // create channel directory only if channel is defined
-        if (channelId) {
-          me._createChannelDir(channelId).then(function () {
-            return me._createChannelSettings();
-          }).then(function () {
-            me.resolve(true);
-          }).fail(function (e) {
-            console.error(e);
-          });
-        }
-      });
-
-      /**
-       * @param float channelId
-       * @param float version
-       * @param float journalLine
-       */
-      _myTrait_.readBuildTree = function (channelId, version, journalLine) {
-
-        var flatten = function flatten(a) {
-          return [].concat.apply([], a);
-        };
-
-        var local = this._folder,
-            me = this;
-
-        if (channelId) {
-          return _promise(function (response) {
-            var ch = _localChannelModel(channelId, me._fs);
-            ch.then(function () {
-              ch.readBuildTree(null, version, null).then(function (res) {
-                var jLen = res[0].length;
-                if (jLen > journalLine) {
-                  res[0].splice(journalLine, jLen - journalLine);
-                }
-                response(res);
-              });
-            });
-          });
-        }
-
-        return _promise(function (response) {
-          var repList = [],
-              mainFile,
-              journalFile;
-
-          me.then(function () {
-            return me.readMain(version); // first get the main
-          }).then(function (mainFileRead) {
-            if (mainFileRead) {
-              mainFile = JSON.parse(mainFileRead);
-            }
-            //             mainFile = mainFileRead;
-            return me.readJournal(version);
-          }).then(function (journal) {
-            journalFile = journal;
-
-            if (me._settings.from && !mainFile) {
-
-              var settings = me._settings;
-              me.readBuildTree(settings.from, settings.fromVersion, settings.fromJournalLine).then(function (resp) {
-                repList.push(journal);
-                resp.forEach(function (r) {
-                  repList.push(r);
-                });
-                response(repList);
-              });
-            } else {
-              response([journal, mainFile]);
-            }
-          }).fail(function (msg) {
-            console.error(msg);
-          });
-        });
-      };
-
-      /**
-       * @param String channelId
-       * @param float version
-       * @param float list
-       */
-      _myTrait_.readCheckoutData = function (channelId, version, list) {
-
-        var flatten = function flatten(a) {
-          return [].concat.apply([], a);
-        };
-
-        // What we already have:
-        // 1. me._settings  - is holding the channel settings
-        // 2.
-
-        var local = this._folder,
-            me = this,
-            versionNumber = version || me._settings.version;
-
-        if (channelId) {
-          return _promise(function (response) {
-            var ch = _localChannelModel(channelId, me._fs);
-            ch.then(function () {
-              ch.readCheckoutData(null, version).then(function (res) {
-                response(res);
-              });
-            });
-          });
-        }
-
-        // Read main is like this:
-        /*
-        var local = this._folder, 
-        me = this,
-        versionNumber = version || me._settings.version;
-        if(versionNumber==1) {
-        return _promise(function(r) {
-        r(null);
-        });
-        }
-        return local.readFile( "file."+versionNumber);
-        */
-
-        // Read journal goes like:
-        /*
-        var local = this._folder, 
-        me = this,
-        versionNumber = version || me._settings.version;
-        return _promise(
-        function(res) {
-        local.readFile( "journal."+versionNumber).then( function(data) {
-            if(!data) {
-                res([]);
-                return;
-            }
-            res( me._textLinesToArray(data) );
-        }).fail( function() {
-            res([]);
-        })
-        });
-        */
-
-        return _promise(function (response) {
-          var repList = [],
-              mainFile,
-              journalFile,
-              myFiles = [];
-
-          me.then(function () {
-            if (versionNumber == 1) {
-              return null;
-            }
-            return local.readFile("file." + versionNumber);
-          }).then(function (mainFileRead) {
-            if (mainFileRead) {
-              mainFile = mainFileRead;
-              myFiles.push({
-                ch: channelId || me._channelId,
-                file: "file." + versionNumber,
-                data: mainFileRead
-              });
-            }
-            return local.readFile("journal." + versionNumber);
-          }).then(function (journal) {
-            if (journal) {
-              myFiles.push({
-                ch: channelId || me._channelId,
-                file: "journal." + versionNumber,
-                data: journal
-              });
-            }
-            return local.readFile("ch.settings");
-          }).then(function (data) {
-            if (data) {
-              myFiles.push({
-                ch: channelId || me._channelId,
-                file: "ch.settings",
-                data: data
-              });
-            }
-            // if a fork then read also the forked channel data
-            if (me._settings.from && !mainFile) {
-
-              var settings = me._settings;
-              me.readCheckoutData(settings.from, settings.fromVersion).then(function (resp) {
-                resp.forEach(function (r) {
-                  myFiles.push(r);
-                });
-                response(myFiles);
-              });
-            } else {
-              response(myFiles);
-            }
-          }).fail(function (msg) {
-            console.error(msg);
-          });
-        });
-      };
-
-      /**
-       * @param float fileName
-       */
-      _myTrait_.readFile = function (fileName) {
-
-        var local = this._folder;
-        return local.readFile(fileName);
-      };
-
-      /**
-       * @param float version
-       */
-      _myTrait_.readJournal = function (version) {
-
-        var local = this._folder,
-            me = this,
-            versionNumber = version || me._settings.version;
-
-        return _promise(function (res) {
-          local.readFile("journal." + versionNumber).then(function (data) {
-            if (!data) {
-              me._settings.journalSize = 0;
-              res([]);
-              return;
-            }
-            me._settings.journalSize = data.length;
-            res(me._textLinesToArray(data));
-          }).fail(function () {
-            res([]);
-          });
-        });
-      };
-
-      /**
-       * @param float version
-       */
-      _myTrait_.readMain = function (version) {
-
-        var local = this._folder,
-            me = this,
-            versionNumber = version || me._settings.version;
-
-        if (versionNumber == 1) {
-          return _promise(function (r) {
-            r(null);
-          });
-        }
-
-        return local.readFile("file." + versionNumber);
-      };
-
-      /**
-       * @param String name
-       * @param float value
-       */
-      _myTrait_.set = function (name, value) {
-        var local = this._folder,
-            me = this,
-            settings = this._settings;
-
-        if (this.isObject(name)) {
-          for (var n in name) {
-            if (name.hasOwnProperty(n)) {
-              settings[n] = name[n];
-            }
-          }
-        } else {
-          settings[name] = value;
-        }
-
-        return this._writeSettings(settings);
-      };
-
-      /**
-       * @param Object newMainData
-       */
-      _myTrait_.snapshot = function (newMainData) {
-        var local = this._folder,
-            me = this;
-
-        return _promise(function (done) {
-          var currentVersion;
-          me.incrementVersion().then(function (nextVersion) {
-            currentVersion = nextVersion - 1;
-            return me.writeMain(newMainData);
-          }).then(function () {
-            // The incrementVersion() call will do the following
-            // me._settings.journalLine = 0;
-            // me._settings.version = 0;
-            done(true);
-          });
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.status = function (t) {
-        var local = this._folder,
-            me = this;
-        return _promise(function (result) {
-          me.then(function () {
-            result(me._settings);
-          });
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.syncData = function (t) {
-        var local = this._folder,
-            me = this;
-
-        return _promise(function (result) {
-          local.isFile("sync").then(function (is_file) {
-            if (is_file) {
-              local.readFile("sync").then(result);
-              return;
-            }
-            result(null);
-          });
-        });
-      };
-
-      /**
-       * @param float channelId
-       */
-      _myTrait_.treeOfLife = function (channelId) {
-
-        // loads the whole tree of life for this entry, can be a big operation...
-
-        var local = this._folder,
-            me = this;
-
-        if (channelId) {
-          var model = _localChannelModel(channelId, this._fs);
-          return model.treeOfLife();
-        }
-
-        return _promise(function (response) {
-          me.then(function () {
-
-            if (me._settings.from) {
-              me.treeOfLife(me._settings.from).then(response);
-            } else {
-              me.childForkTree().then(response);
-            }
-          });
-        });
-      };
-
-      /**
-       * @param int size
-       * @param float lineNumber
-       */
-      _myTrait_.truncateJournalTo = function (size, lineNumber) {
-
-        var local = this._folder,
-            me = this;
-
-        return _promise(function (resp) {
-
-          local.truncateFile("journal." + me._settings.version, size).then(function () {
-
-            // add the journal size after the write...
-            me._settings.journalSize = size;
-            me._settings.journalLine = lineNumber;
-
-            me._writeSettings();
-            resp(true);
-          });
-        });
-      };
-
-      /**
-       * @param string fileName
-       * @param float fileData
-       */
-      _myTrait_.writeFile = function (fileName, fileData) {
-        // NOTE: this function should not be used in typical situations
-        var local = this._folder;
-
-        if (typeof fileData != "string") fileData = JSON.stringify(fileData);
-
-        return local.writeFile(fileName, fileData);
-      };
-
-      /**
-       * @param string data
-       * @param float version
-       */
-      _myTrait_.writeMain = function (data, version) {
-
-        // NOTE: this function should not be used in typical situations
-        var local = this._folder,
-            me = this,
-            versionNumber = version || me._settings.version;
-
-        if (typeof data != "string") data = JSON.stringify(data);
-
-        return local.writeFile("file." + versionNumber, data);
-      };
-
-      /**
-       * @param Object row
-       */
-      _myTrait_.writeToJournal = function (row) {
-
-        var local = this._folder,
-            me = this;
-
-        if (this.isArray(row[0])) {
-          var str = "",
-              cnt = 0;
-          row.forEach(function (r) {
-            str += JSON.stringify(r) + "\n";
-            cnt++;
-          });
-          return _promise(function (resp) {
-            local.appendFile("journal." + me._settings.version, str).then(function () {
-
-              // keep the size of the journal available for quicly truncating the server file
-              me._settings.journalSize += str.length;
-
-              me._settings.journalLine += cnt;
-              me._writeSettings();
-              resp(true);
-            });
-          });
-        }
-
-        return _promise(function (resp) {
-          var str = JSON.stringify(row) + "\n";
-          local.appendFile("journal." + me._settings.version, str).then(function () {
-
-            // add the journal size after the write...
-            me._settings.journalSize += str.length;
-
-            me._settings.journalLine++;
-            me._writeSettings();
-            resp(true);
-          });
-        });
-      };
-    })(this);
-  };
-
-  var _localChannelModel = function _localChannelModel(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _localChannelModel) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _localChannelModel._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _localChannelModel(a, b, c, d, e, f, g, h);
-  };
-
-  _localChannelModel_prototype.prototype = _promise.prototype;
-
-  _localChannelModel._classInfo = {
-    name: "_localChannelModel"
-  };
-  _localChannelModel.prototype = new _localChannelModel_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_localChannelModel"] = _localChannelModel;
-      this._localChannelModel = _localChannelModel;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_localChannelModel"] = _localChannelModel;
-    } else {
-      this._localChannelModel = _localChannelModel;
-    }
-  }).call(new Function("return this")());
-
-  var _channelController_prototype = function _channelController_prototype() {
-
-    (function (_myTrait_) {
-      var _instances;
-      var _cmds;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_._askChUpgrade = function (t) {
-
-        var sockets = this._chManager.getSocketsFromCh(this._channelId);
-
-        var me = this;
-        sockets.forEach(function (socket) {
-
-          if (!me._serverState.upgrade) me._serverState.upgrade = {};
-          me._serverState.upgrade[socket.getId()] = {
-            askFull: true,
-            socket: socket
-          };
-        });
-      };
-
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
-      _myTrait_.__factoryClass.push(function (id, fileSystem) {
-        if (!_instances) {
-          _instances = {};
-        }
-
-        id = id + fileSystem.id();
-
-        if (_instances[id]) {
-          return _instances[id];
-        } else {
-          _instances[id] = this;
-        }
-      });
-
-      /**
-       * @param Object cmd
-       */
-      _myTrait_._createSyncCh = function (cmd) {
-        var me = this;
-        var cc = null; // <-- connect to the channel
-
-        // master-sync file contents
-        // [2,621]
-
-        // The sync file contents
-        /*
-        {
-        "out" : {
-        "channelId" : "sync/test1",
-        "protocol" : "http",
-        "ip" : "localhost",
-        "port" : "1234",
-        "extPort" : "7778",
-        "method" : "node.socket",
-        "username" : "Tero",
-        "password" : "teropw"
-        },
-        "in" : {
-        "channelId" : "sync/test2",
-        "protocol" : "http",
-        "ip" : "localhost",
-        "port" : "1234",
-        "extPort" : "7779",
-        "method" : "node.socket",
-        "username" : "Tero",
-        "password" : "teropw"
-        }
-        }
-        */
-
-        console.log("** startin _createSyncCh with data **");
-        console.log(JSON.stringify(cmd));
-
-        return _promise(function (syncReady, syncFail) {
-
-          // -> channel to checkout...
-          var sync = cmd.sync; // <-- the sync file contents
-          var outSocket;
-
-          if (sync.out.method == "memory.socket") {
-            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port);
-          }
-
-          if (sync.out.method == "node.socket") {
-            var ioLib = require("socket.io-client");
-            var realSocket1 = ioLib.connect(sync.out.protocol + "://" + sync.out.ip + ":" + (sync.out.extPort || sync.out.port));
-            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port, realSocket1);
-          }
-
-          // cc = HERE the slave connection which the server1 has to server2
-          // slave <-> master connection
-          var cc = channelClient(sync.out.channelId, outSocket, {
-            auth: {
-              username: sync.out.username,
-              password: sync.out.password
-            }
-          });
-
-          cc.then(function () {
-            cc._checkout(sync.out.channelId).then(function (r) {
-
-              // the channel has been now checked out
-              /*
-              {"ch":"my/channel",
-              "file":"ch.settings",
-              "data":"{\"version\":2,\"channelId\":\"my/channel\",\"journalLine\":1,\"utc\":14839287897}"}        
-              */
-              var wait = _promise();
-              var start = wait;
-
-              var fileSystem = me._model.getFilesystem(); // <- the root filesystem for the checkout process
-
-              // TODO: this is all overriding sync, what if the channel already does exist?
-              if (r.build) r.build.forEach(function (fileData) {
-                var m;
-                wait = wait.then(function () {
-                  m = _localChannelModel(fileData.ch, fileSystem);
-                  return m;
-                }).then(function () {
-                  return m.folder().isFile(fileData.ch);
-                }).then(function (is_file) {
-                  // if the local file already does exist then do not write it
-                  if (!is_file) {
-                    return m.writeFile(fileData.file, fileData.data);
-                  } else {
-                    return is_file;
-                  }
-                });
-              });
-
-              // after this has been done, the data should be loaded and the checkout is ready to be used by any
-              // connection which opens it
-              var folder = me._model.folder();
-              wait = wait.then(function () {
-                // TODO:
-                // - create masterSync NOTE : good to write so that it does not start from [0,0]
-                // - create sync file
-                //
-                return folder.isFile("sync");
-              }).then(function (is_file) {
-                if (!is_file) {
-                  return folder.writeFile("sync", JSON.stringify(sync));
-                }
-              }).then(function (is_file) {
-                return folder.isFile("master-sync");
-              }).then(function (is_file) {
-                if (!is_file) {
-                  var ms = [cc._clientState.version, cc._clientState.data.getJournalLine()];
-                  return folder.writeFile("master-sync", JSON.stringify(ms));
-                }
-              }).then(function () {
-                syncReady(sync);
-              }).fail(syncFail);
-            }).fail(syncFail);
-          }).fail(syncFail);
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._doClientUpdate = function (t) {
-
-        var updObj,
-            me = this;
-
-        if (!me._serverState) return;
-
-        // if client has sent "upgradeRequest" command, because it notices that it has
-        // been drifted out of state. The client's request can have .askFull = true
-        // flag set to indicate that the client requires the full channelData with
-        // the whole journal to be sent to the client from server.
-        if (me._serverState.upgrade) {
-
-          // me._serverState.upgrade is a hash having the socketID values as keys
-          for (var n in me._serverState.upgrade) {
-
-            if (me._serverState.upgrade.hasOwnProperty(n)) {
-              var info = me._serverState.upgrade[n];
-
-              if (info.socket) {
-                // do we need a full update or partial update?
-                if (info.version != me._serverState.version || info.askFull) {
-                  var fullData = me._serverState.data.getData();
-                  info.socket.emit("upgrade_" + me._channelId, {
-                    version: me._serverState.version,
-                    journal: me._serverState.data._journal,
-                    data: fullData
-                  });
-                } else {
-                  var lastJournaLine = info.last_update[1];
-                  info.socket.emit("upgrade_" + me._channelId, {
-                    partialFrom: lastJournaLine,
-                    partialEnds: me._serverState.data._journal.length,
-                    partial: me._serverState.data._journal.slice(lastJournaLine)
-                  });
-                }
-                delete me._serverState.upgrade[n]; // make sure not handled again
-              }
-            }
-          }
-        }
-
-        // This is the "business as usual" data from server to the clients.
-        // If server has received commands which have been added to the journal and
-        // these lines have not been yet sent to the clients, _policy will construct
-        // the packet to be sent to listeners.
-        if (me._broadcastSocket && me._policy) {
-          var data = me._policy.constructServerToClient(me._serverState);
-          if (data) {
-
-            //console.log(" has something to sent to the clients ");
-            //console.log(JSON.stringify(data));
-
-            console.time("emit_start");
-
-            if (!updObj) updObj = me._broadcastSocket.to(me._channelId);
-
-            var currentJournalSize = me._model.getJournalSize();
-            data.journalSize = currentJournalSize;
-
-            updObj.emit("s2c_" + me._channelId, data);
-
-            // broadcast to the socket "room"
-            console.timeEnd("emit_start");
-            console.timeEnd("cmd_emit_done");
-
-            var updStartMsEnd = new Date().getTime();
-            // the server's connection to the remote client goes here...
-            if (me._syncConnection && me._syncConnection.isConnected()) {
-              // console.log("--- sending data to me._syncConnection --- ");
-              if (data.c) {
-                data.c.forEach(function (eCmd) {
-                  // Note: the addCommand is just fine because it will run the command against the
-                  // client -> server connection state, if the command fails, then it will not be
-                  // sent over the network to the remote server at all
-                  var r = me._syncConnection.addCommand(eCmd);
-                });
-              }
-              // the last lines sent to the server
-              me._masterSync = [me._serverState.version, me._serverState.data.getJournalLine()];
-              me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));
-            }
-
-            // data.c is array of journal entries to be written to the actual journal file
-            me._model.writeToJournal(data.c).then(function (r) {});
-          }
-        }
-      };
-
-      /**
-       * Executes command with admin priviledges wihtout socket connection
-       * @param float cmd
-       * @param float socket  - not used
-       * @param float options  - not used
-       */
-      _myTrait_._execCmd = function (cmd, socket, options) {
-        // 1. selecting the command to be run here...
-        var me = this;
-        return _promise(function (result) {
-          if (!cmd || !cmd.cmd) {
-            result(null);
-            return;
-          }
-          var fn = me._cmds[cmd.cmd];
-          if (fn) {
-            me._commands.addCommands(function (contFn) {
-              fn(cmd, function (r) {
-                result(r);
-                contFn();
-              }, {
-                _adminSocket: true
-              });
-            });
-          } else {
-            result(null);
-          }
-        });
-        /*
-        var me = this;
-        return _promise(
-        function(result) {
-        if(!cmd || ! cmd.cmd) {
-            result(null);
-            return;
-        }
-        var fn = me._cmds[cmd.cmd];
-        if(fn) {
-            fn(cmd, function(r) {
-                result(r);
-            }, socket);
-        } else {
-            result(null);
-        }
-        });
-        */
-      };
-
-      /**
-       * @param float socket
-       * @param float flags
-       * @param float cmd
-       */
-      _myTrait_._groupACL = function (socket, flags, cmd) {
-
-        // for local commands
-        if (socket._adminSocket) {
-          return true;
-        }
-
-        var am = this._chManager.getAccessManager();
-        if (am) {
-          return am(this, socket, cmd);
-        }
-
-        var me = this;
-        if (!me._acl) return false;
-
-        var roles = socket.getUserRoles();
-        var a_ok = false;
-        for (var i = 0; i < roles.length; i++) {
-          // must have "read attributes" and "read ACL flags"
-          if (me._acl.find("", roles[i] + "@", flags)) {
-            a_ok = true;
-            break;
-          }
-        }
-        return a_ok;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._initCmds = function (t) {
-
-        if (!_cmds) _cmds = {};
-        if (this._cmds) return;
-
-        var me = this;
-        this._cmds = {
-          treeOfLife: function treeOfLife(cmd, result, socket) {
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-
-            me._model.treeOfLife().then(function (r) {
-              result(r);
-            });
-          },
-          // -- perhaps a bit hard command here...
-          sync: function sync(cmd, result, socket) {
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-
-            // can you check that the local port is not the same as the out port
-
-            if (!cmd || !cmd.data || !cmd.data.sync || !cmd.data.sync.out || !cmd.data.sync["in"]) {
-              console.log("ERROR: Sync failed");
-              console.log(JSON.stringify(cmd));
-              result({
-                success: false
-              });
-              return;
-            }
-            var out = cmd.data.sync.out;
-            var serverSocket = socket;
-            /*
-            this._ip = ip;
-            this._port = port;
-            this._ioLib = ioLib;
-            */
-            if (serverSocket._ip == out.ip) {
-              if (serverSocket._ioLib) {
-                var ss = serverSocket._ioLib;
-                if (ss.handshake) {
-                  var address = ss.handshake.address;
-                  if (address && address.port == out.extPort) {
-                    result({
-                      success: false
-                    });
-                    return;
-                  }
-                }
-                // console.log("New connection from " + address.address + ":" + address.port);       
-              }
-            }
-            // --> can you just create a new channel based on the data..
-            //me._model.createChannel( cmd.data ).then( function(r) {
-            //    result(r);
-            // });
-
-            var localModel = _localChannelModel(cmd.data.sync["in"].channelId, me._model.getFilesystem());
-
-            // must create the channel controller...
-            // var ctrl = _channelController( cmd.data.sync["in"].channelId, me._model.getFilesystem(), me._chManager );
-
-            localModel.then(function () {
-              return localModel.createSyncedModel(cmd.data); // <-- should create the sync
-            }).then(function () {
-              result({
-                success: true
-              });
-            }).fail(function () {
-              result({
-                success: false
-              });
-            });
-          },
-          checkout: function checkout(cmd, result, socket) {
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-
-            // read the build tree and the status...
-            me._model.readCheckoutData().then(function (r) {
-              result({
-                build: r
-              });
-            });
-          },
-          readBuildTree: function readBuildTree(cmd, result, socket) {
-
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-
-            // read the build tree and the status...
-            me._model.readBuildTree().then(function (r) {
-
-              me._model.status().then(function (status) {
-                result({
-                  status: status,
-                  build: r
-                });
-              });
-              // result(r);
-            });
-          },
-          getForks: function getForks(cmd, result, socket) {
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-            me._model.getForks().then(function (r) {
-              result(r);
-            });
-          },
-          channelStatus: function channelStatus(cmd, result, socket) {
-            if (!me._groupACL(socket, "tc", cmd)) {
-              result(null);
-              return;
-            }
-            me._model.status().then(function (r) {
-              result(r);
-            });
-          },
-          raw: function raw(cmd, result, socket) {
-            if (me._groupACL(socket, "tc")) {
-              result(me._chData.getData());
-            } else {
-              result(null);
-            }
-          },
-          createChannel: function createChannel(cmd, result, socket) {
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-            if (!cmd.data) {
-              result({
-                ok: false
-              });
-              return;
-            }
-            if (!cmd.data.__acl) {
-              var fullData = me._serverState.data.getData();
-              if (!fullData || !fullData.__acl) {
-                result({
-                  ok: false
-                });
-                return;
-              }
-              cmd.data.__acl = fullData.__acl;
-            }
-            cmd.data._userId = socket.getUserId();
-            me._model.createChannel(cmd.data).then(function (r) {
-              result(r);
-            });
-          },
-          fork: function fork(cmd, result, socket) {
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-            if (!cmd.data) {
-              result({
-                ok: false
-              });
-              return;
-            }
-            cmd.data._userId = socket.getUserId();
-            me._model.fork(cmd.data).then(function (r) {
-              result(r);
-            });
-          },
-          // the snapshot command should cause all the sockets to be upgraded
-          snapshot: function snapshot(cmd, result, socket) {
-
-            console.log("got snapshot command");
-
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-
-            var fullData = me._serverState.data.getData();
-
-            if (fullData.__orphan) {
-              fullData.__orphan.length = 0;
-            }
-
-            // first, save all the unsaved changes and refresh the clients with unsent data
-            me._doClientUpdate();
-
-            // then, create new version of the main file
-            me._model.snapshot(fullData).then(function (r) {
-
-              // the _serverState data must be also upgraded...
-              me._serverState.version++; // ????
-              me._serverState.data._journal.length = 0;
-              me._serverState.last_update[0] = 0;
-              me._serverState.last_update[1] = 0;
-
-              if (me._masterSync) {
-                me._masterSync = [me._serverState.version, 0];
-                me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync)).then(function () {
-                  me._askChUpgrade(me._channelId);
-                  result({
-                    ok: true
-                  });
-                });
-              } else {
-                // ask channels to upgrade to the latest version of data
-                me._askChUpgrade(me._channelId);
-                result({
-                  ok: true
-                });
-              }
-            });
-          },
-          writeMain: function writeMain(cmd, result, socket) {
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-            me._model.writeFile("main", cmd.data).then(function (r) {
-              result({
-                ok: true
-              });
-            });
-          },
-          readMain: function readMain(cmd, result, socket) {
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-            me._model.readMain().then(function (r) {
-              result(r);
-            });
-          },
-          readMainVersion: function readMainVersion(cmd, result, socket) {
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-            me._model.readMain(cmd.data).then(function (r) {
-              result(r);
-            });
-          },
-          upgradeRequest: function upgradeRequest(cmd, result, socket) {
-
-            if (!me._groupACL(socket, "r", cmd)) {
-              result(null);
-              return;
-            }
-            if (!me._serverState.upgrade) {
-              me._serverState.upgrade = {};
-            }
-
-            // the upgrade request sent by the client...
-            cmd.data.socket = socket;
-            me._serverState.upgrade[socket.getId()] = cmd.data;
-
-            result({
-              result: true
-            });
-          },
-          c2s: function c2s(cmd, result, socket) {
-
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-
-            if (socket.getUserId) {
-              var uid = socket.getUserId();
-              var len = cmd.data.c.length,
-                  list = cmd.data.c,
-                  utc = new Date().getTime();
-              for (var i = 0; i < len; i++) {
-                list[i][5] = utc;
-                list[i][6] = uid;
-              }
-            }
-
-            var res = me._policy.deltaClientToServer(cmd.data, me._serverState);
-
-            // pick one socket so that we can broadcast if necessary...
-            if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
-
-            // in this case we do not write immediately to all clients, just return
-            // the result to the client
-            result(res);
-
-            // TODO: socket, emit to all clients.
-          },
-          // here is the point to upgrade the server according to data sent from the client
-          masterUpgrade: function masterUpgrade(cmd, result, socket) {
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-
-            console.log("creating a master upgrade with ");
-            console.log(JSON.stringify(cmd));
-
-            if (socket.getUserId) {
-              var uid = socket.getUserId();
-              var len = cmd.data.c.length,
-                  list = cmd.data.c,
-                  utc = new Date().getTime();
-              for (var i = 0; i < len; i++) {
-                list[i][5] = utc;
-                list[i][6] = uid;
-              }
-            }
-
-            // check that the command is valid
-            var res = me._policy.deltaMasterToSlave(cmd.data, me._serverState);
-
-            if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
-
-            // here is a problem, can not wait for the deltaMasterToSlave to finish
-            // because it is a thenable
-            if (res && res.then) {
-              result({
-                upgradeingMaster: true
-              });
-              return;
-              /*
-              res.then( function(r) {
-                // result(r);
-              });
-              result({
-                
-              });
-              return;
-              */
-            }
-            console.log("result of master upgrade ");
-            console.log(JSON.stringify(res));
-            result(res);
-          },
-          changeFrame: function changeFrame(cmd, result, socket) {
-
-            if (!me._groupACL(socket, "w", cmd)) {
-              result(null);
-              return;
-            }
-
-            var res = me._tManager.execute(cmd.data);
-
-            // ERROR: should be checking the results here...
-            // might also write to the actual file-buffer here...
-
-            if (res.validCnt > 0) {
-              cmd.data.commands.length = res.validCnt;
-              me._model.writeToJournal(cmd.data.commands).then(function (r) {
-                socket.broadcast.to(cmd.channelId).emit("frame_" + cmd.channelId, cmd);
-                result(res);
-              });
-            } else {
-              result(res);
-            }
-            // result(res);
-
-            /*
-            me._model.writeToJournal( cmd.data ).then( function(r) {
-            socket.broadcast.to(cmd.channelId).emit("ch_"+cmd.channelId, cmd );
-            result({ ok : true}); 
-            });
-            */
-          } };
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._sendUnsentToMaster = function (t) {
-        // the server's connection to the remote client goes here...
-        var me = this;
-        if (me._syncConnection && me._syncConnection.isConnected() && me._masterSync) {
-
-          var lastSent = me._masterSync[1];
-          var currLine = me._serverState.data.getJournalLine();
-
-          if (currLine > lastSent) {
-
-            console.log("--- _sendUnsentToMaster --- ");
-            var cmds = me._serverState.data._journal.slice(lastSent, currLine);
-
-            cmds.forEach(function (eCmd) {
-              var r = me._syncConnection.addCommand(eCmd);
-            });
-
-            // the last lines sent to the server
-            me._masterSync = [0, currLine];
-            me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));
-          }
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._startSync = function (t) {
-        var me = this;
-
-        return _promise(function (result) {
-          // --> test also if the channel has a master server
-          me._model.syncData().then(function (data) {
-
-            if (!data) {
-              result(false);
-              return;
-            }
-
-            if (data) {
-              console.log("Sync data");
-              console.log(data);
-              var connData = JSON.parse(data);
-              var outConn = connData.out;
-
-              // inConn = connData.in;
-              // there is a slave <-> master connection, should create the sync between the two
-              // channels around here for some client which takes care of sending the data...
-
-              if (outConn.method == "memory.socket") {
-                var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port);
-              }
-
-              if (outConn.method == "node.socket") {
-                var ioLib = require("socket.io-client");
-                var realSocket1 = ioLib.connect(outConn.protocol + "://" + outConn.ip + ":" + (outConn.extPort || outConn.port));
-                var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port, realSocket1);
-              }
-
-              /*
-              // TODO: think about if there is need for inConn method at all?  
-              if(inConn.method=="memory.socket") {
-                  var inSocket  = _clientSocket(inConn.protocol+"://"+inConn.ip, inConn.port);
-              }
-                       if(inConn.method=="node.socket") {
-                  var ioLib = require('socket.io-client')
-                  var realSocket2 = ioLib.connect(outConn.protocol+"://"+inConn.ip+":"+( inConn.extPort || inConn.port));            
-                  var inSocket  = _clientSocket(outConn.protocol+"://"+inConn.ip, inConn.port, realSocket2);
-              } 
-              
-              // TODO: how to make the authentication between 2 clients ?
-              var inConnection = channelClient( inConn.channelId, inSocket, {
-                      auth : {
-                          username : inConn.username,
-                          password : inConn.password
-                      }
-                  });         
-              */
-
-              // TODO: how to make the authentication between 2 clients ?
-              var outConnection = channelClient(outConn.channelId, outSocket, {
-                auth: {
-                  username: outConn.username,
-                  password: outConn.password
-                }
-              });
-
-              outConnection.then(function () {
-                console.log("out done, checking for master-sync");
-                return me._model.folder().isFile("master-sync");
-              }).then(function (is_file) {
-                if (!is_file) {
-                  console.log("master-sync missing");
-
-                  // TODO: is there a problem here, [0,0] may not be a valid start for the channel...
-                  return me._model.writeFile("master-sync", JSON.stringify([me._serverState.version, 0]));
-                }
-                return 0;
-              }).then(function () {
-                console.log("reading master-sync missing");
-                return me._model.readFile("master-sync");
-              }).then(function (d) {
-                console.log(d);
-                me._masterSync = JSON.parse(d);
-                return d;
-              }).then(function (d) {
-                // ?? whot if there would be only the "out" connection
-                // inConnection.setMasterConnection( outConnection );
-                // outConnection.setSlaveServer( inConnection );    
-
-                outConnection._slaveController = me;
-                me._syncConnection = outConnection;
-
-                // <- when sync starts, send first all unsent data
-                me._sendUnsentToMaster();
-
-                // outConnection.setChannelModel( me._model );
-                console.log("sync: ---- in / out connection ready --- ");
-                result(true);
-              });
-            }
-          });
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._updateLoop = function (t) {
-
-        // TODO: make the update loop a setting or automatically adjusting value depending
-        // on the server load - the function is not required to be run if there is no activity
-        // and it should be removed if the client exits from the channel.
-        var me = this;
-        later().onFrame(function () {
-          me._doClientUpdate();
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.channelId = function (t) {
-        return this._channelId;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (channelId, fileSystem, chManager) {
-
-        this._channelId = channelId;
-        this._commands = sequenceStepper(channelId + fileSystem.id());
-        this._chManager = chManager;
-
-        // important point: the file system is passed here to the local channel model
-        this._model = _localChannelModel(channelId, fileSystem);
-
-        var me = this;
-
-        // Then, construct the channel model from the data
-        this._model.readBuildTree().then(function (r) {
-
-          // the build tree
-          var mainData = r.pop();
-          var dataTest = _channelData(channelId + fileSystem.id(), mainData, []);
-          var list = r.pop();
-
-          // NOW, here is a problem, the in-memory channel "journal" should be truncated
-          while (list) {
-            dataTest._journalPointer = 0;
-            dataTest._journal.length = 0; // <-- the journal length, last will be spared
-            list.forEach(function (c) {
-              dataTest.execCmd(c);
-            });
-            list = r.pop();
-          }
-
-          // The state of the server - what should be the "last_update" ? 
-          me._serverState = {
-            model: me._model, // model of the server state, if truncate needed
-            data: dataTest, // The channel data object set here
-            version: me._model._settings.version, // the version of the channel model
-            last_update: [0, dataTest.getJournalLine()], // the range of last commands sent to the client
-            _done: {} // hash of handled packet ID's
-          };
-
-          var data = dataTest.getData();
-          if (data.__acl) {
-            me._acl = nfs4_acl(data.__acl);
-          }
-
-          // me._tManager = _channelTransaction(channelId + fileSystem.id(), dataTest);
-
-          // The channel policy might replace the transaction manager...
-          me._policy = _chPolicy();
-
-          me._updateLoop(); // start the update loop
-          me._chData = dataTest;
-
-          // if there is a sync server, start it too before proceeding...
-          me._startSync().then(function () {
-            me.resolve(true);
-          });
-        });
-
-        this._initCmds();
-      });
-
-      /**
-       * @param float cmd
-       * @param float responseFn
-       * @param float socket
-       */
-      _myTrait_.run = function (cmd, responseFn, socket) {
-
-        // 1. selecting the command to be run here...
-        var fn = this._cmds[cmd.cmd];
-        if (fn) {
-          this._commands.addCommands(function (contFn) {
-            fn(cmd, function (result) {
-              responseFn(result);
-              contFn();
-            }, socket);
-          });
-        }
-      };
-    })(this);
-  };
-
-  var _channelController = function _channelController(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _channelController) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _channelController._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _channelController(a, b, c, d, e, f, g, h);
-  };
-
-  _channelController_prototype.prototype = _promise.prototype;
-
-  _channelController._classInfo = {
-    name: "_channelController"
-  };
-  _channelController.prototype = new _channelController_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_channelController"] = _channelController;
-      this._channelController = _channelController;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_channelController"] = _channelController;
-    } else {
-      this._channelController = _channelController;
-    }
-  }).call(new Function("return this")());
-
-  var _channels_prototype = function _channels_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (host) {});
-    })(this);
-  };
-
-  var _channels = function _channels(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _channels) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _channels._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _channels(a, b, c, d, e, f, g, h);
-  };
-
-  _channels._classInfo = {
-    name: "_channels"
-  };
-  _channels.prototype = new _channels_prototype();
-
-  var channelClient_prototype = function channelClient_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return t instanceof Array;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _cmdNsMap;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float url
-       */
-      _myTrait_._getNsFromUrl = function (url) {
-        if (_nsShortcuts[url]) {
-          return _nsShortcuts[url];
-        }
-        _nsReverse[_nsIndex] = url;
-        _nsShortcuts[url] = _nsIndex++;
-
-        return _nsShortcuts[url];
-      };
-
-      /**
-       * @param float nsName
-       */
-      _myTrait_._getNsShorthand = function (nsName) {
-
-        if (_nsShortcuts[nsName]) {
-          return _nsShortcuts[nsName];
-        }
-        _nsReverse[_nsIndex] = nsName;
-        _nsShortcuts[nsName] = _nsIndex++;
-
-        return _nsShortcuts[nsName];
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._getReflections = function (t) {
-        return _localReflections;
-      };
-
-      /**
-       * @param float objId
-       */
-      _myTrait_._getReflectionsFor = function (objId) {
-
-        if (_localReflections) {
-          var list = _localReflections[objId];
-          if (list) return list;
-        }
-        return [];
-      };
-
-      /**
-       * @param int index
-       */
-      _myTrait_._getReverseNs = function (index) {
-
-        return _nsReverse[index];
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_._idFromNs = function (id) {
-        if (id) {
-
-          var len = id.length;
-          if (id[len - 1] == "#") {
-            id = id.split("@").shift();
-          }
-        }
-        return id;
-      };
-
-      /**
-       * @param float id
-       * @param float ns
-       */
-      _myTrait_._idToNs = function (id, ns) {
-
-        if (id) {
-          var len = id.length;
-          // longString
-
-          if (id[len - 1] == "#") {
-            var ind = id.indexOf("@");
-            var oldNs = id.substring(ind + 1, len - 1);
-            if (oldNs != ns) {
-              id = id.substring(0, ind) + "@" + ns + "#";
-            }
-          } else {
-            id = id + "@" + ns + "#";
-          }
-        }
-        return id;
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_._nsFromId = function (id) {
-        var ns;
-        if (id) {
-          id = id + "";
-          var len = id.length;
-          if (id[len - 1] == "#") {
-            ns = id.split("@").pop();
-            ns = ns.split("#").shift();
-          }
-        }
-        return ns;
-      };
-
-      /**
-       * @param float cmd
-       * @param float ns
-       */
-      _myTrait_._transformCmdFromNs = function (cmd, ns) {
-
-        if (!ns) ns = this._ns;
-
-        var map = _cmdNsMap,
-            nextCmd = cmd.slice(),
-            swap = map[cmd[0]],
-            me = this;
-        if (swap) {
-          swap.forEach(function (index) {
-            nextCmd[index] = me._idFromNs(nextCmd[index], ns);
-          });
-        }
-        return nextCmd;
-      };
-
-      /**
-       * @param float cmd
-       * @param float ns
-       */
-      _myTrait_._transformCmdToNs = function (cmd, ns) {
-
-        if (!ns) ns = this._ns;
-
-        var map = _cmdNsMap,
-            nextCmd = cmd.slice(),
-            swap = map[cmd[0]],
-            me = this;
-        if (swap) {
-          for (var i = 0; i < swap.length; i++) {
-            var index = swap[i];
-            nextCmd[index] = this._idToNs(nextCmd[index], ns);
-          }
-        }
-        return nextCmd;
-      };
-
-      /**
-       * @param float obj
-       * @param float ns
-       */
-      _myTrait_._transformObjFromNs = function (obj, ns) {
-        if (!ns) ns = this._ns;
-
-        if (obj && obj.__id) {
-          if (obj.__p) obj.__p = this._idFromNs(obj.__p, ns);
-          obj.__id = this._idFromNs(obj.__id, ns);
-          for (var n in obj.data) {
-            if (obj.data.hasOwnProperty(n)) {
-              if (this.isObject(obj.data[n])) this._transformObjFromNs(obj.data[n], ns);
-            }
-          }
-        }
-        return obj;
-      };
-
-      /**
-       * @param float obj
-       * @param float ns
-       */
-      _myTrait_._transformObjToNs = function (obj, ns) {
-        if (!ns) ns = this._ns;
-        if (obj && obj.__id) {
-
-          // the old way, currently the socket ID may be the same, but not used right now
-          /*
-          var nsNext;
-          if(obj.__radioURL) {
-          var nsNext = this._getNsShorthand( obj.__radioURL );
-          }
-          ns = nsNext || ns;
-          */
-
-          // obj = me._transformObjToNs( obj, ns );
-          obj.__id = this._idToNs(obj.__id, ns);
-          if (obj.__p) {
-            obj.__p = this._idToNs(obj.__p, ns);
-          }
-          for (var n in obj.data) {
-            if (obj.data.hasOwnProperty(n)) {
-              if (this.isObject(obj.data[n])) this._transformObjToNs(obj.data[n], ns);
-            }
-          }
-        }
-
-        return obj;
-      };
-
-      /**
-       * @param float obj
-       * @param float parentObj
-       * @param float parentObj2
-       */
-      _myTrait_._transformToNsBeforeInsert = function (obj, parentObj, parentObj2) {
-
-        // OK, so...
-
-        var cmdList = obj.__ctxCmdList;
-        var ns = this._nsFromId(parentObj.__id);
-
-        console.log(" _transformToNsBeforeInsert ");
-
-        var me = this;
-        if (ns) {
-          // console.log("Using namespace "+ns);
-          if (cmdList) {
-            cmdList.forEach(function (c) {
-              c.cmd = me._transformCmdToNs(c.cmd, ns);
-            });
-          }
-          obj = me._transformObjToNs(obj, ns);
-          obj.__ctxCmdList = cmdList;
-          this._addToCache(obj);
-          return obj;
-        }
-        // this._addToCache( obj );
-        return obj;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {
-        if (!_cmdNsMap) {
-          _cmdNsMap = {
-            1: [1],
-            2: [1],
-            4: [4],
-            5: [2, 4],
-            7: [2, 4],
-            8: [2, 4],
-            10: [2, 4],
-            12: [1, 4],
-            13: [4],
-            14: [4],
-            16: [3, 4]
-          };
-        }
-      });
-    })(this);
-
-    (function (_myTrait_) {
-      var _instanceCache;
-      var _dmp;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float channelId
-       */
-      _myTrait_._checkout = function (channelId) {
-
-        var me = this,
-            socket = this._socket;
-
-        return _promise(function (result) {
-
-          if (!me._policy) return;
-          if (me._disconnected) return; // in case disconnected, don't send data
-          if (!me._connected) return;
-
-          socket.send("channelCommand", {
-            channelId: channelId,
-            cmd: "checkout",
-            data: ""
-          }).then(function (res) {
-
-            debugger;
-            console.log("Checkout tree ");
-            console.log(res);
-            result(res);
-          });
-        });
-      };
-
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
-      _myTrait_.__factoryClass.push(function (id, socket) {
-
-        if (!id || !socket) return;
-
-        id = id + socket.getId();
-
-        if (!_instanceCache) _instanceCache = {};
-        if (_instanceCache[id]) return _instanceCache[id];
-        _instanceCache[id] = this;
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_._createTransaction = function (t) {
-
-        // package to be sent to the server
-        this._currentFrame = {
-          id: this.guid(),
-          version: 1,
-          from: this._data.getJournalLine(),
-          fail_tolastok: true,
-          commands: []
-        };
-
-        /*
-        data : {
-            id   : "t2",                   // unique ID for transaction
-            version : 1,                    // channel version
-            from : 1,                      // journal line to start the change
-            to   : 2,                      // the last line ( optionsl, I guess )
-            fail_tolastok : true,           // fail until last ok command
-            // fail_all : true,
-            commands : [
-                [4, "fill", "black", "blue", "id1"]
-            ]                               
-        }
-        */
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_._fetch = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          return obj;
-        }
-      };
-
-      /**
-       * This is the beef of almost everything, when a new frame comes around, what to do with it? There are many options what to do, we just have to pick one strategy.
-       * @param float socket
-       * @param float myNamespace
-       */
-      _myTrait_._incoming = function (socket, myNamespace) {
-
-        var me = this,
-            channelId = this._channelId,
-            fullUpgradeFailCnt = 0;
-
-        socket.on("upgrade_" + this._channelId, function (cmd) {
-
-          me._upgradePending = false;
-          // just don't accept any msgs
-          if (me._disconnected) return;
-          //console.log("upgrade_cmd");
-          //console.log(JSON.stringify(cmd));
-          if (cmd) {
-
-            if (cmd.partial) {
-
-              // should be reversing perhaps first to some line...
-              var dd = me._clientState.data;
-
-              dd.reverseToLine(cmd.partialFrom);
-              // console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
-              var errCnt = 0;
-
-              dd.setClearCreated(true);
-              cmd.partial.forEach(function (c) {
-                if (errCnt > 0) return;
-                var r;
-                var cmdIn = me._transformCmdToNs(c);
-                if (!((r = dd.execCmd(cmdIn, true)) === true)) {
-                  // console.error("Partial ", r);
-                  errCnt++;
-                }
-              });
-              dd.setClearCreated(false);
-
-              if (errCnt == 0) {
-                me._clientState.needsRefresh = false;
-                me._clientState.needsFullRefresh = false;
-
-                dd._journal.length = cmd.partialEnds;
-
-                // The correct position
-                me._clientState.last_update[0] = 0;
-                me._clientState.last_update[1] = dd._journal.length;
-                me._clientState.last_sent[0] = 0;
-                me._clientState.last_sent[1] = dd._journal.length;
-              } else {
-                me._clientState.needsFullRefresh = true;
-              }
-            }
-            if (cmd.data) {
-
-              // full upgrade coming here, must also replace the journal
-
-              var myData = me._clientState.data.getData(); // <- the data
-              me._transformObjToNs(cmd.data);
-
-              var diff = diffEngine().compareFiles(myData, cmd.data);
-              console.log("Diff obj , myData, cmd.data");
-              console.log(diff);
-              console.log(myData);
-              console.log(cmd.data);
-
-              // run the commands for the local data
-              var dd = me._clientState.data;
-              var errCnt = 0;
-
-              dd.setClearCreated(true);
-              diff.cmds.forEach(function (c) {
-                console.log("Diff cmd ", c);
-                if (errCnt > 0) return;
-                var r;
-                /// dd.execCmd(c, true); // the point is just to change the data to something else
-                if (!((r = dd.execCmd(c, true)) === true)) {
-                  console.error("Full error ", r);
-                  console.log("Return value from failed cmd: ", r);
-                  errCnt++;
-                }
-              });
-              dd.setClearCreated(false);
-
-              // and now the hard part, upgrade the local client data.
-              if (errCnt == 0) {
-
-                me._clientState.needsRefresh = false;
-                me._clientState.needsFullRefresh = false;
-
-                console.log("** full update should have gone ok ** ");
-                dd._journal.length = 0;
-                dd._journal.push.apply(dd._journal, cmd.journal);
-                me._clientState.needsRefresh = false;
-                me._clientState.version = cmd.version;
-
-                // dd._journal.length = cmd.updateEnds;
-
-                me._clientState.last_update[0] = 0;
-                me._clientState.last_update[1] = dd._journal.length;
-                me._clientState.last_sent[0] = 0;
-                me._clientState.last_sent[1] = dd._journal.length;
-
-                console.log("Version ", me._clientState.version);
-              } else {
-                fullUpgradeFailCnt++;
-
-                // must stop full refresh at this point
-                console.error("** errors with the full update ** ");
-                if (fullUpgradeFailCnt > 0) {
-                  console.log("--- server command data ---");
-                  console.log(cmd);
-                  console.log("--- the client state ---");
-                  console.log(me._clientState);
-                  me._clientState.needsFullRefresh = false;
-                } else {
-                  me._clientState.needsFullRefresh = true;
-                  me._clientState.fullUpgradeFailCnt = fullUpgradeFailCnt;
-                }
-
-                // re-connections or refreshes appear
-              }
-              /*
-                // the state management
-                me._clientState = {
-                    data : chData,              // The channel data object
-                    client : me,                // The channel client object (for Namespace conversion )
-                    needsRefresh : false,       // true if client is out of sync and needs to reload
-                    version : me._channelStatus.version,               
-                    last_update : [0, chData.getJournalLine()],  // last succesfull server update
-                    last_sent : [0, chData.getJournalLine()]     // last range sent to the server
-                
-                };
-              */
-            }
-
-            if (me._slaveController) {
-              me._slaveController._execCmd({
-                cmd: "masterJournalUpgrade",
-                data: cmd
-              });
-            }
-          }
-        });
-
-        socket.on("s2c_" + this._channelId, function (cmd) {
-
-          // just don't accept any msgs
-          if (me._disconnected) return;
-          if (cmd) {
-
-            var res = me._policy.deltaServerToClient(cmd, me._clientState);
-
-            // if there is a slave controller, send this command as masterUpgrade to
-            // the slave server so that the slave can update it's own data state
-            if (me._slaveController) {
-
-              // --> then try slave to master command building...
-
-              var newList = [];
-              for (var i = 0; i < cmd.c.length; i++) {
-                var c = cmd.c[i].slice();
-                newList.push(me._transformCmdFromNs(c));
-              }
-
-              cmd.c = newList;
-              me._slaveController._execCmd({
-                cmd: "masterUpgrade",
-                data: cmd
-              });
-            }
-          }
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._isNodeJs = function (t) {
-        return new Function("try { return this === global; } catch(e) { return false; }")();
-      };
-
-      /**
-       * @param Object socket
-       */
-      _myTrait_._onFrameLoop = function (socket) {
-
-        var me = this,
-            channelId = this._channelId;
-
-        var _frameFn = function _frameFn() {
-
-          if (!me._policy) return;
-          if (me._disconnected) return; // in case disconnected, don't send data
-
-          if (!me._connected) return;
-          if (!me._clientState) return;
-
-          if (me._clientState.needsRefresh) {
-            // *** if refresh is required, out of sync client **
-
-            if (!me._upgradePending) {
-              // console.log(" needsRefresh && !_upgradePending " );
-              me.askUpgrade(me._clientState.needsFullRefresh);
-            }
-            me._upgradePending = true;
-          }
-
-          var packet = me._policy.constructClientToServer(me._clientState);
-          if (packet) {
-
-            //console.log("Sending packet to server ");
-            //console.log(packet);
-            socket.send("channelCommand", {
-              channelId: channelId,
-              cmd: "c2s",
-              data: packet
-            }).then(function (res) {
-              if (res && res.errors) {
-                // console.error(res.errors);
-                if (res.errors.length > 0) {
-                  var bRefresh = false;
-                  res.errors.forEach(function (err) {
-                    if (err.error == 44) {
-                      bRefresh = true;
-                    }
-                  });
-                  if (bRefresh) {
-                    me._clientState.needsRefresh = true;
-                  }
-                }
-              }
-            });
-          }
-        };
-        later().onFrame(_frameFn);
-      };
-
-      /**
-       * Actions to do when the client reconnects to other server
-       * @param float t
-       */
-      _myTrait_._onReconnect = function (t) {
-
-        // do we have a slave connection???
-        if (this._slave) {
-          console.log("*** reconnect to the master ***");
-        }
-
-        var me = this;
-
-        console.log("_onReconnect");
-
-        // if we have a slave controller...
-        if (me._slaveController) {
-          console.log("_slaveController -> trying to send data ");
-          me._slaveController._sendUnsentToMaster();
-        }
-
-        // first, send the data we have to server, hope it get's through...
-        var packet = me._policy.constructClientToServer(me._clientState);
-        var socket = this._socket;
-        var channelId = this._channelId;
-
-        if (packet) {
-          socket.send("channelCommand", {
-            channelId: channelId,
-            cmd: "c2s",
-            data: packet
-          }).then(function (res) {});
-        }
-        // then, ask upgrade...
-        me.askUpgrade();
-
-        // -->
-
-        // me._sendUnsentToMaster();
-      };
-
-      /**
-       * Add command to next change frame to be sent over the network. TODO: validate the commands against the own channelObject, for example the previous value etc.
-       * @param Array cmd
-       * @param float dontBroadcast
-       */
-      _myTrait_.addCommand = function (cmd, dontBroadcast) {
-        var cmdIn = this._transformCmdToNs(cmd, this._ns);
-        return this._data.execCmd(cmdIn, dontBroadcast);
-      };
-
-      /**
-       * @param bool askFull
-       */
-      _myTrait_.askUpgrade = function (askFull) {
-
-        if (!this._socket) return;
-
-        // do not ask upgrade if failCnt > 0
-        if (this._clientState.fullUpgradeFailCnt) return;
-
-        this._socket.send("channelCommand", {
-          channelId: this._channelId,
-          cmd: "upgradeRequest",
-          data: {
-            version: this._clientState.version,
-            last_update: this._clientState.last_update,
-            askFull: askFull
-          }
-        }).then(function () {});
-      };
-
-      /**
-       * @param float id
-       * @param float index
-       */
-      _myTrait_.at = function (id, index) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          return obj.data[index];
-        }
-      };
-
-      /**
-       * @param float name
-       * @param float description
-       * @param float baseData
-       */
-      _myTrait_.createChannel = function (name, description, baseData) {
-
-        if (this._isLocal) return;
-
-        // a fresh copy of the base data
-        var copyOf = JSON.parse(JSON.stringify(baseData));
-        var chData = _channelData(this.guid(), copyOf, []);
-
-        copyOf = chData.getData();
-        copyOf = this._transformObjFromNs(copyOf);
-
-        // The command to be sent to the server-side
-        var forkCmd = {
-          channelId: name,
-          name: description,
-          chData: copyOf
-        };
-
-        // the fork is being processed, the response is going to be ready after the promise completes
-        var me = this;
-        return _promise(function (results) {
-          me._socket.send("channelCommand", {
-            channelId: me._channelId,
-            cmd: "createChannel",
-            data: forkCmd
-          }).then(function (resp) {
-            results(resp);
-          });
-        });
-      };
-
-      /**
-       * @param float id
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.diffSet = function (id, name, value) {
-
-        if (!_dmp) return;
-
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj && !this.isObject(value)) {
-          var old_value = obj.data[name];
-          if (old_value != value) {
-
-            // this.addCommand([4, name, value, old_value, ns_id ]);
-            var diff1 = _dmp.diff_main(old_value, value);
-            var diff2 = _dmp.diff_main(value, old_value);
-
-            _dmp.diff_cleanupEfficiency(diff1);
-            _dmp.diff_cleanupEfficiency(diff2);
-
-            var t1 = _dmp.patch_toText(_dmp.patch_make(old_value, diff1));
-            var t2 = _dmp.patch_toText(_dmp.patch_make(value, diff2));
-
-            this.addCommand([14, name, t1, t2, ns_id]);
-          }
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.disconnect = function (t) {
-        this._disconnected = true;
-        return this;
-      };
-
-      /**
-       * @param float name
-       * @param float description
-       * @param float options
-       */
-      _myTrait_.fork = function (name, description, options) {
-        /*
-        {
-        version : 1,
-        name : "Initial version",
-        utc : (new Date()).getTime(),
-        journalLine : 0,
-        channelId : "my/channel/fork1/"
-        }
-        */
-        // me._channelStatus = respData.status;
-        /*
-        // has channel + fork information included
-        {   "fromJournalLine":1,
-        "version":1,
-        "journalLine":1,
-        "channelId":"my/channel/myFork",
-        "fromVersion":2,
-        "from":"my/channel",
-        "to":"my/channel/myFork",
-        "name":"test of fork","utc":14839287897}
-        */
-
-        if (this._isLocal) return;
-
-        // ==> OK, ready to send data forward...
-
-        // What is the journal line we are using for the fork???
-        var forkCmd = {
-          version: this._channelStatus.version,
-          channelId: name,
-          name: description,
-          journalLine: 1
-        };
-        /*
-        me._clientState = {
-        data : chData,              // The channel data object
-        client : me,                // The channel client object (for Namespace conversion )
-        needsRefresh : false,       // true if client is out of sync and needs to reload
-        version : me._channelStatus.version,               
-        last_update : [0, chData.getJournalLine()],  // last succesfull server update
-        last_sent : []              // last range sent to the server
-        };
-        */
-        // <= we must be using the last serverupdate, and maybe add the extra lines to the
-        // additional fork information to create a truly dynamic fork of the subject in case
-        // some other client is "resisting" the update...
-        forkCmd.journalLine = this._clientState.last_update[1];
-
-        // the fork is being processed, the response is going to be ready after the promise completes
-        var me = this;
-
-        return _promise(function (results) {
-          me._socket.send("channelCommand", {
-            channelId: me._channelId,
-            cmd: "fork",
-            data: forkCmd
-          }).then(function (resp) {
-            // information from the server.
-            // build new channel object
-            // return it as the promise...
-            results(resp);
-          });
-        });
-      };
-
-      /**
-       * @param Object change
-       */
-      _myTrait_.fromMaster = function (change) {
-        console.log("from master", JSON.stringify(change));
-      };
-
-      /**
-       * @param Object change
-       */
-      _myTrait_.fromSlave = function (change) {
-        console.log("from slave", JSON.stringify(change));
-
-        if (change.cmd == "s2c") {
-
-          // --> we have server to client command coming in..
-          // this is the connection to the master, thus the commands should be run
-          // here as if they were "local" commands which are about to be sent to the
-          // remote server
-          /*
-          return {
-          cmd : "s2c",
-          c : chData._journal.slice( start, end ),
-          start : start,
-          end : end,
-          version : serverState.version
-          };    
-          */
-
-          // this channelClient is only responsible of sending the commands to the
-          // actual master server
-          var me = this;
-          change.c.forEach(function (eCmd) {
-            console.log(eCmd);
-            var r = me.addCommand(eCmd);
-            console.log(JSON.stringify(r));
-            console.log(JSON.stringify(me._data.getData()));
-          });
-        }
-      };
-
-      /**
-       * @param string id
-       * @param float name
-       */
-      _myTrait_.get = function (id, name) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          return obj.data[name];
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getChannelData = function (t) {
-        return this._data;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getData = function (t) {
-        return this._data.getData();
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.indexOf = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            return index;
-          }
-        }
-        return -1;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (channelId, socket, options) {
-
-        if (!_dmp) {
-          if (typeof diff_match_patch != "undefined") {
-            _dmp = new diff_match_patch();
-          } else {
-            // if in node.js try to require the module
-            if (typeof require != "undefined") {
-              var DiffMatchPatch = require("diff-match-patch");
-              _dmp = new DiffMatchPatch();
-            }
-          }
-        }
-
-        if (!this._policy) this._policy = _chPolicy();
-
-        if (options && options.localChannel) {
-
-          this._channelId = channelId;
-          this._options = options;
-          this._socketGUID = this.guid();
-          this._isLocal = true;
-
-          this._socket = _clientSocket(this._socketGUID, 1);
-          var myNamespace = this._socket.getEnum();
-
-          this._ns = myNamespace;
-          this._id = channelId + this._socket.getId();
-          var me = this;
-
-          var mainData = options.localData;
-          mainData = me._transformObjToNs(options.localData, myNamespace);
-
-          var chData = _channelData(me._id, mainData, []);
-          me._data = chData;
-          me.resolve({
-            result: true,
-            channelId: channelId
-          });
-          return;
-        } else {}
-
-        if (!channelId || !socket) return;
-
-        this._channelId = channelId;
-        this._socket = socket;
-        this._options = options;
-        this._changeFrames = [];
-        this._pendingFrames = [];
-
-        var myNamespace = socket.getEnum();
-
-        this._ns = myNamespace;
-
-        this._id = channelId + socket.getId();
-        var me = this;
-
-        this._onFrameLoop(socket, myNamespace);
-        this._incoming(socket, myNamespace);
-
-        this._connCnt = 0;
-
-        socket.on("disconnect", function () {
-          me._connected = false;
-        });
-        socket.on("connect", function () {
-
-          console.log("*** socket reconnect for " + channelId + " *** ");
-          console.log("Connection count " + me._connCnt);
-
-          me._connCnt++;
-
-          // Authenticate...
-          if (options.auth) {
-            socket.send("auth", {
-              userId: options.auth.username,
-              password: options.auth.password
-            }).then(function (resp) {
-
-              if (resp.userId) {
-
-                me._userId = resp.userId;
-                me._logged = true;
-              } else {
-                me._logged = false;
-                return false;
-              }
-              // ask to join the channel with this socket...
-              return socket.send("requestChannel", {
-                channelId: channelId,
-                initWithData: options.initWithData
-              });
-            }).then(function (resp) {
-              // this channel client has been connected to the server ok
-              if (resp && resp.channelId == channelId) {
-
-                me._connected = true;
-                // The next step: to load the channel information for the
-                // local objects to consume
-
-                if (me._connCnt > 1) {
-                  // if reconnecting to the other server, ask upgrade only, not the whole
-                  // build tree...
-                  me._onReconnect();
-                  return false;
-                }
-
-                return socket.send("channelCommand", {
-                  channelId: channelId,
-                  cmd: "readBuildTree",
-                  data: ""
-                });
-              } else {
-                return false;
-              }
-            }).then(function (respData) {
-
-              if (respData) {
-
-                var resp = respData.build;
-
-                // ? should we be updating this or is this just one-time info
-                me._channelStatus = respData.status;
-                /*
-                // has channel + fork information included
-                {   "fromJournalLine":1,
-                  "version":1,
-                  "journalLine":1,
-                  "channelId":"my/channel/myFork",
-                  "fromVersion":2,
-                  "from":"my/channel",
-                  "to":"my/channel/myFork",
-                  "name":"test of fork","utc":14839287897}
-                */
-
-                // The build tree is here now...
-                // Should you transform the objects to other namespaces...?
-
-                var mainData = resp.pop();
-
-                // The data is here... but transforming?
-                mainData = me._transformObjToNs(mainData, myNamespace);
-
-                var chData = _channelData(me._id, mainData, []);
-                var list = resp.pop();
-
-                // should be updating the client
-                // var res = me._policy.deltaServerToClient( cmd, me._clientState);
-                while (list) {
-                  chData._journalPointer = 0;
-                  chData._journal.length = 0; // <-- the journal length, last will be spared
-                  list.forEach(function (c) {
-                    chData.execCmd(me._transformCmdToNs(c, myNamespace), true);
-                  });
-                  list = resp.pop();
-                }
-
-                // the state management
-                me._clientState = {
-                  data: chData, // The channel data object
-                  client: me, // The channel client object (for Namespace conversion )
-                  needsRefresh: false, // true if client is out of sync and needs to reload
-                  version: me._channelStatus.version,
-                  last_update: [0, chData.getJournalLine()], // last succesfull server update
-                  last_sent: [0, chData.getJournalLine()] // last range sent to the server
-
-                };
-
-                me._data = chData;
-                me._createTransaction();
-                me.resolve({
-                  result: true,
-                  channelId: channelId
-                });
-              } else {
-                me.resolve({
-                  result: false,
-                  text: "Authorization or connection failed"
-                });
-              }
-            });
-          }
-        });
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isConnected = function (t) {
-        if (this._disconnected) return false;
-        if (this._connCnt && this._connected) return true;
-
-        return false;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isLocal = function (t) {
-        return this._isLocal;
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.length = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj && obj.data) {
-          return obj.data.length || 0;
-        }
-        return 0;
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.moveDown = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            var newIndex = index - 1;
-            if (newIndex >= 0 && index >= 0 && index != newIndex && parent.data.length > newIndex) {
-              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
-              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float id
-       * @param float newIndex
-       */
-      _myTrait_.moveTo = function (id, newIndex) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            if (index >= 0 && index != newIndex && parent.data.length > newIndex) {
-              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
-              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.moveUp = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            var newIndex = index + 1;
-            if (newIndex >= 0 && index >= 0 && index != newIndex && parent.data.length > newIndex) {
-              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
-              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.reconnect = function (t) {
-        this._disconnected = false;
-        return this;
-      };
-
-      /**
-       * @param float cnt
-       */
-      _myTrait_.redo = function (cnt) {
-        this._data.redo(cnt);
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.redoStep = function (options) {
-        this._data.redoStep(options);
-      };
-
-      /**
-       * @param float id
-       */
-      _myTrait_.remove = function (id) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj) {
-          var parent = this._fetch(obj.__p);
-          if (parent && parent.data) {
-            var index = parent.data.indexOf(obj);
-            if (index >= 0) {
-              this.addCommand([8, index, ns_id, 0, parent.__id]);
-              // this.addCommand([4, name, value, old_value, ns_id ]);
-            }
-          }
-          // dataTest.execCmd( [8, 0, "obj1", 0, "array1"], true);
-          // return obj.data[name];
-        }
-      };
-
-      /**
-       * @param float commandName
-       * @param float packet
-       */
-      _myTrait_.sendCommand = function (commandName, packet) {
-        var me = this,
-            channelId = this._channelId,
-            socket = this._socket;
-
-        if (!me._policy) return;
-        if (me._disconnected) return; // in case disconnected, don't send data
-        if (!me._connected) return;
-        if (!socket) return;
-
-        return socket.send("channelCommand", {
-          channelId: channelId,
-          cmd: commandName,
-          data: packet
-        });
-      };
-
-      /**
-       * @param float id
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.set = function (id, name, value) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj && !this.isObject(value)) {
-          var old_value = obj.data[name];
-          if (old_value != value) {
-            console.log("command 4 " + JSON.stringify([4, name, value, old_value, ns_id]));
-            this.addCommand([4, name, value, old_value, ns_id]);
-          }
-        }
-      };
-
-      /**
-       * @param float model
-       */
-      _myTrait_.setChannelModel = function (model) {
-
-        this._serverModel = model;
-      };
-
-      /**
-       * @param float masterConnection
-       */
-      _myTrait_.setMasterConnection = function (masterConnection) {
-        this._master = masterConnection;
-      };
-
-      /**
-       * @param float id
-       * @param float name
-       * @param float propObj
-       */
-      _myTrait_.setObject = function (id, name, propObj) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-
-        if (obj && this.isObject(propObj) && propObj.__id) {
-          var old_value = obj.data[name];
-
-          if (!old_value) {
-            // insert object only if there is no old value
-            this.addCommand([5, name, propObj.__id, null, ns_id]);
-          }
-        }
-      };
-
-      /**
-       * Will set the slave server for this connection
-       * @param Object slaveServer
-       */
-      _myTrait_.setSlaveServer = function (slaveServer) {
-
-        this._slave = slaveServer;
-      };
-
-      /**
-       * Create a new syncable channel...
-       * @param Object syncData
-       */
-      _myTrait_.sync = function (syncData) {
-        /*
-        {
-        "out" : {
-        "channelId" : "sync/test1",
-        "protocol" : "http",
-        "ip" : "localhost",
-        "port" : "1234",
-        "extPort" : "7778",
-        "method" : "node.socket",
-        "username" : "Tero",
-        "password" : "teropw"
-        },
-        "in" : {
-        "channelId" : "sync/test2",
-        "protocol" : "http",
-        "ip" : "localhost",
-        "port" : "1234",
-        "extPort" : "7779",
-        "method" : "node.socket",
-        "username" : "Tero",
-        "password" : "teropw"
-        }
-        }
-        */
-        var socket = this._socket,
-            me = this,
-            channelId = this._channelId;
-        return _promise(function (result) {
-
-          if (!me.isConnected() || !syncData || !syncData.out || !syncData.out.channelId) {
-            result({
-              success: false
-            });
-            return;
-          }
-
-          socket.send("channelCommand", {
-            channelId: channelId,
-            cmd: "sync",
-            data: {
-              sync: syncData
-            }
-          }).then(function (res) {
-            result(res);
-          });
-        });
-      };
-
-      /**
-       * @param int cnt
-       */
-      _myTrait_.undo = function (cnt) {
-        this._data.undo(cnt);
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.undoStep = function (options) {
-        this._data.undoStep(options);
-      };
-
-      /**
-       * @param float id
-       * @param float name
-       */
-      _myTrait_.unset = function (id, name) {
-        var ns_id = this._idToNs(id, this._ns); // is this too slow?
-        var obj = this._data._find(ns_id);
-        if (obj && obj.data) {
-
-          if (this.isObject(obj.data[name])) {
-            this.addCommand([10, name, obj.data[name].__id, null, ns_id]);
-          } else {
-            if (obj.data && typeof obj.data[name] != "undefined") {
-              this.addCommand([10, name, obj.data[name], "value", ns_id]);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.upgradeVersion = function (t) {
-
-        // should start the snapshot command
-        this._socket.send("channelCommand", {
-          channelId: this._channelId,
-          cmd: "snapshot",
-          data: {}
-        }).then(function () {});
-      };
-    })(this);
-  };
-
-  var channelClient = function channelClient(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof channelClient) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != channelClient._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new channelClient(a, b, c, d, e, f, g, h);
-  };
-
-  channelClient_prototype.prototype = _promise.prototype;
-
-  channelClient._classInfo = {
-    name: "channelClient"
-  };
-  channelClient.prototype = new channelClient_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["channelClient"] = channelClient;
-      this.channelClient = channelClient;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["channelClient"] = channelClient;
-    } else {
-      this.channelClient = channelClient;
-    }
-  }).call(new Function("return this")());
-
-  var channelClientModule_prototype = function channelClientModule_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {});
-    })(this);
-  };
-
-  var channelClientModule = function channelClientModule(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof channelClientModule) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != channelClientModule._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new channelClientModule(a, b, c, d, e, f, g, h);
-  };
-
-  channelClientModule._classInfo = {
-    name: "channelClientModule"
-  };
-  channelClientModule.prototype = new channelClientModule_prototype();
-
   var _clientSocket_prototype = function _clientSocket_prototype() {
 
     (function (_myTrait_) {
@@ -9311,6 +4764,2404 @@
     }
   }).call(new Function("return this")());
 
+  var _chPolicy_prototype = function _chPolicy_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _hooks;
+
+      // Initialize static variables here...
+
+      /**
+       * @param Object clientState
+       */
+      _myTrait_.constructClientToServer = function (clientState) {
+        var chData = clientState.data;
+
+        if (!clientState.last_sent) {
+          clientState.last_sent = [];
+        }
+
+        // last_update : [1, 30]
+        var start = clientState.last_sent[1] || 0;
+        var end = chData._journal.length;
+
+        // --- do not re-send
+
+        // last_update[]
+        // clientState.last_update
+
+        // problems here??
+        if (clientState.last_update) {
+
+          if (start < clientState.last_update[1]) {
+            start = clientState.last_update[1];
+          }
+
+          var fromServer = clientState.last_update[1] || 0;
+          if (fromServer >= end) {
+            //console.log(" fromServer >= end ");
+            return null;
+          }
+        }
+
+        if (start == end) {
+          // console.log(" start == end ");
+          return null;
+        }
+
+        //console.log("clientToServer");
+        //console.log(clientState.last_update);
+        //console.log(start,end);
+
+        // [2,4]
+        // 0
+        // 1
+        // 2 *
+        // 3 *
+
+        clientState.last_sent[0] = start;
+        clientState.last_sent[1] = end;
+
+        var obj = {
+          cmd: "c2s",
+          id: this.guid(),
+          c: chData._journal.slice(start, end),
+          start: start,
+          end: end,
+          version: clientState.version
+        };
+
+        if (clientState.client) {
+          for (var i = 0; i < obj.c.length; i++) {
+            var c = obj.c[i];
+            obj.c[i] = clientState.client._transformCmdFromNs(c);
+          }
+        }
+        return obj;
+      };
+
+      /**
+       * @param Object serverState
+       */
+      _myTrait_.constructServerToClient = function (serverState) {
+
+        var chData = serverState.data;
+
+        if (!serverState.last_update) {
+          serverState.last_update = [];
+        }
+
+        // last_update : [1, 30]
+        var start = serverState.last_update[1] || 0;
+        var end = chData._journal.length;
+
+        if (start == end) return null;
+
+        // [2,4]
+        // 0
+        // 1
+        // 2 *
+        // 3 *
+
+        serverState.last_update[0] = start;
+        serverState.last_update[1] = end;
+
+        return {
+          cmd: "s2c",
+          c: chData._journal.slice(start, end),
+          start: start,
+          end: end,
+          version: serverState.version
+        };
+      };
+
+      /**
+       * @param Object clientFrame  - This is the clients changeFrame which should be applied to the servers internal state
+       * @param Object serverState  - This object holds the data the server needs
+       */
+      _myTrait_.deltaClientToServer = function (clientFrame, serverState) {
+        // the client frame
+        /*
+        {
+        id          : "transaction ID",        // unique ID for transaction
+        socket_id   : "socketid",              // added by the server
+        v : 1,                          // main file + journal version
+        lu : [1,10],                        // last update from server 0..N
+        tl : 1,                          // transaction level
+        c : [
+                                    // list of channel commands to run
+        ]
+        }
+        */
+        // the server state structure
+        /*
+        {
+        data : channelData,     // The channel data object
+        version : 1,
+        last_update : [1, 30],  // version + journal line
+        lagging_sockets : {}    // hash of invalid sockets
+        }
+        */
+
+        if (!clientFrame) return;
+
+        if (!serverState._done) serverState._done = {};
+
+        // console.log("Processing client frame");
+        // console.log(JSON.stringify(clientFrame));
+
+        try {
+
+          if (!clientFrame.id) return;
+          // if(!clientFrame.socket_id) return;
+          if (serverState._done[clientFrame.id]) return res;
+
+          serverState._done[clientFrame.id] = true;
+
+          var chData = serverState.data; // the channel data object
+          var errors = [];
+
+          // now, it's simple, we just try to apply all the comands
+          for (var i = 0; i < clientFrame.c.length; i++) {
+            var c = clientFrame.c[i];
+            var cmdRes = chData.execCmd(c);
+            if (cmdRes !== true) {
+              errors.push(cmdRes);
+            }
+          }
+
+          var results = {
+            errors: errors
+          };
+          // console.log(JSON.stringify(results));  
+
+          return results;
+        } catch (e) {
+          // in this version, NO PROBLEMO!
+          return e.message;
+        }
+      };
+
+      /**
+       * @param float updateFrame
+       * @param float serverState
+       */
+      _myTrait_.deltaMasterToSlave = function (updateFrame, serverState) {
+
+        // the client state
+        /*
+        {
+        data : channelData,     // The channel data object
+        version : 1,
+        last_update : [1, 30],  // last server update
+        }
+        */
+
+        // the server sends
+        /*
+        {
+        c : chData._journal.slice( start, end ),
+        start : start,
+        end : end,
+        version : serverState.version
+        }
+        */
+        // The server state
+        /*
+        {
+        data : channelData,     // The channel data object
+        version : 1,
+        last_update : [1, 30],  // version + journal line
+        lagging_sockets : {}    // hash of invalid sockets
+        }
+        */
+        // check where is our last point of action...
+
+        if (!updateFrame) return;
+
+        var data = serverState.data; // the channel data we have now
+
+        // [2,4] = [start, end]
+        // 0
+        // 1
+        // 2 *
+        // 3 *
+
+        var result = {
+          goodCnt: 0,
+          oldCnt: 0,
+          newCnt: 0,
+          reverseCnt: 0
+        };
+
+        console.log("deltaMasterToSlave");
+        var sameUntil = updateFrame.start;
+
+        if (serverState.needsRefresh) {
+          console.log("** serverState needs refresh **");
+          return;
+        }
+
+        // if the server's journal is a lot behind the sent data...
+        if (updateFrame.start > data._journal.length) {
+
+          console.log("--- setting refresh on because of ---- ");
+          console.log(" updateFrame.start > data._journal.length ");
+
+          serverState.needsRefresh = true;
+          result.fail = true;
+          return result;
+        }
+
+        // this should not be needed at the server side, because object ID's are without
+        // the namespace
+        /*
+        if(serverState.client) {
+        for(var i=updateFrame.start; i<updateFrame.end; i++) {
+        var serverCmd = updateFrame.c[i-updateFrame.start];
+        updateFrame.c[i-updateFrame.start] = serverState.client._transformCmdToNs( serverCmd );
+        }
+        }
+        */
+
+        var goodList = [];
+
+        // process the commands a long as they are the same
+        for (var i = updateFrame.start; i < updateFrame.end; i++) {
+
+          var myJ = data.getJournalCmd(i);
+          var serverCmd = updateFrame.c[i - updateFrame.start];
+
+          var bSame = true;
+          if (myJ) {
+
+            if (myJ[0] == 13 && serverCmd[0] == 13 && myJ[4] == serverCmd[4] && myJ[1] == serverCmd[1]) {
+              var mainArray1 = myJ[2],
+                  mainArray2 = serverCmd[2];
+              if (mainArray1.length != mainArray2.length) {
+                bSame = false;
+              } else {
+                for (var mi = 0; mi < mainArray1.length; mi++) {
+                  if (!bSame) break;
+                  var arr1 = mainArray1[mi],
+                      arr2 = mainArray2[mi];
+                  for (var ai = 0; ai < 5; ai++) {
+                    if (arr1[ai] != arr2[ai]) {
+                      console.log("not same ", ai, arr1[ai], arr2[ai]);
+                      bSame = false;
+                      break;
+                    }
+                  }
+                  if (bSame) {
+                    if (this.isArray(arr1[5])) {
+                      var arr1 = arr1[5],
+                          arr2 = arr2[5];
+                      var len = Math.max(arr1.length || 0, arr2.length || 0);
+                      for (var ai = 0; ai < len; ai++) {
+                        if (arr1[ai] != arr2[ai]) {
+                          console.log("not same array ", ai);
+                          bSame = false;
+                          break;
+                        }
+                      }
+                    } else {
+                      if (arr1[5] != arr2[5]) {
+                        bSame = false;
+                      }
+                    }
+                  }
+                  if (!bSame) {
+                    console.log("was not the same");
+                    console.log(serverCmd, "vs", myJ);
+                  }
+                }
+              }
+            } else {
+              for (var j = 0; j <= 4; j++) {
+                if (myJ[j] != serverCmd[j]) {
+                  bSame = false;
+                  console.log("was not the same");
+                  console.log(serverCmd[j], "vs", myJ[j]);
+                }
+              }
+            }
+          } else {
+            // a new command has arrived...
+
+            var cmdRes = data.execCmd(serverCmd); // set data ready to be broadcasted
+            if (cmdRes !== true) {
+              // if we get errors then we have some kind of problem
+              console.log("--- setting refresh on because of ---- ");
+              console.log(JSON.stringify(cmdRes));
+              serverState.needsRefresh = true;
+              result.fail = true;
+              result.reason = cmdRes;
+              return result;
+            } else {
+              sameUntil = i; // ??
+              result.goodCnt++;
+              result.newCnt++;
+            }
+            goodList.push(serverCmd);
+
+            continue;
+          }
+          if (bSame) {
+            sameUntil = i;
+            result.goodCnt++;
+            result.oldCnt++;
+          } else {
+            console.log("Not same ");
+            console.log(JSON.stringify(updateFrame.c));
+            return _promise(function (done) {
+              // here is the point where the data is reversed and also the server journal should be truncated:
+              data.reverseToLine(sameUntil);
+              var size = updateFrame.journalSize;
+              console.log("Truncating the journal to ", size, sameUntil);
+              // truncate server journal to certain length
+              serverState.model.truncateJournalTo(size, sameUntil).then(function () {
+
+                // and then run commands without sending them outside...
+                var list = [];
+                for (var i = sameUntil; i < updateFrame.end; i++) {
+
+                  var serverCmd = updateFrame.c[i - updateFrame.start];
+                  var cmdRes = data.execCmd(serverCmd); // data ready to be broadcasted
+                  if (cmdRes !== true) {
+
+                    console.log("--- there is need for a bigger refersh ---- ");
+                    console.log(JSON.stringify(cmdRes));
+
+                    // if we get errors then we have some kind of problem
+                    serverState.needsRefresh = true;
+                    result.fail = true;
+                    result.reason = cmdRes;
+                    done(result);
+                    return result;
+                  }
+                  list.push(serverCmd);
+                  result.reverseCnt++;
+                }
+
+                // serverState.last_update[0] = updateFrame.start;
+                // serverState.last_update[1] = updateFrame.end;
+
+                // mark the new start for next update,
+                serverState.last_update[0] = 0;
+                serverState.last_update[1] = sameUntil; // <- this is what matters
+
+                // --> writing to the journal is done at the client loop
+                // write the new lines to the servers journal
+                //serverState.model.writeToJournal( list ).then( function() {
+                //    done(result);
+                //});
+
+                return result;
+              });
+            });
+          }
+        }
+        //clientState.last_update[0] = updateFrame.start;
+        //clientState.last_update[1] = updateFrame.end;
+
+        console.log("server last update " + JSON.stringify(serverState.last_update));
+        console.log("server data length " + serverState.data._journal.length);
+
+        if (goodList.length) {}
+
+        return result;
+      };
+
+      /**
+       * @param Object updateFrame  - request from server to client
+       * @param float clientState  - This object holds the data the client needs to pefrform it&#39;s actions
+       */
+      _myTrait_.deltaServerToClient = function (updateFrame, clientState) {
+
+        // the client state
+        /*
+        {
+        data : channelData,     // The channel data object
+        version : 1,
+        last_update : [1, 30],  // last server update
+        }
+        */
+
+        // the server sends
+        /*
+        {
+        c : chData._journal.slice( start, end ),
+        start : start,
+        end : end,
+        version : serverState.version
+        }
+        */
+        // check where is our last point of action...
+
+        if (!updateFrame) return;
+
+        var data = clientState.data; // the channel data we have now
+
+        if (!clientState.last_update) {
+          clientState.last_update = [];
+        }
+        // [2,4] = [start, end]
+        // 0
+        // 1
+        // 2 *
+        // 3 *
+
+        var result = {
+          goodCnt: 0,
+          oldCnt: 0,
+          newCnt: 0,
+          reverseCnt: 0
+        };
+
+        //console.log("deltaServerToClient");
+        //console.log(clientState.last_update);
+
+        var sameUntil = updateFrame.start;
+
+        if (clientState.needsRefresh) {
+          // console.log("** client needs refresh **");
+          if (_hooks["onCancel"]) {
+            _hooks["onCancel"]({
+              data: data,
+              reason: cmdRes,
+              clientState: clientState,
+              updateFrame: updateFrame,
+              serverCmds: updateFrame.c
+            });
+          }
+          return;
+        }
+
+        if (updateFrame.start > data._journal.length) {
+
+          if (_hooks["onError"]) {
+            _hooks["onError"]({
+              data: data,
+              reason: " updateFrame.start > data._journal.length ",
+              clientState: clientState,
+              updateFrame: updateFrame,
+              serverCmds: updateFrame.c
+            });
+          }
+          clientState.needsRefresh = true;
+          result.fail = true;
+          return result;
+        }
+
+        if (clientState.client) {
+          for (var i = updateFrame.start; i < updateFrame.end; i++) {
+            var serverCmd = updateFrame.c[i - updateFrame.start];
+            updateFrame.c[i - updateFrame.start] = clientState.client._transformCmdToNs(serverCmd);
+          }
+        }
+
+        if (_hooks["onServerData"]) {
+          _hooks["onServerData"]({
+            data: data,
+            clientState: clientState,
+            updateFrame: updateFrame,
+            serverCmds: updateFrame.c
+          });
+        }
+
+        for (var i = updateFrame.start; i < updateFrame.end; i++) {
+
+          var myJ = data.getJournalCmd(i);
+          var serverCmd = updateFrame.c[i - updateFrame.start];
+
+          var bSame = true;
+          if (myJ) {
+
+            if (myJ[0] == 13 && serverCmd[0] == 13 && myJ[4] == serverCmd[4] && myJ[1] == serverCmd[1]) {
+              var mainArray1 = myJ[2],
+                  mainArray2 = serverCmd[2];
+              if (mainArray1.length != mainArray2.length) {
+                bSame = false;
+              } else {
+                for (var mi = 0; mi < mainArray1.length; mi++) {
+                  if (!bSame) break;
+                  var arr1 = mainArray1[mi],
+                      arr2 = mainArray2[mi];
+                  for (var ai = 0; ai < 5; ai++) {
+                    if (arr1[ai] != arr2[ai]) {
+                      console.log("not same ", ai, arr1[ai], arr2[ai]);
+                      bSame = false;
+                      break;
+                    }
+                  }
+                  if (bSame) {
+                    if (this.isArray(arr1[5])) {
+                      var arr1 = arr1[5],
+                          arr2 = arr2[5];
+                      var len = Math.max(arr1.length || 0, arr2.length || 0);
+                      for (var ai = 0; ai < len; ai++) {
+                        if (arr1[ai] != arr2[ai]) {
+                          console.log("not same array ", ai);
+                          bSame = false;
+                          break;
+                        }
+                      }
+                    } else {
+                      if (arr1[5] != arr2[5]) {
+                        bSame = false;
+                      }
+                    }
+                  }
+                  if (!bSame) {
+                    console.log("was not the same at array compare");
+                    console.log(serverCmd, "vs", myJ);
+                  }
+                }
+              }
+            } else {
+              for (var j = 0; j <= 4; j++) {
+                if (myJ[j] != serverCmd[j]) {
+                  bSame = false;
+                  if (_hooks["onError"]) {
+                    _hooks["onError"]({
+                      data: data,
+                      reason: " server datas are different ",
+                      clientState: clientState,
+                      updateFrame: updateFrame,
+                      serverCmds: updateFrame.c
+                    });
+                  }
+                }
+              }
+            }
+          } else {
+            // a new command has arrived...
+
+            var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
+            if (cmdRes !== true) {
+              // if we get errors then we have some kind of problem
+              console.log("--- setting refresh on because of ---- ");
+              console.log(JSON.stringify(cmdRes));
+
+              if (_hooks["onError"]) {
+                _hooks["onError"]({
+                  data: data,
+                  reason: cmdRes,
+                  clientState: clientState,
+                  updateFrame: updateFrame,
+                  serverCmds: updateFrame.c
+                });
+              }
+              clientState.needsRefresh = true;
+              result.fail = true;
+              result.reason = cmdRes;
+              return result;
+            } else {
+              sameUntil = i; // ??
+              result.goodCnt++;
+              result.newCnt++;
+            }
+
+            continue;
+          }
+          if (bSame) {
+            sameUntil = i;
+            result.goodCnt++;
+            result.oldCnt++;
+          } else {
+            // the sent commands did differ...
+
+            // TODO: rollback
+            data.reverseToLine(sameUntil);
+            // and then run commands without sending them outside...
+            for (var i = sameUntil; i < updateFrame.end; i++) {
+
+              var serverCmd = updateFrame.c[i - updateFrame.start];
+              var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
+              if (cmdRes !== true) {
+
+                console.log("--- setting refresh on because of ---- ");
+                console.log(JSON.stringify(cmdRes));
+                if (_hooks["onError"]) {
+                  _hooks["onError"]({
+                    data: data,
+                    reason: cmdRes,
+                    clientState: clientState,
+                    updateFrame: updateFrame,
+                    serverCmds: updateFrame.c
+                  });
+                }
+                // if we get errors then we have some kind of problem
+                clientState.needsRefresh = true;
+                result.fail = true;
+                result.reason = cmdRes;
+                return result;
+              }
+              result.reverseCnt++;
+            }
+
+            clientState.last_update[0] = updateFrame.start;
+            clientState.last_update[1] = updateFrame.end;
+
+            return result;
+          }
+        }
+        clientState.last_update[0] = updateFrame.start;
+        clientState.last_update[1] = updateFrame.end;
+        return result;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {
+        if (!_hooks) {
+          _hooks = {};
+        }
+      });
+
+      /**
+       * @param float n
+       * @param float fn
+       */
+      _myTrait_.setHook = function (n, fn) {
+        if (!_hooks) {
+          _hooks = {};
+        }
+        _hooks[n] = fn;
+      };
+    })(this);
+  };
+
+  var _chPolicy = function _chPolicy(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _chPolicy) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _chPolicy._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _chPolicy(a, b, c, d, e, f, g, h);
+  };
+
+  _chPolicy._classInfo = {
+    name: "_chPolicy"
+  };
+  _chPolicy.prototype = new _chPolicy_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_chPolicy"] = _chPolicy;
+      this._chPolicy = _chPolicy;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_chPolicy"] = _chPolicy;
+    } else {
+      this._chPolicy = _chPolicy;
+    }
+  }).call(new Function("return this")());
+
+  var channelClient_prototype = function channelClient_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _cmdNsMap;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float url
+       */
+      _myTrait_._getNsFromUrl = function (url) {
+        if (_nsShortcuts[url]) {
+          return _nsShortcuts[url];
+        }
+        _nsReverse[_nsIndex] = url;
+        _nsShortcuts[url] = _nsIndex++;
+
+        return _nsShortcuts[url];
+      };
+
+      /**
+       * @param float nsName
+       */
+      _myTrait_._getNsShorthand = function (nsName) {
+
+        if (_nsShortcuts[nsName]) {
+          return _nsShortcuts[nsName];
+        }
+        _nsReverse[_nsIndex] = nsName;
+        _nsShortcuts[nsName] = _nsIndex++;
+
+        return _nsShortcuts[nsName];
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._getReflections = function (t) {
+        return _localReflections;
+      };
+
+      /**
+       * @param float objId
+       */
+      _myTrait_._getReflectionsFor = function (objId) {
+
+        if (_localReflections) {
+          var list = _localReflections[objId];
+          if (list) return list;
+        }
+        return [];
+      };
+
+      /**
+       * @param int index
+       */
+      _myTrait_._getReverseNs = function (index) {
+
+        return _nsReverse[index];
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_._idFromNs = function (id) {
+        if (id) {
+
+          var len = id.length;
+          if (id[len - 1] == "#") {
+            id = id.split("@").shift();
+          }
+        }
+        return id;
+      };
+
+      /**
+       * @param float id
+       * @param float ns
+       */
+      _myTrait_._idToNs = function (id, ns) {
+
+        if (id) {
+          var len = id.length;
+          // longString
+
+          if (id[len - 1] == "#") {
+            var ind = id.indexOf("@");
+            var oldNs = id.substring(ind + 1, len - 1);
+            if (oldNs != ns) {
+              id = id.substring(0, ind) + "@" + ns + "#";
+            }
+          } else {
+            id = id + "@" + ns + "#";
+          }
+        }
+        return id;
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_._nsFromId = function (id) {
+        var ns;
+        if (id) {
+          id = id + "";
+          var len = id.length;
+          if (id[len - 1] == "#") {
+            ns = id.split("@").pop();
+            ns = ns.split("#").shift();
+          }
+        }
+        return ns;
+      };
+
+      /**
+       * @param float cmd
+       * @param float ns
+       */
+      _myTrait_._transformCmdFromNs = function (cmd, ns) {
+
+        if (!ns) ns = this._ns;
+
+        var map = _cmdNsMap,
+            nextCmd = cmd.slice(),
+            swap = map[cmd[0]],
+            me = this;
+        if (swap) {
+          swap.forEach(function (index) {
+            nextCmd[index] = me._idFromNs(nextCmd[index], ns);
+          });
+        }
+        return nextCmd;
+      };
+
+      /**
+       * @param float cmd
+       * @param float ns
+       */
+      _myTrait_._transformCmdToNs = function (cmd, ns) {
+
+        if (!ns) ns = this._ns;
+
+        var map = _cmdNsMap,
+            nextCmd = cmd.slice(),
+            swap = map[cmd[0]],
+            me = this;
+        if (swap) {
+          for (var i = 0; i < swap.length; i++) {
+            var index = swap[i];
+            nextCmd[index] = this._idToNs(nextCmd[index], ns);
+          }
+        }
+        return nextCmd;
+      };
+
+      /**
+       * @param float obj
+       * @param float ns
+       */
+      _myTrait_._transformObjFromNs = function (obj, ns) {
+        if (!ns) ns = this._ns;
+
+        if (obj && obj.__id) {
+          if (obj.__p) obj.__p = this._idFromNs(obj.__p, ns);
+          obj.__id = this._idFromNs(obj.__id, ns);
+          for (var n in obj.data) {
+            if (obj.data.hasOwnProperty(n)) {
+              if (this.isObject(obj.data[n])) this._transformObjFromNs(obj.data[n], ns);
+            }
+          }
+        }
+        return obj;
+      };
+
+      /**
+       * @param float obj
+       * @param float ns
+       */
+      _myTrait_._transformObjToNs = function (obj, ns) {
+        if (!ns) ns = this._ns;
+        if (obj && obj.__id) {
+
+          // the old way, currently the socket ID may be the same, but not used right now
+          /*
+          var nsNext;
+          if(obj.__radioURL) {
+          var nsNext = this._getNsShorthand( obj.__radioURL );
+          }
+          ns = nsNext || ns;
+          */
+
+          // obj = me._transformObjToNs( obj, ns );
+          obj.__id = this._idToNs(obj.__id, ns);
+          if (obj.__p) {
+            obj.__p = this._idToNs(obj.__p, ns);
+          }
+          for (var n in obj.data) {
+            if (obj.data.hasOwnProperty(n)) {
+              if (this.isObject(obj.data[n])) this._transformObjToNs(obj.data[n], ns);
+            }
+          }
+        }
+
+        return obj;
+      };
+
+      /**
+       * @param float obj
+       * @param float parentObj
+       * @param float parentObj2
+       */
+      _myTrait_._transformToNsBeforeInsert = function (obj, parentObj, parentObj2) {
+
+        // OK, so...
+
+        var cmdList = obj.__ctxCmdList;
+        var ns = this._nsFromId(parentObj.__id);
+
+        console.log(" _transformToNsBeforeInsert ");
+
+        var me = this;
+        if (ns) {
+          // console.log("Using namespace "+ns);
+          if (cmdList) {
+            cmdList.forEach(function (c) {
+              c.cmd = me._transformCmdToNs(c.cmd, ns);
+            });
+          }
+          obj = me._transformObjToNs(obj, ns);
+          obj.__ctxCmdList = cmdList;
+          this._addToCache(obj);
+          return obj;
+        }
+        // this._addToCache( obj );
+        return obj;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {
+        if (!_cmdNsMap) {
+          _cmdNsMap = {
+            1: [1],
+            2: [1],
+            4: [4],
+            5: [2, 4],
+            7: [2, 4],
+            8: [2, 4],
+            10: [2, 4],
+            12: [1, 4],
+            13: [4],
+            14: [4],
+            16: [3, 4]
+          };
+        }
+      });
+    })(this);
+
+    (function (_myTrait_) {
+      var _instanceCache;
+      var _dmp;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float channelId
+       */
+      _myTrait_._checkout = function (channelId) {
+
+        var me = this,
+            socket = this._socket;
+
+        return _promise(function (result) {
+
+          if (!me._policy) return;
+          if (me._disconnected) return; // in case disconnected, don't send data
+          if (!me._connected) return;
+
+          socket.send("channelCommand", {
+            channelId: channelId,
+            cmd: "checkout",
+            data: ""
+          }).then(function (res) {
+
+            debugger;
+            console.log("Checkout tree ");
+            console.log(res);
+            result(res);
+          });
+        });
+      };
+
+      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
+      _myTrait_.__factoryClass.push(function (id, socket) {
+
+        if (!id || !socket) return;
+
+        id = id + socket.getId();
+
+        if (!_instanceCache) _instanceCache = {};
+        if (_instanceCache[id]) return _instanceCache[id];
+        _instanceCache[id] = this;
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_._createTransaction = function (t) {
+
+        // package to be sent to the server
+        this._currentFrame = {
+          id: this.guid(),
+          version: 1,
+          from: this._data.getJournalLine(),
+          fail_tolastok: true,
+          commands: []
+        };
+
+        /*
+        data : {
+            id   : "t2",                   // unique ID for transaction
+            version : 1,                    // channel version
+            from : 1,                      // journal line to start the change
+            to   : 2,                      // the last line ( optionsl, I guess )
+            fail_tolastok : true,           // fail until last ok command
+            // fail_all : true,
+            commands : [
+                [4, "fill", "black", "blue", "id1"]
+            ]                               
+        }
+        */
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_._fetch = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          return obj;
+        }
+      };
+
+      /**
+       * This is the beef of almost everything, when a new frame comes around, what to do with it? There are many options what to do, we just have to pick one strategy.
+       * @param float socket
+       * @param float myNamespace
+       */
+      _myTrait_._incoming = function (socket, myNamespace) {
+
+        var me = this,
+            channelId = this._channelId,
+            fullUpgradeFailCnt = 0;
+
+        socket.on("upgrade_" + this._channelId, function (cmd) {
+
+          me._upgradePending = false;
+          // just don't accept any msgs
+          if (me._disconnected) return;
+          //console.log("upgrade_cmd");
+          //console.log(JSON.stringify(cmd));
+          if (cmd) {
+
+            if (cmd.partial) {
+
+              // should be reversing perhaps first to some line...
+              var dd = me._clientState.data;
+
+              dd.reverseToLine(cmd.partialFrom);
+              // console.log("--- refreshing the partials, reversed to line --- ", cmd.partialFrom);
+              var errCnt = 0;
+
+              dd.setClearCreated(true);
+              cmd.partial.forEach(function (c) {
+                if (errCnt > 0) return;
+                var r;
+                var cmdIn = me._transformCmdToNs(c);
+                if (!((r = dd.execCmd(cmdIn, true)) === true)) {
+                  // console.error("Partial ", r);
+                  errCnt++;
+                }
+              });
+              dd.setClearCreated(false);
+
+              if (errCnt == 0) {
+                me._clientState.needsRefresh = false;
+                me._clientState.needsFullRefresh = false;
+
+                dd._journal.length = cmd.partialEnds;
+
+                // The correct position
+                me._clientState.last_update[0] = 0;
+                me._clientState.last_update[1] = dd._journal.length;
+                me._clientState.last_sent[0] = 0;
+                me._clientState.last_sent[1] = dd._journal.length;
+              } else {
+                me._clientState.needsFullRefresh = true;
+              }
+            }
+            if (cmd.data) {
+
+              // full upgrade coming here, must also replace the journal
+
+              var myData = me._clientState.data.getData(); // <- the data
+              me._transformObjToNs(cmd.data);
+
+              var diff = diffEngine().compareFiles(myData, cmd.data);
+              console.log("Diff obj , myData, cmd.data");
+              console.log(diff);
+              console.log(myData);
+              console.log(cmd.data);
+
+              // run the commands for the local data
+              var dd = me._clientState.data;
+              var errCnt = 0;
+
+              dd.setClearCreated(true);
+              diff.cmds.forEach(function (c) {
+                console.log("Diff cmd ", c);
+                if (errCnt > 0) return;
+                var r;
+                /// dd.execCmd(c, true); // the point is just to change the data to something else
+                if (!((r = dd.execCmd(c, true)) === true)) {
+                  console.error("Full error ", r);
+                  console.log("Return value from failed cmd: ", r);
+                  errCnt++;
+                }
+              });
+              dd.setClearCreated(false);
+
+              // and now the hard part, upgrade the local client data.
+              if (errCnt == 0) {
+
+                me._clientState.needsRefresh = false;
+                me._clientState.needsFullRefresh = false;
+
+                console.log("** full update should have gone ok ** ");
+                dd._journal.length = 0;
+                dd._journal.push.apply(dd._journal, cmd.journal);
+                me._clientState.needsRefresh = false;
+                me._clientState.version = cmd.version;
+
+                // dd._journal.length = cmd.updateEnds;
+
+                me._clientState.last_update[0] = 0;
+                me._clientState.last_update[1] = dd._journal.length;
+                me._clientState.last_sent[0] = 0;
+                me._clientState.last_sent[1] = dd._journal.length;
+
+                console.log("Version ", me._clientState.version);
+              } else {
+                fullUpgradeFailCnt++;
+
+                // must stop full refresh at this point
+                console.error("** errors with the full update ** ");
+                if (fullUpgradeFailCnt > 0) {
+                  console.log("--- server command data ---");
+                  console.log(cmd);
+                  console.log("--- the client state ---");
+                  console.log(me._clientState);
+                  me._clientState.needsFullRefresh = false;
+                } else {
+                  me._clientState.needsFullRefresh = true;
+                  me._clientState.fullUpgradeFailCnt = fullUpgradeFailCnt;
+                }
+
+                // re-connections or refreshes appear
+              }
+              /*
+                // the state management
+                me._clientState = {
+                    data : chData,              // The channel data object
+                    client : me,                // The channel client object (for Namespace conversion )
+                    needsRefresh : false,       // true if client is out of sync and needs to reload
+                    version : me._channelStatus.version,               
+                    last_update : [0, chData.getJournalLine()],  // last succesfull server update
+                    last_sent : [0, chData.getJournalLine()]     // last range sent to the server
+                
+                };
+              */
+            }
+
+            if (me._slaveController) {
+              me._slaveController._execCmd({
+                cmd: "masterJournalUpgrade",
+                data: cmd
+              });
+            }
+          }
+        });
+
+        socket.on("s2c_" + this._channelId, function (cmd) {
+
+          // just don't accept any msgs
+          if (me._disconnected) return;
+          if (cmd) {
+
+            var res = me._policy.deltaServerToClient(cmd, me._clientState);
+
+            // if there is a slave controller, send this command as masterUpgrade to
+            // the slave server so that the slave can update it's own data state
+            if (me._slaveController) {
+
+              // --> then try slave to master command building...
+
+              var newList = [];
+              for (var i = 0; i < cmd.c.length; i++) {
+                var c = cmd.c[i].slice();
+                newList.push(me._transformCmdFromNs(c));
+              }
+
+              cmd.c = newList;
+              me._slaveController._execCmd({
+                cmd: "masterUpgrade",
+                data: cmd
+              });
+            }
+          }
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._isNodeJs = function (t) {
+        return new Function("try { return this === global; } catch(e) { return false; }")();
+      };
+
+      /**
+       * @param Object socket
+       */
+      _myTrait_._onFrameLoop = function (socket) {
+
+        var me = this,
+            channelId = this._channelId;
+
+        var _frameFn = function _frameFn() {
+
+          if (!me._policy) return;
+          if (me._disconnected) return; // in case disconnected, don't send data
+
+          if (!me._connected) return;
+          if (!me._clientState) return;
+
+          if (me._clientState.needsRefresh) {
+            // *** if refresh is required, out of sync client **
+
+            if (!me._upgradePending) {
+              // console.log(" needsRefresh && !_upgradePending " );
+              me.askUpgrade(me._clientState.needsFullRefresh);
+            }
+            me._upgradePending = true;
+          }
+
+          var packet = me._policy.constructClientToServer(me._clientState);
+          if (packet) {
+
+            //console.log("Sending packet to server ");
+            //console.log(packet);
+            socket.send("channelCommand", {
+              channelId: channelId,
+              cmd: "c2s",
+              data: packet
+            }).then(function (res) {
+              if (res && res.errors) {
+                // console.error(res.errors);
+                if (res.errors.length > 0) {
+                  var bRefresh = false;
+                  res.errors.forEach(function (err) {
+                    if (err.error == 44) {
+                      bRefresh = true;
+                    }
+                  });
+                  if (bRefresh) {
+                    me._clientState.needsRefresh = true;
+                  }
+                }
+              }
+            });
+          }
+        };
+        later().onFrame(_frameFn);
+      };
+
+      /**
+       * Actions to do when the client reconnects to other server
+       * @param float t
+       */
+      _myTrait_._onReconnect = function (t) {
+
+        // do we have a slave connection???
+        if (this._slave) {
+          console.log("*** reconnect to the master ***");
+        }
+
+        var me = this;
+
+        console.log("_onReconnect");
+
+        // if we have a slave controller...
+        if (me._slaveController) {
+          console.log("_slaveController -> trying to send data ");
+          me._slaveController._sendUnsentToMaster();
+        }
+
+        // first, send the data we have to server, hope it get's through...
+        var packet = me._policy.constructClientToServer(me._clientState);
+        var socket = this._socket;
+        var channelId = this._channelId;
+
+        if (packet) {
+          socket.send("channelCommand", {
+            channelId: channelId,
+            cmd: "c2s",
+            data: packet
+          }).then(function (res) {});
+        }
+        // then, ask upgrade...
+        me.askUpgrade();
+
+        // -->
+
+        // me._sendUnsentToMaster();
+      };
+
+      /**
+       * Add command to next change frame to be sent over the network. TODO: validate the commands against the own channelObject, for example the previous value etc.
+       * @param Array cmd
+       * @param float dontBroadcast
+       */
+      _myTrait_.addCommand = function (cmd, dontBroadcast) {
+        var cmdIn = this._transformCmdToNs(cmd, this._ns);
+        return this._data.execCmd(cmdIn, dontBroadcast);
+      };
+
+      /**
+       * @param bool askFull
+       */
+      _myTrait_.askUpgrade = function (askFull) {
+
+        if (!this._socket) return;
+
+        // do not ask upgrade if failCnt > 0
+        if (this._clientState.fullUpgradeFailCnt) return;
+
+        this._socket.send("channelCommand", {
+          channelId: this._channelId,
+          cmd: "upgradeRequest",
+          data: {
+            version: this._clientState.version,
+            last_update: this._clientState.last_update,
+            askFull: askFull
+          }
+        }).then(function () {});
+      };
+
+      /**
+       * @param float id
+       * @param float index
+       */
+      _myTrait_.at = function (id, index) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          return obj.data[index];
+        }
+      };
+
+      /**
+       * @param float name
+       * @param float description
+       * @param float baseData
+       */
+      _myTrait_.createChannel = function (name, description, baseData) {
+
+        if (this._isLocal) return;
+
+        // a fresh copy of the base data
+        var copyOf = JSON.parse(JSON.stringify(baseData));
+        var chData = _channelData(this.guid(), copyOf, []);
+
+        copyOf = chData.getData();
+        copyOf = this._transformObjFromNs(copyOf);
+
+        // The command to be sent to the server-side
+        var forkCmd = {
+          channelId: name,
+          name: description,
+          chData: copyOf
+        };
+
+        // the fork is being processed, the response is going to be ready after the promise completes
+        var me = this;
+        return _promise(function (results) {
+          me._socket.send("channelCommand", {
+            channelId: me._channelId,
+            cmd: "createChannel",
+            data: forkCmd
+          }).then(function (resp) {
+            results(resp);
+          });
+        });
+      };
+
+      /**
+       * @param float id
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.diffSet = function (id, name, value) {
+
+        if (!_dmp) return;
+
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && !this.isObject(value)) {
+          var old_value = obj.data[name];
+          if (old_value != value) {
+
+            // this.addCommand([4, name, value, old_value, ns_id ]);
+            var diff1 = _dmp.diff_main(old_value, value);
+            var diff2 = _dmp.diff_main(value, old_value);
+
+            _dmp.diff_cleanupEfficiency(diff1);
+            _dmp.diff_cleanupEfficiency(diff2);
+
+            var t1 = _dmp.patch_toText(_dmp.patch_make(old_value, diff1));
+            var t2 = _dmp.patch_toText(_dmp.patch_make(value, diff2));
+
+            this.addCommand([14, name, t1, t2, ns_id]);
+          }
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.disconnect = function (t) {
+        this._disconnected = true;
+        return this;
+      };
+
+      /**
+       * @param float name
+       * @param float description
+       * @param float options
+       */
+      _myTrait_.fork = function (name, description, options) {
+        /*
+        {
+        version : 1,
+        name : "Initial version",
+        utc : (new Date()).getTime(),
+        journalLine : 0,
+        channelId : "my/channel/fork1/"
+        }
+        */
+        // me._channelStatus = respData.status;
+        /*
+        // has channel + fork information included
+        {   "fromJournalLine":1,
+        "version":1,
+        "journalLine":1,
+        "channelId":"my/channel/myFork",
+        "fromVersion":2,
+        "from":"my/channel",
+        "to":"my/channel/myFork",
+        "name":"test of fork","utc":14839287897}
+        */
+
+        if (this._isLocal) return;
+
+        // ==> OK, ready to send data forward...
+
+        // What is the journal line we are using for the fork???
+        var forkCmd = {
+          version: this._channelStatus.version,
+          channelId: name,
+          name: description,
+          journalLine: 1
+        };
+        /*
+        me._clientState = {
+        data : chData,              // The channel data object
+        client : me,                // The channel client object (for Namespace conversion )
+        needsRefresh : false,       // true if client is out of sync and needs to reload
+        version : me._channelStatus.version,               
+        last_update : [0, chData.getJournalLine()],  // last succesfull server update
+        last_sent : []              // last range sent to the server
+        };
+        */
+        // <= we must be using the last serverupdate, and maybe add the extra lines to the
+        // additional fork information to create a truly dynamic fork of the subject in case
+        // some other client is "resisting" the update...
+        forkCmd.journalLine = this._clientState.last_update[1];
+
+        // the fork is being processed, the response is going to be ready after the promise completes
+        var me = this;
+
+        return _promise(function (results) {
+          me._socket.send("channelCommand", {
+            channelId: me._channelId,
+            cmd: "fork",
+            data: forkCmd
+          }).then(function (resp) {
+            // information from the server.
+            // build new channel object
+            // return it as the promise...
+            results(resp);
+          });
+        });
+      };
+
+      /**
+       * @param Object change
+       */
+      _myTrait_.fromMaster = function (change) {
+        console.log("from master", JSON.stringify(change));
+      };
+
+      /**
+       * @param Object change
+       */
+      _myTrait_.fromSlave = function (change) {
+        console.log("from slave", JSON.stringify(change));
+
+        if (change.cmd == "s2c") {
+
+          // --> we have server to client command coming in..
+          // this is the connection to the master, thus the commands should be run
+          // here as if they were "local" commands which are about to be sent to the
+          // remote server
+          /*
+          return {
+          cmd : "s2c",
+          c : chData._journal.slice( start, end ),
+          start : start,
+          end : end,
+          version : serverState.version
+          };    
+          */
+
+          // this channelClient is only responsible of sending the commands to the
+          // actual master server
+          var me = this;
+          change.c.forEach(function (eCmd) {
+            console.log(eCmd);
+            var r = me.addCommand(eCmd);
+            console.log(JSON.stringify(r));
+            console.log(JSON.stringify(me._data.getData()));
+          });
+        }
+      };
+
+      /**
+       * @param string id
+       * @param float name
+       */
+      _myTrait_.get = function (id, name) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          return obj.data[name];
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getChannelData = function (t) {
+        return this._data;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getData = function (t) {
+        return this._data.getData();
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.indexOf = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            return index;
+          }
+        }
+        return -1;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (channelId, socket, options) {
+
+        if (!_dmp) {
+          if (typeof diff_match_patch != "undefined") {
+            _dmp = new diff_match_patch();
+          } else {
+            // if in node.js try to require the module
+            if (typeof require != "undefined") {
+              var DiffMatchPatch = require("diff-match-patch");
+              _dmp = new DiffMatchPatch();
+            }
+          }
+        }
+
+        if (!this._policy) this._policy = _chPolicy();
+
+        if (options && options.localChannel) {
+
+          this._channelId = channelId;
+          this._options = options;
+          this._socketGUID = this.guid();
+          this._isLocal = true;
+
+          this._socket = _clientSocket(this._socketGUID, 1);
+          var myNamespace = this._socket.getEnum();
+
+          this._ns = myNamespace;
+          this._id = channelId + this._socket.getId();
+          var me = this;
+
+          var mainData = options.localData;
+          mainData = me._transformObjToNs(options.localData, myNamespace);
+
+          var chData = _channelData(me._id, mainData, []);
+          me._data = chData;
+          me.resolve({
+            result: true,
+            channelId: channelId
+          });
+          return;
+        } else {}
+
+        if (!channelId || !socket) return;
+
+        this._channelId = channelId;
+        this._socket = socket;
+        this._options = options;
+        this._changeFrames = [];
+        this._pendingFrames = [];
+
+        var myNamespace = socket.getEnum();
+
+        this._ns = myNamespace;
+
+        this._id = channelId + socket.getId();
+        var me = this;
+
+        this._onFrameLoop(socket, myNamespace);
+        this._incoming(socket, myNamespace);
+
+        this._connCnt = 0;
+
+        socket.on("disconnect", function () {
+          me._connected = false;
+        });
+        socket.on("connect", function () {
+
+          console.log("*** socket reconnect for " + channelId + " *** ");
+          console.log("Connection count " + me._connCnt);
+
+          me._connCnt++;
+
+          // Authenticate...
+          if (options.auth) {
+            socket.send("auth", {
+              userId: options.auth.username,
+              password: options.auth.password
+            }).then(function (resp) {
+
+              if (resp.userId) {
+
+                me._userId = resp.userId;
+                me._logged = true;
+              } else {
+                me._logged = false;
+                return false;
+              }
+              // ask to join the channel with this socket...
+              return socket.send("requestChannel", {
+                channelId: channelId,
+                initWithData: options.initWithData
+              });
+            }).then(function (resp) {
+              // this channel client has been connected to the server ok
+              if (resp && resp.channelId == channelId) {
+
+                me._connected = true;
+                // The next step: to load the channel information for the
+                // local objects to consume
+
+                if (me._connCnt > 1) {
+                  // if reconnecting to the other server, ask upgrade only, not the whole
+                  // build tree...
+                  me._onReconnect();
+                  return false;
+                }
+
+                return socket.send("channelCommand", {
+                  channelId: channelId,
+                  cmd: "readBuildTree",
+                  data: ""
+                });
+              } else {
+                return false;
+              }
+            }).then(function (respData) {
+
+              if (respData) {
+
+                var resp = respData.build;
+
+                // ? should we be updating this or is this just one-time info
+                me._channelStatus = respData.status;
+                /*
+                // has channel + fork information included
+                {   "fromJournalLine":1,
+                  "version":1,
+                  "journalLine":1,
+                  "channelId":"my/channel/myFork",
+                  "fromVersion":2,
+                  "from":"my/channel",
+                  "to":"my/channel/myFork",
+                  "name":"test of fork","utc":14839287897}
+                */
+
+                // The build tree is here now...
+                // Should you transform the objects to other namespaces...?
+
+                var mainData = resp.pop();
+
+                // The data is here... but transforming?
+                mainData = me._transformObjToNs(mainData, myNamespace);
+
+                var chData = _channelData(me._id, mainData, []);
+                var list = resp.pop();
+
+                // should be updating the client
+                // var res = me._policy.deltaServerToClient( cmd, me._clientState);
+                while (list) {
+                  chData._journalPointer = 0;
+                  chData._journal.length = 0; // <-- the journal length, last will be spared
+                  list.forEach(function (c) {
+                    chData.execCmd(me._transformCmdToNs(c, myNamespace), true);
+                  });
+                  list = resp.pop();
+                }
+
+                // the state management
+                me._clientState = {
+                  data: chData, // The channel data object
+                  client: me, // The channel client object (for Namespace conversion )
+                  needsRefresh: false, // true if client is out of sync and needs to reload
+                  version: me._channelStatus.version,
+                  last_update: [0, chData.getJournalLine()], // last succesfull server update
+                  last_sent: [0, chData.getJournalLine()] // last range sent to the server
+
+                };
+
+                me._data = chData;
+                me._createTransaction();
+                me.resolve({
+                  result: true,
+                  channelId: channelId
+                });
+              } else {
+                me.resolve({
+                  result: false,
+                  text: "Authorization or connection failed"
+                });
+              }
+            });
+          }
+        });
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isConnected = function (t) {
+        if (this._disconnected) return false;
+        if (this._connCnt && this._connected) return true;
+
+        return false;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isLocal = function (t) {
+        return this._isLocal;
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.length = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && obj.data) {
+          return obj.data.length || 0;
+        }
+        return 0;
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.moveDown = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            var newIndex = index - 1;
+            if (newIndex >= 0 && index >= 0 && index != newIndex && parent.data.length > newIndex) {
+              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
+              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float id
+       * @param float newIndex
+       */
+      _myTrait_.moveTo = function (id, newIndex) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            if (index >= 0 && index != newIndex && parent.data.length > newIndex) {
+              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
+              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.moveUp = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            var newIndex = index + 1;
+            if (newIndex >= 0 && index >= 0 && index != newIndex && parent.data.length > newIndex) {
+              this.addCommand([12, ns_id, newIndex, index, parent.__id]);
+              // dataTest.execCmd( [12, "obj4", 0, 2, "array1"], true);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.reconnect = function (t) {
+        this._disconnected = false;
+        return this;
+      };
+
+      /**
+       * @param float cnt
+       */
+      _myTrait_.redo = function (cnt) {
+        this._data.redo(cnt);
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.redoStep = function (options) {
+        this._data.redoStep(options);
+      };
+
+      /**
+       * @param float id
+       */
+      _myTrait_.remove = function (id) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj) {
+          var parent = this._fetch(obj.__p);
+          if (parent && parent.data) {
+            var index = parent.data.indexOf(obj);
+            if (index >= 0) {
+              this.addCommand([8, index, ns_id, 0, parent.__id]);
+              // this.addCommand([4, name, value, old_value, ns_id ]);
+            }
+          }
+          // dataTest.execCmd( [8, 0, "obj1", 0, "array1"], true);
+          // return obj.data[name];
+        }
+      };
+
+      /**
+       * @param float commandName
+       * @param float packet
+       */
+      _myTrait_.sendCommand = function (commandName, packet) {
+        var me = this,
+            channelId = this._channelId,
+            socket = this._socket;
+
+        if (!me._policy) return;
+        if (me._disconnected) return; // in case disconnected, don't send data
+        if (!me._connected) return;
+        if (!socket) return;
+
+        return socket.send("channelCommand", {
+          channelId: channelId,
+          cmd: commandName,
+          data: packet
+        });
+      };
+
+      /**
+       * @param float id
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.set = function (id, name, value) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && !this.isObject(value)) {
+          var old_value = obj.data[name];
+          if (old_value != value) {
+            console.log("command 4 " + JSON.stringify([4, name, value, old_value, ns_id]));
+            this.addCommand([4, name, value, old_value, ns_id]);
+          }
+        }
+      };
+
+      /**
+       * @param float model
+       */
+      _myTrait_.setChannelModel = function (model) {
+
+        this._serverModel = model;
+      };
+
+      /**
+       * @param float masterConnection
+       */
+      _myTrait_.setMasterConnection = function (masterConnection) {
+        this._master = masterConnection;
+      };
+
+      /**
+       * @param float id
+       * @param float name
+       * @param float propObj
+       */
+      _myTrait_.setObject = function (id, name, propObj) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+
+        if (obj && this.isObject(propObj) && propObj.__id) {
+          var old_value = obj.data[name];
+
+          if (!old_value) {
+            // insert object only if there is no old value
+            this.addCommand([5, name, propObj.__id, null, ns_id]);
+          }
+        }
+      };
+
+      /**
+       * Will set the slave server for this connection
+       * @param Object slaveServer
+       */
+      _myTrait_.setSlaveServer = function (slaveServer) {
+
+        this._slave = slaveServer;
+      };
+
+      /**
+       * Create a new syncable channel...
+       * @param Object syncData
+       */
+      _myTrait_.sync = function (syncData) {
+        /*
+        {
+        "out" : {
+        "channelId" : "sync/test1",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7778",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        },
+        "in" : {
+        "channelId" : "sync/test2",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7779",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        }
+        }
+        */
+        var socket = this._socket,
+            me = this,
+            channelId = this._channelId;
+        return _promise(function (result) {
+
+          if (!me.isConnected() || !syncData || !syncData.out || !syncData.out.channelId) {
+            result({
+              success: false
+            });
+            return;
+          }
+
+          socket.send("channelCommand", {
+            channelId: channelId,
+            cmd: "sync",
+            data: {
+              sync: syncData
+            }
+          }).then(function (res) {
+            result(res);
+          });
+        });
+      };
+
+      /**
+       * @param int cnt
+       */
+      _myTrait_.undo = function (cnt) {
+        this._data.undo(cnt);
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.undoStep = function (options) {
+        this._data.undoStep(options);
+      };
+
+      /**
+       * @param float id
+       * @param float name
+       */
+      _myTrait_.unset = function (id, name) {
+        var ns_id = this._idToNs(id, this._ns); // is this too slow?
+        var obj = this._data._find(ns_id);
+        if (obj && obj.data) {
+
+          if (this.isObject(obj.data[name])) {
+            this.addCommand([10, name, obj.data[name].__id, null, ns_id]);
+          } else {
+            if (obj.data && typeof obj.data[name] != "undefined") {
+              this.addCommand([10, name, obj.data[name], "value", ns_id]);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.upgradeVersion = function (t) {
+
+        // should start the snapshot command
+        this._socket.send("channelCommand", {
+          channelId: this._channelId,
+          cmd: "snapshot",
+          data: {}
+        }).then(function () {});
+      };
+    })(this);
+  };
+
+  var channelClient = function channelClient(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof channelClient) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != channelClient._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new channelClient(a, b, c, d, e, f, g, h);
+  };
+
+  channelClient_prototype.prototype = _promise.prototype;
+
+  channelClient._classInfo = {
+    name: "channelClient"
+  };
+  channelClient.prototype = new channelClient_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["channelClient"] = channelClient;
+      this.channelClient = channelClient;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["channelClient"] = channelClient;
+    } else {
+      this.channelClient = channelClient;
+    }
+  }).call(new Function("return this")());
+
+  var sequenceStepper_prototype = function sequenceStepper_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return Object.prototype.toString.call(t) === "[object Array]";
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _instances;
+
+      // Initialize static variables here...
+
+      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
+      _myTrait_.__factoryClass.push(function (id, manual) {
+
+        if (id === false && manual) return;
+
+        if (!_instances) {
+          _instances = {};
+        }
+
+        if (_instances[id]) {
+          return _instances[id];
+        } else {
+          _instances[id] = this;
+        }
+      });
+
+      /**
+       * @param float cmdFunction
+       * @param float failure
+       */
+      _myTrait_.addCommands = function (cmdFunction, failure) {
+
+        if (this.isArray(cmdFunction)) {
+          var me = this;
+          cmdFunction.forEach(function (c) {
+            me.addCommands(c);
+          });
+          return this;
+        }
+
+        this._commands.push({
+          fnCmd: cmdFunction,
+          fnFail: failure,
+          async: true
+        });
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (myId, manual) {
+
+        if (!this._commands) {
+          this._commands = [];
+          this.waitingList = [];
+          this._index = 0;
+        }
+
+        var me = this;
+        if (!manual) {
+          var _secStep = function _secStep() {
+            me.step();
+          };
+          var is_node = new Function("try { return this === global; } catch(e) { return false; }")();
+          if (is_node) {
+            later().onFrame(_secStep);
+          } else {
+            later().every(1 / 30, _secStep);
+          }
+        }
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_.step = function (t) {
+        var i = this._index,
+            len = this._commands.length;
+
+        if (i == len) return;
+
+        var first = _promise(),
+            currentProm = first,
+            myPromise = _promise(),
+            me = this;
+
+        while (i < len) {
+          var fn = this._commands[i];
+          (function (fn) {
+            currentProm = currentProm.then(function () {
+              var p = _promise();
+              fn.fnCmd(function (res) {
+                p.resolve(true);
+              }, function (failReason) {
+                p.resolve(true);
+                if (fn.fnFail) fn.fnFail(failReason);
+              });
+
+              return p;
+            }).fail(function (reason) {
+              if (fn.fnFail) fn.fnFail(reason);
+            });
+          })(fn);
+          this._index++;
+          i++;
+        }
+
+        currentProm.then(function () {
+          me.waitingList.shift(); // remvoe this promise from the queque
+          myPromise.resolve(true);
+          if (me.waitingList.length) {
+            var newP = me.waitingList[0];
+            newP.resolve(true);
+          }
+        }).fail(function (m) {});
+
+        this.waitingList.push(first);
+        if (this.waitingList.length == 1) {
+          first.resolve(true);
+        }
+        return myPromise;
+      };
+    })(this);
+  };
+
+  var sequenceStepper = function sequenceStepper(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof sequenceStepper) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != sequenceStepper._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new sequenceStepper(a, b, c, d, e, f, g, h);
+  };
+
+  sequenceStepper._classInfo = {
+    name: "sequenceStepper"
+  };
+  sequenceStepper.prototype = new sequenceStepper_prototype();
+
   var authFuzz_prototype = function authFuzz_prototype() {
 
     (function (_myTrait_) {
@@ -10195,83 +8046,6 @@
       this._sha3 = _sha3;
     }
   }).call(new Function("return this")());
-
-  var authModule_prototype = function authModule_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return Object.prototype.toString.call(t) === "[object Array]";
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (options) {});
-    })(this);
-  };
-
-  var authModule = function authModule(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof authModule) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != authModule._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new authModule(a, b, c, d, e, f, g, h);
-  };
-
-  authModule._classInfo = {
-    name: "authModule"
-  };
-  authModule.prototype = new authModule_prototype();
 
   var memoryFsFolder_prototype = function memoryFsFolder_prototype() {
 
@@ -11626,783 +9400,6 @@
     name: "localFs"
   };
   localFs.prototype = new localFs_prototype();
-
-  var _chPolicy_prototype = function _chPolicy_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return t instanceof Array;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _hooks;
-
-      // Initialize static variables here...
-
-      /**
-       * @param Object clientState
-       */
-      _myTrait_.constructClientToServer = function (clientState) {
-        var chData = clientState.data;
-
-        if (!clientState.last_sent) {
-          clientState.last_sent = [];
-        }
-
-        // last_update : [1, 30]
-        var start = clientState.last_sent[1] || 0;
-        var end = chData._journal.length;
-
-        // --- do not re-send
-
-        // last_update[]
-        // clientState.last_update
-
-        // problems here??
-        if (clientState.last_update) {
-
-          if (start < clientState.last_update[1]) {
-            start = clientState.last_update[1];
-          }
-
-          var fromServer = clientState.last_update[1] || 0;
-          if (fromServer >= end) {
-            //console.log(" fromServer >= end ");
-            return null;
-          }
-        }
-
-        if (start == end) {
-          // console.log(" start == end ");
-          return null;
-        }
-
-        //console.log("clientToServer");
-        //console.log(clientState.last_update);
-        //console.log(start,end);
-
-        // [2,4]
-        // 0
-        // 1
-        // 2 *
-        // 3 *
-
-        clientState.last_sent[0] = start;
-        clientState.last_sent[1] = end;
-
-        var obj = {
-          cmd: "c2s",
-          id: this.guid(),
-          c: chData._journal.slice(start, end),
-          start: start,
-          end: end,
-          version: clientState.version
-        };
-
-        if (clientState.client) {
-          for (var i = 0; i < obj.c.length; i++) {
-            var c = obj.c[i];
-            obj.c[i] = clientState.client._transformCmdFromNs(c);
-          }
-        }
-        return obj;
-      };
-
-      /**
-       * @param Object serverState
-       */
-      _myTrait_.constructServerToClient = function (serverState) {
-
-        var chData = serverState.data;
-
-        if (!serverState.last_update) {
-          serverState.last_update = [];
-        }
-
-        // last_update : [1, 30]
-        var start = serverState.last_update[1] || 0;
-        var end = chData._journal.length;
-
-        if (start == end) return null;
-
-        // [2,4]
-        // 0
-        // 1
-        // 2 *
-        // 3 *
-
-        serverState.last_update[0] = start;
-        serverState.last_update[1] = end;
-
-        return {
-          cmd: "s2c",
-          c: chData._journal.slice(start, end),
-          start: start,
-          end: end,
-          version: serverState.version
-        };
-      };
-
-      /**
-       * @param Object clientFrame  - This is the clients changeFrame which should be applied to the servers internal state
-       * @param Object serverState  - This object holds the data the server needs
-       */
-      _myTrait_.deltaClientToServer = function (clientFrame, serverState) {
-        // the client frame
-        /*
-        {
-        id          : "transaction ID",        // unique ID for transaction
-        socket_id   : "socketid",              // added by the server
-        v : 1,                          // main file + journal version
-        lu : [1,10],                        // last update from server 0..N
-        tl : 1,                          // transaction level
-        c : [
-                                    // list of channel commands to run
-        ]
-        }
-        */
-        // the server state structure
-        /*
-        {
-        data : channelData,     // The channel data object
-        version : 1,
-        last_update : [1, 30],  // version + journal line
-        lagging_sockets : {}    // hash of invalid sockets
-        }
-        */
-
-        if (!clientFrame) return;
-
-        if (!serverState._done) serverState._done = {};
-
-        // console.log("Processing client frame");
-        // console.log(JSON.stringify(clientFrame));
-
-        try {
-
-          if (!clientFrame.id) return;
-          // if(!clientFrame.socket_id) return;
-          if (serverState._done[clientFrame.id]) return res;
-
-          serverState._done[clientFrame.id] = true;
-
-          var chData = serverState.data; // the channel data object
-          var errors = [];
-
-          // now, it's simple, we just try to apply all the comands
-          for (var i = 0; i < clientFrame.c.length; i++) {
-            var c = clientFrame.c[i];
-            var cmdRes = chData.execCmd(c);
-            if (cmdRes !== true) {
-              errors.push(cmdRes);
-            }
-          }
-
-          var results = {
-            errors: errors
-          };
-          // console.log(JSON.stringify(results));  
-
-          return results;
-        } catch (e) {
-          // in this version, NO PROBLEMO!
-          return e.message;
-        }
-      };
-
-      /**
-       * @param float updateFrame
-       * @param float serverState
-       */
-      _myTrait_.deltaMasterToSlave = function (updateFrame, serverState) {
-
-        // the client state
-        /*
-        {
-        data : channelData,     // The channel data object
-        version : 1,
-        last_update : [1, 30],  // last server update
-        }
-        */
-
-        // the server sends
-        /*
-        {
-        c : chData._journal.slice( start, end ),
-        start : start,
-        end : end,
-        version : serverState.version
-        }
-        */
-        // The server state
-        /*
-        {
-        data : channelData,     // The channel data object
-        version : 1,
-        last_update : [1, 30],  // version + journal line
-        lagging_sockets : {}    // hash of invalid sockets
-        }
-        */
-        // check where is our last point of action...
-
-        if (!updateFrame) return;
-
-        var data = serverState.data; // the channel data we have now
-
-        // [2,4] = [start, end]
-        // 0
-        // 1
-        // 2 *
-        // 3 *
-
-        var result = {
-          goodCnt: 0,
-          oldCnt: 0,
-          newCnt: 0,
-          reverseCnt: 0
-        };
-
-        console.log("deltaMasterToSlave");
-        var sameUntil = updateFrame.start;
-
-        if (serverState.needsRefresh) {
-          console.log("** serverState needs refresh **");
-          return;
-        }
-
-        // if the server's journal is a lot behind the sent data...
-        if (updateFrame.start > data._journal.length) {
-
-          console.log("--- setting refresh on because of ---- ");
-          console.log(" updateFrame.start > data._journal.length ");
-
-          serverState.needsRefresh = true;
-          result.fail = true;
-          return result;
-        }
-
-        // this should not be needed at the server side, because object ID's are without
-        // the namespace
-        /*
-        if(serverState.client) {
-        for(var i=updateFrame.start; i<updateFrame.end; i++) {
-        var serverCmd = updateFrame.c[i-updateFrame.start];
-        updateFrame.c[i-updateFrame.start] = serverState.client._transformCmdToNs( serverCmd );
-        }
-        }
-        */
-
-        var goodList = [];
-
-        // process the commands a long as they are the same
-        for (var i = updateFrame.start; i < updateFrame.end; i++) {
-
-          var myJ = data.getJournalCmd(i);
-          var serverCmd = updateFrame.c[i - updateFrame.start];
-
-          var bSame = true;
-          if (myJ) {
-
-            if (myJ[0] == 13 && serverCmd[0] == 13 && myJ[4] == serverCmd[4] && myJ[1] == serverCmd[1]) {
-              var mainArray1 = myJ[2],
-                  mainArray2 = serverCmd[2];
-              if (mainArray1.length != mainArray2.length) {
-                bSame = false;
-              } else {
-                for (var mi = 0; mi < mainArray1.length; mi++) {
-                  if (!bSame) break;
-                  var arr1 = mainArray1[mi],
-                      arr2 = mainArray2[mi];
-                  for (var ai = 0; ai < 5; ai++) {
-                    if (arr1[ai] != arr2[ai]) {
-                      console.log("not same ", ai, arr1[ai], arr2[ai]);
-                      bSame = false;
-                      break;
-                    }
-                  }
-                  if (bSame) {
-                    if (this.isArray(arr1[5])) {
-                      var arr1 = arr1[5],
-                          arr2 = arr2[5];
-                      var len = Math.max(arr1.length || 0, arr2.length || 0);
-                      for (var ai = 0; ai < len; ai++) {
-                        if (arr1[ai] != arr2[ai]) {
-                          console.log("not same array ", ai);
-                          bSame = false;
-                          break;
-                        }
-                      }
-                    } else {
-                      if (arr1[5] != arr2[5]) {
-                        bSame = false;
-                      }
-                    }
-                  }
-                  if (!bSame) {
-                    console.log("was not the same");
-                    console.log(serverCmd, "vs", myJ);
-                  }
-                }
-              }
-            } else {
-              for (var j = 0; j <= 4; j++) {
-                if (myJ[j] != serverCmd[j]) {
-                  bSame = false;
-                  console.log("was not the same");
-                  console.log(serverCmd[j], "vs", myJ[j]);
-                }
-              }
-            }
-          } else {
-            // a new command has arrived...
-
-            var cmdRes = data.execCmd(serverCmd); // set data ready to be broadcasted
-            if (cmdRes !== true) {
-              // if we get errors then we have some kind of problem
-              console.log("--- setting refresh on because of ---- ");
-              console.log(JSON.stringify(cmdRes));
-              serverState.needsRefresh = true;
-              result.fail = true;
-              result.reason = cmdRes;
-              return result;
-            } else {
-              sameUntil = i; // ??
-              result.goodCnt++;
-              result.newCnt++;
-            }
-            goodList.push(serverCmd);
-
-            continue;
-          }
-          if (bSame) {
-            sameUntil = i;
-            result.goodCnt++;
-            result.oldCnt++;
-          } else {
-            console.log("Not same ");
-            console.log(JSON.stringify(updateFrame.c));
-            return _promise(function (done) {
-              // here is the point where the data is reversed and also the server journal should be truncated:
-              data.reverseToLine(sameUntil);
-              var size = updateFrame.journalSize;
-              console.log("Truncating the journal to ", size, sameUntil);
-              // truncate server journal to certain length
-              serverState.model.truncateJournalTo(size, sameUntil).then(function () {
-
-                // and then run commands without sending them outside...
-                var list = [];
-                for (var i = sameUntil; i < updateFrame.end; i++) {
-
-                  var serverCmd = updateFrame.c[i - updateFrame.start];
-                  var cmdRes = data.execCmd(serverCmd); // data ready to be broadcasted
-                  if (cmdRes !== true) {
-
-                    console.log("--- there is need for a bigger refersh ---- ");
-                    console.log(JSON.stringify(cmdRes));
-
-                    // if we get errors then we have some kind of problem
-                    serverState.needsRefresh = true;
-                    result.fail = true;
-                    result.reason = cmdRes;
-                    done(result);
-                    return result;
-                  }
-                  list.push(serverCmd);
-                  result.reverseCnt++;
-                }
-
-                // serverState.last_update[0] = updateFrame.start;
-                // serverState.last_update[1] = updateFrame.end;
-
-                // mark the new start for next update,
-                serverState.last_update[0] = 0;
-                serverState.last_update[1] = sameUntil; // <- this is what matters
-
-                // --> writing to the journal is done at the client loop
-                // write the new lines to the servers journal
-                //serverState.model.writeToJournal( list ).then( function() {
-                //    done(result);
-                //});
-
-                return result;
-              });
-            });
-          }
-        }
-        //clientState.last_update[0] = updateFrame.start;
-        //clientState.last_update[1] = updateFrame.end;
-
-        console.log("server last update " + JSON.stringify(serverState.last_update));
-        console.log("server data length " + serverState.data._journal.length);
-
-        if (goodList.length) {}
-
-        return result;
-      };
-
-      /**
-       * @param Object updateFrame  - request from server to client
-       * @param float clientState  - This object holds the data the client needs to pefrform it&#39;s actions
-       */
-      _myTrait_.deltaServerToClient = function (updateFrame, clientState) {
-
-        // the client state
-        /*
-        {
-        data : channelData,     // The channel data object
-        version : 1,
-        last_update : [1, 30],  // last server update
-        }
-        */
-
-        // the server sends
-        /*
-        {
-        c : chData._journal.slice( start, end ),
-        start : start,
-        end : end,
-        version : serverState.version
-        }
-        */
-        // check where is our last point of action...
-
-        if (!updateFrame) return;
-
-        var data = clientState.data; // the channel data we have now
-
-        if (!clientState.last_update) {
-          clientState.last_update = [];
-        }
-        // [2,4] = [start, end]
-        // 0
-        // 1
-        // 2 *
-        // 3 *
-
-        var result = {
-          goodCnt: 0,
-          oldCnt: 0,
-          newCnt: 0,
-          reverseCnt: 0
-        };
-
-        //console.log("deltaServerToClient");
-        //console.log(clientState.last_update);
-
-        var sameUntil = updateFrame.start;
-
-        if (clientState.needsRefresh) {
-          // console.log("** client needs refresh **");
-          if (_hooks["onCancel"]) {
-            _hooks["onCancel"]({
-              data: data,
-              reason: cmdRes,
-              clientState: clientState,
-              updateFrame: updateFrame,
-              serverCmds: updateFrame.c
-            });
-          }
-          return;
-        }
-
-        if (updateFrame.start > data._journal.length) {
-
-          if (_hooks["onError"]) {
-            _hooks["onError"]({
-              data: data,
-              reason: " updateFrame.start > data._journal.length ",
-              clientState: clientState,
-              updateFrame: updateFrame,
-              serverCmds: updateFrame.c
-            });
-          }
-          clientState.needsRefresh = true;
-          result.fail = true;
-          return result;
-        }
-
-        if (clientState.client) {
-          for (var i = updateFrame.start; i < updateFrame.end; i++) {
-            var serverCmd = updateFrame.c[i - updateFrame.start];
-            updateFrame.c[i - updateFrame.start] = clientState.client._transformCmdToNs(serverCmd);
-          }
-        }
-
-        if (_hooks["onServerData"]) {
-          _hooks["onServerData"]({
-            data: data,
-            clientState: clientState,
-            updateFrame: updateFrame,
-            serverCmds: updateFrame.c
-          });
-        }
-
-        for (var i = updateFrame.start; i < updateFrame.end; i++) {
-
-          var myJ = data.getJournalCmd(i);
-          var serverCmd = updateFrame.c[i - updateFrame.start];
-
-          var bSame = true;
-          if (myJ) {
-
-            if (myJ[0] == 13 && serverCmd[0] == 13 && myJ[4] == serverCmd[4] && myJ[1] == serverCmd[1]) {
-              var mainArray1 = myJ[2],
-                  mainArray2 = serverCmd[2];
-              if (mainArray1.length != mainArray2.length) {
-                bSame = false;
-              } else {
-                for (var mi = 0; mi < mainArray1.length; mi++) {
-                  if (!bSame) break;
-                  var arr1 = mainArray1[mi],
-                      arr2 = mainArray2[mi];
-                  for (var ai = 0; ai < 5; ai++) {
-                    if (arr1[ai] != arr2[ai]) {
-                      console.log("not same ", ai, arr1[ai], arr2[ai]);
-                      bSame = false;
-                      break;
-                    }
-                  }
-                  if (bSame) {
-                    if (this.isArray(arr1[5])) {
-                      var arr1 = arr1[5],
-                          arr2 = arr2[5];
-                      var len = Math.max(arr1.length || 0, arr2.length || 0);
-                      for (var ai = 0; ai < len; ai++) {
-                        if (arr1[ai] != arr2[ai]) {
-                          console.log("not same array ", ai);
-                          bSame = false;
-                          break;
-                        }
-                      }
-                    } else {
-                      if (arr1[5] != arr2[5]) {
-                        bSame = false;
-                      }
-                    }
-                  }
-                  if (!bSame) {
-                    console.log("was not the same at array compare");
-                    console.log(serverCmd, "vs", myJ);
-                  }
-                }
-              }
-            } else {
-              for (var j = 0; j <= 4; j++) {
-                if (myJ[j] != serverCmd[j]) {
-                  bSame = false;
-                  if (_hooks["onError"]) {
-                    _hooks["onError"]({
-                      data: data,
-                      reason: " server datas are different ",
-                      clientState: clientState,
-                      updateFrame: updateFrame,
-                      serverCmds: updateFrame.c
-                    });
-                  }
-                }
-              }
-            }
-          } else {
-            // a new command has arrived...
-
-            var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
-            if (cmdRes !== true) {
-              // if we get errors then we have some kind of problem
-              console.log("--- setting refresh on because of ---- ");
-              console.log(JSON.stringify(cmdRes));
-
-              if (_hooks["onError"]) {
-                _hooks["onError"]({
-                  data: data,
-                  reason: cmdRes,
-                  clientState: clientState,
-                  updateFrame: updateFrame,
-                  serverCmds: updateFrame.c
-                });
-              }
-              clientState.needsRefresh = true;
-              result.fail = true;
-              result.reason = cmdRes;
-              return result;
-            } else {
-              sameUntil = i; // ??
-              result.goodCnt++;
-              result.newCnt++;
-            }
-
-            continue;
-          }
-          if (bSame) {
-            sameUntil = i;
-            result.goodCnt++;
-            result.oldCnt++;
-          } else {
-            // the sent commands did differ...
-
-            // TODO: rollback
-            data.reverseToLine(sameUntil);
-            // and then run commands without sending them outside...
-            for (var i = sameUntil; i < updateFrame.end; i++) {
-
-              var serverCmd = updateFrame.c[i - updateFrame.start];
-              var cmdRes = data.execCmd(serverCmd, true); // true = remote cmd
-              if (cmdRes !== true) {
-
-                console.log("--- setting refresh on because of ---- ");
-                console.log(JSON.stringify(cmdRes));
-                if (_hooks["onError"]) {
-                  _hooks["onError"]({
-                    data: data,
-                    reason: cmdRes,
-                    clientState: clientState,
-                    updateFrame: updateFrame,
-                    serverCmds: updateFrame.c
-                  });
-                }
-                // if we get errors then we have some kind of problem
-                clientState.needsRefresh = true;
-                result.fail = true;
-                result.reason = cmdRes;
-                return result;
-              }
-              result.reverseCnt++;
-            }
-
-            clientState.last_update[0] = updateFrame.start;
-            clientState.last_update[1] = updateFrame.end;
-
-            return result;
-          }
-        }
-        clientState.last_update[0] = updateFrame.start;
-        clientState.last_update[1] = updateFrame.end;
-        return result;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {
-        if (!_hooks) {
-          _hooks = {};
-        }
-      });
-
-      /**
-       * @param float n
-       * @param float fn
-       */
-      _myTrait_.setHook = function (n, fn) {
-        if (!_hooks) {
-          _hooks = {};
-        }
-        _hooks[n] = fn;
-      };
-    })(this);
-  };
-
-  var _chPolicy = function _chPolicy(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _chPolicy) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _chPolicy._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _chPolicy(a, b, c, d, e, f, g, h);
-  };
-
-  _chPolicy._classInfo = {
-    name: "_chPolicy"
-  };
-  _chPolicy.prototype = new _chPolicy_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_chPolicy"] = _chPolicy;
-      this._chPolicy = _chPolicy;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_chPolicy"] = _chPolicy;
-    } else {
-      this._chPolicy = _chPolicy;
-    }
-  }).call(new Function("return this")());
-
-  var channelPolicyModule_prototype = function channelPolicyModule_prototype() {
-
-    (function (_myTrait_) {})(this);
-  };
-
-  var channelPolicyModule = function channelPolicyModule(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof channelPolicyModule) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != channelPolicyModule._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new channelPolicyModule(a, b, c, d, e, f, g, h);
-  };
-
-  channelPolicyModule._classInfo = {
-    name: "channelPolicyModule"
-  };
-  channelPolicyModule.prototype = new channelPolicyModule_prototype();
 
   var aceCmdConvert_prototype = function aceCmdConvert_prototype() {
 
@@ -15794,6 +12791,2480 @@
   };
   channelObjects.prototype = new channelObjects_prototype();
 
+  var _localChannelModel_prototype = function _localChannelModel_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return Object.prototype.toString.call(t) === "[object Array]";
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _instances;
+
+      // Initialize static variables here...
+
+      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
+      _myTrait_.__factoryClass.push(function (id, fileSystem) {
+
+        if (!_instances) {
+          _instances = {};
+        }
+
+        id = id + fileSystem.id();
+
+        if (_instances[id]) {
+          return _instances[id];
+        } else {
+          _instances[id] = this;
+        }
+      });
+
+      /**
+       * The channel ID should follow a normal path format like path/to/my/channel
+       * @param String channelId
+       */
+      _myTrait_._createChannelDir = function (channelId) {
+
+        var str = channelId;
+        if (str.charAt(0) == "/") str = str.substring(1);
+
+        var parts = str.split("/");
+        var fs = this._fs,
+            activeFolder = fs;
+
+        var actPromise = _promise();
+        var originalPromise = actPromise;
+        var me = this;
+
+        parts.forEach(function (pathStr) {
+          pathStr = pathStr.trim();
+          if (pathStr.length == 0) return;
+
+          actPromise = actPromise.then(function () {
+            return activeFolder.isFolder(pathStr);
+          }).then(function (bCreate) {
+            if (!bCreate) {
+              return activeFolder.createDir(pathStr);
+            } else {
+              return true;
+            }
+          }).then(function () {
+            return activeFolder.getFolder(pathStr);
+          }).then(function (f) {
+            activeFolder = f;
+          });
+        });
+
+        // after all done, place the active folder for our fs pointer
+        actPromise = actPromise.then(function () {
+          me._folder = activeFolder;
+        });
+        originalPromise.resolve(true);
+
+        return actPromise;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._createChannelSettings = function (t) {
+        // The basic settings are like this:
+        /*
+            obj.fromJournalLine = cnt;
+            obj.version = 1;
+            obj.fromVersion = me._latestVersion;
+            obj.from = me._channelId;
+            obj.to = forkData.channelId;
+            obj.name = forkData.name;
+            obj.utc = (new Date()).getTime();
+        */
+
+        var folder = this._folder;
+        var me = this;
+        return _promise(function (result) {
+          var bIsNew = false;
+          folder.isFile("ch.settings").then(function (is_file) {
+            if (!is_file) {
+              bIsNew = true;
+              return folder.writeFile("ch.settings", JSON.stringify({
+                version: 1,
+                name: "Automatic first version",
+                utc: new Date().getTime(),
+                channelId: me._channelId,
+                journalLine: 0
+              }));
+            }
+            return true;
+          }).then(function () {
+            return folder.readFile("ch.settings");
+          }).then(function (jsonData) {
+            var data = JSON.parse(jsonData);
+            me._settings = data;
+            result(me._settings);
+          });
+        });
+      };
+
+      /**
+       * @param string channelId
+       */
+      _myTrait_._isFreeToFork = function (channelId) {
+        var str = channelId;
+        if (str.charAt(0) == "/") str = str.substring(1);
+
+        var parts = str.split("/");
+        var fs = this._fs,
+            activeFolder = fs;
+
+        var actPromise = _promise();
+        var originalPromise = actPromise;
+        var me = this,
+            isFree = false;
+
+        parts.forEach(function (pathStr) {
+
+          pathStr = pathStr.trim();
+          if (pathStr.length == 0) return;
+          actPromise = actPromise.then(function () {
+            if (isFree) return isFree;
+            return activeFolder.isFolder(pathStr);
+          }).then(function (isFolder) {
+            if (isFree) return;
+            if (!isFolder) {
+              isFree = true; // the folder path is free...
+              return isFree;
+            } else {
+              return isFree;
+            }
+          }).then(function () {
+            if (isFree) return isFree;
+            // get next level..
+            return activeFolder.getFolder(pathStr);
+          }).then(function (f) {
+            if (isFree) return isFree;
+            activeFolder = f;
+          });
+        });
+
+        // after all done, place the active folder for our fs pointer
+        actPromise = actPromise.then(function () {
+          return isFree;
+        });
+        originalPromise.resolve(true);
+
+        return actPromise;
+      };
+
+      /**
+       * @param string str
+       */
+      _myTrait_._textLinesToArray = function (str) {
+        if (!str || typeof str != "string") return [];
+        var a = str.split("\n");
+        var res = [];
+        a.forEach(function (line) {
+          if (line.trim().length == 0) return;
+          res.push(JSON.parse(line));
+        });
+        return res;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._writeSettings = function (t) {
+        return this._folder.writeFile("ch.settings", JSON.stringify(this._settings));
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.childForkTree = function (t) {
+        var local = this._folder,
+            me = this;
+        return _promise(function (response) {
+          me.getForks().then(function (forks) {
+            var list = [],
+                results = [];
+            if (!forks || forks.length == 0) {
+              response([]);
+              return;
+            }
+            forks.forEach(function (fork) {
+              var forkModel = _localChannelModel(fork.to, me._fs);
+              list.push(forkModel.childForkTree());
+            });
+            var prom = _promise();
+            prom.all(list).then(function (childTrees) {
+              forks.forEach(function (fork, i) {
+                fork.children = childTrees[i];
+                results.push(fork);
+              });
+              response(results);
+            });
+            prom.resolve(true);
+          });
+        });
+      };
+
+      /**
+       * Creates a new channel with pre-initialized data.
+       * @param float chSettings
+       * @param float notUsed
+       */
+      _myTrait_.createChannel = function (chSettings, notUsed) {
+        var local = this._folder,
+            me = this,
+            chData;
+        return _promise(function (response) {
+
+          chData = chSettings.chData;
+          if (!chData) {
+            chData = {
+              data: {},
+              __id: me.guid(),
+              __acl: chSettings.__acl
+            };
+          }
+          if (chData && !chData.__acl) {
+            chData.__acl = chSettings.__acl;
+          }
+
+          if (!chSettings.channelId || !chSettings._userId) {
+            response({
+              result: false,
+              text: "Could not create the channel, missing information"
+            });
+            return;
+          }
+
+          var obj = {
+            version: 2, // with pre-initialized data, the first version is 2
+            channelId: chSettings.channelId,
+            userId: chSettings._userId,
+            name: chSettings.name || "",
+            utc: new Date().getTime()
+          };
+
+          // got to check first if the channel is free to be forked
+          me._isFreeToFork(chSettings.channelId).then(function (yesNo) {
+            if (yesNo == true) {
+              var newChann = _localChannelModel(chSettings.channelId, me._fs);
+              newChann.then(function () {
+                return newChann.writeFile("file.2", JSON.stringify(chData));
+              }).then(function () {
+                return newChann.set(obj);
+              }).then(function () {
+                response({
+                  result: true,
+                  channelId: chSettings.channelId
+                });
+              }).fail(function (e) {
+                var msg = "";
+                if (e && e.message) msg = e.message;
+                response({
+                  result: false,
+                  text: "Failed to create channel " + msg
+                });
+              });
+            } else {
+              console.error("Channel already created");
+              response({
+                result: false,
+                text: "Channel is already in use"
+              });
+            }
+          }).fail(function (e) {
+            console.error(e);
+            response({
+              result: false,
+              text: "Creating the new channel failed"
+            });
+          });
+        });
+      };
+
+      /**
+       * @param float cmd
+       */
+      _myTrait_.createSyncedModel = function (cmd) {
+        var me = this;
+        var cc = null; // <-- connect to the channel
+
+        // master-sync file contents
+        // [2,621]
+
+        // The sync file contents
+        /*
+        {
+        "out" : {
+        "channelId" : "sync/test1",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7778",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        },
+        "in" : {
+        "channelId" : "sync/test2",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7779",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        }
+        }
+        */
+
+        console.log("** startin createSyncedModel with data **");
+        console.log(JSON.stringify(cmd));
+
+        return _promise(function (syncReady, syncFail) {
+
+          // -> channel to checkout...
+          var sync = cmd.sync; // <-- the sync file contents
+          var outSocket;
+
+          if (sync.out.method == "memory.socket") {
+            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port);
+          }
+
+          if (sync.out.method == "node.socket") {
+            var ioLib = require("socket.io-client");
+            var realSocket1 = ioLib.connect(sync.out.protocol + "://" + sync.out.ip + ":" + (sync.out.extPort || sync.out.port));
+            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port, realSocket1);
+          }
+
+          // cc = HERE the slave connection which the server1 has to server2
+          // slave <-> master connection
+          var cc = channelClient(sync.out.channelId, outSocket, {
+            auth: {
+              username: sync.out.username,
+              password: sync.out.password
+            }
+          });
+
+          cc.then(function () {
+            cc._checkout(sync.out.channelId).then(function (r) {
+
+              debugger;
+              console.log("Checkout returned ");
+              console.log(JSON.stringify(r));
+
+              // the channel has been now checked out
+              /*
+              {"ch":"my/channel",
+              "file":"ch.settings",
+              "data":"{\"version\":2,\"channelId\":\"my/channel\",\"journalLine\":1,\"utc\":14839287897}"}        
+              */
+              var wait = _promise();
+              var start = wait;
+
+              var fileSystem = me.getFilesystem(); // <- the root filesystem for the checkout process
+
+              // TODO: this is all overriding sync, what if the channel already does exist?
+              if (r.build) r.build.forEach(function (fileData) {
+                var m;
+                wait = wait.then(function () {
+
+                  var chName = fileData.ch;
+                  if (fileData.ch == sync.out.channelId) {
+                    chName = sync["in"].channelId;
+                  }
+
+                  m = _localChannelModel(chName, fileSystem);
+                  return m;
+                }).then(function () {
+                  return m.folder().isFile(fileData.file);
+                }).then(function (is_file) {
+
+                  if (fileData.file == "ch.settings") {
+                    var data = JSON.parse(fileData.data);
+                    data.channelId = sync["in"].channelId;
+                    return m.writeFile(fileData.file, JSON.stringify(data));
+                  } else {
+                    // if the local file already does exist then do not write it
+                    if (!is_file) {
+                      return m.writeFile(fileData.file, fileData.data);
+                    } else {
+                      return is_file;
+                    }
+                  }
+                });
+              });
+
+              // after this has been done, the data should be loaded and the checkout is ready to be used by any
+              // connection which opens it
+              var folder = me.folder();
+              wait.then(function () {
+                return folder.isFile("sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  return folder.writeFile("sync", JSON.stringify(sync));
+                }
+              }).then(function (is_file) {
+                return folder.isFile("master-sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  var ms = [cc._clientState.version, cc._clientState.data.getJournalLine()];
+                  return folder.writeFile("master-sync", JSON.stringify(ms));
+                }
+              }).then(function () {
+                return me._createChannelSettings();
+              }).then(function () {
+                syncReady(sync);
+              }).fail(syncFail);
+
+              start.resolve(true);
+            }).fail(syncFail);
+          }).fail(syncFail);
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.folder = function (t) {
+        return this._folder;
+      };
+
+      /**
+       * The forkData is object having properties &quot;channelId&quot; and &quot;name&quot;
+       * @param Object forkData  - Object with { channelId : &quot;path/to/the/challe&quot;,  name:&quot;name&quot;}
+       */
+      _myTrait_.fork = function (forkData) {
+        var local = this._folder,
+            me = this;
+        /*
+        // The basic data is like this
+        {
+        version : 1,
+        name : "Initial version",
+        utc : (new Date()).getTime(),
+        journalLine : 0,
+        channelId : "my/channel/fork1/"
+        }
+        */
+
+        return _promise(function (response) {
+
+          // ?? should we use the journal line provided by the forkData
+          var settings = me._settings;
+
+          var fromLine = settings.journalLine || 0;
+          if (typeof forkData.journalLine != "undefined") {
+            fromLine = forkData.journalLine;
+          }
+
+          var obj = {
+            fromJournalLine: fromLine,
+            version: 1, // the fork version is always 1
+            channelId: forkData.channelId,
+            fromVersion: settings.version,
+            from: me._channelId,
+            to: forkData.channelId,
+            userId: forkData._userId,
+            name: forkData.name,
+            utc: new Date().getTime()
+          };
+          console.log("fork called with ");
+          console.log(obj);
+
+          // got to check first if the channel is free to be forked
+          me._isFreeToFork(forkData.channelId).then(function (yesNo) {
+            if (yesNo == true) {
+              // TODO: check that the forked channel is valid here
+              local.appendFile("forks", JSON.stringify(obj) + "\n").then(function () {
+                var newChann = _localChannelModel(forkData.channelId, me._fs);
+                newChann.then(function () {
+                  return newChann.set(obj);
+                }).then(function () {
+                  response(obj);
+                });
+              });
+            } else {
+              console.error("Channel already created");
+              response({
+                result: false,
+                text: "Channel is already in use"
+              });
+            }
+          }).fail(function (e) {
+            console.error(e);
+            response({
+              result: false,
+              text: "Creating the fork failed"
+            });
+          });
+        });
+      };
+
+      /**
+       * @param String name
+       */
+      _myTrait_.get = function (name) {
+        var local = this._db,
+            me = this;
+        return _promise(function (response) {
+          me.then(function () {
+            var settings = local.table("settings");
+            settings.get(name).then(function (v) {
+              response(v.value);
+            });
+          });
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getCurrentVersion = function (t) {
+        var local = this._folder,
+            me = this;
+        return _promise(function (result) {
+          result(me._settings.version);
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getFilesystem = function (t) {
+        return this._fs;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getForks = function (t) {
+        var local = this._folder,
+            me = this;
+        return _promise(function (result) {
+
+          me.then(function () {
+            return local.readFile("forks");
+          }).then(function (res) {
+            if (res) {
+              result(me._textLinesToArray(res));
+            } else {
+              result([]);
+            }
+          }).fail(function () {
+            result([]);
+          });
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getJournalSize = function (t) {
+        return this._settings.journalSize;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.incrementVersion = function (t) {
+        var local = this._folder,
+            me = this;
+        return _promise(function (result) {
+          me.then(function () {
+
+            var settings = me._settings;
+
+            settings.version++;
+            settings.journalLine = 0;
+
+            me._writeSettings().then(function () {
+              result(settings.version);
+            });
+          });
+        });
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (channelId, fileSystem) {
+
+        this._channelId = channelId;
+        this._latestVersion = 1;
+
+        this._fs = fileSystem;
+
+        var me = this;
+
+        // create channel directory only if channel is defined
+        if (channelId) {
+          me._createChannelDir(channelId).then(function () {
+            return me._createChannelSettings();
+          }).then(function () {
+            me.resolve(true);
+          }).fail(function (e) {
+            console.error(e);
+          });
+        }
+      });
+
+      /**
+       * @param float channelId
+       * @param float version
+       * @param float journalLine
+       */
+      _myTrait_.readBuildTree = function (channelId, version, journalLine) {
+
+        var flatten = function flatten(a) {
+          return [].concat.apply([], a);
+        };
+
+        var local = this._folder,
+            me = this;
+
+        if (channelId) {
+          return _promise(function (response) {
+            var ch = _localChannelModel(channelId, me._fs);
+            ch.then(function () {
+              ch.readBuildTree(null, version, null).then(function (res) {
+                var jLen = res[0].length;
+                if (jLen > journalLine) {
+                  res[0].splice(journalLine, jLen - journalLine);
+                }
+                response(res);
+              });
+            });
+          });
+        }
+
+        return _promise(function (response) {
+          var repList = [],
+              mainFile,
+              journalFile;
+
+          me.then(function () {
+            return me.readMain(version); // first get the main
+          }).then(function (mainFileRead) {
+            if (mainFileRead) {
+              mainFile = JSON.parse(mainFileRead);
+            }
+            //             mainFile = mainFileRead;
+            return me.readJournal(version);
+          }).then(function (journal) {
+            journalFile = journal;
+
+            if (me._settings.from && !mainFile) {
+
+              var settings = me._settings;
+              me.readBuildTree(settings.from, settings.fromVersion, settings.fromJournalLine).then(function (resp) {
+                repList.push(journal);
+                resp.forEach(function (r) {
+                  repList.push(r);
+                });
+                response(repList);
+              });
+            } else {
+              response([journal, mainFile]);
+            }
+          }).fail(function (msg) {
+            console.error(msg);
+          });
+        });
+      };
+
+      /**
+       * @param String channelId
+       * @param float version
+       * @param float list
+       */
+      _myTrait_.readCheckoutData = function (channelId, version, list) {
+
+        var flatten = function flatten(a) {
+          return [].concat.apply([], a);
+        };
+
+        // What we already have:
+        // 1. me._settings  - is holding the channel settings
+        // 2.
+
+        var local = this._folder,
+            me = this,
+            versionNumber = version || me._settings.version;
+
+        if (channelId) {
+          return _promise(function (response) {
+            var ch = _localChannelModel(channelId, me._fs);
+            ch.then(function () {
+              ch.readCheckoutData(null, version).then(function (res) {
+                response(res);
+              });
+            });
+          });
+        }
+
+        // Read main is like this:
+        /*
+        var local = this._folder, 
+        me = this,
+        versionNumber = version || me._settings.version;
+        if(versionNumber==1) {
+        return _promise(function(r) {
+        r(null);
+        });
+        }
+        return local.readFile( "file."+versionNumber);
+        */
+
+        // Read journal goes like:
+        /*
+        var local = this._folder, 
+        me = this,
+        versionNumber = version || me._settings.version;
+        return _promise(
+        function(res) {
+        local.readFile( "journal."+versionNumber).then( function(data) {
+            if(!data) {
+                res([]);
+                return;
+            }
+            res( me._textLinesToArray(data) );
+        }).fail( function() {
+            res([]);
+        })
+        });
+        */
+
+        return _promise(function (response) {
+          var repList = [],
+              mainFile,
+              journalFile,
+              myFiles = [];
+
+          me.then(function () {
+            if (versionNumber == 1) {
+              return null;
+            }
+            return local.readFile("file." + versionNumber);
+          }).then(function (mainFileRead) {
+            if (mainFileRead) {
+              mainFile = mainFileRead;
+              myFiles.push({
+                ch: channelId || me._channelId,
+                file: "file." + versionNumber,
+                data: mainFileRead
+              });
+            }
+            return local.readFile("journal." + versionNumber);
+          }).then(function (journal) {
+            if (journal) {
+              myFiles.push({
+                ch: channelId || me._channelId,
+                file: "journal." + versionNumber,
+                data: journal
+              });
+            }
+            return local.readFile("ch.settings");
+          }).then(function (data) {
+            if (data) {
+              myFiles.push({
+                ch: channelId || me._channelId,
+                file: "ch.settings",
+                data: data
+              });
+            }
+            // if a fork then read also the forked channel data
+            if (me._settings.from && !mainFile) {
+
+              var settings = me._settings;
+              me.readCheckoutData(settings.from, settings.fromVersion).then(function (resp) {
+                resp.forEach(function (r) {
+                  myFiles.push(r);
+                });
+                response(myFiles);
+              });
+            } else {
+              response(myFiles);
+            }
+          }).fail(function (msg) {
+            console.error(msg);
+          });
+        });
+      };
+
+      /**
+       * @param float fileName
+       */
+      _myTrait_.readFile = function (fileName) {
+
+        var local = this._folder;
+        return local.readFile(fileName);
+      };
+
+      /**
+       * @param float version
+       */
+      _myTrait_.readJournal = function (version) {
+
+        var local = this._folder,
+            me = this,
+            versionNumber = version || me._settings.version;
+
+        return _promise(function (res) {
+          local.readFile("journal." + versionNumber).then(function (data) {
+            if (!data) {
+              me._settings.journalSize = 0;
+              res([]);
+              return;
+            }
+            me._settings.journalSize = data.length;
+            res(me._textLinesToArray(data));
+          }).fail(function () {
+            res([]);
+          });
+        });
+      };
+
+      /**
+       * @param float version
+       */
+      _myTrait_.readMain = function (version) {
+
+        var local = this._folder,
+            me = this,
+            versionNumber = version || me._settings.version;
+
+        if (versionNumber == 1) {
+          return _promise(function (r) {
+            r(null);
+          });
+        }
+
+        return local.readFile("file." + versionNumber);
+      };
+
+      /**
+       * @param String name
+       * @param float value
+       */
+      _myTrait_.set = function (name, value) {
+        var local = this._folder,
+            me = this,
+            settings = this._settings;
+
+        if (this.isObject(name)) {
+          for (var n in name) {
+            if (name.hasOwnProperty(n)) {
+              settings[n] = name[n];
+            }
+          }
+        } else {
+          settings[name] = value;
+        }
+
+        return this._writeSettings(settings);
+      };
+
+      /**
+       * @param Object newMainData
+       */
+      _myTrait_.snapshot = function (newMainData) {
+        var local = this._folder,
+            me = this;
+
+        return _promise(function (done) {
+          var currentVersion;
+          me.incrementVersion().then(function (nextVersion) {
+            currentVersion = nextVersion - 1;
+            return me.writeMain(newMainData);
+          }).then(function () {
+            // The incrementVersion() call will do the following
+            // me._settings.journalLine = 0;
+            // me._settings.version = 0;
+            done(true);
+          });
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.status = function (t) {
+        var local = this._folder,
+            me = this;
+        return _promise(function (result) {
+          me.then(function () {
+            result(me._settings);
+          });
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.syncData = function (t) {
+        var local = this._folder,
+            me = this;
+
+        return _promise(function (result) {
+          local.isFile("sync").then(function (is_file) {
+            if (is_file) {
+              local.readFile("sync").then(result);
+              return;
+            }
+            result(null);
+          });
+        });
+      };
+
+      /**
+       * @param float channelId
+       */
+      _myTrait_.treeOfLife = function (channelId) {
+
+        // loads the whole tree of life for this entry, can be a big operation...
+
+        var local = this._folder,
+            me = this;
+
+        if (channelId) {
+          var model = _localChannelModel(channelId, this._fs);
+          return model.treeOfLife();
+        }
+
+        return _promise(function (response) {
+          me.then(function () {
+
+            if (me._settings.from) {
+              me.treeOfLife(me._settings.from).then(response);
+            } else {
+              me.childForkTree().then(response);
+            }
+          });
+        });
+      };
+
+      /**
+       * @param int size
+       * @param float lineNumber
+       */
+      _myTrait_.truncateJournalTo = function (size, lineNumber) {
+
+        var local = this._folder,
+            me = this;
+
+        return _promise(function (resp) {
+
+          local.truncateFile("journal." + me._settings.version, size).then(function () {
+
+            // add the journal size after the write...
+            me._settings.journalSize = size;
+            me._settings.journalLine = lineNumber;
+
+            me._writeSettings();
+            resp(true);
+          });
+        });
+      };
+
+      /**
+       * @param string fileName
+       * @param float fileData
+       */
+      _myTrait_.writeFile = function (fileName, fileData) {
+        // NOTE: this function should not be used in typical situations
+        var local = this._folder;
+
+        if (typeof fileData != "string") fileData = JSON.stringify(fileData);
+
+        return local.writeFile(fileName, fileData);
+      };
+
+      /**
+       * @param string data
+       * @param float version
+       */
+      _myTrait_.writeMain = function (data, version) {
+
+        // NOTE: this function should not be used in typical situations
+        var local = this._folder,
+            me = this,
+            versionNumber = version || me._settings.version;
+
+        if (typeof data != "string") data = JSON.stringify(data);
+
+        return local.writeFile("file." + versionNumber, data);
+      };
+
+      /**
+       * @param Object row
+       */
+      _myTrait_.writeToJournal = function (row) {
+
+        var local = this._folder,
+            me = this;
+
+        if (this.isArray(row[0])) {
+          var str = "",
+              cnt = 0;
+          row.forEach(function (r) {
+            str += JSON.stringify(r) + "\n";
+            cnt++;
+          });
+          return _promise(function (resp) {
+            local.appendFile("journal." + me._settings.version, str).then(function () {
+
+              // keep the size of the journal available for quicly truncating the server file
+              me._settings.journalSize += str.length;
+
+              me._settings.journalLine += cnt;
+              me._writeSettings();
+              resp(true);
+            });
+          });
+        }
+
+        return _promise(function (resp) {
+          var str = JSON.stringify(row) + "\n";
+          local.appendFile("journal." + me._settings.version, str).then(function () {
+
+            // add the journal size after the write...
+            me._settings.journalSize += str.length;
+
+            me._settings.journalLine++;
+            me._writeSettings();
+            resp(true);
+          });
+        });
+      };
+    })(this);
+  };
+
+  var _localChannelModel = function _localChannelModel(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _localChannelModel) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _localChannelModel._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _localChannelModel(a, b, c, d, e, f, g, h);
+  };
+
+  _localChannelModel_prototype.prototype = _promise.prototype;
+
+  _localChannelModel._classInfo = {
+    name: "_localChannelModel"
+  };
+  _localChannelModel.prototype = new _localChannelModel_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_localChannelModel"] = _localChannelModel;
+      this._localChannelModel = _localChannelModel;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_localChannelModel"] = _localChannelModel;
+    } else {
+      this._localChannelModel = _localChannelModel;
+    }
+  }).call(new Function("return this")());
+
+  var _serverChannelMgr_prototype = function _serverChannelMgr_prototype() {
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _rooms;
+      var _socketRooms;
+      var _authExtension;
+      var _accessManager;
+      var _autoCreateFn;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float chId
+       * @param float socket
+       */
+      _myTrait_.addSocketToCh = function (chId, socket) {
+
+        if (!this._channelSockets[chId]) {
+          this._channelSockets[chId] = [];
+        }
+        if (this._channelSockets[chId].indexOf(socket) < 0) {
+          this._channelSockets[chId].push(socket);
+          console.log("-- client joined " + chId + ", now  " + this._channelSockets[chId].length + " connected");
+        }
+      };
+
+      /**
+       * Returns the access manager, if defined
+       * @param float t
+       */
+      _myTrait_.getAccessManager = function (t) {
+        return _accessManager;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getServerSocket = function (t) {
+        return this._server;
+      };
+
+      /**
+       * @param float chId
+       */
+      _myTrait_.getSocketsFromCh = function (chId) {
+        if (!this._channelSockets[chId]) return [];
+
+        return this._channelSockets[chId];
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (serverSocket, fileSystem, authManager) {
+
+        this._server = serverSocket;
+        this._auth = authManager;
+
+        this._channelSockets = {};
+
+        var me = this;
+
+        // The server which manages the client connections is here..
+
+        this._server.on("connect", function (socket) {
+
+          // keeps track of channels the socket is registered into   
+          var _socketChannels = [];
+          var ctrl; // the channel controller
+
+          if (!socket.__channels) socket.__channels = [];
+
+          socket.on("requestChannel", function (cData, responseFn) {
+
+            // Request channel -> possible also autocreate channels, if they don't exist
+
+            fileSystem.findPath(cData.channelId).then(function (fold) {
+              if (fold) {
+
+                // require first to authenticate, at least read access to join
+                ctrl = _channelController(cData.channelId, fileSystem, me);
+                ctrl.then(function () {
+                  if (ctrl._groupACL(socket, "r")) {
+                    socket.join(cData.channelId);
+                    me.addSocketToCh(cData.channelId, socket);
+                    socket.__channels.push(cData.channelId);
+                    responseFn({
+                      success: true,
+                      channelId: cData.channelId
+                    });
+                  } else {
+                    responseFn({
+                      success: false,
+                      channelId: null
+                    });
+                  }
+                });
+              } else {
+                /*
+                if(chData && !chData.__acl) {
+                chData.__acl = chSettings.__acl;
+                }
+                 if(!chSettings.channelId || !chSettings._userId ) {
+                response({
+                result : false,
+                text : "Could not create the channel, missing information"
+                });             
+                return;
+                }
+                 var obj = {
+                version : 2,    // with pre-initialized data, the first version is 2
+                channelId : chSettings.channelId,
+                userId : chSettings._userId,
+                name : chSettings.name || "",
+                utc : (new Date()).getTime()
+                };                
+                */
+                if (_autoCreateFn) {
+                  // ---
+                  console.log("** Starting to autocreate channel **" + cData.channelId);
+                  _autoCreateFn(cData, socket, function (shouldCreate, withData) {
+                    if (shouldCreate && withData) {
+                      // --> creates a new channel...
+                      var model = _localChannelModel(null, fileSystem);
+                      model.createChannel({
+                        chData: withData,
+                        _userId: socket.getUserId(),
+                        name: "autocreated",
+                        channelId: cData.channelId
+                      }).then(function (r) {
+                        if (!r.result) {
+                          responseFn({
+                            success: false,
+                            channelId: null
+                          });
+                          return;
+                        }
+                        ctrl = _channelController(cData.channelId, fileSystem, me);
+                        ctrl.then(function () {
+                          if (ctrl._groupACL(socket, "r")) {
+                            console.log("** autocreated a channel **" + cData.channelId);
+                            socket.join(cData.channelId);
+                            me.addSocketToCh(cData.channelId, socket);
+                            socket.__channels.push(cData.channelId);
+                            responseFn({
+                              success: true,
+                              channelId: cData.channelId
+                            });
+                          } else {
+                            responseFn({
+                              success: false,
+                              channelId: null
+                            });
+                          }
+                        });
+                      });
+                    } else {
+                      responseFn({
+                        success: false,
+                        channelId: null
+                      });
+                    }
+                  });
+                } else {
+                  responseFn({
+                    success: false,
+                    channelId: null
+                  });
+                }
+              }
+            });
+          });
+
+          socket.on("disconnect", function () {
+            // console.log("--- channel manager got disconnect to the service pool ---- ");
+            // console.log("TODO: remove the channel so that it will not leak memory");
+            // me.removeSocketFromCh(  socket );
+            console.log("Socket is in " + socket.__channels.length + " channels ");
+            socket.__channels.forEach(function (chId) {
+              me.removeSocketFromCh(chId, socket);
+            });
+          });
+
+          socket.on("auth", function (cData, responseFn) {
+
+            if (_authExtension) {
+              try {
+                _authExtension(cData, function (success, userid, groups) {
+                  if (success === true) {
+                    var UID = userid;
+                    console.log("custom authentication into ", groups);
+                    socket.setAuthInfo(UID, groups);
+                    responseFn({
+                      success: true,
+                      userId: socket.getUserId(),
+                      groups: groups
+                    });
+                  } else {
+                    responseFn({
+                      success: false,
+                      userId: null
+                    });
+                  }
+                });
+              } catch (e) {
+                responseFn({
+                  success: false,
+                  userId: null
+                });
+              }
+            } else {
+              if (authManager) {
+                authManager.login(cData.userId, cData.password).then(function (res) {
+                  if (res.result === true) {
+                    var UID = res.userId;
+                    var groups = res.groups;
+                    console.log("AUTH groups ", res.groups);
+                    socket.setAuthInfo(UID, groups);
+                    responseFn({
+                      success: true,
+                      userId: socket.getUserId(),
+                      groups: res.groups
+                    });
+                  } else {
+                    responseFn({
+                      success: false,
+                      userId: null
+                    });
+                  }
+                });
+              } else {
+                responseFn({
+                  success: false,
+                  userId: null
+                });
+              }
+            }
+          });
+
+          // messages to the channel from the socket
+          socket.on("channelCommand", function (cmd, responseFn) {
+
+            if (!socket.getUserId()) {
+              responseFn({
+                success: false,
+                reason: "socket is not authenticated."
+              });
+              return;
+            }
+
+            if (!socket.isInRoom(cmd.channelId)) {
+              responseFn({
+                success: false,
+                reason: "not in room"
+              });
+              return;
+            }
+
+            // console.log("Command "+JSON.stringify(cmd));
+
+            console.time("cmd_emit_done");
+
+            var ms = new Date().getTime();
+
+            // the command for the channel controller...
+            ctrl.run(cmd, function (resp) {
+              var msEnd = new Date().getTime();
+              console.log("Command " + cmd.cmd + " took " + (msEnd - ms));
+              if (responseFn) responseFn(resp);
+            }, socket);
+          });
+        });
+      });
+
+      /**
+       * @param float chId
+       * @param float socket
+       */
+      _myTrait_.removeSocketFromCh = function (chId, socket) {
+        if (!this._channelSockets[chId]) return;
+
+        var list = this._channelSockets[chId];
+        var i = list.indexOf(socket);
+        if (i >= 0) {
+          list.splice(i, 1);
+        }
+
+        if (list.length == 0) {
+          console.log("-- all clients have left " + chId + " => should close the channel --- ");
+        } else {
+          console.log("-- client left " + chId + " still  " + list.length + " connected");
+        }
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.setAccessManager = function (fn) {
+        _accessManager = fn;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.setAuthExtension = function (fn) {
+        _authExtension = fn;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.setAutoCreateFn = function (fn) {
+        _autoCreateFn = fn;
+      };
+    })(this);
+  };
+
+  var _serverChannelMgr = function _serverChannelMgr(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _serverChannelMgr) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _serverChannelMgr._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _serverChannelMgr(a, b, c, d, e, f, g, h);
+  };
+
+  _serverChannelMgr._classInfo = {
+    name: "_serverChannelMgr"
+  };
+  _serverChannelMgr.prototype = new _serverChannelMgr_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_serverChannelMgr"] = _serverChannelMgr;
+      this._serverChannelMgr = _serverChannelMgr;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_serverChannelMgr"] = _serverChannelMgr;
+    } else {
+      this._serverChannelMgr = _serverChannelMgr;
+    }
+  }).call(new Function("return this")());
+
+  var _channelController_prototype = function _channelController_prototype() {
+
+    (function (_myTrait_) {
+      var _instances;
+      var _cmds;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_._askChUpgrade = function (t) {
+
+        var sockets = this._chManager.getSocketsFromCh(this._channelId);
+
+        var me = this;
+        sockets.forEach(function (socket) {
+
+          if (!me._serverState.upgrade) me._serverState.upgrade = {};
+          me._serverState.upgrade[socket.getId()] = {
+            askFull: true,
+            socket: socket
+          };
+        });
+      };
+
+      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
+      _myTrait_.__factoryClass.push(function (id, fileSystem) {
+        if (!_instances) {
+          _instances = {};
+        }
+
+        id = id + fileSystem.id();
+
+        if (_instances[id]) {
+          return _instances[id];
+        } else {
+          _instances[id] = this;
+        }
+      });
+
+      /**
+       * @param Object cmd
+       */
+      _myTrait_._createSyncCh = function (cmd) {
+        var me = this;
+        var cc = null; // <-- connect to the channel
+
+        // master-sync file contents
+        // [2,621]
+
+        // The sync file contents
+        /*
+        {
+        "out" : {
+        "channelId" : "sync/test1",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7778",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        },
+        "in" : {
+        "channelId" : "sync/test2",
+        "protocol" : "http",
+        "ip" : "localhost",
+        "port" : "1234",
+        "extPort" : "7779",
+        "method" : "node.socket",
+        "username" : "Tero",
+        "password" : "teropw"
+        }
+        }
+        */
+
+        console.log("** startin _createSyncCh with data **");
+        console.log(JSON.stringify(cmd));
+
+        return _promise(function (syncReady, syncFail) {
+
+          // -> channel to checkout...
+          var sync = cmd.sync; // <-- the sync file contents
+          var outSocket;
+
+          if (sync.out.method == "memory.socket") {
+            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port);
+          }
+
+          if (sync.out.method == "node.socket") {
+            var ioLib = require("socket.io-client");
+            var realSocket1 = ioLib.connect(sync.out.protocol + "://" + sync.out.ip + ":" + (sync.out.extPort || sync.out.port));
+            outSocket = _clientSocket(sync.out.protocol + "://" + sync.out.ip, sync.out.port, realSocket1);
+          }
+
+          // cc = HERE the slave connection which the server1 has to server2
+          // slave <-> master connection
+          var cc = channelClient(sync.out.channelId, outSocket, {
+            auth: {
+              username: sync.out.username,
+              password: sync.out.password
+            }
+          });
+
+          cc.then(function () {
+            cc._checkout(sync.out.channelId).then(function (r) {
+
+              // the channel has been now checked out
+              /*
+              {"ch":"my/channel",
+              "file":"ch.settings",
+              "data":"{\"version\":2,\"channelId\":\"my/channel\",\"journalLine\":1,\"utc\":14839287897}"}        
+              */
+              var wait = _promise();
+              var start = wait;
+
+              var fileSystem = me._model.getFilesystem(); // <- the root filesystem for the checkout process
+
+              // TODO: this is all overriding sync, what if the channel already does exist?
+              if (r.build) r.build.forEach(function (fileData) {
+                var m;
+                wait = wait.then(function () {
+                  m = _localChannelModel(fileData.ch, fileSystem);
+                  return m;
+                }).then(function () {
+                  return m.folder().isFile(fileData.ch);
+                }).then(function (is_file) {
+                  // if the local file already does exist then do not write it
+                  if (!is_file) {
+                    return m.writeFile(fileData.file, fileData.data);
+                  } else {
+                    return is_file;
+                  }
+                });
+              });
+
+              // after this has been done, the data should be loaded and the checkout is ready to be used by any
+              // connection which opens it
+              var folder = me._model.folder();
+              wait = wait.then(function () {
+                // TODO:
+                // - create masterSync NOTE : good to write so that it does not start from [0,0]
+                // - create sync file
+                //
+                return folder.isFile("sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  return folder.writeFile("sync", JSON.stringify(sync));
+                }
+              }).then(function (is_file) {
+                return folder.isFile("master-sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  var ms = [cc._clientState.version, cc._clientState.data.getJournalLine()];
+                  return folder.writeFile("master-sync", JSON.stringify(ms));
+                }
+              }).then(function () {
+                syncReady(sync);
+              }).fail(syncFail);
+            }).fail(syncFail);
+          }).fail(syncFail);
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._doClientUpdate = function (t) {
+
+        var updObj,
+            me = this;
+
+        if (!me._serverState) return;
+
+        // if client has sent "upgradeRequest" command, because it notices that it has
+        // been drifted out of state. The client's request can have .askFull = true
+        // flag set to indicate that the client requires the full channelData with
+        // the whole journal to be sent to the client from server.
+        if (me._serverState.upgrade) {
+
+          // me._serverState.upgrade is a hash having the socketID values as keys
+          for (var n in me._serverState.upgrade) {
+
+            if (me._serverState.upgrade.hasOwnProperty(n)) {
+              var info = me._serverState.upgrade[n];
+
+              if (info.socket) {
+                // do we need a full update or partial update?
+                if (info.version != me._serverState.version || info.askFull) {
+                  var fullData = me._serverState.data.getData();
+                  info.socket.emit("upgrade_" + me._channelId, {
+                    version: me._serverState.version,
+                    journal: me._serverState.data._journal,
+                    data: fullData
+                  });
+                } else {
+                  var lastJournaLine = info.last_update[1];
+                  info.socket.emit("upgrade_" + me._channelId, {
+                    partialFrom: lastJournaLine,
+                    partialEnds: me._serverState.data._journal.length,
+                    partial: me._serverState.data._journal.slice(lastJournaLine)
+                  });
+                }
+                delete me._serverState.upgrade[n]; // make sure not handled again
+              }
+            }
+          }
+        }
+
+        // This is the "business as usual" data from server to the clients.
+        // If server has received commands which have been added to the journal and
+        // these lines have not been yet sent to the clients, _policy will construct
+        // the packet to be sent to listeners.
+        if (me._broadcastSocket && me._policy) {
+          var data = me._policy.constructServerToClient(me._serverState);
+          if (data) {
+
+            //console.log(" has something to sent to the clients ");
+            //console.log(JSON.stringify(data));
+
+            console.time("emit_start");
+
+            if (!updObj) updObj = me._broadcastSocket.to(me._channelId);
+
+            var currentJournalSize = me._model.getJournalSize();
+            data.journalSize = currentJournalSize;
+
+            updObj.emit("s2c_" + me._channelId, data);
+
+            // broadcast to the socket "room"
+            console.timeEnd("emit_start");
+            console.timeEnd("cmd_emit_done");
+
+            var updStartMsEnd = new Date().getTime();
+            // the server's connection to the remote client goes here...
+            if (me._syncConnection && me._syncConnection.isConnected()) {
+              // console.log("--- sending data to me._syncConnection --- ");
+              if (data.c) {
+                data.c.forEach(function (eCmd) {
+                  // Note: the addCommand is just fine because it will run the command against the
+                  // client -> server connection state, if the command fails, then it will not be
+                  // sent over the network to the remote server at all
+                  var r = me._syncConnection.addCommand(eCmd);
+                });
+              }
+              // the last lines sent to the server
+              me._masterSync = [me._serverState.version, me._serverState.data.getJournalLine()];
+              me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));
+            }
+
+            // data.c is array of journal entries to be written to the actual journal file
+            me._model.writeToJournal(data.c).then(function (r) {});
+          }
+        }
+      };
+
+      /**
+       * Executes command with admin priviledges wihtout socket connection
+       * @param float cmd
+       * @param float socket  - not used
+       * @param float options  - not used
+       */
+      _myTrait_._execCmd = function (cmd, socket, options) {
+        // 1. selecting the command to be run here...
+        var me = this;
+        return _promise(function (result) {
+          if (!cmd || !cmd.cmd) {
+            result(null);
+            return;
+          }
+          var fn = me._cmds[cmd.cmd];
+          if (fn) {
+            me._commands.addCommands(function (contFn) {
+              fn(cmd, function (r) {
+                result(r);
+                contFn();
+              }, {
+                _adminSocket: true
+              });
+            });
+          } else {
+            result(null);
+          }
+        });
+        /*
+        var me = this;
+        return _promise(
+        function(result) {
+        if(!cmd || ! cmd.cmd) {
+            result(null);
+            return;
+        }
+        var fn = me._cmds[cmd.cmd];
+        if(fn) {
+            fn(cmd, function(r) {
+                result(r);
+            }, socket);
+        } else {
+            result(null);
+        }
+        });
+        */
+      };
+
+      /**
+       * @param float socket
+       * @param float flags
+       * @param float cmd
+       */
+      _myTrait_._groupACL = function (socket, flags, cmd) {
+
+        // for local commands
+        if (socket._adminSocket) {
+          return true;
+        }
+
+        var am = this._chManager.getAccessManager();
+        if (am) {
+          return am(this, socket, cmd);
+        }
+
+        var me = this;
+        if (!me._acl) return false;
+
+        var roles = socket.getUserRoles();
+        var a_ok = false;
+        for (var i = 0; i < roles.length; i++) {
+          // must have "read attributes" and "read ACL flags"
+          if (me._acl.find("", roles[i] + "@", flags)) {
+            a_ok = true;
+            break;
+          }
+        }
+        return a_ok;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._initCmds = function (t) {
+
+        if (!_cmds) _cmds = {};
+        if (this._cmds) return;
+
+        var me = this;
+        this._cmds = {
+          treeOfLife: function treeOfLife(cmd, result, socket) {
+            if (!me._groupACL(socket, "r", cmd)) {
+              result(null);
+              return;
+            }
+
+            me._model.treeOfLife().then(function (r) {
+              result(r);
+            });
+          },
+          // -- perhaps a bit hard command here...
+          sync: function sync(cmd, result, socket) {
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+
+            // can you check that the local port is not the same as the out port
+
+            if (!cmd || !cmd.data || !cmd.data.sync || !cmd.data.sync.out || !cmd.data.sync["in"]) {
+              console.log("ERROR: Sync failed");
+              console.log(JSON.stringify(cmd));
+              result({
+                success: false
+              });
+              return;
+            }
+            var out = cmd.data.sync.out;
+            var serverSocket = socket;
+            /*
+            this._ip = ip;
+            this._port = port;
+            this._ioLib = ioLib;
+            */
+            if (serverSocket._ip == out.ip) {
+              if (serverSocket._ioLib) {
+                var ss = serverSocket._ioLib;
+                if (ss.handshake) {
+                  var address = ss.handshake.address;
+                  if (address && address.port == out.extPort) {
+                    result({
+                      success: false
+                    });
+                    return;
+                  }
+                }
+                // console.log("New connection from " + address.address + ":" + address.port);       
+              }
+            }
+            // --> can you just create a new channel based on the data..
+            //me._model.createChannel( cmd.data ).then( function(r) {
+            //    result(r);
+            // });
+
+            var localModel = _localChannelModel(cmd.data.sync["in"].channelId, me._model.getFilesystem());
+
+            // must create the channel controller...
+            // var ctrl = _channelController( cmd.data.sync["in"].channelId, me._model.getFilesystem(), me._chManager );
+
+            localModel.then(function () {
+              return localModel.createSyncedModel(cmd.data); // <-- should create the sync
+            }).then(function () {
+              result({
+                success: true
+              });
+            }).fail(function () {
+              result({
+                success: false
+              });
+            });
+          },
+          checkout: function checkout(cmd, result, socket) {
+            if (!me._groupACL(socket, "r", cmd)) {
+              result(null);
+              return;
+            }
+
+            // read the build tree and the status...
+            me._model.readCheckoutData().then(function (r) {
+              result({
+                build: r
+              });
+            });
+          },
+          readBuildTree: function readBuildTree(cmd, result, socket) {
+
+            if (!me._groupACL(socket, "r", cmd)) {
+              result(null);
+              return;
+            }
+
+            // read the build tree and the status...
+            me._model.readBuildTree().then(function (r) {
+
+              me._model.status().then(function (status) {
+                result({
+                  status: status,
+                  build: r
+                });
+              });
+              // result(r);
+            });
+          },
+          getForks: function getForks(cmd, result, socket) {
+            if (!me._groupACL(socket, "r", cmd)) {
+              result(null);
+              return;
+            }
+            me._model.getForks().then(function (r) {
+              result(r);
+            });
+          },
+          channelStatus: function channelStatus(cmd, result, socket) {
+            if (!me._groupACL(socket, "tc", cmd)) {
+              result(null);
+              return;
+            }
+            me._model.status().then(function (r) {
+              result(r);
+            });
+          },
+          raw: function raw(cmd, result, socket) {
+            if (me._groupACL(socket, "tc")) {
+              result(me._chData.getData());
+            } else {
+              result(null);
+            }
+          },
+          createChannel: function createChannel(cmd, result, socket) {
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+            if (!cmd.data) {
+              result({
+                ok: false
+              });
+              return;
+            }
+            if (!cmd.data.__acl) {
+              var fullData = me._serverState.data.getData();
+              if (!fullData || !fullData.__acl) {
+                result({
+                  ok: false
+                });
+                return;
+              }
+              cmd.data.__acl = fullData.__acl;
+            }
+            cmd.data._userId = socket.getUserId();
+            me._model.createChannel(cmd.data).then(function (r) {
+              result(r);
+            });
+          },
+          fork: function fork(cmd, result, socket) {
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+            if (!cmd.data) {
+              result({
+                ok: false
+              });
+              return;
+            }
+            cmd.data._userId = socket.getUserId();
+            me._model.fork(cmd.data).then(function (r) {
+              result(r);
+            });
+          },
+          // the snapshot command should cause all the sockets to be upgraded
+          snapshot: function snapshot(cmd, result, socket) {
+
+            console.log("got snapshot command");
+
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+
+            var fullData = me._serverState.data.getData();
+
+            if (fullData.__orphan) {
+              fullData.__orphan.length = 0;
+            }
+
+            // first, save all the unsaved changes and refresh the clients with unsent data
+            me._doClientUpdate();
+
+            // then, create new version of the main file
+            me._model.snapshot(fullData).then(function (r) {
+
+              // the _serverState data must be also upgraded...
+              me._serverState.version++; // ????
+              me._serverState.data._journal.length = 0;
+              me._serverState.last_update[0] = 0;
+              me._serverState.last_update[1] = 0;
+
+              if (me._masterSync) {
+                me._masterSync = [me._serverState.version, 0];
+                me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync)).then(function () {
+                  me._askChUpgrade(me._channelId);
+                  result({
+                    ok: true
+                  });
+                });
+              } else {
+                // ask channels to upgrade to the latest version of data
+                me._askChUpgrade(me._channelId);
+                result({
+                  ok: true
+                });
+              }
+            });
+          },
+          writeMain: function writeMain(cmd, result, socket) {
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+            me._model.writeFile("main", cmd.data).then(function (r) {
+              result({
+                ok: true
+              });
+            });
+          },
+          readMain: function readMain(cmd, result, socket) {
+            if (!me._groupACL(socket, "r", cmd)) {
+              result(null);
+              return;
+            }
+            me._model.readMain().then(function (r) {
+              result(r);
+            });
+          },
+          readMainVersion: function readMainVersion(cmd, result, socket) {
+            if (!me._groupACL(socket, "r", cmd)) {
+              result(null);
+              return;
+            }
+            me._model.readMain(cmd.data).then(function (r) {
+              result(r);
+            });
+          },
+          upgradeRequest: function upgradeRequest(cmd, result, socket) {
+
+            if (!me._groupACL(socket, "r", cmd)) {
+              result(null);
+              return;
+            }
+            if (!me._serverState.upgrade) {
+              me._serverState.upgrade = {};
+            }
+
+            // the upgrade request sent by the client...
+            cmd.data.socket = socket;
+            me._serverState.upgrade[socket.getId()] = cmd.data;
+
+            result({
+              result: true
+            });
+          },
+          c2s: function c2s(cmd, result, socket) {
+
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+
+            if (socket.getUserId) {
+              var uid = socket.getUserId();
+              var len = cmd.data.c.length,
+                  list = cmd.data.c,
+                  utc = new Date().getTime();
+              for (var i = 0; i < len; i++) {
+                list[i][5] = utc;
+                list[i][6] = uid;
+              }
+            }
+
+            var res = me._policy.deltaClientToServer(cmd.data, me._serverState);
+
+            // pick one socket so that we can broadcast if necessary...
+            if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
+
+            // in this case we do not write immediately to all clients, just return
+            // the result to the client
+            result(res);
+
+            // TODO: socket, emit to all clients.
+          },
+          // here is the point to upgrade the server according to data sent from the client
+          masterUpgrade: function masterUpgrade(cmd, result, socket) {
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+
+            console.log("creating a master upgrade with ");
+            console.log(JSON.stringify(cmd));
+
+            if (socket.getUserId) {
+              var uid = socket.getUserId();
+              var len = cmd.data.c.length,
+                  list = cmd.data.c,
+                  utc = new Date().getTime();
+              for (var i = 0; i < len; i++) {
+                list[i][5] = utc;
+                list[i][6] = uid;
+              }
+            }
+
+            // check that the command is valid
+            var res = me._policy.deltaMasterToSlave(cmd.data, me._serverState);
+
+            if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
+
+            // here is a problem, can not wait for the deltaMasterToSlave to finish
+            // because it is a thenable
+            if (res && res.then) {
+              result({
+                upgradeingMaster: true
+              });
+              return;
+              /*
+              res.then( function(r) {
+                // result(r);
+              });
+              result({
+                
+              });
+              return;
+              */
+            }
+            console.log("result of master upgrade ");
+            console.log(JSON.stringify(res));
+            result(res);
+          },
+          changeFrame: function changeFrame(cmd, result, socket) {
+
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+
+            var res = me._tManager.execute(cmd.data);
+
+            // ERROR: should be checking the results here...
+            // might also write to the actual file-buffer here...
+
+            if (res.validCnt > 0) {
+              cmd.data.commands.length = res.validCnt;
+              me._model.writeToJournal(cmd.data.commands).then(function (r) {
+                socket.broadcast.to(cmd.channelId).emit("frame_" + cmd.channelId, cmd);
+                result(res);
+              });
+            } else {
+              result(res);
+            }
+            // result(res);
+
+            /*
+            me._model.writeToJournal( cmd.data ).then( function(r) {
+            socket.broadcast.to(cmd.channelId).emit("ch_"+cmd.channelId, cmd );
+            result({ ok : true}); 
+            });
+            */
+          } };
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._sendUnsentToMaster = function (t) {
+        // the server's connection to the remote client goes here...
+        var me = this;
+        if (me._syncConnection && me._syncConnection.isConnected() && me._masterSync) {
+
+          var lastSent = me._masterSync[1];
+          var currLine = me._serverState.data.getJournalLine();
+
+          if (currLine > lastSent) {
+
+            console.log("--- _sendUnsentToMaster --- ");
+            var cmds = me._serverState.data._journal.slice(lastSent, currLine);
+
+            cmds.forEach(function (eCmd) {
+              var r = me._syncConnection.addCommand(eCmd);
+            });
+
+            // the last lines sent to the server
+            me._masterSync = [0, currLine];
+            me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));
+          }
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._startSync = function (t) {
+        var me = this;
+
+        return _promise(function (result) {
+          // --> test also if the channel has a master server
+          me._model.syncData().then(function (data) {
+
+            if (!data) {
+              result(false);
+              return;
+            }
+
+            if (data) {
+              console.log("Sync data");
+              console.log(data);
+              var connData = JSON.parse(data);
+              var outConn = connData.out;
+
+              // inConn = connData.in;
+              // there is a slave <-> master connection, should create the sync between the two
+              // channels around here for some client which takes care of sending the data...
+
+              if (outConn.method == "memory.socket") {
+                var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port);
+              }
+
+              if (outConn.method == "node.socket") {
+                var ioLib = require("socket.io-client");
+                var realSocket1 = ioLib.connect(outConn.protocol + "://" + outConn.ip + ":" + (outConn.extPort || outConn.port));
+                var outSocket = _clientSocket(outConn.protocol + "://" + outConn.ip, outConn.port, realSocket1);
+              }
+
+              /*
+              // TODO: think about if there is need for inConn method at all?  
+              if(inConn.method=="memory.socket") {
+                  var inSocket  = _clientSocket(inConn.protocol+"://"+inConn.ip, inConn.port);
+              }
+                       if(inConn.method=="node.socket") {
+                  var ioLib = require('socket.io-client')
+                  var realSocket2 = ioLib.connect(outConn.protocol+"://"+inConn.ip+":"+( inConn.extPort || inConn.port));            
+                  var inSocket  = _clientSocket(outConn.protocol+"://"+inConn.ip, inConn.port, realSocket2);
+              } 
+              
+              // TODO: how to make the authentication between 2 clients ?
+              var inConnection = channelClient( inConn.channelId, inSocket, {
+                      auth : {
+                          username : inConn.username,
+                          password : inConn.password
+                      }
+                  });         
+              */
+
+              // TODO: how to make the authentication between 2 clients ?
+              var outConnection = channelClient(outConn.channelId, outSocket, {
+                auth: {
+                  username: outConn.username,
+                  password: outConn.password
+                }
+              });
+
+              outConnection.then(function () {
+                console.log("out done, checking for master-sync");
+                return me._model.folder().isFile("master-sync");
+              }).then(function (is_file) {
+                if (!is_file) {
+                  console.log("master-sync missing");
+
+                  // TODO: is there a problem here, [0,0] may not be a valid start for the channel...
+                  return me._model.writeFile("master-sync", JSON.stringify([me._serverState.version, 0]));
+                }
+                return 0;
+              }).then(function () {
+                console.log("reading master-sync missing");
+                return me._model.readFile("master-sync");
+              }).then(function (d) {
+                console.log(d);
+                me._masterSync = JSON.parse(d);
+                return d;
+              }).then(function (d) {
+                // ?? whot if there would be only the "out" connection
+                // inConnection.setMasterConnection( outConnection );
+                // outConnection.setSlaveServer( inConnection );    
+
+                outConnection._slaveController = me;
+                me._syncConnection = outConnection;
+
+                // <- when sync starts, send first all unsent data
+                me._sendUnsentToMaster();
+
+                // outConnection.setChannelModel( me._model );
+                console.log("sync: ---- in / out connection ready --- ");
+                result(true);
+              });
+            }
+          });
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._updateLoop = function (t) {
+
+        // TODO: make the update loop a setting or automatically adjusting value depending
+        // on the server load - the function is not required to be run if there is no activity
+        // and it should be removed if the client exits from the channel.
+        var me = this;
+        later().onFrame(function () {
+          me._doClientUpdate();
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.channelId = function (t) {
+        return this._channelId;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (channelId, fileSystem, chManager) {
+
+        this._channelId = channelId;
+        this._commands = sequenceStepper(channelId + fileSystem.id());
+        this._chManager = chManager;
+
+        // important point: the file system is passed here to the local channel model
+        this._model = _localChannelModel(channelId, fileSystem);
+
+        var me = this;
+
+        // Then, construct the channel model from the data
+        this._model.readBuildTree().then(function (r) {
+
+          // the build tree
+          var mainData = r.pop();
+          var dataTest = _channelData(channelId + fileSystem.id(), mainData, []);
+          var list = r.pop();
+
+          // NOW, here is a problem, the in-memory channel "journal" should be truncated
+          while (list) {
+            dataTest._journalPointer = 0;
+            dataTest._journal.length = 0; // <-- the journal length, last will be spared
+            list.forEach(function (c) {
+              dataTest.execCmd(c);
+            });
+            list = r.pop();
+          }
+
+          // The state of the server - what should be the "last_update" ? 
+          me._serverState = {
+            model: me._model, // model of the server state, if truncate needed
+            data: dataTest, // The channel data object set here
+            version: me._model._settings.version, // the version of the channel model
+            last_update: [0, dataTest.getJournalLine()], // the range of last commands sent to the client
+            _done: {} // hash of handled packet ID's
+          };
+
+          var data = dataTest.getData();
+          if (data.__acl) {
+            me._acl = nfs4_acl(data.__acl);
+          }
+
+          // me._tManager = _channelTransaction(channelId + fileSystem.id(), dataTest);
+
+          // The channel policy might replace the transaction manager...
+          me._policy = _chPolicy();
+
+          me._updateLoop(); // start the update loop
+          me._chData = dataTest;
+
+          // if there is a sync server, start it too before proceeding...
+          me._startSync().then(function () {
+            me.resolve(true);
+          });
+        });
+
+        this._initCmds();
+      });
+
+      /**
+       * @param float cmd
+       * @param float responseFn
+       * @param float socket
+       */
+      _myTrait_.run = function (cmd, responseFn, socket) {
+
+        // 1. selecting the command to be run here...
+        var fn = this._cmds[cmd.cmd];
+        if (fn) {
+          this._commands.addCommands(function (contFn) {
+            fn(cmd, function (result) {
+              responseFn(result);
+              contFn();
+            }, socket);
+          });
+        }
+      };
+    })(this);
+  };
+
+  var _channelController = function _channelController(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _channelController) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _channelController._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _channelController(a, b, c, d, e, f, g, h);
+  };
+
+  _channelController_prototype.prototype = _promise.prototype;
+
+  _channelController._classInfo = {
+    name: "_channelController"
+  };
+  _channelController.prototype = new _channelController_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_channelController"] = _channelController;
+      this._channelController = _channelController;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_channelController"] = _channelController;
+    } else {
+      this._channelController = _channelController;
+    }
+  }).call(new Function("return this")());
+
   var moshModule_prototype = function moshModule_prototype() {
 
     (function (_myTrait_) {
@@ -15844,11 +15315,6 @@
 // console.log("Strange... no emit value in ", this._parent);
 
 // objectCache[data.__id] = this;
-/*
-this._channelId = channelId;
-this._commands = sequenceStepper(channelId);
-this._chManager = chManager;
-*/
 
 // console.log("The socket was not connected");
 
@@ -15856,15 +15322,13 @@ this._chManager = chManager;
 
 // var socket = io('http://localhost');
 
-// result( { result : false,  text : "Login failed"} );
-
 /*
 serverState.model.writeToJournal( goodList ).then( function() {
 // done(result);
 });
 */
 
-// Initialize static variables here...
+// result( { result : false,  text : "Login failed"} );
 
 // skip, if next should be taken instead
 
@@ -15877,3 +15341,8 @@ serverState.model.writeToJournal( goodList ).then( function() {
 // this.writeCommand(a);
 
 //    this.writeCommand(a);
+/*
+this._channelId = channelId;
+this._commands = sequenceStepper(channelId);
+this._chManager = chManager;
+*/

@@ -5480,7 +5480,7 @@
         } else {
 
           console.log("value set " + name + " = " + value);
-
+          debugger;
           this._client.set(this._docData.__id, name, value);
           this.createPropertyUpdateFn(name, value);
           return this;
@@ -20344,7 +20344,7 @@
                   if (_hooks["onError"]) {
                     _hooks["onError"]({
                       data: data,
-                      reason: " updateFrame.start > data._journal.length ",
+                      reason: " server datas are different ",
                       clientState: clientState,
                       updateFrame: updateFrame,
                       serverCmds: updateFrame.c
@@ -22842,9 +22842,15 @@
             // do not allow commands when playback is on
             return false;
           }
+          console.log("cmd " + a);
 
           if (c) {
             var rv = c.apply(this, [a, isRemote]);
+
+            if (rv !== true) {
+              console.log("ERROR " + JSON.stringify(a));
+              console.log(JSON.stringify(rv));
+            }
 
             if (rv === true && !isRedo) {
               // there is the hot buffer possibility for the object
@@ -23288,6 +23294,60 @@
           this._journal.push(cmd);
           this._journalPointer++;
         }
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _hooks;
+
+      // Initialize static variables here...
+
+      /**
+       * @param String name  - Name of the hook to call
+       * @param Object params  - Object to send as params
+       */
+      _myTrait_.callHook = function (name, params) {
+        if (_hooks && _hooks[name]) {
+          var list = _hooks[name];
+          for (var i = 0; i < list.length; i++) {
+            list[i](params);
+          }
+        }
+      };
+
+      /**
+       * @param String name
+       */
+      _myTrait_.hasHook = function (name) {
+        if (_hooks && _hooks[name]) {
+          return _hooks[name].length;
+        }
+      };
+
+      /**
+       * @param String name  - Name of the hook to remove
+       * @param float fn
+       */
+      _myTrait_.removeHook = function (name, fn) {
+        if (!_hooks) return;
+        if (!_hooks[name]) return;
+
+        var i = _hooks[name].indexOf(fn);
+
+        if (i >= 0) _hooks[name].splice(i, 1);
+      };
+
+      /**
+       * Sets a command hook on the object
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.setHook = function (name, fn) {
+
+        if (!_hooks) _hooks = {};
+        if (!_hooks[name]) _hooks[name] = [];
+
+        _hooks[name].push(fn);
       };
     })(this);
 

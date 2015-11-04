@@ -971,66 +971,6 @@
     }
   }).call(new Function("return this")());
 
-  var moshEnv_prototype = function moshEnv_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (options) {});
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isNode = function (t) {
-        return new Function("try { return this === global; } catch(e) { return false; }")();
-      };
-    })(this);
-  };
-
-  var moshEnv = function moshEnv(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof moshEnv) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != moshEnv._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new moshEnv(a, b, c, d, e, f, g, h);
-  };
-
-  moshEnv._classInfo = {
-    name: "moshEnv"
-  };
-  moshEnv.prototype = new moshEnv_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["moshEnv"] = moshEnv;
-      this.moshEnv = moshEnv;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["moshEnv"] = moshEnv;
-    } else {
-      this.moshEnv = moshEnv;
-    }
-  }).call(new Function("return this")());
-
   var _clientSocket_prototype = function _clientSocket_prototype() {
 
     (function (_myTrait_) {

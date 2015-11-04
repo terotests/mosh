@@ -1732,17 +1732,14 @@
 
         if (!onRejected && this.isFunction(onFulfilled)) {
 
-          // ?? possible to call immediately??
-
           var me = this;
-          //later().asap(
-          //    function() {
-          onFulfilled(function (v) {
-            me.resolve(v);
-          }, function (v) {
-            me.resolve(v);
+          later().asap(function () {
+            onFulfilled(function (v) {
+              me.resolve(v);
+            }, function (v) {
+              me.resolve(v);
+            });
           });
-          //    });
         }
       });
 
@@ -7604,9 +7601,7 @@
           var fn = this._commands[i];
           (function (fn) {
             currentProm = currentProm.then(function () {
-
               var p = _promise();
-
               fn.fnCmd(function (res) {
                 p.resolve(true);
               }, function (failReason) {
@@ -7952,6 +7947,10 @@
         var i = this._channelSockets[chId].indexOf(socket);
         if (i >= 0) {
           this._channelSockets[chId].splice(i, 1);
+        }
+
+        if (this._channelSockets.length == 0) {
+          console.log("-- all clients have left " + chId + " => should close the channel --- ");
         }
       };
 

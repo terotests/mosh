@@ -22185,12 +22185,19 @@
         };
 
         // NOTE: deny inserting object which already has been inserted
-        if (insertedObj.__p) return {
-          error: 73,
-          cmd: a,
-          text: "The object already had a parent - need to remove first (" + a[2] + ") "
-        };
-
+        if (insertedObj.__p) {
+          if (insertedObj.__p == parentObj.__id) {
+            // nothing needs to be done here, unnecessary command though
+            console.log("WARNING : Unnecessary pushToArray");
+            console.log(a);
+            return true;
+          }
+          return {
+            error: 73,
+            cmd: a,
+            text: "The object already had a parent - need to remove first (" + a[2] + ") "
+          };
+        }
         if (isNaN(toIndex)) return {
           error: 74,
           cmd: a,

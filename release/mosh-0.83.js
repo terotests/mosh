@@ -4833,6 +4833,8 @@
 
         if (this._channelSockets.length == 0) {
           console.log("-- all clients have left " + chId + " => should close the channel --- ");
+        } else {
+          console.log("-- client left " + chId + " still  " + this._channelSockets.length + " connected");
         }
       };
 

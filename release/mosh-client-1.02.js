@@ -1885,23 +1885,6 @@
       };
 
       /**
-       * @param float what
-       */
-      _myTrait_.pick = function (what) {
-
-        var stream = simpleStream();
-        var me = this;
-
-        this.then(function () {
-          me._collectObject(me, what, function (data) {
-            stream.pushValue(data);
-          });
-        });
-
-        return stream;
-      };
-
-      /**
        * @param float t
        */
       _myTrait_.pop = function (t) {
@@ -1995,21 +1978,6 @@
             delete this._events[eventName];
           }
         }
-      };
-
-      /**
-       * @param float tplData
-       */
-      _myTrait_.renderTemplate = function (tplData) {
-
-        console.error('RenderTemplate not implemented');
-
-        /*
-        var comp = templateCompiler();  
-        var jsonTplData = comp.compile( tplData );
-        var dom = comp.composeTemplate( this._docData,  jsonTplData );
-        return dom;
-        */
       };
 
       /**
@@ -2477,138 +2445,6 @@
             });                
                 
         */
-      };
-
-      /**
-       * The old Object Event worker code
-       * @param float t
-       */
-      _myTrait_._objEventWorker = function (t) {
-        //console.log("******* if Then Worker ******");
-        //console.log(change);
-        //console.log(options);
-
-        if (!change) return;
-
-        // how to create something new...
-        if (change[0] == 4) {
-
-          // createPropertyUpdateFn
-          // console.log("%c  set for objects, property updf ", "background:orange;color:white");
-
-          var dom = targetObj;
-          var up = _docUp();
-
-          var dI = _data();
-          dI.createPropertyUpdateFn(change[1], null);
-
-          var dataItem = up._find(options.modelid);
-
-          if (dataItem.__undone) return;
-
-          if (options && options.eventObj) {
-            if (change[3] != change[2]) {
-              options.eventObj.trigger(change[1], change[2]);
-            }
-          }
-        }
-
-        if (options2) {
-          var origOptions = options;
-          options = options2;
-        }
-
-        if (change[0] == 5) {
-          var up = _docUp();
-          var dataItem = up._find(change[2]),
-              dataItem2 = up._find(change[4]);
-
-          if (dataItem.__undone) return;
-          if (dataItem2.__undone) return;
-
-          var dc = _data();
-
-          if (dc.findFromCache(change[4])) {
-
-            var dI = _data(change[4]),
-                setObj = _data(change[2]),
-                prop = change[1];
-
-            if (!dI) return;
-            if (!setObj) return;
-
-            dI[prop] = setObj;
-          }
-          // could trigger some event here perhaps... 
-        }
-
-        // __removedAt
-        if (change[0] == 8) {
-
-          var dom = targetObj;
-          var up = _docUp();
-          var dataItem = up._find(change[2]);
-          if (dataItem.__undone) return;
-
-          if (options.bListenMVC && options.eventObj) {
-            options.eventObj.trigger('remove', dataItem.__removedAt);
-          }
-        }
-
-        // insert
-        if (change[0] == 7) {
-
-          var up = _docUp();
-
-          var parentObj = up._find(change[4]),
-              insertedObj = up._find(change[2]);
-
-          if (parentObj.__undone) return;
-          if (insertedObj.__undone) return;
-
-          var index = parentObj.data.indexOf(insertedObj);
-
-          if (options.bListenMVC && options.eventObj) {
-            options.eventObj.trigger('insert', index);
-          }
-        }
-
-        if (change[0] == 12) {
-
-          var up = _docUp();
-
-          var parentObj = up._find(change[4]),
-              index = parseInt(change[2]),
-              len = parentObj.data.length;
-
-          if (parentObj.__undone) return;
-
-          for (var i = 0; i < len; i++) {
-            var m = parentObj.data[i];
-            if (m.__id == change[1]) {
-              targetObj = m;
-              break;
-            }
-          }
-
-          if (targetObj && targetObj.__undone) return;
-
-          // move item, this may not be working as expected...
-          var fromIndex = targetObj.__fromIndex; //  up._getExecInfo().fromIndex;
-
-          // console.log("about to trigger move with ", targetObj, change[2], index, len, parentObj );
-
-          if (targetObj) {
-            var targetIndex = parseInt(change[2]);
-            if (options.bListenMVC && options.eventObj) {
-              // console.log("Triggering move ", fromIndex, targetIndex);
-              options.eventObj.trigger('move', {
-                from: fromIndex,
-                to: targetIndex
-              });
-            }
-          }
-        }
       };
 
       /**

@@ -11562,7 +11562,7 @@
             // do not allow commands when playback is on
             return false;
           }
-          console.log("cmd " + a);
+          // console.log("cmd "+a);
 
           if (c) {
             var rv = c.apply(this, [a, isRemote]);

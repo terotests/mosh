@@ -14786,6 +14786,33 @@
               result: true
             });
           },
+          // simple command update from the client
+          sendCmds: function sendCmds(cmd, result, socket) {
+
+            console.log("sendCmds command ");
+            if (!me._groupACL(socket, "w", cmd)) {
+              result(null);
+              return;
+            }
+
+            try {
+
+              var chData = me._serverState.data;
+              var list = cmd.data.commands;
+
+              // now, it's simple, we just try to apply all the comands
+              for (var i = 0; i < list.length; i++) {
+                var cmdRes = chData.execCmd(list[i]);
+                if (cmdRes !== true) {
+                  break;
+                }
+              }
+              result(true);
+            } catch (e) {
+              // in this version, NO PROBLEMO!
+              result(e.message);
+            }
+          },
           c2s: function c2s(cmd, result, socket) {
 
             if (!me._groupACL(socket, "w", cmd)) {

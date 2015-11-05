@@ -14823,10 +14823,11 @@
               /*
               {
                 cmdList : [
-                    { cmd : "addUser", params : { name "John Snow"} }
+                    { cmd : "setTitle", params : { id : "", title : "" }
                 ]
               }
               */
+              if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
               var list = cmd.data.cmdList;
               if (list) {
                 for (var i = 0; i < list.length; i++) {

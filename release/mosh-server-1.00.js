@@ -3115,8 +3115,6 @@
           return this;
         } else {
 
-          console.log("value set " + name + " = " + value);
-          debugger;
           this._client.set(this._docData.__id, name, value);
           this.createPropertyUpdateFn(name, value);
           return this;

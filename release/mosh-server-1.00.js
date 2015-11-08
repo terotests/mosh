@@ -971,3269 +971,6 @@
     }
   }).call(new Function("return this")());
 
-  var _clientSocket_prototype = function _clientSocket_prototype() {
-
-    (function (_myTrait_) {
-      var _eventOn;
-      var _commands;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return Object.prototype.toString.call(t) === "[object Array]";
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * Binds event name to event function
-       * @param string en  - Event name
-       * @param float ef
-       */
-      _myTrait_.on = function (en, ef) {
-        if (!this._ev) this._ev = {};
-        if (!this._ev[en]) this._ev[en] = [];
-
-        this._ev[en].push(ef);
-
-        if (en == "connect" && this._connected) {
-          ef(this._socket);
-        }
-
-        return this;
-      };
-
-      /**
-       * @param float name
-       * @param float fn
-       */
-      _myTrait_.removeListener = function (name, fn) {
-        if (!this._ev) return;
-        if (!this._ev[name]) return;
-
-        var list = this._ev[name];
-
-        for (var i = 0; i < list.length; i++) {
-          if (list[i] == fn) {
-            list.splice(i, 1);
-            return;
-          }
-        }
-      };
-
-      /**
-       * triggers event with data and optional function
-       * @param string en
-       * @param float data
-       * @param float fn
-       */
-      _myTrait_.trigger = function (en, data, fn) {
-
-        if (!this._ev) return;
-        if (!this._ev[en]) return;
-        var me = this;
-        this._ev[en].forEach(function (cb) {
-          cb(data, fn);
-        });
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _callBacks;
-      var _socketIndex;
-      var _socketCnt;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.disconnect = function (t) {
-        this._socket.messageTo({
-          disconnect: true
-        });
-        me._connected = false;
-      };
-
-      /**
-       * Emit data from client to server
-       * @param String name  - Message name
-       * @param Object data  - Data to be sent, Object or string
-       * @param Function callBackFn  - Callback, message from the receiver
-       */
-      _myTrait_.emit = function (name, data, callBackFn) {
-
-        var obj = {
-          name: name,
-          data: data
-        };
-
-        if (callBackFn) {
-          obj._callBackId = this.guid();
-          var me = this;
-          var handleCb = function handleCb(data) {
-            callBackFn(data);
-            me.removeListener(obj._callBackId, handleCb);
-          };
-          this.on(obj._callBackId, handleCb);
-        }
-
-        this._socket.messageTo(obj);
-      };
-
-      /**
-       * The enumerated socket, stating from 1
-       * @param float t
-       */
-      _myTrait_.getEnum = function (t) {
-        var myId = this.socketId;
-
-        if (!_socketIndex[myId]) {
-          _socketIndex[myId] = _socketCnt++;
-        }
-        return _socketIndex[myId];
-      };
-
-      /**
-       * Returns GUID of the current socket.
-       * @param float t
-       */
-      _myTrait_.getId = function (t) {
-        return this.socketId;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (ip, port, realSocket) {
-
-        // The socket ID must be told to the server side too
-
-        if (!_socketIndex) {
-          _socketIndex = {};
-          _socketCnt = 1;
-        }
-
-        var me = this;
-        var myId = this.guid();
-        this.socketId = myId;
-
-        if (!_socketIndex[this.socketId]) {
-          _socketIndex[this.socketId] = _socketCnt++;
-        }
-
-        if (realSocket) {
-
-          var _hasbeenConnected = false;
-          var openConnection, connection;
-
-          var whenConnected = function whenConnected() {
-            // console.log("whenConnected called");
-
-            if (!_hasbeenConnected) {
-
-              if (openConnection) openConnection.release();
-              if (connection) connection.release();
-
-              openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
-              connection = _tcpEmu(ip, port, myId, "client", realSocket);
-
-              connection.on("clientMessage", function (o, v) {
-                // console.log("clientMessage received ", v);
-                if (v.connected) {
-                  me._socket = connection;
-                  me._connected = true;
-                  me.trigger("connect", connection);
-                } else {
-                  me.trigger(v.name, v.data);
-                }
-              });
-              // should this be called again?
-              openConnection.messageTo({
-                socketId: myId
-              });
-            } else {
-              // does this kind of connection work...
-              // console.log("Triggering connect again");
-              me.trigger("connect", me._socket);
-            }
-            // console.log("Sending message to _tcpEmu with real socket ");
-            // _hasbeenConnected = true;
-          };
-          var me = this;
-          realSocket.on("disconnect", function () {
-            me.trigger("disconnect");
-          });
-
-          if (realSocket.connected) {
-            // console.log("realSocket was connected");
-            whenConnected();
-          } else {
-            // console.log("realSocket was not connected");
-            realSocket.on("connect", whenConnected);
-          }
-
-          // this._connected
-          return;
-        }
-
-        var openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
-        var connection = _tcpEmu(ip, port, myId, "client", realSocket);
-
-        connection.on("clientMessage", function (o, v) {
-          if (v.connected) {
-            me._socket = connection;
-            me._connected = true;
-            me.trigger("connect", connection);
-          } else {
-            me.trigger(v.name, v.data);
-          }
-        });
-        openConnection.messageTo({
-          socketId: myId
-        });
-      });
-
-      /**
-       * A promisified interface of the &quot;emit&quot; for the _clientSocket
-       * @param float name
-       * @param float data
-       */
-      _myTrait_.send = function (name, data) {
-        var me = this;
-        return _promise(function (respFn) {
-          me.emit(name, data, respFn);
-        });
-      };
-    })(this);
-  };
-
-  var _clientSocket = function _clientSocket(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _clientSocket) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _clientSocket._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _clientSocket(a, b, c, d, e, f, g, h);
-  };
-
-  _clientSocket._classInfo = {
-    name: "_clientSocket"
-  };
-  _clientSocket.prototype = new _clientSocket_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_clientSocket"] = _clientSocket;
-      this._clientSocket = _clientSocket;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_clientSocket"] = _clientSocket;
-    } else {
-      this._clientSocket = _clientSocket;
-    }
-  }).call(new Function("return this")());
-
-  var _serverSocket_prototype = function _serverSocket_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * Binds event name to event function
-       * @param string en  - Event name
-       * @param float ef
-       */
-      _myTrait_.on = function (en, ef) {
-        if (!this._ev) this._ev = {};
-        if (!this._ev[en]) this._ev[en] = [];
-
-        this._ev[en].push(ef);
-
-        return this;
-      };
-
-      /**
-       * triggers event with data and optional function
-       * @param string en
-       * @param float data
-       * @param float fn
-       */
-      _myTrait_.trigger = function (en, data, fn) {
-
-        if (!this._ev) return;
-        if (!this._ev[en]) return;
-        var me = this;
-        this._ev[en].forEach(function (cb) {
-          cb(data, fn);
-        });
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _clients;
-      var _rooms;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getPrefix = function (t) {
-        return this._ip + ":" + this._port;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (ip, port, ioLib) {
-        /*
-        // This is how the server side should be operating...
-        var io = require('socket.io')();
-        io.on('connection', function(socket){
-        socket.emit('an event', { some: 'data' });
-        });
-        */
-
-        if (!_rooms) {
-          _rooms = {};
-          _clients = {};
-        }
-
-        var me = this;
-
-        var sockets = [];
-
-        this._ip = ip;
-        this._port = port;
-        this._ioLib = ioLib;
-
-        if (ioLib) {
-          ioLib.on("connection", function (socket) {
-
-            console.log("socket.io got connection");
-            console.log("ip, port", ip, port);
-
-            var openConnection = _tcpEmu(ip, port, "openConnection", "server", socket);
-
-            var socket_list = [];
-            socket.on("disconnect", function () {
-              console.log("ioLib at server sent disconnect, closing opened connections");
-              socket_list.forEach(function (s) {
-                s.close();
-              });
-            });
-
-            openConnection.on("serverMessage", function (o, v) {
-
-              if (v.socketId) {
-
-                var newSocket = _tcpEmu(ip, port, v.socketId, "server", socket);
-
-                // save the virtual sockets for disconnection...
-                socket_list.push(newSocket);
-
-                var wrappedSocket = _serverSocketWrap(newSocket, me);
-                _clients[v.socketId] = wrappedSocket;
-                me.trigger("connect", wrappedSocket);
-
-                if (wrappedSocket.isConnected()) {
-                  // console.log("Trying to send the connected message back to client");
-                  newSocket.messageFrom({
-                    connected: true,
-                    socketId: v.socketId
-                  });
-                } else {}
-              }
-            });
-          });
-          return;
-        }
-
-        var openConnection = _tcpEmu(ip, port, "openConnection", "server");
-
-        openConnection.on("serverMessage", function (o, v) {
-
-          if (v.socketId) {
-            //console.log("Trying to send msg to client ", v);
-            var newSocket = _tcpEmu(ip, port, v.socketId, "server");
-
-            var socket = _serverSocketWrap(newSocket, me);
-            _clients[v.socketId] = socket;
-            me.trigger("connect", socket);
-            me.trigger("connection", socket);
-
-            if (socket.isConnected()) {
-
-              newSocket.messageFrom({
-                connected: true,
-                socketId: v.socketId
-              });
-            }
-          }
-        });
-      });
-    })(this);
-  };
-
-  var _serverSocket = function _serverSocket(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _serverSocket) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _serverSocket._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _serverSocket(a, b, c, d, e, f, g, h);
-  };
-
-  _serverSocket._classInfo = {
-    name: "_serverSocket"
-  };
-  _serverSocket.prototype = new _serverSocket_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_serverSocket"] = _serverSocket;
-      this._serverSocket = _serverSocket;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_serverSocket"] = _serverSocket;
-    } else {
-      this._serverSocket = _serverSocket;
-    }
-  }).call(new Function("return this")());
-
-  var _tcpEmu_prototype = function _tcpEmu_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.clearEvents = function (t) {
-        delete this._ev;
-      };
-
-      /**
-       * Binds event name to event function
-       * @param string en  - Event name
-       * @param float ef
-       */
-      _myTrait_.on = function (en, ef) {
-        if (!this._ev) this._ev = {};
-        if (!this._ev[en]) this._ev[en] = [];
-
-        this._ev[en].push(ef);
-
-        return this;
-      };
-
-      /**
-       * triggers event with data and optional function
-       * @param string en
-       * @param float data
-       * @param float fn
-       */
-      _myTrait_.trigger = function (en, data, fn) {
-
-        if (!this._ev) return;
-        if (!this._ev[en]) return;
-        var me = this;
-        this._ev[en].forEach(function (cb) {
-          cb(me, data, fn);
-        });
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _eventOn;
-      var _commands;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-        return Object.prototype.toString.call(t) === "[object Array]";
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-        return t === Object(t);
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _msgBuffer;
-      var _log;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.close = function (t) {
-        this.trigger("disconnect");
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (server, port, socketId, role, socket) {
-
-        var me = this;
-        this._server = server;
-        this._port = port;
-        this._role = role;
-        this._socketId = socketId;
-        this._dbName = "tcp://" + this._server + ":" + this._port + ":" + this._socketId;
-
-        if (!_log) {
-          if (typeof lokki != "undefined") {
-            _log = lokki("tcp");
-          } else {
-            _log = {
-              log: function log() {},
-              error: function error() {}
-            };
-          }
-        }
-
-        if (socket) {
-          // "this._dbName" is the message which is listened using socketPump
-          this._socket = socket;
-          this.socketPump(role);
-        } else {
-          this.memoryPump(role);
-        }
-      });
-
-      /**
-       * The memory storage transform layer implementation.
-       * @param float role
-       */
-      _myTrait_.memoryPump = function (role) {
-        var me = this;
-        var bnTo = this._dbName + ":to";
-        var bnFrom = this._dbName + ":from";
-
-        if (!_msgBuffer) _msgBuffer = {};
-        if (!_msgBuffer[bnTo]) _msgBuffer[bnTo] = [];
-        if (!_msgBuffer[bnFrom]) _msgBuffer[bnFrom] = [];
-
-        var _mfn = function _mfn() {
-          if (role == "server") {
-            var list = _msgBuffer[bnTo].slice();
-            list.forEach(function (msg) {
-              _log.log("server got message ", msg);
-              me.trigger("serverMessage", msg);
-              _msgBuffer[bnTo].shift();
-            });
-          }
-          if (role == "client") {
-            var list = _msgBuffer[bnFrom].slice();
-            list.forEach(function (msg) {
-              me.trigger("clientMessage", msg);
-              _msgBuffer[bnFrom].shift();
-            });
-          }
-        };
-        this._memoryFn = _mfn;
-        later().every(1 / 10, _mfn);
-      };
-
-      /**
-       * Message &quot;from&quot; refers to client getting message from the server. This is the function to be used when a server sends data back to the client.
-       * @param float msg
-       */
-      _myTrait_.messageFrom = function (msg) {
-        var socket = this._socket;
-        if (socket) {
-          //console.log("The socket should emit to "+this._dbName);
-          //console.log(msg);
-          socket.emit(this._dbName, msg);
-          return;
-        }
-
-        var bn = this._dbName + ":from";
-        _msgBuffer[bn].push(msg);
-      };
-
-      /**
-       * Message &quot;to&quot; refers to client sending message to server. This is the function to be used when a client socket sends data to the server.
-       * @param float msg
-       */
-      _myTrait_.messageTo = function (msg) {
-
-        var socket = this._socket;
-        if (socket) {
-
-          // _log.log("_tcpEmu, emitting ", this._dbName, msg);
-          socket.emit(this._dbName, msg);
-          return;
-        }
-
-        var bn = this._dbName + ":to";
-        _msgBuffer[bn].push(msg);
-      };
-
-      /**
-       * Should be called after reconnecting with new socket
-       * @param float t
-       */
-      _myTrait_.release = function (t) {
-        this.clearEvents();
-
-        var socket = this._socket;
-
-        if (this._pumpListener) {
-          socket.removeListener(this._dbName, this._pumpListener);
-        }
-        if (this._memoryFn && this._memoryFn._release) this._memoryFn._release();
-      };
-
-      /**
-       * The socket transform layer implementation.
-       * @param float role
-       */
-      _myTrait_.socketPump = function (role) {
-        var me = this;
-
-        var socket = this._socket;
-
-        if (role == "server") {
-          this._pumpListener = function (data) {
-            // _log.log("socketPump", me._dbName);
-            me.trigger("serverMessage", data);
-          };
-          socket.on(this._dbName, this._pumpListener);
-        }
-
-        if (role == "client") {
-          this._pumpListener = function (data) {
-            me.trigger("clientMessage", data);
-          };
-          socket.on(this._dbName, this._pumpListener);
-        }
-      };
-    })(this);
-  };
-
-  var _tcpEmu = function _tcpEmu(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _tcpEmu) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _tcpEmu._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _tcpEmu(a, b, c, d, e, f, g, h);
-  };
-
-  _tcpEmu._classInfo = {
-    name: "_tcpEmu"
-  };
-  _tcpEmu.prototype = new _tcpEmu_prototype();
-
-  var _serverSocketWrap_prototype = function _serverSocketWrap_prototype() {
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * Binds event name to event function
-       * @param string en  - Event name
-       * @param float ef
-       */
-      _myTrait_.on = function (en, ef) {
-        if (!this._ev) this._ev = {};
-        if (!this._ev[en]) this._ev[en] = [];
-
-        this._ev[en].push(ef);
-
-        return this;
-      };
-
-      /**
-       * triggers event with data and optional function
-       * @param string en
-       * @param float data
-       * @param float fn
-       */
-      _myTrait_.trigger = function (en, data, fn) {
-
-        if (!this._ev) return;
-        if (!this._ev[en]) return;
-        var me = this;
-        this._ev[en].forEach(function (cb) {
-          cb(data, fn);
-        });
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _channelIndex;
-      var _rootData;
-      var _rooms;
-      var _socketRooms;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float roomName
-       * @param float name
-       * @param float data
-       */
-      _myTrait_.delegateToRoom = function (roomName, name, data) {
-
-        var realRoomName = this._roomPrefix + ":" + roomName;
-
-        if (_rooms && _rooms[realRoomName]) {
-          var me = this;
-          _rooms[realRoomName].forEach(function (socket) {
-            if (socket != me) {
-              socket.emit(name, data);
-            }
-          });
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.disconnect = function (t) {
-        var me = this;
-        me._disconnected = true;
-
-        console.log("_serverSocketWrap disconnecting");
-
-        me.leaveFromRooms();
-        console.log("_serverSocketWrap left from rooms");
-        me.trigger("disconnect", me);
-        // Then remove the socket from the listeners...
-        me._disconnected = true;
-
-        // TODO: check if the code below could be defined in a cross-platform way
-        /*
-        var dbName = this._tcp._dbName;
-        if(typeof(_localDB) != "undefined") {
-        _localDB().clearDatabases( function(d) {
-        if(d.name==dbName) return true;
-        });
-        }
-        */
-
-        return;
-      };
-
-      /**
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.emit = function (name, value) {
-
-        this._tcp.messageFrom({
-          name: name,
-          data: value
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getId = function (t) {
-        return this._tcp._socketId;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getUserId = function (t) {
-
-        return this._userId;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getUserRoles = function (t) {
-
-        return this._roles;
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (tcpEmu, server, isReal) {
-
-        var me = this;
-        this._roomPrefix = server.getPrefix();
-        this._server = server;
-        this._tcp = tcpEmu;
-
-        tcpEmu.on("disconnect", function () {
-          console.log("tcpEmu sent disconnect");
-          me.disconnect();
-        });
-
-        var disconnected = false;
-        tcpEmu.on("serverMessage", function (o, v) {
-
-          if (me._disconnected) return; // not good enough
-
-          if (v.disconnect) {
-            me.disconnect();
-            return;
-          }
-          if (v._callBackId) {
-            me.trigger(v.name, v.data, function (data) {
-              me.emit(v._callBackId, data);
-            });
-          } else {
-            me.trigger(v.name, v.data);
-          }
-        });
-
-        this.broadcast = {
-          to: function to(room) {
-            return {
-              emit: function emit(name, value) {
-                me.delegateToRoom(room, name, value);
-              }
-            };
-          }
-        }
-
-        /*
-        socket.broadcast.to(_ctx.channelId).emit('ctxupd_'+_ctx.channelId, cObj);
-        */
-
-        ;
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isConnected = function (t) {
-        if (this._disconnected) return false;
-        return true;
-      };
-
-      /**
-       * @param float roomName
-       */
-      _myTrait_.isInRoom = function (roomName) {
-        if (!_socketRooms) return false;
-        return _socketRooms[this.getId()].indexOf(roomName) >= 0;
-      };
-
-      /**
-       * Adds a new client to some room
-       * @param String roomName
-       */
-      _myTrait_.join = function (roomName) {
-
-        var realRoomName = this._roomPrefix + ":" + roomName;
-
-        if (!_rooms) _rooms = {};
-        if (!_rooms[realRoomName]) _rooms[realRoomName] = [];
-
-        if (_rooms[realRoomName].indexOf(this) < 0) {
-          _rooms[realRoomName].push(this);
-          if (!_socketRooms) _socketRooms = {};
-          if (!_socketRooms[this.getId()]) _socketRooms[this.getId()] = [];
-
-          _socketRooms[this.getId()].push(roomName);
-        }
-      };
-
-      /**
-       * @param float roomName
-       */
-      _myTrait_.leave = function (roomName) {
-
-        var realRoomName = this._roomPrefix + ":" + roomName;
-
-        if (!_rooms) _rooms = {};
-        if (!_rooms[realRoomName]) _rooms[realRoomName] = [];
-
-        var i;
-        if ((i = _rooms[realRoomName].indexOf(this)) >= 0) {
-          _rooms[realRoomName].splice(i, 1);
-          var id = this.getId();
-
-          var i2 = _socketRooms[id].indexOf(roomName);
-          if (i2 >= 0) _socketRooms[id].splice(i2, 1);
-        }
-      };
-
-      /**
-       * @param float socket
-       */
-      _myTrait_.leaveFromRooms = function (socket) {
-        var id = this.getId();
-        var me = this;
-
-        if (!_socketRooms) return;
-        if (!_socketRooms[id]) return;
-
-        _socketRooms[id].forEach(function (name) {
-          me.leave(name);
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.removeListener = function (t) {};
-
-      /**
-       * Each socket can have and in many implementations must have some userID and role, which can be used together with the ACL implementations.
-       * @param float userId
-       * @param float roles
-       */
-      _myTrait_.setAuthInfo = function (userId, roles) {
-
-        this._userId = userId;
-        this._roles = roles;
-      };
-
-      /**
-       * @param string roomName
-       */
-      _myTrait_.to = function (roomName) {
-
-        var realRoomName = this._roomPrefix + ":" + roomName;
-
-        return {
-          emit: function emit(name, data) {
-            //console.log(" emit called ");
-            if (_rooms && _rooms[realRoomName]) {
-              _rooms[realRoomName].forEach(function (socket) {
-                // console.log(" emit with ", name, data);
-                socket.emit(name, data);
-              });
-            }
-          }
-        };
-      };
-    })(this);
-  };
-
-  var _serverSocketWrap = function _serverSocketWrap(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _serverSocketWrap) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _serverSocketWrap._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _serverSocketWrap(a, b, c, d, e, f, g, h);
-  };
-
-  _serverSocketWrap._classInfo = {
-    name: "_serverSocketWrap"
-  };
-  _serverSocketWrap.prototype = new _serverSocketWrap_prototype();
-
-  var socketEmulator_prototype = function socketEmulator_prototype() {
-
-    (function (_myTrait_) {
-      var _initDone;
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (host, bUseReal) {});
-    })(this);
-  };
-
-  var socketEmulator = function socketEmulator(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof socketEmulator) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != socketEmulator._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new socketEmulator(a, b, c, d, e, f, g, h);
-  };
-
-  socketEmulator._classInfo = {
-    name: "socketEmulator"
-  };
-  socketEmulator.prototype = new socketEmulator_prototype();
-
-  var _data_prototype = function _data_prototype() {
-
-    (function (_myTrait_) {
-      var _eventOn;
-      var _commands;
-      var _authToken;
-      var _authRandom;
-      var _authUser;
-      var _up;
-      var _dataCache;
-      var _createdFunctions;
-      var _setWorkers;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float t
-       */
-      _myTrait_.__dataTr = function (t) {};
-
-      /**
-       * @param float me
-       * @param float what
-       * @param float cb
-       */
-      _myTrait_._collectObject = function (me, what, cb) {
-        if (!this.isArray(what)) what = what.split(",");
-
-        var myData = {};
-        what.forEach(function (n) {
-          myData[n] = me[n]();
-          me.on(n, function () {
-            myData[n] = me[n]();
-            cb(myData);
-          });
-        });
-        cb(myData);
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_._forMembers = function (fn) {
-        var me = this;
-
-        if (this.isArray()) {
-          for (var i = 0; i < this._data.length; i++) {
-            var o = this._data[i];
-            if (this.isObject(o)) {
-              if (o.__dataTr) {
-                fn(o);
-              }
-            }
-          }
-        } else {
-          this._members.forEach(function (n) {
-            if (me[n]) fn(me[n]);
-          });
-        }
-      };
-
-      /**
-       * @param float docData
-       * @param float options
-       */
-      _myTrait_._initializeData = function (docData, options) {
-
-        if (!docData) return;
-
-        // pointer to the docUp data
-        this._data = docData.data;
-        this._docData = docData;
-
-        // TODO: might add worker 14 here...
-        var dataCh = this._client.getChannelData();
-
-        var ns_id = this._client._idToNs(this._docData.__id, this._client._ns);
-
-        dataCh.createWorker("_to_ch", // worker ID
-        [7, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        dataCh.createWorker("_to_ch", // worker ID
-        [5, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        dataCh.createWorker("_d_set", // worker ID
-        [4, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        dataCh.createWorker("_d_rem", // worker ID
-        [8, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        dataCh.createWorker("_d_ins", // worker ID
-        [7, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        dataCh.createWorker("_d_mv", // worker ID
-        [12, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        // "_d_cf"
-
-        dataCh.createWorker("_d_cf", // worker ID
-        [5, "*", null, null, ns_id], // filter
-        {
-          obj: this
-        });
-        dataCh.createWorker("_d_cf", // worker ID
-        [4, "*", null, null, ns_id], // filter
-        {
-          obj: this
-        });
-
-        // _d_ch -> child object has changed event
-        dataCh.createWorker("_d_ch", // worker ID
-        [42, "*", null, null, ns_id], // filter
-        {
-          target: this
-        });
-
-        var data = docData.data;
-
-        // create the subdata instances for the objects...
-        if (data instanceof Array) {
-
-          for (var n in data) {
-            this[n] = _data(data[n], options, this._client);
-          }
-          this._initIterator();
-        } else {
-          for (var n in data) {
-            if (data.hasOwnProperty(n)) {
-              var v = data[n];
-              if (this.isFunction(v)) {
-                continue;
-              }
-              if (!this.isFunction(v) && (v === Object(v) || v instanceof Array)) {
-                this[n] = new _data(v, options, this._client);
-                continue;
-              }
-              // just plain member variable function setting
-              if (!this.isFunction(v) && !this.isObject(v) && !this.isArray(v)) {
-                if (!this[n]) {
-                  this.createPropertyUpdateFn(n, v);
-                }
-              }
-            }
-          }
-        }
-      };
-
-      /**
-       * Creates the commands to create the object - the object should be in { data : , __id}  - format, use _wrapToData if not already in this format.
-       * @param Object data
-       * @param float list
-       */
-      _myTrait_._objectCreateCmds = function (data, list) {
-        if (!list) list = [];
-
-        if (this.isObject(data) && data.data) {
-
-          if (this.isArray(data.data)) {
-            list.push([2, data.__id, "", null, data.__id]);
-
-            for (var i = 0; i < data.data.length; i++) {
-              var obj = data.data[i];
-              if (this.isObject(obj)) {
-                // they should be...
-                this._objectCreateCmds(obj, list);
-                var cmd = [7, i, obj.__id, null, data.__id];
-                list.push(cmd);
-              }
-            }
-          } else {
-            list.push([1, data.__id, "", null, data.__id]);
-            // var cmd = [1, newObj.__id, {}, null, newObj.__id];
-
-            for (var n in data.data) {
-              if (data.data.hasOwnProperty(n)) {
-                var value = data.data[n];
-                if (this.isObject(value)) {
-                  this._objectCreateCmds(value, list);
-                  var cmd = [5, n, value.__id, null, data.__id];
-                  list.push(cmd);
-                } else {
-                  var cmd = [4, n, value, null, data.__id];
-                  list.push(cmd);
-                }
-              }
-            }
-          }
-        }
-        return list;
-      };
-
-      /**
-       * @param float url
-       */
-      _myTrait_._parseURL = function (url) {
-
-        var parts1 = url.split("://");
-        var protocol = parts1.shift(),
-            rest = parts1.shift();
-        var serverParts = rest.split("/"),
-            ipAndPort = serverParts.shift(),
-            iParts = ipAndPort.split(":"),
-            ip = iParts[0],
-            port = iParts[1],
-            sandbox = serverParts.shift(),
-            fileName = serverParts.pop(),
-            path = serverParts.join("/");
-
-        return {
-          url: url,
-          ip: ip,
-          port: port,
-          sandbox: sandbox,
-          path: path,
-          file: fileName,
-          protocol: protocol
-        };
-      };
-
-      /**
-       * @param object data
-       */
-      _myTrait_._reGuidRawData = function (data) {
-
-        if (this.isArray(data)) {
-          var me = this;
-          data.forEach(function (i) {
-            me._reGuidRawData(i);
-          });
-        } else {
-          if (this.isObject(data)) {
-            for (var n in data) {
-              if (!data.hasOwnProperty(n)) continue;
-              if (n == "__id") {
-                data[n] = this.guid();
-                continue;
-              }
-              if (this.isObject(data[n])) this._reGuidRawData(data[n]);
-              if (this.isArray(data[n])) this._reGuidRawData(data[n]);
-            }
-          }
-        }
-      };
-
-      /**
-       * @param float data
-       */
-      _myTrait_._wrapToData = function (data) {
-
-        var newObj;
-        // if the data is "well formed"
-        if (data.__id && data.data) {
-          newObj = data;
-        } else {
-          var newObj = {
-            data: data,
-            __id: this.guid()
-          };
-        }
-
-        if (newObj.data && this.isObject(newObj.data)) {
-          for (var n in newObj.data) {
-            if (n == "__oid") {
-              delete newObj.data[n];
-              continue;
-            }
-            if (newObj.data.hasOwnProperty(n)) {
-              var o = newObj.data[n];
-              if (this.isFunction(o)) continue;
-              if (this.isObject(o)) {
-                newObj.data[n] = this._wrapToData(o);
-              }
-            }
-          }
-        }
-        return newObj;
-      };
-
-      /**
-       * @param Object c
-       */
-      _myTrait_.addController = function (c) {
-        console.error("** askChannelQuestion ** not implemented now ");
-      };
-
-      /**
-       * @param float question
-       * @param float data
-       * @param float cb
-       */
-      _myTrait_.askChannelQuestion = function (question, data, cb) {
-
-        console.error("** askChannelQuestion ** not implemented now ");
-
-        /*
-        var url = this._findURL();
-        console.log("Asking, the URL was "+url);
-        var doc = _docUp( url );
-        doc.then( function() {
-        console.log("Resolved the doc, asking the channel the question "+question);
-        doc._ask(question, data, cb ); 
-        });
-        */
-      };
-
-      /**
-       * @param float i
-       */
-      _myTrait_.at = function (i) {
-        var ii = this._docData.data[i];
-        if (ii) return _data(ii, null, this._client);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.clear = function (t) {
-        var len = this.length();
-        while (len--) {
-          this.pop();
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.clone = function (t) {
-        return _data(this.serialize());
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.copyToData = function (t) {
-
-        var raw = this.toData();
-        this._reGuidRawData(raw);
-
-        return raw;
-      };
-
-      /**
-       * @param string n
-       * @param float v
-       * @param float validators
-       */
-      _myTrait_.createArrayField = function (n, v, validators) {
-
-        return this.set(this._docData.__id, n, v);
-      };
-
-      /**
-       * @param float n
-       * @param float defaultValue
-       */
-      _myTrait_.createField = function (n, defaultValue) {
-        this.set(n, defaultValue || "");
-        return this;
-      };
-
-      /**
-       * @param float n
-       * @param float v
-       */
-      _myTrait_.createObjectField = function (n, v) {
-        return this.set(this._docData.__id, n, v);
-      };
-
-      /**
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.createPropertyUpdateFn = function (name, value) {
-
-        if (this.isObject(value) || this.isObject(this._docData.data[name])) {
-          this[name] = _data(value, null, this._client);
-          return;
-        }
-
-        var me = this;
-        if (!_myTrait_[name]) {
-          _myTrait_[name] = function (value) {
-
-            if (typeof value == "undefined") {
-              return this._client.get(this._docData.__id, name);
-            }
-            this._client.set(this._docData.__id, name, value);
-            return this;
-          };
-          _createdFunctions[name] = true;
-        }
-      };
-
-      /**
-       * @param string workerName
-       * @param float workerFilter
-       * @param float workerData
-       * @param float workerFn
-       */
-      _myTrait_.createWorker = function (workerName, workerFilter, workerData, workerFn) {
-
-        workerFilter[4] = this._client._idToNs(workerFilter[4], this._client._ns);
-
-        var dataCh = this._client.getChannelData();
-        dataCh.createWorker(workerName, // worker ID
-        workerFilter, // filter
-        workerData);
-
-        if (workerFn) {
-          if (!_setWorkers) _setWorkers = {};
-          if (!_setWorkers[workerName]) {
-
-            var oo = {};
-            oo[workerName] = workerFn;
-            dataCh.setWorkerCommands(oo);
-            _setWorkers[workerName] = true;
-          }
-        }
-        return this;
-        /*
-        var me = this;
-        if(!_workersDone) {
-        var dataCh = me._client.getChannelData();
-        dataCh.setWorkerCommands({
-        "_d_set" : function(cmd, options) {        
-            // for example, trigger .on("x", value);
-            options.target.trigger(cmd[1], cmd[2]);
-        }
-        });  
-        _workersDone = true;
-        }
-        */
-      };
-
-      /**
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.diff_set = function (name, value) {
-
-        // functions are not handled too...
-
-        if (this.isObject(value)) {
-          // objects are not to be set...
-          return this;
-        } else {
-          this._client.diffSet(this._docData.__id, name, value);
-          this.createPropertyUpdateFn(name, value);
-          return this;
-        }
-      };
-
-      /**
-       * @param float scope
-       * @param float data
-       */
-      _myTrait_.emitValue = function (scope, data) {
-        if (this._processingEmit) return this;
-
-        this._processingEmit = true;
-        // adding controllers to the data...
-        if (this._controllers) {
-          var cnt = 0;
-          for (var i = 0; i < this._controllers.length; i++) {
-            var c = this._controllers[i];
-            if (c[scope]) {
-              c[scope](data);
-              cnt++;
-            }
-          }
-
-          // this._processingEmit = false;
-          // Do not stop emitting the value to the parents...
-          // if(cnt>0) return this;
-        }
-
-        /*
-        if(this._controller) {
-        if(this._controller[scope]) {
-        this._controller[scope](data);
-        return;
-        }
-        }
-        */
-
-        if (this._valueFn && this._valueFn[scope]) {
-          this._valueFn[scope].forEach(function (fn) {
-            fn(data);
-          });
-        }
-        if (1) {
-          if (this._parent) {
-            if (!this._parent.emitValue) {} else {
-              this._parent.emitValue(scope, data);
-            }
-          }
-        }
-        this._processingEmit = false;
-      };
-
-      /**
-       * @param Extension obj
-       */
-      _myTrait_.extendWith = function (obj) {
-
-        for (var n in obj) {
-          var fn = obj[n];
-          if (this.isFunction(fn)) {
-            _myTrait_[n] = fn;
-          }
-        }
-      };
-
-      /**
-       * @param float path
-       */
-      _myTrait_.find = function (path) {
-        // should find the item from the path...
-
-        console.error("*** FIND IS NOT IMPLEMENTED *** ");
-
-        // var dataObj = _up._getObjectInPath(path, this._docData);
-        // if(dataObj) return _data(dataObj.__id);
-
-        return null;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.forEach = function (fn) {
-        var me = this;
-        this._docData.data.forEach(function (d) {
-          fn(_data(d, null, me._client));
-        });
-      };
-
-      /**
-       * @param float arrayKeys
-       * @param float fn
-       */
-      _myTrait_.forTree = function (arrayKeys, fn) {
-        var limitFilter = {},
-            bLimit = false;
-        if (!fn) {
-          fn = arrayKeys;
-        } else {
-          var limit = arrayKeys.split(",");
-          limit.forEach(function (k) {
-            limitFilter[k.trim()] = true;
-            bLimit = true;
-          });
-        }
-        fn(this);
-        var me = this;
-        if (this.isArray()) {
-          this.forEach(function (item) {
-            item.forTree(fn);
-          });
-        } else {
-          this.keys(function (key) {
-            if (bLimit) {
-              if (!limitFilter[key]) return;
-            }
-            if (me[key] && me.hasOwn(key)) {
-              var o = me[key];
-              if (o.forTree) {
-                o.forTree(fn);
-              }
-            }
-          });
-        }
-        return this;
-      };
-
-      /**
-       * @param float name
-       */
-      _myTrait_.get = function (name) {
-
-        console.log("Calling get for " + name);
-        console.log("docData " + JSON.stringify(this._docData));
-
-        return this._client.get(this._docData.__id, name);
-      };
-
-      /**
-       * @param bool stripNamespace
-       */
-      _myTrait_.getData = function (stripNamespace) {
-
-        if (!this._docData) {
-          if (this._client) {
-            var data = this._client.getData();
-          } else {
-            return;
-          }
-        } else {
-          var data = this._client._fetch(this._docData.__id);
-        }
-        if (stripNamespace) {
-          // got to create a new object out of this...
-          var newData = JSON.parse(JSON.stringify(data));
-          data = this._client._transformObjFromNs(newData);
-        }
-        return data;
-        /*
-        var data = this._client.getData();
-        if(stripNamespace) {
-        // got to create a new object out of this...
-        var newData = JSON.parse( JSON.stringify(data ));
-        data = this._client._transformObjFromNs(newData);
-        }
-        return data;
-        */
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getID = function (t) {
-
-        return this._docData.__id;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.guid = function (t) {
-
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-
-        /*        
-        function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-               .toString(16)
-               .substring(1);
-        }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-        s4() + '-' + s4() + s4() + s4();*/
-      };
-
-      /**
-       * @param float name
-       */
-      _myTrait_.hasOwn = function (name) {
-
-        if (typeof this._docData.data[name] != "undefined" && this[name]) {
-          return true;
-        }
-        return false;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.indexOf = function (t) {
-        return this._client.indexOf(this._docData.__id);
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (data, options, notUsed, notUsed2) {
-
-        if (!_dataCache) {
-          _dataCache = {};
-          _createdFunctions = {};
-        }
-      });
-
-      /**
-       * @param float index
-       * @param float v
-       */
-      _myTrait_.insertAt = function (index, v) {
-        return this.push(v, index);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isArray = function (t) {
-
-        if (typeof t == "undefined") {
-          if (!this._docData) return false;
-          if (!this._docData.data) return false;
-          return this.isArray(this._docData.data);
-        }
-        return Object.prototype.toString.call(t) === "[object Array]";
-      };
-
-      /**
-       * @param object obj
-       */
-      _myTrait_.isDataTrait = function (obj) {
-
-        if (obj._docData) return true;
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.isFunction = function (fn) {
-        return Object.prototype.toString.call(fn) == "[object Function]";
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.isObject = function (t) {
-
-        if (typeof t == "undefined") {
-          if (!this._docData) return false;
-          if (!this._docData.data) return false;
-          return this.isObject(this._docData.data);
-        }
-
-        return t === Object(t);
-      };
-
-      /**
-       * @param float i
-       */
-      _myTrait_.item = function (i) {
-        return this.at(i);
-      };
-
-      /**
-       * @param float fn
-       */
-      _myTrait_.keys = function (fn) {
-        var i = 0;
-        for (var n in this._docData.data) {
-
-          if (this._docData.data.hasOwnProperty(n)) {
-            fn(n, this._docData.data[n], this._docData.data);
-          }
-        }
-
-        return this;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.length = function (t) {
-        if (!this._docData) return 0;
-        if (!this._docData.data) return 0;
-        return this._docData.data.length;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.moveDown = function (t) {
-        this._client.moveDown(this._docData.__id);
-        return this;
-      };
-
-      /**
-       * @param float index
-       */
-      _myTrait_.moveToIndex = function (index) {
-        this._client.moveTo(this._docData.__id, index);
-
-        return this;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.moveUp = function (t) {
-        this._client.moveUp(this._docData.__id);
-
-        return this;
-      };
-
-      /**
-       * @param float scope
-       * @param float fn
-       */
-      _myTrait_.onValue = function (scope, fn) {
-        if (!this._valueFn) {
-          this._valueFn = {};
-        }
-        if (!this._valueFn[scope]) this._valueFn[scope] = [];
-
-        if (this._valueFn[scope].indexOf(fn) < 0) this._valueFn[scope].push(fn);
-      };
-
-      /**
-       * @param Object p
-       */
-      _myTrait_.parent = function (p) {
-
-        if (typeof p != "undefined") {
-          return this;
-        }
-        if (!this._docData) {
-          return;
-        }
-
-        var p = this._docData.__p;
-        if (p) return _data(p);
-      };
-
-      /**
-       * @param float what
-       */
-      _myTrait_.pick = function (what) {
-
-        var stream = simpleStream();
-        var me = this;
-
-        this.then(function () {
-          me._collectObject(me, what, function (data) {
-            stream.pushValue(data);
-          });
-        });
-
-        return stream;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.pop = function (t) {
-
-        var len = this.length();
-        if (len) {
-          var it = this.at(len - 1);
-          if (it) it.remove();
-          return it;
-        }
-      };
-
-      /**
-       * @param Object newData
-       * @param float toIndex
-       */
-      _myTrait_.push = function (newData, toIndex) {
-
-        if (!this.isArray()) return this;
-
-        var data,
-            bOldData = false;
-        if (newData._wrapToData) {
-          newData = newData.getData();
-          var dd = this._client._fetch(newData.__id);
-          if (dd) bOldData = true;
-        }
-
-        // is raw data
-        if (newData.__id && newData.data) {
-          // ??? should you create a full copy of the original object here just in case...
-          data = this._client._transformObjToNs(newData, this._client._ns);
-        } else {
-          data = this._wrapToData(newData);
-        }
-
-        if (!bOldData) {
-          var cmds = this._objectCreateCmds(data);
-          for (var i = 0; i < cmds.length; i++) {
-            this._client.addCommand(cmds[i]);
-          }
-        }
-        var index;
-        if (typeof toIndex != "undefined") {
-          index = toIndex;
-          var dd = this._client._fetch(this._docData.__id);
-          if (index < 0 || index > dd.data.length) return;
-        } else {
-          var dd = this._client._fetch(this._docData.__id);
-          index = dd.data.length;
-        }
-
-        this._client.addCommand([7, index, data.__id, null, this._docData.__id]);
-
-        return this;
-      };
-
-      /**
-       * @param int cnt
-       */
-      _myTrait_.redo = function (cnt) {
-        this._client.redo(cnt);
-        return this;
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.redoStep = function (options) {
-        this._client.redoStep(options);
-        return this;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.remove = function (t) {
-        this._client.remove(this._docData.__id);
-        return this;
-      };
-
-      /**
-       * @param String eventName
-       * @param float fn
-       */
-      _myTrait_.removeListener = function (eventName, fn) {
-        if (this._events && this._events[eventName]) {
-          var i = this._events[eventName].indexOf(fn);
-          if (i >= 0) this._events[eventName].splice(i, 1);
-          if (this._events[eventName].length == 0) {
-            delete this._events[eventName];
-          }
-        }
-      };
-
-      /**
-       * @param float tplData
-       */
-      _myTrait_.renderTemplate = function (tplData) {
-
-        console.error("RenderTemplate not implemented");
-
-        /*
-        var comp = templateCompiler();  
-        var jsonTplData = comp.compile( tplData );
-        var dom = comp.composeTemplate( this._docData,  jsonTplData );
-        return dom;
-        */
-      };
-
-      /**
-       * @param bool nonRecursive
-       */
-      _myTrait_.serialize = function (nonRecursive) {
-        var o,
-            me = this,
-            data = this._docData.data;
-        if (this.isArray(this._data)) {
-          o = [];
-        } else {
-          o = {};
-        }
-
-        for (var n in data) {
-          if (data.hasOwnProperty(n)) {
-            var v = data[n];
-            if (typeof v == "undefined") continue;
-            if (nonRecursive) {
-              if (this.isObject(v) || this.isArray(v)) continue;
-            }
-            if (this.isObject(v)) {
-              o[n] = _data(v).serialize();
-            } else {
-              o[n] = v;
-            }
-          }
-        }
-
-        return o;
-      };
-
-      /**
-       * @param float name
-       * @param float value
-       */
-      _myTrait_.set = function (name, value) {
-
-        if (this.isFunction(value)) {
-          var me = this;
-          this.then(function () {
-            return me.set(name, value(me.get(name)));
-          });
-          return this;
-        }
-
-        if (this.isObject(value)) {
-
-          var data,
-              newData = value;
-
-          if (newData._wrapToData) {
-            newData = newData.getData();
-          }
-
-          if (newData.__id && newData.data) {
-            data = this._client._transformObjToNs(newData, this._client._ns);
-          } else {
-            data = this._wrapToData(newData);
-          }
-
-          var cmds = this._objectCreateCmds(data);
-          for (var i = 0; i < cmds.length; i++) {
-            this._client.addCommand(cmds[i]);
-          }
-          this._client.setObject(this._docData.__id, name, data);
-          var objData = this._client._fetch(data.__id);
-          this.createPropertyUpdateFn(name, objData);
-
-          return this;
-        } else {
-
-          this._client.set(this._docData.__id, name, value);
-          this.createPropertyUpdateFn(name, value);
-          return this;
-        }
-      };
-
-      /**
-       * @param bool nonRecursive
-       */
-      _myTrait_.toData = function (nonRecursive) {
-
-        var str = JSON.stringify(this._docData);
-        var data = JSON.parse(str);
-
-        if (data.__ctxCmdList) delete data.__ctxCmdList;
-        if (data.__cmdList) delete data.__cmdList;
-
-        return data;
-      };
-
-      /**
-       * @param float nonRecursive
-       */
-      _myTrait_.toPlainData = function (nonRecursive) {
-
-        return this.getChannelData().toPlainData(this._docData);
-      };
-
-      /**
-       * @param int cnt
-       */
-      _myTrait_.undo = function (cnt) {
-        this._client.undo(cnt);
-        return this;
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.undoStep = function (options) {
-        this._client.undoStep(options);
-        return this;
-      };
-
-      /**
-       * @param float name
-       */
-      _myTrait_.unset = function (name) {
-
-        this._client.unset(this._docData.__id, name);
-
-        return this;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.upgradeVersion = function (t) {
-
-        this._client.upgradeVersion();
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _eventOn;
-
-      // Initialize static variables here...
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (t) {
-
-        if (!_eventOn) _eventOn = [];
-      });
-
-      /**
-       * @param float eventName
-       * @param float fn
-       */
-      _myTrait_.on = function (eventName, fn) {
-        if (!this._events) this._events = {};
-        if (!this._events[eventName]) this._events[eventName] = [];
-        this._events[eventName].push(fn);
-
-        // This might remove the old event...
-        var me = this;
-        fn._unbindEvent = function () {
-          // console.log("unbindEvent called");
-          me.removeListener(eventName, fn);
-        }
-        /*
-        var worker = _up._createWorker( this._docData.__id,  
-                                eventName, 	
-                                _workers().fetch(14),
-                                null,
-                                {
-                                    modelid : this._docData.__id,
-                                    eventName : eventName,
-                                    eventObj : this
-                                } );
-        */
-
-        ;
-      };
-
-      /**
-       * @param float eventName
-       * @param float fn
-       */
-      _myTrait_.removeListener = function (eventName, fn) {
-        if (this._events && this._events[eventName]) {
-          var i = this._events[eventName].indexOf(fn);
-          if (i >= 0) this._events[eventName].splice(i, 1);
-          if (this._events[eventName].length == 0) {
-            delete this._events[eventName];
-          }
-        }
-      };
-
-      /**
-       * @param float eventName
-       * @param float data
-       */
-      _myTrait_.trigger = function (eventName, data) {
-        if (_eventOn.indexOf(eventName + this._guid) >= 0) {
-          return;
-        }
-
-        if (this._events && this._events[eventName]) {
-          var el = this._events[eventName],
-              me = this;
-          _eventOn.push(eventName + this._guid);
-          var len = el.length;
-          for (var i = 0; i < len; i++) {
-            el[i](me, data);
-          }
-
-          var mi = _eventOn.indexOf(eventName + this._guid);
-          _eventOn.splice(mi, 1);
-          // console.log("The event array", _eventOn);
-        }
-      };
-    })(this);
-
-    (function (_myTrait_) {
-
-      // Initialize static variables here...
-
-      /**
-       * @param float propName
-       * @param float workerName
-       * @param float options
-       */
-      _myTrait_.propWorker = function (propName, workerName, options) {
-
-        this.createWorker(workerName, [4, propName, null, null, this.getID()], // Condition to run worker
-        options); // Options for the worker
-
-        return this;
-      };
-    })(this);
-
-    (function (_myTrait_) {
-      var _up;
-      var _factoryProperties;
-      var _registry;
-      var _objectCache;
-      var _workersDone;
-      var _atObserve;
-
-      // Initialize static variables here...
-
-      /**
-       * @param float name
-       */
-      _myTrait_._addFactoryProperty = function (name) {
-        if (!_factoryProperties) _factoryProperties = [];
-        _factoryProperties.push(name);
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._atObserveEvent = function (t) {
-        _atObserve = t;
-      };
-
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
-      _myTrait_.__factoryClass.push(function (data) {
-
-        if (!_objectCache) _objectCache = {};
-
-        if (this.isObject(data)) {
-
-          if (data._objEventWorker) return data;
-
-          if (data.data && data.__id) {
-
-            var oo = _objectCache[data.__id];
-            if (oo) {
-              // console.log("did find object "+data.__id+" from cache");
-              return oo;
-            } else {}
-          }
-        } else {
-          if (typeof data == "string") {
-            var oo = _objectCache[data];
-            if (oo) {
-              return oo;
-            }
-          }
-        }
-
-        if (_factoryProperties && _registry) {
-          for (var i = 0; i < _factoryProperties.length; i++) {
-            var pn = _factoryProperties[i];
-            var name;
-
-            if (data && data.data) {
-
-              name = data.data[pn];
-            } else {
-              if (data) name = data[pn];
-            }
-
-            if (name) {
-              var cf = _registry[name];
-              if (cf) {
-                return cf;
-              }
-            }
-          }
-        }
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_._findConnOptions = function (t) {
-        if (this._connectionOptions) return this._connectionOptions;
-
-        var p = this.parent();
-        if (p) return p._findConnOptions();
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._initIterator = function (t) {
-        var me = this;
-        if (typeof Symbol != "undefined" && typeof Symbol.iterator != "undefined") {
-          me[Symbol.iterator] = function () {
-            var idx = 0;
-            return { // this is the iterator object, returning a single element, the string "bye"
-              next: function next() {
-                var item = me.at(idx++);
-                if (item) {
-                  return {
-                    value: item,
-                    done: false
-                  };
-                } else {
-                  return {
-                    done: true
-                  };
-                }
-              } };
-          };
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_._initWorkers = function (t) {
-        var me = this;
-        if (!_workersDone) {
-          var dataCh = me._client.getChannelData();
-          dataCh.setWorkerCommands({
-            "_obs_4": function _obs_4(cmd, options) {
-              if (_atObserve) return;
-              // Object.observe - set value to object
-              options.target[cmd[1]] = cmd[2];
-            },
-            "_obs_7": function _obs_7(cmd, options) {
-              if (_atObserve) return;
-              var toIndex = cmd[1];
-              var dataObj = _data(cmd[2]);
-              if (dataObj.isFulfilled()) {
-                Array.unobserve(options.target, options.parentObserver);
-                options.target[toIndex] = dataObj.toObservable(options.target, options.parentObserver);
-                Array.observe(options.target, options.parentObserver);
-              }
-            },
-            "_obs_8": function _obs_8(cmd, options) {
-              if (_atObserve) {
-                return;
-              }
-              var toIndex = cmd[1];
-              Array.unobserve(options.target, options.parentObserver);
-              options.target.splice(toIndex, 1); //  = dataObj.toObservable();
-              Array.observe(options.target, options.parentObserver);
-            },
-            "_obs_12": function _obs_12(cmd, options) {
-              if (_atObserve) return;
-
-              // move the item inside the array...a bit trickier than the rest
-              var fromIndex = parseInt(cmd[3]);
-              var targetIndex = parseInt(cmd[2]);
-              var data = options.target;
-              var targetObj = data[fromIndex];
-
-              Array.unobserve(data, options.parentObserver);
-              // how to temporarily disable the observing ?
-              data.splice(fromIndex, 1);
-              data.splice(targetIndex, 0, targetObj);
-
-              Array.observe(data, options.parentObserver);
-              // options.target.splice(toIndex, 1); //  = dataObj.toObservable();
-            },
-            "_d_set": function _d_set(cmd, options) {
-              // for example, trigger .on("x", value);
-              options.target.trigger(cmd[1], cmd[2]);
-            },
-            "_d_cf": function _d_cf(cmd, options) {
-              // create field for the object
-              var o = options.obj;
-              if (cmd[0] == 4) {
-                if (!o[cmd[1]]) {
-                  o.createPropertyUpdateFn(cmd[1], cmd[2]);
-                }
-              }
-              if (cmd[0] == 5) {
-                if (!o[cmd[1]]) {
-                  var newProp = o._docData.data[cmd[1]];
-                  if (newProp) {
-                    // does this work???
-                    o.createPropertyUpdateFn(cmd[1], newProp);
-                  }
-                }
-              }
-            },
-            "_d_rem": function _d_rem(cmd, options) {
-
-              options.target.trigger("remove", cmd[1]);
-              // delete _objectCache[cmd[1]];
-              // remove the object from the object cache
-            },
-            "_to_ch": function _to_ch(cmd, options) {
-              // new object has been inserted to this channel
-              // if this is a broadcast channel, create a new _data for the object
-
-              // note both _cmd_setPropertyObject and and
-              //    _cmd_pushToArray have the new object at cmd[2]
-              var me = options.target;
-              if (me._client && !me._client._isLocal) {
-                // if not a local client, then create the sub object
-                var objData = me._client._fetch(cmd[2]);
-                if (objData) {
-                  _data(objData, null, me._client);
-                }
-              }
-            },
-            "_d_ins": function _d_ins(cmd, options) {
-              options.target.trigger("insert", cmd[1]);
-            },
-            "_d_mv": function _d_mv(cmd, options) {
-              options.target.trigger("move", {
-                itemId: cmd[1],
-                parentId: cmd[4],
-                from: cmd[3],
-                to: cmd[2]
-              });
-            },
-            "_d_ch": function _d_ch(cmd, options) {
-              // command which did change the child..
-              options.target.trigger("childChanged", cmd);
-            } });
-          _workersDone = true;
-        }
-        /*
-        d.subArr.createWorker("_d_remove", [8, "*", null, null, d.subArr.getID()], { target : ev1 },
-                function(cmd, options) {
-                    options.target.bHadRemove = true;
-                });
-             options.eventObj.trigger("move", {
-                from : fromIndex,
-                to : targetIndex
-            });                
-                
-        */
-      };
-
-      /**
-       * The old Object Event worker code
-       * @param float t
-       */
-      _myTrait_._objEventWorker = function (t) {
-        //console.log("******* if Then Worker ******");
-        //console.log(change);
-        //console.log(options);
-
-        if (!change) return;
-
-        // how to create something new...
-        if (change[0] == 4) {
-
-          // createPropertyUpdateFn
-          // console.log("%c  set for objects, property updf ", "background:orange;color:white");
-
-          var dom = targetObj;
-          var up = _docUp();
-
-          var dI = _data();
-          dI.createPropertyUpdateFn(change[1], null);
-
-          var dataItem = up._find(options.modelid);
-
-          if (dataItem.__undone) return;
-
-          if (options && options.eventObj) {
-            if (change[3] != change[2]) {
-              options.eventObj.trigger(change[1], change[2]);
-            }
-          }
-        }
-
-        if (options2) {
-          var origOptions = options;
-          options = options2;
-        }
-
-        if (change[0] == 5) {
-          var up = _docUp();
-          var dataItem = up._find(change[2]),
-              dataItem2 = up._find(change[4]);
-
-          if (dataItem.__undone) return;
-          if (dataItem2.__undone) return;
-
-          var dc = _data();
-
-          if (dc.findFromCache(change[4])) {
-
-            var dI = _data(change[4]),
-                setObj = _data(change[2]),
-                prop = change[1];
-
-            if (!dI) return;
-            if (!setObj) return;
-
-            dI[prop] = setObj;
-          }
-          // could trigger some event here perhaps... 
-        }
-
-        // __removedAt
-        if (change[0] == 8) {
-
-          var dom = targetObj;
-          var up = _docUp();
-          var dataItem = up._find(change[2]);
-          if (dataItem.__undone) return;
-
-          if (options.bListenMVC && options.eventObj) {
-            options.eventObj.trigger("remove", dataItem.__removedAt);
-          }
-        }
-
-        // insert
-        if (change[0] == 7) {
-
-          var up = _docUp();
-
-          var parentObj = up._find(change[4]),
-              insertedObj = up._find(change[2]);
-
-          if (parentObj.__undone) return;
-          if (insertedObj.__undone) return;
-
-          var index = parentObj.data.indexOf(insertedObj);
-
-          if (options.bListenMVC && options.eventObj) {
-            options.eventObj.trigger("insert", index);
-          }
-        }
-
-        if (change[0] == 12) {
-
-          var up = _docUp();
-
-          var parentObj = up._find(change[4]),
-              index = parseInt(change[2]),
-              len = parentObj.data.length;
-
-          if (parentObj.__undone) return;
-
-          for (var i = 0; i < len; i++) {
-            var m = parentObj.data[i];
-            if (m.__id == change[1]) {
-              targetObj = m;
-              break;
-            }
-          }
-
-          if (targetObj && targetObj.__undone) return;
-
-          // move item, this may not be working as expected...
-          var fromIndex = targetObj.__fromIndex; //  up._getExecInfo().fromIndex;
-
-          // console.log("about to trigger move with ", targetObj, change[2], index, len, parentObj );
-
-          if (targetObj) {
-            var targetIndex = parseInt(change[2]);
-            if (options.bListenMVC && options.eventObj) {
-              // console.log("Triggering move ", fromIndex, targetIndex);
-              options.eventObj.trigger("move", {
-                from: fromIndex,
-                to: targetIndex
-              });
-            }
-          }
-        }
-      };
-
-      /**
-       * @param string url
-       */
-      _myTrait_._parseURL = function (url) {
-        var parts1 = url.split("://");
-        var protocol = parts1.shift(),
-            rest = parts1.shift();
-        var serverParts = rest.split("/"),
-            ipAndPort = serverParts.shift(),
-            fullPath = serverParts.join("/"),
-            iParts = ipAndPort.split(":"),
-            ip = iParts[0],
-            port = iParts[1],
-            sandbox = serverParts.shift(),
-            fileName = serverParts.pop(),
-            path = serverParts.join("/");
-
-        var reqData = {
-          protocol: protocol,
-          ip: ip,
-          port: port,
-          sandbox: sandbox,
-          fullPath: fullPath,
-          path: path,
-          file: fileName
-        };
-
-        return reqData;
-      };
-
-      /**
-       * @param float id
-       * @param float obj
-       */
-      _myTrait_.addToCache = function (id, obj) {
-        if (!_objectCache) _objectCache = {};
-
-        if (id) {
-          _objectCache[id] = obj;
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.channel = function (t) {
-        return this._client;
-      };
-
-      /**
-       * @param float newChannelId
-       * @param float description
-       * @param float baseData
-       */
-      _myTrait_.createChannel = function (newChannelId, description, baseData) {
-
-        var me = this;
-
-        return _promise(function (result) {
-
-          if (!baseData) baseData = {};
-          me._client.createChannel(newChannelId, description, baseData).then(function (res) {
-            if (res.result === false) {
-              result(res);
-              return;
-            }
-            var req = me._request;
-            var myD = _data(req.protocol + "://" + req.ip + ":" + req.port + "/" + newChannelId, me._initOptions);
-            myD.then(function () {
-              result({
-                result: true,
-                channel: myD
-              });
-            });
-          });
-        });
-      };
-
-      /**
-       * @param float propertyName
-       * @param float className
-       * @param float classConstructor
-       */
-      _myTrait_.createSubClass = function (propertyName, className, classConstructor) {
-
-        // resStr+=cName+"_prototype.prototype = "+compileInfo.inheritFrom+".prototype\n";
-
-        var myDataClass_prototype = classConstructor;
-
-        var myDataClass = function myDataClass(a, b, c, d, e, f, g, h) {
-          if (this instanceof myDataClass) {
-            console.log("is instance of...");
-            console.log(this.__traitInit);
-            var args = [a, b, c, d, e, f, g, h];
-            if (this.__factoryClass) {
-              var m = this;
-              var res;
-              this.__factoryClass.forEach(function (initF) {
-                res = initF.apply(m, args);
-              });
-              if (Object.prototype.toString.call(res) == "[object Function]") {
-                if (res._classInfo.name != myDataClass._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-              } else {
-                if (res) return res;
-              }
-            }
-            if (this.__traitInit) {
-              console.log("Calling the subclass trait init...");
-              var m = this;
-              this.__traitInit.forEach(function (initF) {
-                initF.apply(m, args);
-              });
-            } else {
-              if (typeof this.init == "function") this.init.apply(this, args);
-            }
-          } else {
-            console.log("NOT instance of...");
-            return new myDataClass(a, b, c, d, e, f, g, h);
-          }
-        };
-        myDataClass._classInfo = {
-          name: this.guid()
-        };
-
-        myDataClass_prototype.prototype = _data.prototype;
-        myDataClass.prototype = new myDataClass_prototype();
-
-        this.registerComponent(className, myDataClass);
-        this._addFactoryProperty(propertyName);
-
-        return myDataClass;
-      };
-
-      /**
-       * @param Object dataObj
-       */
-      _myTrait_.diff = function (dataObj) {
-        var diff = diffEngine();
-
-        var res = diff.compareFiles(this.getData(true), dataObj.getData(true));
-
-        return res.cmds;
-      };
-
-      /**
-       * Disconnects the object from listening the server update
-       * @param float t
-       */
-      _myTrait_.disconnect = function (t) {
-
-        if (this._client) {
-          this._client.disconnect();
-        }
-        return this;
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.filter = function (fn) {
-        var newArr = _data([]);
-        this.localFork().forEach(function (item) {
-          if (fn(item)) newArr.push(item.toData(true));
-        });
-        return newArr;
-      };
-
-      /**
-       * @param string newChannelId
-       * @param string description
-       */
-      _myTrait_.fork = function (newChannelId, description) {
-        // fork
-
-        if (!newChannelId || this._client._isLocal) {
-          return this.localFork();
-        }
-
-        var me = this;
-
-        return _promise(function (result) {
-
-          me._client.fork(newChannelId, description).then(function (res) {
-
-            if (res.result === false) {
-              result(res);
-              return;
-            }
-            /*
-            var req = this._parseURL(data);
-            this._request = req;
-            this._socket = _clientSocket(req.protocol+"://"+req.ip, req.port);          
-            */
-            var req = me._request;
-            var myD = _data(req.protocol + "://" + req.ip + ":" + req.port + "/" + newChannelId, me._initOptions);
-            myD.then(function () {
-              result({
-                result: true,
-                fork: myD
-              });
-            });
-            //         result(res);
-          });
-        });
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getChannelClient = function (t) {
-        return this._client;
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getChannelData = function (t) {
-        return this._client.getChannelData();
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.getJournal = function (t) {
-        var d = this.getChannelData();
-
-        // make a copy of the journal, just in case
-        return d._journal.slice();
-      };
-
-      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
-      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (data, options, client) {
-
-        // initialization
-        // _data("http://localhost/channel/id");
-
-        /*
-        var chClient = channelClient( "myId", null, {
-        localChannel : true,
-        localData : myData
-        });
-        */
-
-        options = options || {};
-        var me = this;
-
-        this._initOptions = options;
-
-        if (typeof data == "string") {
-
-          if (!data.match("://")) {
-            return;
-          }
-
-          var req = this._parseURL(data);
-          this._request = req;
-
-          this._connectionOptions = options;
-          this._socket = _clientSocket(req.protocol + "://" + req.ip, req.port, options.ioLib);
-          var opts = {};
-          if (options.auth) {
-            opts.auth = options.auth;
-          } else {
-            opts.auth = {};
-          }
-          if (options.initWithData) {
-            // the data must have ID's and all...
-            opts.initWithData = this._wrapToData(options.initWithData);
-          }
-          this._client = channelClient(req.fullPath, this._socket, opts);
-          this._client.then(function (resp) {
-
-            if (resp.result === false) {
-              me.trigger("login::failed");
-              return;
-            }
-            var rawData = me._client.getData();
-
-            me._initializeData(rawData);
-            me.addToCache(rawData.__id, me);
-
-            me._initWorkers();
-
-            /*
-            if(data && data.__id) {
-            if(_up._find(data.__id)) {
-                    
-                // console.log("**** data found, initializing **** ");
-                //console.log(JSON.parse(JSON.stringify( data) ));        
-                me._initializeData(data);
-                me.addToCache( data.__id, me );    
-                me.resolve(true);       
-                return;
-            }
-            } */
-
-            me.resolve(true);
-          });
-        } else {
-
-          if (client) {
-            if (client && !this._client) this._client = client;
-            if (this.isObject(data) && data.__id) {
-              this._initializeData(data);
-              this.addToCache(data.__id, this);
-            }
-
-            me._initWorkers();
-
-            this.resolve(true);
-          } else {
-
-            if (this.isObject(data) && !data.__id) {
-              data = this._wrapToData(data);
-            }
-
-            var chClient = channelClient(this.guid(), null, {
-              localChannel: true,
-              localData: data
-            });
-
-            this._client = chClient;
-            var me = this;
-            // this._client.then( function(resp) {
-            var rawData = me._client.getData();
-            if (!rawData) {
-              me.resolve(true);
-              return;
-            }
-            me._initializeData(rawData);
-            me.addToCache(rawData.__id, me);
-
-            me._initWorkers();
-
-            me.resolve(true);
-            // });      
-          }
-        }
-      });
-
-      /**
-       * @param float t
-       */
-      _myTrait_.localFork = function (t) {
-
-        // _transformObjFromNs
-        var forkData = this.getData(true);
-
-        return _data(forkData);
-      };
-
-      /**
-       * @param function fn
-       */
-      _myTrait_.map = function (fn) {
-        var newArr = _data([]);
-        var localF = this.localFork();
-        var idx = 0;
-        this.localFork().forEach(function (item) {
-          var newObj = fn(item, idx, localF);
-          newArr.push(newObj);
-          idx++;
-        });
-        return newArr;
-      };
-
-      /**
-       * Merges object, which was forked from this object into this object.
-       * @param Object forkedObject  - Object which was forked
-       */
-      _myTrait_.merge = function (forkedObject) {
-        var patchCmds = this.diff(forkedObject);
-        this.patch(patchCmds);
-
-        return this;
-      };
-
-      /**
-       * @param string channelURL
-       */
-      _myTrait_.openChannel = function (channelURL) {
-        // fork
-
-        var me = this;
-        return _promise(function (result) {
-          var req = me._request;
-          var myD = _data(channelURL, me._findConnOptions());
-          myD.then(function () {
-            result({
-              result: true,
-              channel: myD
-            });
-          });
-        });
-      };
-
-      /**
-       * @param float cmds
-       */
-      _myTrait_.patch = function (cmds) {
-        var me = this;
-        cmds.forEach(function (c, index) {
-          var tc = me._client._transformCmdToNs(c);
-          me._client.addCommand(tc, true);
-        });
-        return this;
-      };
-
-      /**
-       * @param float options
-       */
-      _myTrait_.playback = function (options) {
-
-        // playback
-        var data = this.getChannelData();
-        return data.playback(options);
-      };
-
-      /**
-      * Pushes raw data into Array of objects consisting of subarrays.
-      The iterator definition is like:
-      ``` 
-      {
-        title: &quot;{path}&quot;,
-        items: [],
-        &quot;icon&quot;: &quot;fa fa-folder&quot;
-      }
-      ````
-       * @param String path  - Path to push to, for example &quot;music/favourites&quot; 
-      * @param Object itemData  - Raw object data to push 
-      * @param float iteratorDef  
-      */
-      _myTrait_.pushToObjArray = function (path, itemData, iteratorDef) {
-        var parts = path.split("/"),
-            model = this;
-
-        var subPathName,
-            titleName,
-            extraAttrs = {},
-            objTemplate;
-
-        if (!iteratorDef) return;
-        for (var n in iteratorDef) {
-          if (iteratorDef.hasOwnProperty(n)) {
-            var val = iteratorDef[n];
-            if (this.isArray(val)) {
-              subPathName = n;
-            } else {
-              if (val == "{path}") {
-                titleName = n;
-              } else {
-                extraAttrs[n] = val;
-              }
-            }
-          }
-        }
-
-        if (!subPathName) return;
-        if (!titleName) return;
-
-        objTemplate = JSON.stringify(extraAttrs);
-
-        if (!subPathName) subPathName = "items";
-        if (!titleName) titleName = "title";
-        var find_or_insert_item = function find_or_insert_item(_x, _x2) {
-          var _again = true;
-
-          _function: while (_again) {
-            var index = _x,
-                from = _x2;
-            name = did_find = newObj = undefined;
-            _again = false;
-
-            var name = parts[index];
-            if (!name) return from;
-            if (!from.hasOwn(subPathName)) {
-              from.set(subPathName, []);
-            }
-            var did_find;
-            from[subPathName].forEach(function (i) {
-              if (i.get(titleName) == name) did_find = i;
-            });
-            if (!did_find) {
-              var newObj = JSON.parse(objTemplate);
-              newObj[titleName] = name;
-              newObj[subPathName] = [];
-
-              from[subPathName].push(newObj);
-              did_find = from[subPathName].at(from[subPathName].length() - 1);
-            }
-            if (did_find && parts.length <= index + 1) {
-
-              return did_find;
-            } else {
-              _x = index + 1;
-              _x2 = did_find;
-              _again = true;
-              continue _function;
-            }
-          }
-        };
-
-        var parentNode = find_or_insert_item(0, model);
-        if (parentNode && parentNode[subPathName]) {
-          parentNode[subPathName].push(itemData);
-        }
-      };
-
-      /**
-       * @param float t
-       */
-      _myTrait_.reconnect = function (t) {
-        if (this._client) {
-          this._client.reconnect();
-        }
-        return this;
-      };
-
-      /**
-       * @param function fn
-       * @param Object initValue
-       */
-      _myTrait_.reduce = function (fn, initValue) {
-        var newArr = _data([]);
-        var idx = 0;
-        var localF = this.localFork();
-        var currentValue = initValue;
-        localF.forEach(function (item) {
-          currentValue = fn(currentValue, item, idx, localF);
-          idx++;
-        });
-        return currentValue;
-      };
-
-      /**
-       * @param float name
-       * @param float classDef
-       */
-      _myTrait_.registerComponent = function (name, classDef) {
-
-        if (!_registry) _registry = {};
-
-        if (!_registry[name]) {
-          _registry[name] = classDef;
-        }
-      };
-    })(this);
-  };
-
-  var _data = function _data(a, b, c, d, e, f, g, h) {
-    var m = this,
-        res;
-    if (m instanceof _data) {
-      var args = [a, b, c, d, e, f, g, h];
-      if (m.__factoryClass) {
-        m.__factoryClass.forEach(function (initF) {
-          res = initF.apply(m, args);
-        });
-        if (typeof res == "function") {
-          if (res._classInfo.name != _data._classInfo.name) return new res(a, b, c, d, e, f, g, h);
-        } else {
-          if (res) return res;
-        }
-      }
-      if (m.__traitInit) {
-        m.__traitInit.forEach(function (initF) {
-          initF.apply(m, args);
-        });
-      } else {
-        if (typeof m.init == "function") m.init.apply(m, args);
-      }
-    } else return new _data(a, b, c, d, e, f, g, h);
-  };
-
-  _data_prototype.prototype = _promise.prototype;
-
-  _data._classInfo = {
-    name: "_data"
-  };
-  _data.prototype = new _data_prototype();
-
-  (function () {
-    if (typeof define !== "undefined" && define !== null && define.amd != null) {
-      __amdDefs__["_data"] = _data;
-      this._data = _data;
-    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
-      module.exports["_data"] = _data;
-    } else {
-      this._data = _data;
-    }
-  }).call(new Function("return this")());
-
   var nfs4_acl_prototype = function nfs4_acl_prototype() {
 
     (function (_myTrait_) {
@@ -9914,6 +6651,12 @@
           if (!cmd[5]) cmd[5] = new Date().getTime();
 
           this._journal.push(cmd);
+
+          this.trigger("cmd", {
+            line: this._journal.length - 1,
+            cmd: cmd
+          });
+
           this._journalPointer++;
         }
       };
@@ -9970,6 +6713,60 @@
         if (!_hooks[name]) _hooks[name] = [];
 
         _hooks[name].push(fn);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        return this;
+      };
+
+      /**
+       * @param String name  - Name of the event the listener was listening to
+       * @param Function fn  - The listener function
+       */
+      _myTrait_.removeListener = function (name, fn) {
+        if (!this._ev) return;
+        if (!this._ev[name]) return;
+
+        var list = this._ev[name];
+
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] == fn) {
+            list.splice(i, 1);
+            return;
+          }
+        }
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(data, fn);
+        });
+        return this;
       };
     })(this);
 
@@ -13029,40 +9826,37 @@
 
           // the build tree
           var mainData = r.pop();
-          var dataTest = _channelData(channelId + fileSystem.id(), mainData, []);
+          var chData = _channelData(channelId + fileSystem.id(), mainData, []);
           var list = r.pop();
 
           // NOW, here is a problem, the in-memory channel "journal" should be truncated
           while (list) {
-            dataTest._journalPointer = 0;
-            dataTest._journal.length = 0; // <-- the journal length, last will be spared
+            chData._journalPointer = 0;
+            chData._journal.length = 0; // <-- the journal length, last will be spared
             list.forEach(function (c) {
-              dataTest.execCmd(c);
+              chData.execCmd(c);
             });
             list = r.pop();
           }
-
           // The state of the server - what should be the "last_update" ? 
           me._serverState = {
             model: me._model, // model of the server state, if truncate needed
-            data: dataTest, // The channel data object set here
+            data: chData, // The channel data object set here
             version: me._model._settings.version, // the version of the channel model
-            last_update: [0, dataTest.getJournalLine()], // the range of last commands sent to the client
+            last_update: [0, chData.getJournalLine()], // the range of last commands sent to the client
             _done: {} // hash of handled packet ID's
           };
 
-          var data = dataTest.getData();
+          var data = chData.getData();
           if (data.__acl) {
             me._acl = nfs4_acl(data.__acl);
           }
-
-          // me._tManager = _channelTransaction(channelId + fileSystem.id(), dataTest);
 
           // The channel policy might replace the transaction manager...
           me._policy = _chPolicy();
 
           me._updateLoop(); // start the update loop
-          me._chData = dataTest;
+          me._chData = chData;
 
           // if there is a sync server, start it too before proceeding...
           me._startSync().then(function () {
@@ -13134,6 +9928,2148 @@
       module.exports["_channelController"] = _channelController;
     } else {
       this._channelController = _channelController;
+    }
+  }).call(new Function("return this")());
+
+  var _data_prototype = function _data_prototype() {
+
+    (function (_myTrait_) {
+      var _eventOn;
+      var _commands;
+      var _authToken;
+      var _authRandom;
+      var _authUser;
+      var _up;
+      var _dataCache;
+      var _createdFunctions;
+      var _setWorkers;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.__dataTr = function (t) {};
+
+      /**
+       * @param float me
+       * @param float what
+       * @param float cb
+       */
+      _myTrait_._collectObject = function (me, what, cb) {
+        if (!this.isArray(what)) what = what.split(",");
+
+        var myData = {};
+        what.forEach(function (n) {
+          myData[n] = me[n]();
+          me.on(n, function () {
+            myData[n] = me[n]();
+            cb(myData);
+          });
+        });
+        cb(myData);
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_._forMembers = function (fn) {
+        var me = this;
+
+        if (this.isArray()) {
+          for (var i = 0; i < this._data.length; i++) {
+            var o = this._data[i];
+            if (this.isObject(o)) {
+              if (o.__dataTr) {
+                fn(o);
+              }
+            }
+          }
+        } else {
+          this._members.forEach(function (n) {
+            if (me[n]) fn(me[n]);
+          });
+        }
+      };
+
+      /**
+       * @param float docData
+       * @param float options
+       */
+      _myTrait_._initializeData = function (docData, options) {
+
+        if (!docData) return;
+
+        // pointer to the docUp data
+        this._data = docData.data;
+        this._docData = docData;
+
+        // TODO: might add worker 14 here...
+        var dataCh = this._client.getChannelData();
+
+        var ns_id = this._client._idToNs(this._docData.__id, this._client._ns);
+
+        dataCh.createWorker("_to_ch", // worker ID
+        [7, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
+        dataCh.createWorker("_to_ch", // worker ID
+        [5, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
+        dataCh.createWorker("_d_set", // worker ID
+        [4, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
+        dataCh.createWorker("_d_rem", // worker ID
+        [8, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
+        dataCh.createWorker("_d_ins", // worker ID
+        [7, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
+        dataCh.createWorker("_d_mv", // worker ID
+        [12, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
+        // "_d_cf"
+
+        dataCh.createWorker("_d_cf", // worker ID
+        [5, "*", null, null, ns_id], // filter
+        {
+          obj: this
+        });
+        dataCh.createWorker("_d_cf", // worker ID
+        [4, "*", null, null, ns_id], // filter
+        {
+          obj: this
+        });
+
+        // _d_ch -> child object has changed event
+        dataCh.createWorker("_d_ch", // worker ID
+        [42, "*", null, null, ns_id], // filter
+        {
+          target: this
+        });
+
+        var data = docData.data;
+
+        // create the subdata instances for the objects...
+        if (data instanceof Array) {
+
+          for (var n in data) {
+            this[n] = _data(data[n], options, this._client);
+          }
+          this._initIterator();
+        } else {
+          for (var n in data) {
+            if (data.hasOwnProperty(n)) {
+              var v = data[n];
+              if (this.isFunction(v)) {
+                continue;
+              }
+              if (!this.isFunction(v) && (v === Object(v) || v instanceof Array)) {
+                this[n] = new _data(v, options, this._client);
+                continue;
+              }
+              // just plain member variable function setting
+              if (!this.isFunction(v) && !this.isObject(v) && !this.isArray(v)) {
+                if (!this[n]) {
+                  this.createPropertyUpdateFn(n, v);
+                }
+              }
+            }
+          }
+        }
+      };
+
+      /**
+       * Creates the commands to create the object - the object should be in { data : , __id}  - format, use _wrapToData if not already in this format.
+       * @param Object data
+       * @param float list
+       */
+      _myTrait_._objectCreateCmds = function (data, list) {
+        if (!list) list = [];
+
+        if (this.isObject(data) && data.data) {
+
+          if (this.isArray(data.data)) {
+            list.push([2, data.__id, "", null, data.__id]);
+
+            for (var i = 0; i < data.data.length; i++) {
+              var obj = data.data[i];
+              if (this.isObject(obj)) {
+                // they should be...
+                this._objectCreateCmds(obj, list);
+                var cmd = [7, i, obj.__id, null, data.__id];
+                list.push(cmd);
+              }
+            }
+          } else {
+            list.push([1, data.__id, "", null, data.__id]);
+            // var cmd = [1, newObj.__id, {}, null, newObj.__id];
+
+            for (var n in data.data) {
+              if (data.data.hasOwnProperty(n)) {
+                var value = data.data[n];
+                if (this.isObject(value)) {
+                  this._objectCreateCmds(value, list);
+                  var cmd = [5, n, value.__id, null, data.__id];
+                  list.push(cmd);
+                } else {
+                  var cmd = [4, n, value, null, data.__id];
+                  list.push(cmd);
+                }
+              }
+            }
+          }
+        }
+        return list;
+      };
+
+      /**
+       * @param float url
+       */
+      _myTrait_._parseURL = function (url) {
+
+        var parts1 = url.split("://");
+        var protocol = parts1.shift(),
+            rest = parts1.shift();
+        var serverParts = rest.split("/"),
+            ipAndPort = serverParts.shift(),
+            iParts = ipAndPort.split(":"),
+            ip = iParts[0],
+            port = iParts[1],
+            sandbox = serverParts.shift(),
+            fileName = serverParts.pop(),
+            path = serverParts.join("/");
+
+        return {
+          url: url,
+          ip: ip,
+          port: port,
+          sandbox: sandbox,
+          path: path,
+          file: fileName,
+          protocol: protocol
+        };
+      };
+
+      /**
+       * @param object data
+       */
+      _myTrait_._reGuidRawData = function (data) {
+
+        if (this.isArray(data)) {
+          var me = this;
+          data.forEach(function (i) {
+            me._reGuidRawData(i);
+          });
+        } else {
+          if (this.isObject(data)) {
+            for (var n in data) {
+              if (!data.hasOwnProperty(n)) continue;
+              if (n == "__id") {
+                data[n] = this.guid();
+                continue;
+              }
+              if (this.isObject(data[n])) this._reGuidRawData(data[n]);
+              if (this.isArray(data[n])) this._reGuidRawData(data[n]);
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float data
+       */
+      _myTrait_._wrapToData = function (data) {
+
+        var newObj;
+        // if the data is "well formed"
+        if (data.__id && data.data) {
+          newObj = data;
+        } else {
+          var newObj = {
+            data: data,
+            __id: this.guid()
+          };
+        }
+
+        if (newObj.data && this.isObject(newObj.data)) {
+          for (var n in newObj.data) {
+            if (n == "__oid") {
+              delete newObj.data[n];
+              continue;
+            }
+            if (newObj.data.hasOwnProperty(n)) {
+              var o = newObj.data[n];
+              if (this.isFunction(o)) continue;
+              if (this.isObject(o)) {
+                newObj.data[n] = this._wrapToData(o);
+              }
+            }
+          }
+        }
+        return newObj;
+      };
+
+      /**
+       * @param Object c
+       */
+      _myTrait_.addController = function (c) {
+        console.error("** askChannelQuestion ** not implemented now ");
+      };
+
+      /**
+       * @param float question
+       * @param float data
+       * @param float cb
+       */
+      _myTrait_.askChannelQuestion = function (question, data, cb) {
+
+        console.error("** askChannelQuestion ** not implemented now ");
+
+        /*
+        var url = this._findURL();
+        console.log("Asking, the URL was "+url);
+        var doc = _docUp( url );
+        doc.then( function() {
+        console.log("Resolved the doc, asking the channel the question "+question);
+        doc._ask(question, data, cb ); 
+        });
+        */
+      };
+
+      /**
+       * @param float i
+       */
+      _myTrait_.at = function (i) {
+        var ii = this._docData.data[i];
+        if (ii) return _data(ii, null, this._client);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.clear = function (t) {
+        var len = this.length();
+        while (len--) {
+          this.pop();
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.clone = function (t) {
+        return _data(this.serialize());
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.copyToData = function (t) {
+
+        var raw = this.toData();
+        this._reGuidRawData(raw);
+
+        return raw;
+      };
+
+      /**
+       * @param string n
+       * @param float v
+       * @param float validators
+       */
+      _myTrait_.createArrayField = function (n, v, validators) {
+
+        return this.set(this._docData.__id, n, v);
+      };
+
+      /**
+       * @param float n
+       * @param float defaultValue
+       */
+      _myTrait_.createField = function (n, defaultValue) {
+        this.set(n, defaultValue || "");
+        return this;
+      };
+
+      /**
+       * @param float n
+       * @param float v
+       */
+      _myTrait_.createObjectField = function (n, v) {
+        return this.set(this._docData.__id, n, v);
+      };
+
+      /**
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.createPropertyUpdateFn = function (name, value) {
+
+        if (this.isObject(value) || this.isObject(this._docData.data[name])) {
+          this[name] = _data(value, null, this._client);
+          return;
+        }
+
+        var me = this;
+        if (!_myTrait_[name]) {
+          _myTrait_[name] = function (value) {
+
+            if (typeof value == "undefined") {
+              return this._client.get(this._docData.__id, name);
+            }
+            this._client.set(this._docData.__id, name, value);
+            return this;
+          };
+          _createdFunctions[name] = true;
+        }
+      };
+
+      /**
+       * @param string workerName
+       * @param float workerFilter
+       * @param float workerData
+       * @param float workerFn
+       */
+      _myTrait_.createWorker = function (workerName, workerFilter, workerData, workerFn) {
+
+        workerFilter[4] = this._client._idToNs(workerFilter[4], this._client._ns);
+
+        var dataCh = this._client.getChannelData();
+        dataCh.createWorker(workerName, // worker ID
+        workerFilter, // filter
+        workerData);
+
+        if (workerFn) {
+          if (!_setWorkers) _setWorkers = {};
+          if (!_setWorkers[workerName]) {
+
+            var oo = {};
+            oo[workerName] = workerFn;
+            dataCh.setWorkerCommands(oo);
+            _setWorkers[workerName] = true;
+          }
+        }
+        return this;
+        /*
+        var me = this;
+        if(!_workersDone) {
+        var dataCh = me._client.getChannelData();
+        dataCh.setWorkerCommands({
+        "_d_set" : function(cmd, options) {        
+            // for example, trigger .on("x", value);
+            options.target.trigger(cmd[1], cmd[2]);
+        }
+        });  
+        _workersDone = true;
+        }
+        */
+      };
+
+      /**
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.diff_set = function (name, value) {
+
+        // functions are not handled too...
+
+        if (this.isObject(value)) {
+          // objects are not to be set...
+          return this;
+        } else {
+          this._client.diffSet(this._docData.__id, name, value);
+          this.createPropertyUpdateFn(name, value);
+          return this;
+        }
+      };
+
+      /**
+       * @param float scope
+       * @param float data
+       */
+      _myTrait_.emitValue = function (scope, data) {
+        if (this._processingEmit) return this;
+
+        this._processingEmit = true;
+        // adding controllers to the data...
+        if (this._controllers) {
+          var cnt = 0;
+          for (var i = 0; i < this._controllers.length; i++) {
+            var c = this._controllers[i];
+            if (c[scope]) {
+              c[scope](data);
+              cnt++;
+            }
+          }
+
+          // this._processingEmit = false;
+          // Do not stop emitting the value to the parents...
+          // if(cnt>0) return this;
+        }
+
+        /*
+        if(this._controller) {
+        if(this._controller[scope]) {
+        this._controller[scope](data);
+        return;
+        }
+        }
+        */
+
+        if (this._valueFn && this._valueFn[scope]) {
+          this._valueFn[scope].forEach(function (fn) {
+            fn(data);
+          });
+        }
+        if (1) {
+          if (this._parent) {
+            if (!this._parent.emitValue) {} else {
+              this._parent.emitValue(scope, data);
+            }
+          }
+        }
+        this._processingEmit = false;
+      };
+
+      /**
+       * @param Extension obj
+       */
+      _myTrait_.extendWith = function (obj) {
+
+        for (var n in obj) {
+          var fn = obj[n];
+          if (this.isFunction(fn)) {
+            _myTrait_[n] = fn;
+          }
+        }
+      };
+
+      /**
+       * @param float path
+       */
+      _myTrait_.find = function (path) {
+        // should find the item from the path...
+
+        console.error("*** FIND IS NOT IMPLEMENTED *** ");
+
+        // var dataObj = _up._getObjectInPath(path, this._docData);
+        // if(dataObj) return _data(dataObj.__id);
+
+        return null;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.forEach = function (fn) {
+        var me = this;
+        this._docData.data.forEach(function (d) {
+          fn(_data(d, null, me._client));
+        });
+      };
+
+      /**
+       * @param float arrayKeys
+       * @param float fn
+       */
+      _myTrait_.forTree = function (arrayKeys, fn) {
+        var limitFilter = {},
+            bLimit = false;
+        if (!fn) {
+          fn = arrayKeys;
+        } else {
+          var limit = arrayKeys.split(",");
+          limit.forEach(function (k) {
+            limitFilter[k.trim()] = true;
+            bLimit = true;
+          });
+        }
+        fn(this);
+        var me = this;
+        if (this.isArray()) {
+          this.forEach(function (item) {
+            item.forTree(fn);
+          });
+        } else {
+          this.keys(function (key) {
+            if (bLimit) {
+              if (!limitFilter[key]) return;
+            }
+            if (me[key] && me.hasOwn(key)) {
+              var o = me[key];
+              if (o.forTree) {
+                o.forTree(fn);
+              }
+            }
+          });
+        }
+        return this;
+      };
+
+      /**
+       * @param float name
+       */
+      _myTrait_.get = function (name) {
+
+        console.log("Calling get for " + name);
+        console.log("docData " + JSON.stringify(this._docData));
+
+        return this._client.get(this._docData.__id, name);
+      };
+
+      /**
+       * @param bool stripNamespace
+       */
+      _myTrait_.getData = function (stripNamespace) {
+
+        if (!this._docData) {
+          if (this._client) {
+            var data = this._client.getData();
+          } else {
+            return;
+          }
+        } else {
+          var data = this._client._fetch(this._docData.__id);
+        }
+        if (stripNamespace) {
+          // got to create a new object out of this...
+          var newData = JSON.parse(JSON.stringify(data));
+          data = this._client._transformObjFromNs(newData);
+        }
+        return data;
+        /*
+        var data = this._client.getData();
+        if(stripNamespace) {
+        // got to create a new object out of this...
+        var newData = JSON.parse( JSON.stringify(data ));
+        data = this._client._transformObjFromNs(newData);
+        }
+        return data;
+        */
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getID = function (t) {
+
+        return this._docData.__id;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+        /*        
+        function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+               .toString(16)
+               .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();*/
+      };
+
+      /**
+       * @param float name
+       */
+      _myTrait_.hasOwn = function (name) {
+
+        if (typeof this._docData.data[name] != "undefined" && this[name]) {
+          return true;
+        }
+        return false;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.indexOf = function (t) {
+        return this._client.indexOf(this._docData.__id);
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (data, options, notUsed, notUsed2) {
+
+        if (!_dataCache) {
+          _dataCache = {};
+          _createdFunctions = {};
+        }
+      });
+
+      /**
+       * @param float index
+       * @param float v
+       */
+      _myTrait_.insertAt = function (index, v) {
+        return this.push(v, index);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+
+        if (typeof t == "undefined") {
+          if (!this._docData) return false;
+          if (!this._docData.data) return false;
+          return this.isArray(this._docData.data);
+        }
+        return Object.prototype.toString.call(t) === "[object Array]";
+      };
+
+      /**
+       * @param object obj
+       */
+      _myTrait_.isDataTrait = function (obj) {
+
+        if (obj._docData) return true;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+
+        if (typeof t == "undefined") {
+          if (!this._docData) return false;
+          if (!this._docData.data) return false;
+          return this.isObject(this._docData.data);
+        }
+
+        return t === Object(t);
+      };
+
+      /**
+       * @param float i
+       */
+      _myTrait_.item = function (i) {
+        return this.at(i);
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.keys = function (fn) {
+        var i = 0;
+        for (var n in this._docData.data) {
+
+          if (this._docData.data.hasOwnProperty(n)) {
+            fn(n, this._docData.data[n], this._docData.data);
+          }
+        }
+
+        return this;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.length = function (t) {
+        if (!this._docData) return 0;
+        if (!this._docData.data) return 0;
+        return this._docData.data.length;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.moveDown = function (t) {
+        this._client.moveDown(this._docData.__id);
+        return this;
+      };
+
+      /**
+       * @param float index
+       */
+      _myTrait_.moveToIndex = function (index) {
+        this._client.moveTo(this._docData.__id, index);
+
+        return this;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.moveUp = function (t) {
+        this._client.moveUp(this._docData.__id);
+
+        return this;
+      };
+
+      /**
+       * @param float scope
+       * @param float fn
+       */
+      _myTrait_.onValue = function (scope, fn) {
+        if (!this._valueFn) {
+          this._valueFn = {};
+        }
+        if (!this._valueFn[scope]) this._valueFn[scope] = [];
+
+        if (this._valueFn[scope].indexOf(fn) < 0) this._valueFn[scope].push(fn);
+      };
+
+      /**
+       * @param Object p
+       */
+      _myTrait_.parent = function (p) {
+
+        if (typeof p != "undefined") {
+          return this;
+        }
+        if (!this._docData) {
+          return;
+        }
+
+        var p = this._docData.__p;
+        if (p) return _data(p);
+      };
+
+      /**
+       * @param float what
+       */
+      _myTrait_.pick = function (what) {
+
+        var stream = simpleStream();
+        var me = this;
+
+        this.then(function () {
+          me._collectObject(me, what, function (data) {
+            stream.pushValue(data);
+          });
+        });
+
+        return stream;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.pop = function (t) {
+
+        var len = this.length();
+        if (len) {
+          var it = this.at(len - 1);
+          if (it) it.remove();
+          return it;
+        }
+      };
+
+      /**
+       * @param Object newData
+       * @param float toIndex
+       */
+      _myTrait_.push = function (newData, toIndex) {
+
+        if (!this.isArray()) return this;
+
+        var data,
+            bOldData = false;
+        if (newData._wrapToData) {
+          newData = newData.getData();
+          var dd = this._client._fetch(newData.__id);
+          if (dd) bOldData = true;
+        }
+
+        // is raw data
+        if (newData.__id && newData.data) {
+          // ??? should you create a full copy of the original object here just in case...
+          data = this._client._transformObjToNs(newData, this._client._ns);
+        } else {
+          data = this._wrapToData(newData);
+        }
+
+        if (!bOldData) {
+          var cmds = this._objectCreateCmds(data);
+          for (var i = 0; i < cmds.length; i++) {
+            this._client.addCommand(cmds[i]);
+          }
+        }
+        var index;
+        if (typeof toIndex != "undefined") {
+          index = toIndex;
+          var dd = this._client._fetch(this._docData.__id);
+          if (index < 0 || index > dd.data.length) return;
+        } else {
+          var dd = this._client._fetch(this._docData.__id);
+          index = dd.data.length;
+        }
+
+        this._client.addCommand([7, index, data.__id, null, this._docData.__id]);
+
+        return this;
+      };
+
+      /**
+       * @param int cnt
+       */
+      _myTrait_.redo = function (cnt) {
+        this._client.redo(cnt);
+        return this;
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.redoStep = function (options) {
+        this._client.redoStep(options);
+        return this;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.remove = function (t) {
+        this._client.remove(this._docData.__id);
+        return this;
+      };
+
+      /**
+       * @param String eventName
+       * @param float fn
+       */
+      _myTrait_.removeListener = function (eventName, fn) {
+        if (this._events && this._events[eventName]) {
+          var i = this._events[eventName].indexOf(fn);
+          if (i >= 0) this._events[eventName].splice(i, 1);
+          if (this._events[eventName].length == 0) {
+            delete this._events[eventName];
+          }
+        }
+      };
+
+      /**
+       * @param float tplData
+       */
+      _myTrait_.renderTemplate = function (tplData) {
+
+        console.error("RenderTemplate not implemented");
+
+        /*
+        var comp = templateCompiler();  
+        var jsonTplData = comp.compile( tplData );
+        var dom = comp.composeTemplate( this._docData,  jsonTplData );
+        return dom;
+        */
+      };
+
+      /**
+       * @param bool nonRecursive
+       */
+      _myTrait_.serialize = function (nonRecursive) {
+        var o,
+            me = this,
+            data = this._docData.data;
+        if (this.isArray(this._data)) {
+          o = [];
+        } else {
+          o = {};
+        }
+
+        for (var n in data) {
+          if (data.hasOwnProperty(n)) {
+            var v = data[n];
+            if (typeof v == "undefined") continue;
+            if (nonRecursive) {
+              if (this.isObject(v) || this.isArray(v)) continue;
+            }
+            if (this.isObject(v)) {
+              o[n] = _data(v).serialize();
+            } else {
+              o[n] = v;
+            }
+          }
+        }
+
+        return o;
+      };
+
+      /**
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.set = function (name, value) {
+
+        if (this.isFunction(value)) {
+          var me = this;
+          this.then(function () {
+            return me.set(name, value(me.get(name)));
+          });
+          return this;
+        }
+
+        if (this.isObject(value)) {
+
+          var data,
+              newData = value;
+
+          if (newData._wrapToData) {
+            newData = newData.getData();
+          }
+
+          if (newData.__id && newData.data) {
+            data = this._client._transformObjToNs(newData, this._client._ns);
+          } else {
+            data = this._wrapToData(newData);
+          }
+
+          var cmds = this._objectCreateCmds(data);
+          for (var i = 0; i < cmds.length; i++) {
+            this._client.addCommand(cmds[i]);
+          }
+          this._client.setObject(this._docData.__id, name, data);
+          var objData = this._client._fetch(data.__id);
+          this.createPropertyUpdateFn(name, objData);
+
+          return this;
+        } else {
+
+          this._client.set(this._docData.__id, name, value);
+          this.createPropertyUpdateFn(name, value);
+          return this;
+        }
+      };
+
+      /**
+       * @param bool nonRecursive
+       */
+      _myTrait_.toData = function (nonRecursive) {
+
+        var str = JSON.stringify(this._docData);
+        var data = JSON.parse(str);
+
+        if (data.__ctxCmdList) delete data.__ctxCmdList;
+        if (data.__cmdList) delete data.__cmdList;
+
+        return data;
+      };
+
+      /**
+       * @param float nonRecursive
+       */
+      _myTrait_.toPlainData = function (nonRecursive) {
+
+        return this.getChannelData().toPlainData(this._docData);
+      };
+
+      /**
+       * @param int cnt
+       */
+      _myTrait_.undo = function (cnt) {
+        this._client.undo(cnt);
+        return this;
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.undoStep = function (options) {
+        this._client.undoStep(options);
+        return this;
+      };
+
+      /**
+       * @param float name
+       */
+      _myTrait_.unset = function (name) {
+
+        this._client.unset(this._docData.__id, name);
+
+        return this;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.upgradeVersion = function (t) {
+
+        this._client.upgradeVersion();
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _eventOn;
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {
+
+        if (!_eventOn) _eventOn = [];
+      });
+
+      /**
+       * @param float eventName
+       * @param float fn
+       */
+      _myTrait_.on = function (eventName, fn) {
+        if (!this._events) this._events = {};
+        if (!this._events[eventName]) this._events[eventName] = [];
+        this._events[eventName].push(fn);
+
+        // This might remove the old event...
+        var me = this;
+        fn._unbindEvent = function () {
+          // console.log("unbindEvent called");
+          me.removeListener(eventName, fn);
+        }
+        /*
+        var worker = _up._createWorker( this._docData.__id,  
+                                eventName, 	
+                                _workers().fetch(14),
+                                null,
+                                {
+                                    modelid : this._docData.__id,
+                                    eventName : eventName,
+                                    eventObj : this
+                                } );
+        */
+
+        ;
+      };
+
+      /**
+       * @param float eventName
+       * @param float fn
+       */
+      _myTrait_.removeListener = function (eventName, fn) {
+        if (this._events && this._events[eventName]) {
+          var i = this._events[eventName].indexOf(fn);
+          if (i >= 0) this._events[eventName].splice(i, 1);
+          if (this._events[eventName].length == 0) {
+            delete this._events[eventName];
+          }
+        }
+      };
+
+      /**
+       * @param float eventName
+       * @param float data
+       */
+      _myTrait_.trigger = function (eventName, data) {
+        if (_eventOn.indexOf(eventName + this._guid) >= 0) {
+          return;
+        }
+
+        if (this._events && this._events[eventName]) {
+          var el = this._events[eventName],
+              me = this;
+          _eventOn.push(eventName + this._guid);
+          var len = el.length;
+          for (var i = 0; i < len; i++) {
+            el[i](me, data);
+          }
+
+          var mi = _eventOn.indexOf(eventName + this._guid);
+          _eventOn.splice(mi, 1);
+          // console.log("The event array", _eventOn);
+        }
+      };
+    })(this);
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float propName
+       * @param float workerName
+       * @param float options
+       */
+      _myTrait_.propWorker = function (propName, workerName, options) {
+
+        this.createWorker(workerName, [4, propName, null, null, this.getID()], // Condition to run worker
+        options); // Options for the worker
+
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _up;
+      var _factoryProperties;
+      var _registry;
+      var _objectCache;
+      var _workersDone;
+      var _atObserve;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float name
+       */
+      _myTrait_._addFactoryProperty = function (name) {
+        if (!_factoryProperties) _factoryProperties = [];
+        _factoryProperties.push(name);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._atObserveEvent = function (t) {
+        _atObserve = t;
+      };
+
+      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
+      _myTrait_.__factoryClass.push(function (data) {
+
+        if (!_objectCache) _objectCache = {};
+
+        if (this.isObject(data)) {
+
+          if (data._objEventWorker) return data;
+
+          if (data.data && data.__id) {
+
+            var oo = _objectCache[data.__id];
+            if (oo) {
+              // console.log("did find object "+data.__id+" from cache");
+              return oo;
+            } else {}
+          }
+        } else {
+          if (typeof data == "string") {
+            var oo = _objectCache[data];
+            if (oo) {
+              return oo;
+            }
+          }
+        }
+
+        if (_factoryProperties && _registry) {
+          for (var i = 0; i < _factoryProperties.length; i++) {
+            var pn = _factoryProperties[i];
+            var name;
+
+            if (data && data.data) {
+
+              name = data.data[pn];
+            } else {
+              if (data) name = data[pn];
+            }
+
+            if (name) {
+              var cf = _registry[name];
+              if (cf) {
+                return cf;
+              }
+            }
+          }
+        }
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_._findConnOptions = function (t) {
+        if (this._connectionOptions) return this._connectionOptions;
+
+        var p = this.parent();
+        if (p) return p._findConnOptions();
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._initIterator = function (t) {
+        var me = this;
+        if (typeof Symbol != "undefined" && typeof Symbol.iterator != "undefined") {
+          me[Symbol.iterator] = function () {
+            var idx = 0;
+            return { // this is the iterator object, returning a single element, the string "bye"
+              next: function next() {
+                var item = me.at(idx++);
+                if (item) {
+                  return {
+                    value: item,
+                    done: false
+                  };
+                } else {
+                  return {
+                    done: true
+                  };
+                }
+              } };
+          };
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._initWorkers = function (t) {
+        var me = this;
+        if (!_workersDone) {
+          var dataCh = me._client.getChannelData();
+          dataCh.setWorkerCommands({
+            "_obs_4": function _obs_4(cmd, options) {
+              if (_atObserve) return;
+              // Object.observe - set value to object
+              options.target[cmd[1]] = cmd[2];
+            },
+            "_obs_7": function _obs_7(cmd, options) {
+              if (_atObserve) return;
+              var toIndex = cmd[1];
+              var dataObj = _data(cmd[2]);
+              if (dataObj.isFulfilled()) {
+                Array.unobserve(options.target, options.parentObserver);
+                options.target[toIndex] = dataObj.toObservable(options.target, options.parentObserver);
+                Array.observe(options.target, options.parentObserver);
+              }
+            },
+            "_obs_8": function _obs_8(cmd, options) {
+              if (_atObserve) {
+                return;
+              }
+              var toIndex = cmd[1];
+              Array.unobserve(options.target, options.parentObserver);
+              options.target.splice(toIndex, 1); //  = dataObj.toObservable();
+              Array.observe(options.target, options.parentObserver);
+            },
+            "_obs_12": function _obs_12(cmd, options) {
+              if (_atObserve) return;
+
+              // move the item inside the array...a bit trickier than the rest
+              var fromIndex = parseInt(cmd[3]);
+              var targetIndex = parseInt(cmd[2]);
+              var data = options.target;
+              var targetObj = data[fromIndex];
+
+              Array.unobserve(data, options.parentObserver);
+              // how to temporarily disable the observing ?
+              data.splice(fromIndex, 1);
+              data.splice(targetIndex, 0, targetObj);
+
+              Array.observe(data, options.parentObserver);
+              // options.target.splice(toIndex, 1); //  = dataObj.toObservable();
+            },
+            "_d_set": function _d_set(cmd, options) {
+              // for example, trigger .on("x", value);
+              options.target.trigger(cmd[1], cmd[2]);
+            },
+            "_d_cf": function _d_cf(cmd, options) {
+              // create field for the object
+              var o = options.obj;
+              if (cmd[0] == 4) {
+                if (!o[cmd[1]]) {
+                  o.createPropertyUpdateFn(cmd[1], cmd[2]);
+                }
+              }
+              if (cmd[0] == 5) {
+                if (!o[cmd[1]]) {
+                  var newProp = o._docData.data[cmd[1]];
+                  if (newProp) {
+                    // does this work???
+                    o.createPropertyUpdateFn(cmd[1], newProp);
+                  }
+                }
+              }
+            },
+            "_d_rem": function _d_rem(cmd, options) {
+
+              options.target.trigger("remove", cmd[1]);
+              // delete _objectCache[cmd[1]];
+              // remove the object from the object cache
+            },
+            "_to_ch": function _to_ch(cmd, options) {
+              // new object has been inserted to this channel
+              // if this is a broadcast channel, create a new _data for the object
+
+              // note both _cmd_setPropertyObject and and
+              //    _cmd_pushToArray have the new object at cmd[2]
+              var me = options.target;
+              if (me._client && !me._client._isLocal) {
+                // if not a local client, then create the sub object
+                var objData = me._client._fetch(cmd[2]);
+                if (objData) {
+                  _data(objData, null, me._client);
+                }
+              }
+            },
+            "_d_ins": function _d_ins(cmd, options) {
+              options.target.trigger("insert", cmd[1]);
+            },
+            "_d_mv": function _d_mv(cmd, options) {
+              options.target.trigger("move", {
+                itemId: cmd[1],
+                parentId: cmd[4],
+                from: cmd[3],
+                to: cmd[2]
+              });
+            },
+            "_d_ch": function _d_ch(cmd, options) {
+              // command which did change the child..
+              options.target.trigger("childChanged", cmd);
+            } });
+          _workersDone = true;
+        }
+        /*
+        d.subArr.createWorker("_d_remove", [8, "*", null, null, d.subArr.getID()], { target : ev1 },
+                function(cmd, options) {
+                    options.target.bHadRemove = true;
+                });
+             options.eventObj.trigger("move", {
+                from : fromIndex,
+                to : targetIndex
+            });                
+                
+        */
+      };
+
+      /**
+       * The old Object Event worker code
+       * @param float t
+       */
+      _myTrait_._objEventWorker = function (t) {
+        //console.log("******* if Then Worker ******");
+        //console.log(change);
+        //console.log(options);
+
+        if (!change) return;
+
+        // how to create something new...
+        if (change[0] == 4) {
+
+          // createPropertyUpdateFn
+          // console.log("%c  set for objects, property updf ", "background:orange;color:white");
+
+          var dom = targetObj;
+          var up = _docUp();
+
+          var dI = _data();
+          dI.createPropertyUpdateFn(change[1], null);
+
+          var dataItem = up._find(options.modelid);
+
+          if (dataItem.__undone) return;
+
+          if (options && options.eventObj) {
+            if (change[3] != change[2]) {
+              options.eventObj.trigger(change[1], change[2]);
+            }
+          }
+        }
+
+        if (options2) {
+          var origOptions = options;
+          options = options2;
+        }
+
+        if (change[0] == 5) {
+          var up = _docUp();
+          var dataItem = up._find(change[2]),
+              dataItem2 = up._find(change[4]);
+
+          if (dataItem.__undone) return;
+          if (dataItem2.__undone) return;
+
+          var dc = _data();
+
+          if (dc.findFromCache(change[4])) {
+
+            var dI = _data(change[4]),
+                setObj = _data(change[2]),
+                prop = change[1];
+
+            if (!dI) return;
+            if (!setObj) return;
+
+            dI[prop] = setObj;
+          }
+          // could trigger some event here perhaps... 
+        }
+
+        // __removedAt
+        if (change[0] == 8) {
+
+          var dom = targetObj;
+          var up = _docUp();
+          var dataItem = up._find(change[2]);
+          if (dataItem.__undone) return;
+
+          if (options.bListenMVC && options.eventObj) {
+            options.eventObj.trigger("remove", dataItem.__removedAt);
+          }
+        }
+
+        // insert
+        if (change[0] == 7) {
+
+          var up = _docUp();
+
+          var parentObj = up._find(change[4]),
+              insertedObj = up._find(change[2]);
+
+          if (parentObj.__undone) return;
+          if (insertedObj.__undone) return;
+
+          var index = parentObj.data.indexOf(insertedObj);
+
+          if (options.bListenMVC && options.eventObj) {
+            options.eventObj.trigger("insert", index);
+          }
+        }
+
+        if (change[0] == 12) {
+
+          var up = _docUp();
+
+          var parentObj = up._find(change[4]),
+              index = parseInt(change[2]),
+              len = parentObj.data.length;
+
+          if (parentObj.__undone) return;
+
+          for (var i = 0; i < len; i++) {
+            var m = parentObj.data[i];
+            if (m.__id == change[1]) {
+              targetObj = m;
+              break;
+            }
+          }
+
+          if (targetObj && targetObj.__undone) return;
+
+          // move item, this may not be working as expected...
+          var fromIndex = targetObj.__fromIndex; //  up._getExecInfo().fromIndex;
+
+          // console.log("about to trigger move with ", targetObj, change[2], index, len, parentObj );
+
+          if (targetObj) {
+            var targetIndex = parseInt(change[2]);
+            if (options.bListenMVC && options.eventObj) {
+              // console.log("Triggering move ", fromIndex, targetIndex);
+              options.eventObj.trigger("move", {
+                from: fromIndex,
+                to: targetIndex
+              });
+            }
+          }
+        }
+      };
+
+      /**
+       * @param string url
+       */
+      _myTrait_._parseURL = function (url) {
+        var parts1 = url.split("://");
+        var protocol = parts1.shift(),
+            rest = parts1.shift();
+        var serverParts = rest.split("/"),
+            ipAndPort = serverParts.shift(),
+            fullPath = serverParts.join("/"),
+            iParts = ipAndPort.split(":"),
+            ip = iParts[0],
+            port = iParts[1],
+            sandbox = serverParts.shift(),
+            fileName = serverParts.pop(),
+            path = serverParts.join("/");
+
+        var reqData = {
+          protocol: protocol,
+          ip: ip,
+          port: port,
+          sandbox: sandbox,
+          fullPath: fullPath,
+          path: path,
+          file: fileName
+        };
+
+        return reqData;
+      };
+
+      /**
+       * @param float id
+       * @param float obj
+       */
+      _myTrait_.addToCache = function (id, obj) {
+        if (!_objectCache) _objectCache = {};
+
+        if (id) {
+          _objectCache[id] = obj;
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.channel = function (t) {
+        return this._client;
+      };
+
+      /**
+       * @param float newChannelId
+       * @param float description
+       * @param float baseData
+       */
+      _myTrait_.createChannel = function (newChannelId, description, baseData) {
+
+        var me = this;
+
+        return _promise(function (result) {
+
+          if (!baseData) baseData = {};
+          me._client.createChannel(newChannelId, description, baseData).then(function (res) {
+            if (res.result === false) {
+              result(res);
+              return;
+            }
+            var req = me._request;
+            var myD = _data(req.protocol + "://" + req.ip + ":" + req.port + "/" + newChannelId, me._initOptions);
+            myD.then(function () {
+              result({
+                result: true,
+                channel: myD
+              });
+            });
+          });
+        });
+      };
+
+      /**
+       * @param float propertyName
+       * @param float className
+       * @param float classConstructor
+       */
+      _myTrait_.createSubClass = function (propertyName, className, classConstructor) {
+
+        // resStr+=cName+"_prototype.prototype = "+compileInfo.inheritFrom+".prototype\n";
+
+        var myDataClass_prototype = classConstructor;
+
+        var myDataClass = function myDataClass(a, b, c, d, e, f, g, h) {
+          if (this instanceof myDataClass) {
+            console.log("is instance of...");
+            console.log(this.__traitInit);
+            var args = [a, b, c, d, e, f, g, h];
+            if (this.__factoryClass) {
+              var m = this;
+              var res;
+              this.__factoryClass.forEach(function (initF) {
+                res = initF.apply(m, args);
+              });
+              if (Object.prototype.toString.call(res) == "[object Function]") {
+                if (res._classInfo.name != myDataClass._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+              } else {
+                if (res) return res;
+              }
+            }
+            if (this.__traitInit) {
+              console.log("Calling the subclass trait init...");
+              var m = this;
+              this.__traitInit.forEach(function (initF) {
+                initF.apply(m, args);
+              });
+            } else {
+              if (typeof this.init == "function") this.init.apply(this, args);
+            }
+          } else {
+            console.log("NOT instance of...");
+            return new myDataClass(a, b, c, d, e, f, g, h);
+          }
+        };
+        myDataClass._classInfo = {
+          name: this.guid()
+        };
+
+        myDataClass_prototype.prototype = _data.prototype;
+        myDataClass.prototype = new myDataClass_prototype();
+
+        this.registerComponent(className, myDataClass);
+        this._addFactoryProperty(propertyName);
+
+        return myDataClass;
+      };
+
+      /**
+       * @param Object dataObj
+       */
+      _myTrait_.diff = function (dataObj) {
+        var diff = diffEngine();
+
+        var res = diff.compareFiles(this.getData(true), dataObj.getData(true));
+
+        return res.cmds;
+      };
+
+      /**
+       * Disconnects the object from listening the server update
+       * @param float t
+       */
+      _myTrait_.disconnect = function (t) {
+
+        if (this._client) {
+          this._client.disconnect();
+        }
+        return this;
+      };
+
+      /**
+       * @param function fn
+       */
+      _myTrait_.filter = function (fn) {
+        var newArr = _data([]);
+        this.localFork().forEach(function (item) {
+          if (fn(item)) newArr.push(item.toData(true));
+        });
+        return newArr;
+      };
+
+      /**
+       * @param string newChannelId
+       * @param string description
+       */
+      _myTrait_.fork = function (newChannelId, description) {
+        // fork
+
+        if (!newChannelId || this._client._isLocal) {
+          return this.localFork();
+        }
+
+        var me = this;
+
+        return _promise(function (result) {
+
+          me._client.fork(newChannelId, description).then(function (res) {
+
+            if (res.result === false) {
+              result(res);
+              return;
+            }
+            /*
+            var req = this._parseURL(data);
+            this._request = req;
+            this._socket = _clientSocket(req.protocol+"://"+req.ip, req.port);          
+            */
+            var req = me._request;
+            var myD = _data(req.protocol + "://" + req.ip + ":" + req.port + "/" + newChannelId, me._initOptions);
+            myD.then(function () {
+              result({
+                result: true,
+                fork: myD
+              });
+            });
+            //         result(res);
+          });
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getChannelClient = function (t) {
+        return this._client;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getChannelData = function (t) {
+        return this._client.getChannelData();
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getJournal = function (t) {
+        var d = this.getChannelData();
+
+        // make a copy of the journal, just in case
+        return d._journal.slice();
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (data, options, client) {
+
+        // initialization
+        // _data("http://localhost/channel/id");
+
+        /*
+        var chClient = channelClient( "myId", null, {
+        localChannel : true,
+        localData : myData
+        });
+        */
+
+        options = options || {};
+        var me = this;
+
+        this._initOptions = options;
+
+        if (typeof data == "string") {
+
+          if (!data.match("://")) {
+            return;
+          }
+
+          var req = this._parseURL(data);
+          this._request = req;
+
+          this._connectionOptions = options;
+          this._socket = _clientSocket(req.protocol + "://" + req.ip, req.port, options.ioLib);
+          var opts = {};
+          if (options.auth) {
+            opts.auth = options.auth;
+          } else {
+            opts.auth = {};
+          }
+          if (options.initWithData) {
+            // the data must have ID's and all...
+            opts.initWithData = this._wrapToData(options.initWithData);
+          }
+          this._client = channelClient(req.fullPath, this._socket, opts);
+          this._client.then(function (resp) {
+
+            if (resp.result === false) {
+              me.trigger("login::failed");
+              return;
+            }
+            var rawData = me._client.getData();
+
+            me._initializeData(rawData);
+            me.addToCache(rawData.__id, me);
+
+            me._initWorkers();
+
+            /*
+            if(data && data.__id) {
+            if(_up._find(data.__id)) {
+                    
+                // console.log("**** data found, initializing **** ");
+                //console.log(JSON.parse(JSON.stringify( data) ));        
+                me._initializeData(data);
+                me.addToCache( data.__id, me );    
+                me.resolve(true);       
+                return;
+            }
+            } */
+
+            me.resolve(true);
+          });
+        } else {
+
+          if (client) {
+            if (client && !this._client) this._client = client;
+            if (this.isObject(data) && data.__id) {
+              this._initializeData(data);
+              this.addToCache(data.__id, this);
+            }
+
+            me._initWorkers();
+
+            this.resolve(true);
+          } else {
+
+            if (this.isObject(data) && !data.__id) {
+              data = this._wrapToData(data);
+            }
+
+            var chClient = channelClient(this.guid(), null, {
+              localChannel: true,
+              localData: data
+            });
+
+            this._client = chClient;
+            var me = this;
+            // this._client.then( function(resp) {
+            var rawData = me._client.getData();
+            if (!rawData) {
+              me.resolve(true);
+              return;
+            }
+            me._initializeData(rawData);
+            me.addToCache(rawData.__id, me);
+
+            me._initWorkers();
+
+            me.resolve(true);
+            // });      
+          }
+        }
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_.localFork = function (t) {
+
+        // _transformObjFromNs
+        var forkData = this.getData(true);
+
+        return _data(forkData);
+      };
+
+      /**
+       * @param function fn
+       */
+      _myTrait_.map = function (fn) {
+        var newArr = _data([]);
+        var localF = this.localFork();
+        var idx = 0;
+        this.localFork().forEach(function (item) {
+          var newObj = fn(item, idx, localF);
+          newArr.push(newObj);
+          idx++;
+        });
+        return newArr;
+      };
+
+      /**
+       * Merges object, which was forked from this object into this object.
+       * @param Object forkedObject  - Object which was forked
+       */
+      _myTrait_.merge = function (forkedObject) {
+        var patchCmds = this.diff(forkedObject);
+        this.patch(patchCmds);
+
+        return this;
+      };
+
+      /**
+       * @param string channelURL
+       */
+      _myTrait_.openChannel = function (channelURL) {
+        // fork
+
+        var me = this;
+        return _promise(function (result) {
+          var req = me._request;
+          var myD = _data(channelURL, me._findConnOptions());
+          myD.then(function () {
+            result({
+              result: true,
+              channel: myD
+            });
+          });
+        });
+      };
+
+      /**
+       * @param float cmds
+       */
+      _myTrait_.patch = function (cmds) {
+        var me = this;
+        cmds.forEach(function (c, index) {
+          var tc = me._client._transformCmdToNs(c);
+          me._client.addCommand(tc, true);
+        });
+        return this;
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.playback = function (options) {
+
+        // playback
+        var data = this.getChannelData();
+        return data.playback(options);
+      };
+
+      /**
+      * Pushes raw data into Array of objects consisting of subarrays.
+      The iterator definition is like:
+      ``` 
+      {
+        title: &quot;{path}&quot;,
+        items: [],
+        &quot;icon&quot;: &quot;fa fa-folder&quot;
+      }
+      ````
+       * @param String path  - Path to push to, for example &quot;music/favourites&quot; 
+      * @param Object itemData  - Raw object data to push 
+      * @param float iteratorDef  
+      */
+      _myTrait_.pushToObjArray = function (path, itemData, iteratorDef) {
+        var parts = path.split("/"),
+            model = this;
+
+        var subPathName,
+            titleName,
+            extraAttrs = {},
+            objTemplate;
+
+        if (!iteratorDef) return;
+        for (var n in iteratorDef) {
+          if (iteratorDef.hasOwnProperty(n)) {
+            var val = iteratorDef[n];
+            if (this.isArray(val)) {
+              subPathName = n;
+            } else {
+              if (val == "{path}") {
+                titleName = n;
+              } else {
+                extraAttrs[n] = val;
+              }
+            }
+          }
+        }
+
+        if (!subPathName) return;
+        if (!titleName) return;
+
+        objTemplate = JSON.stringify(extraAttrs);
+
+        if (!subPathName) subPathName = "items";
+        if (!titleName) titleName = "title";
+        var find_or_insert_item = function find_or_insert_item(_x, _x2) {
+          var _again = true;
+
+          _function: while (_again) {
+            var index = _x,
+                from = _x2;
+            name = did_find = newObj = undefined;
+            _again = false;
+
+            var name = parts[index];
+            if (!name) return from;
+            if (!from.hasOwn(subPathName)) {
+              from.set(subPathName, []);
+            }
+            var did_find;
+            from[subPathName].forEach(function (i) {
+              if (i.get(titleName) == name) did_find = i;
+            });
+            if (!did_find) {
+              var newObj = JSON.parse(objTemplate);
+              newObj[titleName] = name;
+              newObj[subPathName] = [];
+
+              from[subPathName].push(newObj);
+              did_find = from[subPathName].at(from[subPathName].length() - 1);
+            }
+            if (did_find && parts.length <= index + 1) {
+
+              return did_find;
+            } else {
+              _x = index + 1;
+              _x2 = did_find;
+              _again = true;
+              continue _function;
+            }
+          }
+        };
+
+        var parentNode = find_or_insert_item(0, model);
+        if (parentNode && parentNode[subPathName]) {
+          parentNode[subPathName].push(itemData);
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.reconnect = function (t) {
+        if (this._client) {
+          this._client.reconnect();
+        }
+        return this;
+      };
+
+      /**
+       * @param function fn
+       * @param Object initValue
+       */
+      _myTrait_.reduce = function (fn, initValue) {
+        var newArr = _data([]);
+        var idx = 0;
+        var localF = this.localFork();
+        var currentValue = initValue;
+        localF.forEach(function (item) {
+          currentValue = fn(currentValue, item, idx, localF);
+          idx++;
+        });
+        return currentValue;
+      };
+
+      /**
+       * @param float name
+       * @param float classDef
+       */
+      _myTrait_.registerComponent = function (name, classDef) {
+
+        if (!_registry) _registry = {};
+
+        if (!_registry[name]) {
+          _registry[name] = classDef;
+        }
+      };
+    })(this);
+  };
+
+  var _data = function _data(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _data) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _data._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _data(a, b, c, d, e, f, g, h);
+  };
+
+  _data_prototype.prototype = _promise.prototype;
+
+  _data._classInfo = {
+    name: "_data"
+  };
+  _data.prototype = new _data_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_data"] = _data;
+      this._data = _data;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_data"] = _data;
+    } else {
+      this._data = _data;
     }
   }).call(new Function("return this")());
 
@@ -17675,6 +16611,1853 @@
     }
   }).call(new Function("return this")());
 
+  var testFs_prototype = function testFs_prototype() {
+
+    (function (_myTrait_) {
+      var _instanceCache;
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {});
+    })(this);
+  };
+
+  var testFs = function testFs(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof testFs) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != testFs._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new testFs(a, b, c, d, e, f, g, h);
+  };
+
+  testFs._classInfo = {
+    name: "testFs"
+  };
+  testFs.prototype = new testFs_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["testFs"] = testFs;
+      this.testFs = testFs;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["testFs"] = testFs;
+    } else {
+      this.testFs = testFs;
+    }
+  }).call(new Function("return this")());
+
+  var channelTesting_prototype = function channelTesting_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {});
+
+      /**
+       * The test users are &quot;Tero&quot; with password &quot;teropw&quot; and &quot;Juha&quot; with password &quot;juhapw&quot;. Juha has groups &quot;users&quot; and Tero has groups &quot;users&quot; and &quot;admins&quot;
+       * @param float t
+       */
+      _myTrait_.pwFilesystem = function (t) {
+
+        // The password and user infra, in the simulation environment:
+
+        var pwData = {
+          "groups": {},
+          "domains": {},
+          "users": {
+            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
+            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
+          },
+          "udata": {
+            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
+            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
+          }
+        };
+
+        var pwFiles = fsServerMemory("pwServer1", pwData);
+
+        return pwFiles;
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.serverSetup1 = function (options) {
+
+        options = options || {};
+        var readyPromise = _promise();
+
+        var baseData = {
+          data: {
+            path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
+            fill: "red",
+            stroke: "black",
+            sub: {
+              data: {
+                value1: "abba"
+              },
+              __id: "sub1"
+            }
+          },
+          __id: "id1",
+          __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
+        };
+
+        if (options && options.data) {
+          baseData.data = options.data;
+        }
+
+        // create a channel files
+        var fsData = {
+          "my": {
+            "channel": {
+              "journal.1": "",
+              "file.2": JSON.stringify(baseData),
+              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
+              "ch.settings": JSON.stringify({
+                version: 2, // version of the channel
+                channelId: "my/channel", // ID of this channel
+                journalLine: 1,
+                utc: 14839287897 // UTC timestamp of creation               
+              }),
+              "forks": JSON.stringify({ // == forks on list of forks
+                fromJournalLine: 1,
+                version: 1,
+                channelId: "my/channel/myFork",
+                fromVersion: 2,
+                from: "my/channel",
+                to: "my/channel/myFork",
+                name: "test of fork",
+                utc: 14839287897
+              }),
+              "myFork": {
+                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
+                "ch.settings": JSON.stringify({
+                  fromJournalLine: 1, // from which line the fork starts
+                  version: 1, // version of the channel
+                  channelId: "my/channel/myFork", // ID of this channel
+                  fromVersion: 2, // version of the fork's source
+                  from: "my/channel", // the fork channels ID
+                  to: "my/channel/myFork", // forks target channel
+                  journalLine: 1,
+                  name: "test of fork",
+                  utc: 14839287897 // UTC timestamp of creation
+                })
+              }
+            }
+          }
+        };
+
+        if (options && options.fileSystemData) {
+          fsData = options.fileSystemData;
+        }
+
+        var filesystem = fsServerMemory("ms" + this.guid(), fsData);
+
+        // The password and user infra, in the simulation environment:
+        var pwData = {
+          "groups": {},
+          "domains": {},
+          "users": {
+            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
+            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
+          },
+          "udata": {
+            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
+            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
+          }
+        };
+
+        var pwFiles = fsServerMemory("pw" + this.guid(), pwData);
+        pwFiles.then(function () {
+          return filesystem;
+        }).then(function () {
+
+          // Setting up the server       
+          var root = pwFiles.getRootFolder();
+          var auth = authFuzz(root);
+          var fsRoot = filesystem.getRootFolder();
+
+          var server = _serverSocket((options.protocol || "http") + "://" + (options.ip || "localhost"), options.port || 1234);
+          var manager = _serverChannelMgr(server, filesystem.getRootFolder(), auth);
+
+          readyPromise.resolve({
+            server: server,
+            manager: manager,
+            fsRoot: fsRoot,
+            auth: auth,
+            pwRoot: root
+          });
+        });
+
+        return readyPromise;
+      };
+
+      /**
+       * Test filesystem 1 represents a channel &quot;my/channel&quot; with one fork with channelID &quot;my/channel/myFork&quot;.
+       * @param float t
+       */
+      _myTrait_.testFilesystem1 = function (t) {
+        var fsData = {
+          "my": {
+            "channel": {
+              "journal.1": "",
+              "file.2": JSON.stringify({
+                data: {
+                  path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
+                  fill: "red"
+                },
+                __id: "id1",
+                __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
+              }),
+              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
+              "ch.settings": JSON.stringify({
+                version: 2, // version of the channel
+                channelId: "my/channel", // ID of this channel
+                journalLine: 1,
+                utc: 14839287897 // UTC timestamp of creation               
+              }),
+              "forks": JSON.stringify({ // == forks on list of forks
+                fromJournalLine: 1,
+                version: 1,
+                channelId: "my/channel/myFork",
+                fromVersion: 2,
+                from: "my/channel",
+                to: "my/channel/myFork",
+                name: "test of fork",
+                utc: 14839287897
+              }),
+              "myFork": {
+                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
+                "ch.settings": JSON.stringify({
+                  fromJournalLine: 1, // from which line the fork starts
+                  version: 1, // version of the channel
+                  channelId: "my/channel/myFork", // ID of this channel
+                  fromVersion: 2, // version of the fork's source
+                  from: "my/channel", // the fork channels ID
+                  to: "my/channel/myFork", // forks target channel
+                  name: "test of fork",
+                  utc: 14839287897 // UTC timestamp of creation
+                })
+              }
+            }
+          }
+        };
+
+        return;
+      };
+    })(this);
+  };
+
+  var channelTesting = function channelTesting(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof channelTesting) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != channelTesting._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new channelTesting(a, b, c, d, e, f, g, h);
+  };
+
+  channelTesting._classInfo = {
+    name: "channelTesting"
+  };
+  channelTesting.prototype = new channelTesting_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["channelTesting"] = channelTesting;
+      this.channelTesting = channelTesting;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["channelTesting"] = channelTesting;
+    } else {
+      this.channelTesting = channelTesting;
+    }
+  }).call(new Function("return this")());
+
+  var testFs_prototype = function testFs_prototype() {
+
+    (function (_myTrait_) {
+      var _instanceCache;
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {});
+    })(this);
+  };
+
+  var testFs = function testFs(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof testFs) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != testFs._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new testFs(a, b, c, d, e, f, g, h);
+  };
+
+  testFs._classInfo = {
+    name: "testFs"
+  };
+  testFs.prototype = new testFs_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["testFs"] = testFs;
+      this.testFs = testFs;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["testFs"] = testFs;
+    } else {
+      this.testFs = testFs;
+    }
+  }).call(new Function("return this")());
+
+  var channelTesting_prototype = function channelTesting_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (t) {});
+
+      /**
+       * The test users are &quot;Tero&quot; with password &quot;teropw&quot; and &quot;Juha&quot; with password &quot;juhapw&quot;. Juha has groups &quot;users&quot; and Tero has groups &quot;users&quot; and &quot;admins&quot;
+       * @param float t
+       */
+      _myTrait_.pwFilesystem = function (t) {
+
+        // The password and user infra, in the simulation environment:
+
+        var pwData = {
+          "groups": {},
+          "domains": {},
+          "users": {
+            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
+            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
+          },
+          "udata": {
+            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
+            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
+          }
+        };
+
+        var pwFiles = fsServerMemory("pwServer1", pwData);
+
+        return pwFiles;
+      };
+
+      /**
+       * @param float options
+       */
+      _myTrait_.serverSetup1 = function (options) {
+
+        options = options || {};
+        var readyPromise = _promise();
+
+        var baseData = {
+          data: {
+            path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
+            fill: "red",
+            stroke: "black",
+            sub: {
+              data: {
+                value1: "abba"
+              },
+              __id: "sub1"
+            }
+          },
+          __id: "id1",
+          __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
+        };
+
+        if (options && options.data) {
+          baseData.data = options.data;
+        }
+
+        // create a channel files
+        var fsData = {
+          "my": {
+            "channel": {
+              "journal.1": "",
+              "file.2": JSON.stringify(baseData),
+              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
+              "ch.settings": JSON.stringify({
+                version: 2, // version of the channel
+                channelId: "my/channel", // ID of this channel
+                journalLine: 1,
+                utc: 14839287897 // UTC timestamp of creation               
+              }),
+              "forks": JSON.stringify({ // == forks on list of forks
+                fromJournalLine: 1,
+                version: 1,
+                channelId: "my/channel/myFork",
+                fromVersion: 2,
+                from: "my/channel",
+                to: "my/channel/myFork",
+                name: "test of fork",
+                utc: 14839287897
+              }),
+              "myFork": {
+                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
+                "ch.settings": JSON.stringify({
+                  fromJournalLine: 1, // from which line the fork starts
+                  version: 1, // version of the channel
+                  channelId: "my/channel/myFork", // ID of this channel
+                  fromVersion: 2, // version of the fork's source
+                  from: "my/channel", // the fork channels ID
+                  to: "my/channel/myFork", // forks target channel
+                  journalLine: 1,
+                  name: "test of fork",
+                  utc: 14839287897 // UTC timestamp of creation
+                })
+              }
+            }
+          }
+        };
+
+        if (options && options.fileSystemData) {
+          fsData = options.fileSystemData;
+        }
+
+        var filesystem = fsServerMemory("ms" + this.guid(), fsData);
+
+        // The password and user infra, in the simulation environment:
+        var pwData = {
+          "groups": {},
+          "domains": {},
+          "users": {
+            "505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36": "ee8f858602fabad8e7f30372a4d910ab875b869d52d9206c0257d59678ba6031:id1:",
+            "dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a": "add2bbda7947ab86c2e9f277ccee254611bedd1e3b8542113ea36931c1fdbf3e:id2:"
+          },
+          "udata": {
+            "id1": "{\"userName\":\"Tero\",\"domain\":\"\",\"hash\":\"505d18cbea690d03eb240729299468071c9f133758b6c527e2dddd458de2ad36\",\"groups\":[\"users\",\"admins\"]}",
+            "id2": "{\"userName\":\"Juha\",\"domain\":\"\",\"hash\":\"dce8981dec48df66ed7b139dfd1a680aa1d404a006264f24fda9e0e598c1ac8a\",\"groups\":[\"users\"]}"
+          }
+        };
+
+        var pwFiles = fsServerMemory("pw" + this.guid(), pwData);
+        pwFiles.then(function () {
+          return filesystem;
+        }).then(function () {
+
+          // Setting up the server       
+          var root = pwFiles.getRootFolder();
+          var auth = authFuzz(root);
+          var fsRoot = filesystem.getRootFolder();
+
+          var server = _serverSocket((options.protocol || "http") + "://" + (options.ip || "localhost"), options.port || 1234);
+          var manager = _serverChannelMgr(server, filesystem.getRootFolder(), auth);
+
+          readyPromise.resolve({
+            server: server,
+            manager: manager,
+            fsRoot: fsRoot,
+            auth: auth,
+            pwRoot: root
+          });
+        });
+
+        return readyPromise;
+      };
+
+      /**
+       * Test filesystem 1 represents a channel &quot;my/channel&quot; with one fork with channelID &quot;my/channel/myFork&quot;.
+       * @param float t
+       */
+      _myTrait_.testFilesystem1 = function (t) {
+        var fsData = {
+          "my": {
+            "channel": {
+              "journal.1": "",
+              "file.2": JSON.stringify({
+                data: {
+                  path: "M22.441,28.181c-0.419,0-0.835-0.132-1.189-0.392l-5.751-4.247L9.75,27.789c-0.354,0.26-0.771,0.392-1.189,0.392c-0.412,0-0.824-0.128-1.175-0.384c-0.707-0.511-1-1.422-0.723-2.25l2.26-6.783l-5.815-4.158c-0.71-0.509-1.009-1.416-0.74-2.246c0.268-0.826,1.037-1.382,1.904-1.382c0.004,0,0.01,0,0.014,0l7.15,0.056l2.157-6.816c0.262-0.831,1.035-1.397,1.906-1.397s1.645,0.566,1.906,1.397l2.155,6.816l7.15-0.056c0.004,0,0.01,0,0.015,0c0.867,0,1.636,0.556,1.903,1.382c0.271,0.831-0.028,1.737-0.739,2.246l-5.815,4.158l2.263,6.783c0.276,0.826-0.017,1.737-0.721,2.25C23.268,28.053,22.854,28.181,22.441,28.181L22.441,28.181z",
+                  fill: "red"
+                },
+                __id: "id1",
+                __acl: "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy"
+              }),
+              "journal.2": JSON.stringify([4, "fill", "yellow", "red", "id1"]) + "\n",
+              "ch.settings": JSON.stringify({
+                version: 2, // version of the channel
+                channelId: "my/channel", // ID of this channel
+                journalLine: 1,
+                utc: 14839287897 // UTC timestamp of creation               
+              }),
+              "forks": JSON.stringify({ // == forks on list of forks
+                fromJournalLine: 1,
+                version: 1,
+                channelId: "my/channel/myFork",
+                fromVersion: 2,
+                from: "my/channel",
+                to: "my/channel/myFork",
+                name: "test of fork",
+                utc: 14839287897
+              }),
+              "myFork": {
+                "journal.1": JSON.stringify([4, "fill", "blue", "yellow", "id1"]) + "\n",
+                "ch.settings": JSON.stringify({
+                  fromJournalLine: 1, // from which line the fork starts
+                  version: 1, // version of the channel
+                  channelId: "my/channel/myFork", // ID of this channel
+                  fromVersion: 2, // version of the fork's source
+                  from: "my/channel", // the fork channels ID
+                  to: "my/channel/myFork", // forks target channel
+                  name: "test of fork",
+                  utc: 14839287897 // UTC timestamp of creation
+                })
+              }
+            }
+          }
+        };
+
+        return;
+      };
+    })(this);
+  };
+
+  var channelTesting = function channelTesting(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof channelTesting) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != channelTesting._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new channelTesting(a, b, c, d, e, f, g, h);
+  };
+
+  channelTesting._classInfo = {
+    name: "channelTesting"
+  };
+  channelTesting.prototype = new channelTesting_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["channelTesting"] = channelTesting;
+      this.channelTesting = channelTesting;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["channelTesting"] = channelTesting;
+    } else {
+      this.channelTesting = channelTesting;
+    }
+  }).call(new Function("return this")());
+
+  var subClassTemplate_prototype = function subClassTemplate_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.helloWorld = function (t) {
+        return "Hello World";
+      };
+    })(this);
+  };
+
+  var subClassTemplate = function subClassTemplate(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof subClassTemplate) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != subClassTemplate._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new subClassTemplate(a, b, c, d, e, f, g, h);
+  };
+
+  subClassTemplate_prototype.prototype = _data.prototype;
+
+  subClassTemplate._classInfo = {
+    name: "subClassTemplate"
+  };
+  subClassTemplate.prototype = new subClassTemplate_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["subClassTemplate"] = subClassTemplate;
+      this.subClassTemplate = subClassTemplate;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["subClassTemplate"] = subClassTemplate;
+    } else {
+      this.subClassTemplate = subClassTemplate;
+    }
+  }).call(new Function("return this")());
+
+  var _clientSocket_prototype = function _clientSocket_prototype() {
+
+    (function (_myTrait_) {
+      var _eventOn;
+      var _commands;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return Object.prototype.toString.call(t) === "[object Array]";
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        if (en == "connect" && this._connected) {
+          ef(this._socket);
+        }
+
+        return this;
+      };
+
+      /**
+       * @param float name
+       * @param float fn
+       */
+      _myTrait_.removeListener = function (name, fn) {
+        if (!this._ev) return;
+        if (!this._ev[name]) return;
+
+        var list = this._ev[name];
+
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] == fn) {
+            list.splice(i, 1);
+            return;
+          }
+        }
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(data, fn);
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _callBacks;
+      var _socketIndex;
+      var _socketCnt;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.disconnect = function (t) {
+        this._socket.messageTo({
+          disconnect: true
+        });
+        me._connected = false;
+      };
+
+      /**
+       * Emit data from client to server
+       * @param String name  - Message name
+       * @param Object data  - Data to be sent, Object or string
+       * @param Function callBackFn  - Callback, message from the receiver
+       */
+      _myTrait_.emit = function (name, data, callBackFn) {
+
+        var obj = {
+          name: name,
+          data: data
+        };
+
+        if (callBackFn) {
+          obj._callBackId = this.guid();
+          var me = this;
+          var handleCb = function handleCb(data) {
+            callBackFn(data);
+            me.removeListener(obj._callBackId, handleCb);
+          };
+          this.on(obj._callBackId, handleCb);
+        }
+
+        this._socket.messageTo(obj);
+      };
+
+      /**
+       * The enumerated socket, stating from 1
+       * @param float t
+       */
+      _myTrait_.getEnum = function (t) {
+        var myId = this.socketId;
+
+        if (!_socketIndex[myId]) {
+          _socketIndex[myId] = _socketCnt++;
+        }
+        return _socketIndex[myId];
+      };
+
+      /**
+       * Returns GUID of the current socket.
+       * @param float t
+       */
+      _myTrait_.getId = function (t) {
+        return this.socketId;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (ip, port, realSocket) {
+
+        // The socket ID must be told to the server side too
+
+        if (!_socketIndex) {
+          _socketIndex = {};
+          _socketCnt = 1;
+        }
+
+        var me = this;
+        var myId = this.guid();
+        this.socketId = myId;
+
+        if (!_socketIndex[this.socketId]) {
+          _socketIndex[this.socketId] = _socketCnt++;
+        }
+
+        if (realSocket) {
+
+          var _hasbeenConnected = false;
+          var openConnection, connection;
+
+          var whenConnected = function whenConnected() {
+            // console.log("whenConnected called");
+
+            if (!_hasbeenConnected) {
+
+              if (openConnection) openConnection.release();
+              if (connection) connection.release();
+
+              openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
+              connection = _tcpEmu(ip, port, myId, "client", realSocket);
+
+              connection.on("clientMessage", function (o, v) {
+                // console.log("clientMessage received ", v);
+                if (v.connected) {
+                  me._socket = connection;
+                  me._connected = true;
+                  me.trigger("connect", connection);
+                } else {
+                  me.trigger(v.name, v.data);
+                }
+              });
+              // should this be called again?
+              openConnection.messageTo({
+                socketId: myId
+              });
+            } else {
+              // does this kind of connection work...
+              // console.log("Triggering connect again");
+              me.trigger("connect", me._socket);
+            }
+            // console.log("Sending message to _tcpEmu with real socket ");
+            // _hasbeenConnected = true;
+          };
+          var me = this;
+          realSocket.on("disconnect", function () {
+            me.trigger("disconnect");
+          });
+
+          if (realSocket.connected) {
+            // console.log("realSocket was connected");
+            whenConnected();
+          } else {
+            // console.log("realSocket was not connected");
+            realSocket.on("connect", whenConnected);
+          }
+
+          // this._connected
+          return;
+        }
+
+        var openConnection = _tcpEmu(ip, port, "openConnection", "client", realSocket);
+        var connection = _tcpEmu(ip, port, myId, "client", realSocket);
+
+        connection.on("clientMessage", function (o, v) {
+          if (v.connected) {
+            me._socket = connection;
+            me._connected = true;
+            me.trigger("connect", connection);
+          } else {
+            me.trigger(v.name, v.data);
+          }
+        });
+        openConnection.messageTo({
+          socketId: myId
+        });
+      });
+
+      /**
+       * A promisified interface of the &quot;emit&quot; for the _clientSocket
+       * @param float name
+       * @param float data
+       */
+      _myTrait_.send = function (name, data) {
+        var me = this;
+        return _promise(function (respFn) {
+          me.emit(name, data, respFn);
+        });
+      };
+    })(this);
+  };
+
+  var _clientSocket = function _clientSocket(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _clientSocket) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _clientSocket._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _clientSocket(a, b, c, d, e, f, g, h);
+  };
+
+  _clientSocket._classInfo = {
+    name: "_clientSocket"
+  };
+  _clientSocket.prototype = new _clientSocket_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_clientSocket"] = _clientSocket;
+      this._clientSocket = _clientSocket;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_clientSocket"] = _clientSocket;
+    } else {
+      this._clientSocket = _clientSocket;
+    }
+  }).call(new Function("return this")());
+
+  var _serverSocket_prototype = function _serverSocket_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        return this;
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(data, fn);
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _clients;
+      var _rooms;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getPrefix = function (t) {
+        return this._ip + ":" + this._port;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (ip, port, ioLib) {
+        /*
+        // This is how the server side should be operating...
+        var io = require('socket.io')();
+        io.on('connection', function(socket){
+        socket.emit('an event', { some: 'data' });
+        });
+        */
+
+        if (!_rooms) {
+          _rooms = {};
+          _clients = {};
+        }
+
+        var me = this;
+
+        var sockets = [];
+
+        this._ip = ip;
+        this._port = port;
+        this._ioLib = ioLib;
+
+        if (ioLib) {
+          ioLib.on("connection", function (socket) {
+
+            console.log("socket.io got connection");
+            console.log("ip, port", ip, port);
+
+            var openConnection = _tcpEmu(ip, port, "openConnection", "server", socket);
+
+            var socket_list = [];
+            socket.on("disconnect", function () {
+              console.log("ioLib at server sent disconnect, closing opened connections");
+              socket_list.forEach(function (s) {
+                s.close();
+              });
+            });
+
+            openConnection.on("serverMessage", function (o, v) {
+
+              if (v.socketId) {
+
+                var newSocket = _tcpEmu(ip, port, v.socketId, "server", socket);
+
+                // save the virtual sockets for disconnection...
+                socket_list.push(newSocket);
+
+                var wrappedSocket = _serverSocketWrap(newSocket, me);
+                _clients[v.socketId] = wrappedSocket;
+                me.trigger("connect", wrappedSocket);
+
+                if (wrappedSocket.isConnected()) {
+                  // console.log("Trying to send the connected message back to client");
+                  newSocket.messageFrom({
+                    connected: true,
+                    socketId: v.socketId
+                  });
+                } else {}
+              }
+            });
+          });
+          return;
+        }
+
+        var openConnection = _tcpEmu(ip, port, "openConnection", "server");
+
+        openConnection.on("serverMessage", function (o, v) {
+
+          if (v.socketId) {
+            //console.log("Trying to send msg to client ", v);
+            var newSocket = _tcpEmu(ip, port, v.socketId, "server");
+
+            var socket = _serverSocketWrap(newSocket, me);
+            _clients[v.socketId] = socket;
+            me.trigger("connect", socket);
+            me.trigger("connection", socket);
+
+            if (socket.isConnected()) {
+
+              newSocket.messageFrom({
+                connected: true,
+                socketId: v.socketId
+              });
+            }
+          }
+        });
+      });
+    })(this);
+  };
+
+  var _serverSocket = function _serverSocket(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _serverSocket) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _serverSocket._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _serverSocket(a, b, c, d, e, f, g, h);
+  };
+
+  _serverSocket._classInfo = {
+    name: "_serverSocket"
+  };
+  _serverSocket.prototype = new _serverSocket_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["_serverSocket"] = _serverSocket;
+      this._serverSocket = _serverSocket;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["_serverSocket"] = _serverSocket;
+    } else {
+      this._serverSocket = _serverSocket;
+    }
+  }).call(new Function("return this")());
+
+  var _tcpEmu_prototype = function _tcpEmu_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.clearEvents = function (t) {
+        delete this._ev;
+      };
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        return this;
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(me, data, fn);
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _eventOn;
+      var _commands;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return Object.prototype.toString.call(t) === "[object Array]";
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _msgBuffer;
+      var _log;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.close = function (t) {
+        this.trigger("disconnect");
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (server, port, socketId, role, socket) {
+
+        var me = this;
+        this._server = server;
+        this._port = port;
+        this._role = role;
+        this._socketId = socketId;
+        this._dbName = "tcp://" + this._server + ":" + this._port + ":" + this._socketId;
+
+        if (!_log) {
+          if (typeof lokki != "undefined") {
+            _log = lokki("tcp");
+          } else {
+            _log = {
+              log: function log() {},
+              error: function error() {}
+            };
+          }
+        }
+
+        if (socket) {
+          // "this._dbName" is the message which is listened using socketPump
+          this._socket = socket;
+          this.socketPump(role);
+        } else {
+          this.memoryPump(role);
+        }
+      });
+
+      /**
+       * The memory storage transform layer implementation.
+       * @param float role
+       */
+      _myTrait_.memoryPump = function (role) {
+        var me = this;
+        var bnTo = this._dbName + ":to";
+        var bnFrom = this._dbName + ":from";
+
+        if (!_msgBuffer) _msgBuffer = {};
+        if (!_msgBuffer[bnTo]) _msgBuffer[bnTo] = [];
+        if (!_msgBuffer[bnFrom]) _msgBuffer[bnFrom] = [];
+
+        var _mfn = function _mfn() {
+          if (role == "server") {
+            var list = _msgBuffer[bnTo].slice();
+            list.forEach(function (msg) {
+              _log.log("server got message ", msg);
+              me.trigger("serverMessage", msg);
+              _msgBuffer[bnTo].shift();
+            });
+          }
+          if (role == "client") {
+            var list = _msgBuffer[bnFrom].slice();
+            list.forEach(function (msg) {
+              me.trigger("clientMessage", msg);
+              _msgBuffer[bnFrom].shift();
+            });
+          }
+        };
+        this._memoryFn = _mfn;
+        later().every(1 / 10, _mfn);
+      };
+
+      /**
+       * Message &quot;from&quot; refers to client getting message from the server. This is the function to be used when a server sends data back to the client.
+       * @param float msg
+       */
+      _myTrait_.messageFrom = function (msg) {
+        var socket = this._socket;
+        if (socket) {
+          //console.log("The socket should emit to "+this._dbName);
+          //console.log(msg);
+          socket.emit(this._dbName, msg);
+          return;
+        }
+
+        var bn = this._dbName + ":from";
+        _msgBuffer[bn].push(msg);
+      };
+
+      /**
+       * Message &quot;to&quot; refers to client sending message to server. This is the function to be used when a client socket sends data to the server.
+       * @param float msg
+       */
+      _myTrait_.messageTo = function (msg) {
+
+        var socket = this._socket;
+        if (socket) {
+
+          // _log.log("_tcpEmu, emitting ", this._dbName, msg);
+          socket.emit(this._dbName, msg);
+          return;
+        }
+
+        var bn = this._dbName + ":to";
+        _msgBuffer[bn].push(msg);
+      };
+
+      /**
+       * Should be called after reconnecting with new socket
+       * @param float t
+       */
+      _myTrait_.release = function (t) {
+        this.clearEvents();
+
+        var socket = this._socket;
+
+        if (this._pumpListener) {
+          socket.removeListener(this._dbName, this._pumpListener);
+        }
+        if (this._memoryFn && this._memoryFn._release) this._memoryFn._release();
+      };
+
+      /**
+       * The socket transform layer implementation.
+       * @param float role
+       */
+      _myTrait_.socketPump = function (role) {
+        var me = this;
+
+        var socket = this._socket;
+
+        if (role == "server") {
+          this._pumpListener = function (data) {
+            // _log.log("socketPump", me._dbName);
+            me.trigger("serverMessage", data);
+          };
+          socket.on(this._dbName, this._pumpListener);
+        }
+
+        if (role == "client") {
+          this._pumpListener = function (data) {
+            me.trigger("clientMessage", data);
+          };
+          socket.on(this._dbName, this._pumpListener);
+        }
+      };
+    })(this);
+  };
+
+  var _tcpEmu = function _tcpEmu(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _tcpEmu) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _tcpEmu._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _tcpEmu(a, b, c, d, e, f, g, h);
+  };
+
+  _tcpEmu._classInfo = {
+    name: "_tcpEmu"
+  };
+  _tcpEmu.prototype = new _tcpEmu_prototype();
+
+  var _serverSocketWrap_prototype = function _serverSocketWrap_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * Binds event name to event function
+       * @param string en  - Event name
+       * @param float ef
+       */
+      _myTrait_.on = function (en, ef) {
+        if (!this._ev) this._ev = {};
+        if (!this._ev[en]) this._ev[en] = [];
+
+        this._ev[en].push(ef);
+
+        return this;
+      };
+
+      /**
+       * triggers event with data and optional function
+       * @param string en
+       * @param float data
+       * @param float fn
+       */
+      _myTrait_.trigger = function (en, data, fn) {
+
+        if (!this._ev) return;
+        if (!this._ev[en]) return;
+        var me = this;
+        this._ev[en].forEach(function (cb) {
+          cb(data, fn);
+        });
+        return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _channelIndex;
+      var _rootData;
+      var _rooms;
+      var _socketRooms;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float roomName
+       * @param float name
+       * @param float data
+       */
+      _myTrait_.delegateToRoom = function (roomName, name, data) {
+
+        var realRoomName = this._roomPrefix + ":" + roomName;
+
+        if (_rooms && _rooms[realRoomName]) {
+          var me = this;
+          _rooms[realRoomName].forEach(function (socket) {
+            if (socket != me) {
+              socket.emit(name, data);
+            }
+          });
+        }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.disconnect = function (t) {
+        var me = this;
+        me._disconnected = true;
+
+        console.log("_serverSocketWrap disconnecting");
+
+        me.leaveFromRooms();
+        console.log("_serverSocketWrap left from rooms");
+        me.trigger("disconnect", me);
+        // Then remove the socket from the listeners...
+        me._disconnected = true;
+
+        // TODO: check if the code below could be defined in a cross-platform way
+        /*
+        var dbName = this._tcp._dbName;
+        if(typeof(_localDB) != "undefined") {
+        _localDB().clearDatabases( function(d) {
+        if(d.name==dbName) return true;
+        });
+        }
+        */
+
+        return;
+      };
+
+      /**
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.emit = function (name, value) {
+
+        this._tcp.messageFrom({
+          name: name,
+          data: value
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getId = function (t) {
+        return this._tcp._socketId;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getUserId = function (t) {
+
+        return this._userId;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getUserRoles = function (t) {
+
+        return this._roles;
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (tcpEmu, server, isReal) {
+
+        var me = this;
+        this._roomPrefix = server.getPrefix();
+        this._server = server;
+        this._tcp = tcpEmu;
+
+        tcpEmu.on("disconnect", function () {
+          console.log("tcpEmu sent disconnect");
+          me.disconnect();
+        });
+
+        var disconnected = false;
+        tcpEmu.on("serverMessage", function (o, v) {
+
+          if (me._disconnected) return; // not good enough
+
+          if (v.disconnect) {
+            me.disconnect();
+            return;
+          }
+          if (v._callBackId) {
+            me.trigger(v.name, v.data, function (data) {
+              me.emit(v._callBackId, data);
+            });
+          } else {
+            me.trigger(v.name, v.data);
+          }
+        });
+
+        this.broadcast = {
+          to: function to(room) {
+            return {
+              emit: function emit(name, value) {
+                me.delegateToRoom(room, name, value);
+              }
+            };
+          }
+        }
+
+        /*
+        socket.broadcast.to(_ctx.channelId).emit('ctxupd_'+_ctx.channelId, cObj);
+        */
+
+        ;
+      });
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isConnected = function (t) {
+        if (this._disconnected) return false;
+        return true;
+      };
+
+      /**
+       * @param float roomName
+       */
+      _myTrait_.isInRoom = function (roomName) {
+        if (!_socketRooms) return false;
+        return _socketRooms[this.getId()].indexOf(roomName) >= 0;
+      };
+
+      /**
+       * Adds a new client to some room
+       * @param String roomName
+       */
+      _myTrait_.join = function (roomName) {
+
+        var realRoomName = this._roomPrefix + ":" + roomName;
+
+        if (!_rooms) _rooms = {};
+        if (!_rooms[realRoomName]) _rooms[realRoomName] = [];
+
+        if (_rooms[realRoomName].indexOf(this) < 0) {
+          _rooms[realRoomName].push(this);
+          if (!_socketRooms) _socketRooms = {};
+          if (!_socketRooms[this.getId()]) _socketRooms[this.getId()] = [];
+
+          _socketRooms[this.getId()].push(roomName);
+        }
+      };
+
+      /**
+       * @param float roomName
+       */
+      _myTrait_.leave = function (roomName) {
+
+        var realRoomName = this._roomPrefix + ":" + roomName;
+
+        if (!_rooms) _rooms = {};
+        if (!_rooms[realRoomName]) _rooms[realRoomName] = [];
+
+        var i;
+        if ((i = _rooms[realRoomName].indexOf(this)) >= 0) {
+          _rooms[realRoomName].splice(i, 1);
+          var id = this.getId();
+
+          var i2 = _socketRooms[id].indexOf(roomName);
+          if (i2 >= 0) _socketRooms[id].splice(i2, 1);
+        }
+      };
+
+      /**
+       * @param float socket
+       */
+      _myTrait_.leaveFromRooms = function (socket) {
+        var id = this.getId();
+        var me = this;
+
+        if (!_socketRooms) return;
+        if (!_socketRooms[id]) return;
+
+        _socketRooms[id].forEach(function (name) {
+          me.leave(name);
+        });
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.removeListener = function (t) {};
+
+      /**
+       * Each socket can have and in many implementations must have some userID and role, which can be used together with the ACL implementations.
+       * @param float userId
+       * @param float roles
+       */
+      _myTrait_.setAuthInfo = function (userId, roles) {
+
+        this._userId = userId;
+        this._roles = roles;
+      };
+
+      /**
+       * @param string roomName
+       */
+      _myTrait_.to = function (roomName) {
+
+        var realRoomName = this._roomPrefix + ":" + roomName;
+
+        return {
+          emit: function emit(name, data) {
+            //console.log(" emit called ");
+            if (_rooms && _rooms[realRoomName]) {
+              _rooms[realRoomName].forEach(function (socket) {
+                // console.log(" emit with ", name, data);
+                socket.emit(name, data);
+              });
+            }
+          }
+        };
+      };
+    })(this);
+  };
+
+  var _serverSocketWrap = function _serverSocketWrap(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof _serverSocketWrap) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != _serverSocketWrap._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new _serverSocketWrap(a, b, c, d, e, f, g, h);
+  };
+
+  _serverSocketWrap._classInfo = {
+    name: "_serverSocketWrap"
+  };
+  _serverSocketWrap.prototype = new _serverSocketWrap_prototype();
+
+  var socketEmulator_prototype = function socketEmulator_prototype() {
+
+    (function (_myTrait_) {
+      var _initDone;
+
+      // Initialize static variables here...
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (host, bUseReal) {});
+    })(this);
+  };
+
+  var socketEmulator = function socketEmulator(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof socketEmulator) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != socketEmulator._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new socketEmulator(a, b, c, d, e, f, g, h);
+  };
+
+  socketEmulator._classInfo = {
+    name: "socketEmulator"
+  };
+  socketEmulator.prototype = new socketEmulator_prototype();
+
   var moshModule_prototype = function moshModule_prototype() {
 
     (function (_myTrait_) {
@@ -17722,16 +18505,6 @@
   }
 }).call(new Function("return this")());
 
-// console.log("The socket was not connected");
-
-// TODO: not implemented yet
-
-// var socket = io('http://localhost');
-
-// console.log("Strange... no emit value in ", this._parent);
-
-// objectCache[data.__id] = this;
-
 // result( { result : false,  text : "Login failed"} );
 
 // skip, if next should be taken instead
@@ -17751,6 +18524,10 @@ this._commands = sequenceStepper(channelId);
 this._chManager = chManager;
 */
 
+// console.log("Strange... no emit value in ", this._parent);
+
+// objectCache[data.__id] = this;
+
 // console.log("Row ",i," written succesfully");
 
 /*
@@ -17758,3 +18535,9 @@ serverState.model.writeToJournal( goodList ).then( function() {
 // done(result);
 });
 */
+
+// console.log("The socket was not connected");
+
+// TODO: not implemented yet
+
+// var socket = io('http://localhost');

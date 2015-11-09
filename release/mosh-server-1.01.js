@@ -5540,8 +5540,8 @@
         if (insertedObj.__p) {
           if (insertedObj.__p == parentObj.__id) {
             // nothing needs to be done here, unnecessary command though
-            console.log("WARNING : Unnecessary pushToArray");
-            console.log(a);
+            //console.log("WARNING : Unnecessary pushToArray");
+            //console.log(a);
             return true;
           }
           return {

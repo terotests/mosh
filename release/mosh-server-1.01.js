@@ -19612,7 +19612,7 @@
               // console.log("did find object "+data.__id+" from cache");
               return oo;
             } else {
-              objectCache[data.__id] = this;
+              _objectCache[data.__id] = this;
             }
           }
         } else {

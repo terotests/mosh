@@ -9579,8 +9579,8 @@
 
                   var fn = me._chManager._findCmd(name);
 
-                  if (cmdData.params.__id) {
-                    var chAgent = _agent(chData._find(cmdData.params.__id), chData);
+                  if (cmdData.__id) {
+                    var chAgent = _agent(chData._find(cmdData.__id), chData);
                   } else {
                     var chAgent = _agent(chData);
                   }

@@ -9579,14 +9579,16 @@
 
                   var fn = me._chManager._findCmd(name);
 
-                  if (cmdData.__id) {
-                    var chAgent = _agent(chData._find(cmdData.__id), chData);
-                  } else {
-                    var chAgent = _agent(chData);
-                  }
-
                   if (fn) {
-                    fn.apply(chAgent, [cmdData.params]);
+                    if (cmdData.__id) {
+                      var chAgent = _agent(chData._find(cmdData.__id), chData);
+                    } else {
+                      var chAgent = _agent(chData);
+                    }
+
+                    if (fn) {
+                      fn.apply(chAgent, [cmdData.params]);
+                    }
                   }
                 }
               }
@@ -11557,6 +11559,31 @@
         };
 
         return reqData;
+      };
+
+      /**
+       * @param String cmdName  - Name of the action
+       * @param Object params  - The argument object for the action
+       */
+      _myTrait_.action = function (cmdName, params) {
+
+        var id = this.getID();
+
+        var client = this._client;
+        var socket = this._socket;
+
+        // send the command to server...
+        socket.send("channelCommand", {
+          channelId: client._channelId,
+          cmd: "chCmd",
+          data: {
+            cmdList: [{
+              cmd: cmdName,
+              __id: id,
+              params: params
+            }]
+          }
+        });
       };
 
       /**

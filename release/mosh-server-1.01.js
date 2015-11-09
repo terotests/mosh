@@ -19716,6 +19716,14 @@
       _myTrait_.__traitInit.push(function (objData, chData) {
 
         // or are you using the docData directly as the source of the data ?
+
+        if (!chData) {
+          if (objData && objData.getData) {
+            chData = objData;
+            objData = chData.getData();
+          }
+        }
+
         this._docData = objData;
         this._chData = chData;
       });

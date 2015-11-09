@@ -11570,8 +11570,12 @@
         var id = this.getID();
 
         var client = this._client;
-        var socket = this._socket;
 
+        if (!client) return;
+
+        var socket = client._socket;
+
+        if (!socket) return;
         // send the command to server...
         socket.send("channelCommand", {
           channelId: client._channelId,

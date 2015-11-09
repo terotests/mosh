@@ -8570,13 +8570,21 @@
       var _accessManager;
       var _autoCreateFn;
       var _cmds;
+      var _cmdLookup;
 
       // Initialize static variables here...
 
       /**
        * @param String name  - Command to look for
+       * @param String channelId  - The Channel ID
+       * @param Object socket  - The server socket object
        */
-      _myTrait_._findCmd = function (name) {
+      _myTrait_._findCmd = function (name, channelId, socket) {
+
+        if (_cmdLookup) {
+          var fn = _cmdLookup(name, channelId, socket);
+          if (fn) return fn;
+        }
 
         return _cmds[name];
       };
@@ -8899,6 +8907,14 @@
        */
       _myTrait_.setAutoCreateFn = function (fn) {
         _autoCreateFn = fn;
+      };
+
+      /**
+       * Sets primary command lookup function for the server.
+       * @param Function fn  - Function to return the command
+       */
+      _myTrait_.setCmdLookup = function (fn) {
+        _cmdLookup = fn;
       };
     })(this);
   };
@@ -9577,7 +9593,8 @@
                   var chData = me._serverState.data;
                   var name = cmdData.cmd;
 
-                  var fn = me._chManager._findCmd(name);
+                  // finding the commands for the channels etc.
+                  var fn = me._chManager._findCmd(name, me._channelId, socket);
 
                   if (fn) {
                     if (cmdData.__id) {
@@ -9585,6 +9602,7 @@
                     } else {
                       var chAgent = _agent(chData);
                     }
+                    chAgent.socket = socket;
 
                     if (fn) {
                       fn.apply(chAgent, [cmdData.params]);

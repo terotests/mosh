@@ -11583,7 +11583,7 @@
           data: {
             cmdList: [{
               cmd: cmdName,
-              __id: id,
+              __id: client._idFromNs(id),
               params: params
             }]
           }

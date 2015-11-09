@@ -6186,41 +6186,11 @@
       };
 
       /**
-       * @param bool forceWrite
-       */
-      _myTrait_._updateHotBuffer = function (forceWrite) {
-        var me = this;
-        var ms = new Date().getTime();
-        for (var n in _hotObjs) {
-          if (_hotObjs.hasOwnProperty(n)) {
-            var hoot = _hotObjs[n];
-
-            if (forceWrite || ms - hoot.ms > _settings.hotMs) {
-              // => one should write this command now
-
-              if (hoot.lastCmd) {
-                var a = hoot.firstCmd,
-                    b = hoot.lastCmd;
-                hoot.chObj.writeLocalJournal([4, a[1], b[2], a[3], a[4]]);
-              } else {
-                hoot.chObj.writeLocalJournal(hoot.firstCmd);
-              }
-              delete _hotObjs[n];
-            }
-          }
-        }
-      };
-
-      /**
        * @param float a
        * @param float isRemote
        * @param float isRedo
        */
-      _myTrait_.execCmd = function (a, isRemote, isRedo) {
-
-        if (this._options.fast) {
-          return this._fastExec(a, isRemote, isRedo);
-        }
+      _myTrait_._safeExec = function (a, isRemote, isRedo) {
 
         try {
           if (!this.isArray(a)) return false;
@@ -6282,6 +6252,46 @@
             cmd: a,
             text: "Exception raised " + txt
           };
+        }
+      };
+
+      /**
+       * @param bool forceWrite
+       */
+      _myTrait_._updateHotBuffer = function (forceWrite) {
+        var me = this;
+        var ms = new Date().getTime();
+        for (var n in _hotObjs) {
+          if (_hotObjs.hasOwnProperty(n)) {
+            var hoot = _hotObjs[n];
+
+            if (forceWrite || ms - hoot.ms > _settings.hotMs) {
+              // => one should write this command now
+
+              if (hoot.lastCmd) {
+                var a = hoot.firstCmd,
+                    b = hoot.lastCmd;
+                hoot.chObj.writeLocalJournal([4, a[1], b[2], a[3], a[4]]);
+              } else {
+                hoot.chObj.writeLocalJournal(hoot.firstCmd);
+              }
+              delete _hotObjs[n];
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float a
+       * @param float isRemote
+       * @param float isRedo
+       */
+      _myTrait_.execCmd = function (a, isRemote, isRedo) {
+
+        if (this._options.fast) {
+          return this._fastExec(a, isRemote, isRedo);
+        } else {
+          return this._safeExec(a, isRemote, isRedo);
         }
       };
 
@@ -19792,32 +19802,12 @@
       };
 
       /**
-       * @param string channelURL
-       */
-      _myTrait_.openChannel = function (channelURL) {
-        // fork
-
-        var me = this;
-        return _promise(function (result) {
-          var req = me._request;
-          var myD = _data(channelURL, me._findConnOptions());
-          myD.then(function () {
-            result({
-              result: true,
-              channel: myD
-            });
-          });
-        });
-      };
-
-      /**
        * @param float cmds
        */
       _myTrait_.patch = function (cmds) {
         var me = this;
         cmds.forEach(function (c, index) {
-          var tc = me._client._transformCmdToNs(c);
-          me._client.addCommand(tc, true);
+          me._chData.execCmd(tc, true);
         });
         return this;
       };

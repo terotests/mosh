@@ -17823,8 +17823,9 @@
         if (ioLib) {
           ioLib.on("connection", function (socket) {
 
-            console.log("socket.io got connection");
-            console.log("ip, port", ip, port);
+            console.log("socket.io got connection " + socket.handshake.address);
+
+            me.remoteIP = socket.handshake.address;
 
             var openConnection = _tcpEmu(ip, port, "openConnection", "server", socket);
 
@@ -17846,6 +17847,8 @@
                 socket_list.push(newSocket);
 
                 var wrappedSocket = _serverSocketWrap(newSocket, me);
+                wrappedSocket.remoteIP = socket.handshake.address;
+
                 _clients[v.socketId] = wrappedSocket;
                 me.trigger("connect", wrappedSocket);
 

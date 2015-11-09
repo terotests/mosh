@@ -9578,8 +9578,15 @@
                   var name = cmdData.cmd;
 
                   var fn = me._chManager._findCmd(name);
+
+                  if (cmdData.params.__id) {
+                    var chAgent = _agent(chData._find(cmdData.params.__id), chData);
+                  } else {
+                    var chAgent = _agent(chData);
+                  }
+
                   if (fn) {
-                    fn.apply(chData, [cmdData.params]);
+                    fn.apply(chAgent, [cmdData.params]);
                   }
                 }
               }
@@ -19631,36 +19638,6 @@
       var _atObserve;
 
       // Initialize static variables here...
-
-      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
-      _myTrait_.__factoryClass.push(function (data) {
-
-        if (!_objectCache) _objectCache = {};
-
-        if (this.isObject(data)) {
-
-          if (data.__dataTr) return data;
-
-          if (data.data && data.__id) {
-
-            var oo = _objectCache[data.__id];
-            if (oo) {
-              // console.log("did find object "+data.__id+" from cache");
-              return oo;
-            } else {
-              _objectCache[data.__id] = this;
-            }
-          }
-        } else {
-          if (typeof data == "string") {
-            var oo = _objectCache[data];
-            if (oo) {
-              return oo;
-            }
-            _objectCache[data] = this;
-          }
-        }
-      });
 
       /**
        * @param Object dataObj

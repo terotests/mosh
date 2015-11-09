@@ -19276,20 +19276,18 @@
 
         var cmds = this._objectCreateCmds(data);
         for (var i = 0; i < cmds.length; i++) {
-          this._client.addCommand(cmds[i]);
+          this._chData.execCmd(cmds[i]);
         }
 
         var index;
         if (typeof toIndex != "undefined") {
           index = toIndex;
-          var dd = this._client._fetch(this._docData.__id);
           if (index < 0 || index > dd.data.length) return;
         } else {
-          var dd = this._client._fetch(this._docData.__id);
           index = dd.data.length;
         }
 
-        this._client.addCommand([7, index, data.__id, null, this._docData.__id]);
+        this._chData.execCmd([7, index, data.__id, null, this._docData.__id]);
 
         return this;
       };

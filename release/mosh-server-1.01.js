@@ -5831,6 +5831,30 @@
       };
 
       /**
+       * @param Object a  - The command
+       * @param Boolean isRemote  - Is remote command
+       * @param Boolean isRedo  - is Redo command
+       */
+      _myTrait_._fastExec = function (a, isRemote, isRedo) {
+
+        if (a) {
+          var c = _cmds[a[0]];
+          if (c) {
+            var rv = c.apply(this, [a, isRemote]);
+            if (rv === true && !isRedo) {
+              this.writeLocalJournal(a);
+            }
+            return rv;
+          } else {
+            return {
+              error: 199,
+              text: "Invalid command"
+            };
+          }
+        }
+      };
+
+      /**
        * @param float obj
        * @param float prop
        */
@@ -6193,6 +6217,10 @@
        * @param float isRedo
        */
       _myTrait_.execCmd = function (a, isRemote, isRedo) {
+
+        if (this._options.fast) {
+          return this._fastExec(a, isRemote, isRedo);
+        }
 
         try {
           if (!this.isArray(a)) return false;

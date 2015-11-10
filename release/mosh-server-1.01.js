@@ -8666,6 +8666,7 @@
               connect: function connect(options, whenReady) {
 
                 console.log("The replicator is connecting to " + options.db);
+                if (typeof ioLib == "undefined") console.log("REPLICA ioLib not defined");
                 var realSocket = ioLib.connect(options.url);
                 console.log("REPLICA : realSocket ok");
                 var theData = _data(options.db, {

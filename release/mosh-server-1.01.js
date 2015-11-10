@@ -9551,6 +9551,8 @@
               return;
             }
 
+            if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
+
             // read the build tree and the status...
             me._model.readBuildTree().then(function (r) {
 

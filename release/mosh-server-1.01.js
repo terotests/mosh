@@ -8383,9 +8383,9 @@
             me = this;
 
         return _promise(function (result) {
-          local.isFile("sync").then(function (is_file) {
+          local.isFile(".sync").then(function (is_file) {
             if (is_file) {
-              local.readFile("sync").then(result);
+              local.readFile(".sync").then(result);
               return;
             }
             result(null);
@@ -9758,6 +9758,28 @@
       /**
        * @param float t
        */
+      _myTrait_._startReplica = function (t) {
+        var me = this;
+
+        return _promise(function (result) {
+          // --> test also if the channel has a master server
+          me._model.readFile(".replica").then(function (data) {
+
+            if (!data) {
+              console.log("-> no replication data found");
+              result(false);
+              return;
+            }
+            console.log("replication data was found");
+            console.log(data);
+            result(true);
+          });
+        });
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_._startSync = function (t) {
         var me = this;
 
@@ -9927,8 +9949,8 @@
           me._updateLoop(); // start the update loop
           me._chData = chData;
 
-          // if there is a sync server, start it too before proceeding...
-          me._startSync().then(function () {
+          // changed from "startSync"
+          me._startReplica().then(function () {
             me.resolve(true);
           });
         });

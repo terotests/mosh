@@ -9944,6 +9944,7 @@
                   try {
                     var chData = me._serverState.data;
                     var cmdRes = chData.execCmd(cmd);
+                    console.log(cmdRes);
                   } catch (e) {
                     console.log(e.message);
                   }

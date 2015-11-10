@@ -9945,6 +9945,9 @@
                     cmdList.forEach(function (cmd) {
                       var chData = me._serverState.data;
                       var cmdRes = chData.execCmd(cmd);
+                      if (cmdRes === true) {
+                        o.applyToShadow(cmd);
+                      }
                       console.log(cmdRes);
                     });
                   } catch (e) {

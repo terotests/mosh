@@ -9937,8 +9937,14 @@
                 console.log("***** replicator connected ******");
                 console.log(JSON.stringify(rawData));
 
-                o.on("diff", function (d) {
-                  console.log("DIFF " + d);
+                o.on("diff", function (cmd) {
+                  console.log("Trying diff ", cmd);
+                  try {
+                    var chData = me._serverState.data;
+                    var cmdRes = chData.execCmd(cmd);
+                  } catch (e) {
+                    console.log(e.message);
+                  }
                 });
               });
             });

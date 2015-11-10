@@ -8729,7 +8729,7 @@
 
                     // only send the diff directly to client               
                     me.trigger("diff", diff);
-                  }, 1000);
+                  }, 1);
                 });
               }
             },

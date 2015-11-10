@@ -8649,7 +8649,7 @@
               },
               patchShadowCmd: function patchShadowCmd(cmd) {
                 console.log("Patching client with " + cmd);
-                this._clientData.patch(cmd);
+                this._clientData.patch([cmd]);
               },
               applyToShadow: function applyToShadow(cmd) {
                 var client = this._serverData._client;

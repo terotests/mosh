@@ -8647,6 +8647,10 @@
                 this._readyCallback();
                 this._readyCallback = null;
               },
+              patchShadowCmd: function patchShadowCmd(cmd) {
+                console.log("Patching client with " + cmd);
+                this._clientData.patch(cmd);
+              },
               applyToShadow: function applyToShadow(cmd) {
                 var client = this._serverData._client;
                 var socket = this._serverData._socket;
@@ -8725,7 +8729,7 @@
 
                     // only send the diff directly to client               
                     me.trigger("diff", diff);
-                  }, 1);
+                  }, 1000);
                 });
               }
             },
@@ -9946,7 +9950,7 @@
                       var chData = me._serverState.data;
                       var cmdRes = chData.execCmd(cmd);
                       if (cmdRes === true) {
-                        o.applyToShadow(cmd);
+                        o.patchShadowCmd(cmd);
                       }
                       console.log(cmdRes);
                     });

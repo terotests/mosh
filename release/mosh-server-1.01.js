@@ -8681,6 +8681,7 @@
                 var me = this;
                 this._serverData.then(function () {
 
+                  console.log("REPLICA : Got the connection");
                   // if no clientdata specified
                   if (!options.clientData) {
                     var rawData = theData.getData(true);
@@ -9929,7 +9930,8 @@
                 url: "http://localhost:7777",
                 db: "http://localhost:1234/galaxy/umos/model/piece/positions"
               }).then(function (rawData) {
-                console.log("replicator connected");
+                console.log("***** replicator connected ******");
+                console.log("***** replicator connected ******");
                 console.log(JSON.stringify(rawData));
 
                 o.on("diff", function (d) {

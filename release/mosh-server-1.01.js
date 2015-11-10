@@ -10115,11 +10115,10 @@
 
           me._updateLoop(); // start the update loop
           me._chData = chData;
+          me.resolve(true);
 
           // changed from "startSync"
-          me._startReplica().then(function () {
-            me.resolve(true);
-          });
+          me._replica = me._startReplica();
         });
 
         this._initCmds();

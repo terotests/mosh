@@ -9932,7 +9932,7 @@
               o.connect({
                 url: "http://localhost:7777",
                 db: "http://localhost:1234/galaxy/umos/model/piece/positions"
-              }).then(function (rawData) {
+              }, function (rawData) {
                 console.log("***** replicator connected ******");
                 console.log("***** replicator connected ******");
                 console.log(JSON.stringify(rawData));

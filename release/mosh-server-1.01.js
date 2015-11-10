@@ -8692,7 +8692,7 @@
                     me._clientData = clientData;
 
                     // send the raw data to server
-                    whenReady(rawData);
+                    // whenReady(rawData);
                   } else {
                     me._clientData = _data(options.clientData);
                   }
@@ -8709,10 +8709,11 @@
                     whenReady();
                     me._readyCallback = null;
                   } else {
+                    console.log("REPLICA : about to call whenReady with raw data");
                     whenReady(rawData);
                     me._readyCallback = null;
                   }
-
+                  console.log("REPLICA : all done");
                   setInterval(function () {
 
                     if (!me._clientData) return;

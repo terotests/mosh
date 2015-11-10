@@ -14506,7 +14506,7 @@
           fileName = path.basename(fileName);
           fs.readFile(_rootDir + "/" + fileName, "utf8", function (err, data) {
             if (err) {
-              fail(err);
+              result(null);
               return;
             }
             result(data);

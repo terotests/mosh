@@ -8667,6 +8667,7 @@
 
                 console.log("The replicator is connecting to " + options.db);
                 var realSocket = ioLib.connect(options.url);
+                console.log("REPLICA : realSocket ok");
                 var theData = _data(options.db, {
                   auth: {
                     username: "Tero",
@@ -8674,7 +8675,7 @@
                   },
                   ioLib: realSocket
                 });
-
+                console.log("REPLICA : _data ok");
                 this._serverData = theData;
                 this._readyCallback = whenReady;
 

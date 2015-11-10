@@ -8571,6 +8571,7 @@
       var _autoCreateFn;
       var _cmds;
       var _cmdLookup;
+      var _repClass;
 
       // Initialize static variables here...
 
@@ -8618,6 +8619,136 @@
       };
 
       /**
+       * @param float t
+       */
+      _myTrait_.createReplClass = function (t) {
+        var self = this;
+        if (!_repClass && this._marx) {
+          _repClass = this._marx.createClass({
+            requires: {
+              js: [{
+                name: self._options.moshModule,
+                varName: "_data",
+                assignTo: "_data"
+              }, {
+                name: "socket.io-client",
+                assignTo: "ioLib"
+              }]
+            },
+            processWorkers: {
+              init: function init() {
+                console.log("Replicator object created");
+              },
+              clientReady: function clientReady() {
+                if (!this._readyCallback) return;
+                this._readyCallback();
+                this._readyCallback = null;
+              },
+              applyToShadow: function applyToShadow(cmd) {
+                var client = this._serverData._client;
+                var socket = this._serverData._socket;
+
+                // the current client status
+                // TODO: should be self-correcting
+                this._clientData._client.addCommand(cmd);
+
+                socket.send("channelCommand", {
+                  channelId: client._channelId,
+                  cmd: "sendCmds",
+                  data: {
+                    commands: [client._transformCmdFromNs(cmd)]
+                  }
+                });
+              },
+              connect: function connect(options, whenReady) {
+
+                console.log("The replicator is connecting to " + options.db);
+                var realSocket = ioLib.connect(options.url);
+                var theData = _data(options.db, {
+                  auth: {
+                    username: "Tero",
+                    password: "teropw"
+                  },
+                  ioLib: realSocket
+                });
+
+                this._serverData = theData;
+                this._readyCallback = whenReady;
+
+                var me = this;
+                this._serverData.then(function () {
+
+                  // if no clientdata specified
+                  if (!options.clientData) {
+                    var rawData = theData.getData(true);
+
+                    var clientData = theData.localFork();
+                    me._clientData = clientData;
+
+                    // send the raw data to server
+                    whenReady(rawData);
+                  } else {
+                    me._clientData = _data(options.clientData);
+                  }
+
+                  var bHasData = false;
+
+                  // listen to changes from the server...
+                  var chServerData = me._serverData.getChannelData();
+                  chServerData.on("cmd", function (d) {
+                    bHasData = true;
+                  });
+
+                  if (options.clientData) {
+                    whenReady();
+                    me._readyCallback = null;
+                  } else {
+                    whenReady(rawData);
+                    me._readyCallback = null;
+                  }
+
+                  setInterval(function () {
+
+                    if (!me._clientData) return;
+                    if (!bHasData) return;
+                    bHasData = false;
+
+                    var diff = me._clientData.diff(theData);
+                    if (diff.length == 0) return;
+
+                    // only send the diff directly to client               
+                    me.trigger("diff", diff);
+                  }, 1);
+                });
+              }
+            },
+            // local process methods for the replicated data
+            methods: {
+
+              initLocalData: function initLocalData(data) {
+
+                // this is how to roll the data, however this is done by the server usually.
+
+                this._myData = _data(data);
+                var chData = this._myData.getChannelData();
+                var me = this;
+                chData.on("cmd", function (d) {
+                  if (me._diffOn) return; // do not re-send the diff commands
+                  me.applyToShadow(d.cmd);
+                });
+                this.clientReady();
+              },
+              getDataObj: function getDataObj() {
+                return this._myData;
+              }
+            }
+          });
+        }
+
+        return _repClass;
+      };
+
+      /**
        * Returns the access manager, if defined
        * @param float t
        */
@@ -8651,8 +8782,15 @@
 
         this._server = serverSocket;
         this._auth = authManager;
-
         this._channelSockets = {};
+
+        // initiating the marx class, the raw way here...
+        var Marx = require("./marx-0.10.js").Marx;
+        this._marx = Marx({
+          forkFile: "./moshProcess.js",
+          processCnt: 1
+        });
+        this._marx.__promiseClass(_promise);
 
         var me = this;
 
@@ -9000,6 +9138,11 @@
           _instances[id] = this;
         }
       });
+
+      /**
+       * @param float t
+       */
+      _myTrait_._createRepWorker = function (t) {};
 
       /**
        * @param Object cmd
@@ -9770,6 +9913,23 @@
               result(false);
               return;
             }
+
+            var rep = me._chManager.createReplClass();
+
+            new rep().then(function (o) {
+              o.connect({
+                url: "http://localhost:7777",
+                db: "http://localhost:1234/galaxy/umos/model/piece/positions"
+              }).then(function () {
+                console.log("replicator connected");
+                console.log(JSON.stringify(rawData));
+
+                o.on("diff", function (d) {
+                  console.log("DIFF " + d);
+                });
+              });
+            });
+
             console.log("replication data was found");
             console.log(data);
             result(true);

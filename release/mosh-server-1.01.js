@@ -8622,6 +8622,9 @@
        * @param float t
        */
       _myTrait_.createReplClass = function (t) {
+
+        console.log("createReplClass");
+
         var self = this;
         if (!_repClass && this._marx) {
           _repClass = this._marx.createClass({
@@ -8791,6 +8794,9 @@
           processCnt: 1
         });
         this._marx.__promiseClass(_promise);
+        this._options = {
+          moshModule: "./mosh-server-1.01.js"
+        };
 
         var me = this;
 
@@ -9914,6 +9920,8 @@
               return;
             }
 
+            console.log("replication data was found");
+
             var rep = me._chManager.createReplClass();
 
             new rep().then(function (o) {
@@ -9930,7 +9938,6 @@
               });
             });
 
-            console.log("replication data was found");
             console.log(data);
             result(true);
           });

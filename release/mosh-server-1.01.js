@@ -8758,7 +8758,7 @@
                   // if we have skipped some data, b_hot_pending tells us that we are not
                   // finished yet with processing of the server data
                   var b_hot_pending = false;
-                  later().onFrame(function () {
+                  setInterval(function () {
 
                     if (!me._clientData) return;
                     if (!b_hot_pending && !bHasData) return;
@@ -8793,7 +8793,7 @@
                     console.log("--> sending DIFF to the client process");
                     console.log(JSON.stringify(diff_list, null, 2));
                     me.trigger("diff", diff_list);
-                  });
+                  }, 1);
                 });
               }
             },
@@ -10028,6 +10028,7 @@
                   }
                   bDiffOn = false;
                 });
+                console.log("initializing the _startReplica done");
               });
             });
 

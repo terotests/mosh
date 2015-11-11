@@ -10281,6 +10281,7 @@
         var fn = this._cmds[cmd.cmd];
         if (fn) {
           this._commands.addCommands(function (contFn) {
+            console.log("#" + cmd.cmd);
             fn(cmd, function (result) {
               responseFn(result);
               contFn();

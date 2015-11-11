@@ -2392,6 +2392,11 @@
         this._id = channelId + socket.getId();
         var me = this;
 
+        if (options.connectFn) {
+          options.connectFn.apply(this, []);
+          return;
+        }
+
         this._onFrameLoop(socket, myNamespace);
         this._incoming(socket, myNamespace);
 
@@ -8903,26 +8908,33 @@
 
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (serverSocket, fileSystem, authManager) {
+      _myTrait_.__traitInit.push(function (serverSocket, fileSystem, authManager, options) {
 
         if (!_cmds) {
           _cmds = {};
         }
 
+        options = options || {};
+
         this._server = serverSocket;
         this._auth = authManager;
         this._channelSockets = {};
 
-        // initiating the marx class, the raw way here...
-        var Marx = require("./marx-0.10.js").Marx;
-        this._marx = Marx({
-          forkFile: "./moshProcess.js",
-          processCnt: 1
-        });
-        this._marx.__promiseClass(_promise);
-        this._options = {
-          moshModule: "./mosh-server-1.01.js"
-        };
+        if (options.marx) {
+          this._marx = options.marx;
+        } else {
+          // initiating the marx class, the raw way here...
+          var Marx = require("./marx-0.10.js").Marx;
+          this._marx = Marx({
+            forkFile: "./moshProcess.js",
+            processCnt: 1
+          });
+          this._marx.__promiseClass(_promise);
+        }
+        this._options = options;
+        if (!this._options.moshModule) {
+          this._options.moshModule = "./mosh-server-1.01.js";
+        }
 
         var me = this;
 
@@ -9043,7 +9055,13 @@
             // me.removeSocketFromCh(  socket );
             console.log("Socket is in " + socket.__channels.length + " channels ");
             socket.__channels.forEach(function (chId) {
-              me.removeSocketFromCh(chId, socket);
+              if (me.removeSocketFromCh(chId, socket)) {
+                // the channel should be archived here...
+                ctrl = _channelController(chId, fileSystem, me);
+                if (ctrl) {
+                  ctrl.closeChannel();
+                }
+              }
             });
           });
 
@@ -9145,6 +9163,7 @@
 
         if (list.length == 0) {
           console.log("-- all clients have left " + chId + " => should close the channel --- ");
+          return true;
         } else {
           console.log("-- client left " + chId + " still  " + list.length + " connected");
         }
@@ -10212,6 +10231,15 @@
        */
       _myTrait_.channelId = function (t) {
         return this._channelId;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.closeChannel = function (t) {
+
+        var data = this._serverState.data.getData();
+        this._model.writeFile(".hibernated", data);
       };
 
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
@@ -12149,16 +12177,6 @@
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
       _myTrait_.__traitInit.push(function (data, options, client) {
 
-        // initialization
-        // _data("http://localhost/channel/id");
-
-        /*
-        var chClient = channelClient( "myId", null, {
-        localChannel : true,
-        localData : myData
-        });
-        */
-
         options = options || {};
         var me = this;
 
@@ -12185,6 +12203,8 @@
             // the data must have ID's and all...
             opts.initWithData = this._wrapToData(options.initWithData);
           }
+          if (options.connectFn) opts.connectFn = options.connectFn;
+
           this._client = channelClient(req.fullPath, this._socket, opts);
           this._client.then(function (resp) {
 
@@ -12196,22 +12216,7 @@
 
             me._initializeData(rawData);
             me.addToCache(rawData.__id, me);
-
             me._initWorkers();
-
-            /*
-            if(data && data.__id) {
-            if(_up._find(data.__id)) {
-                    
-                // console.log("**** data found, initializing **** ");
-                //console.log(JSON.parse(JSON.stringify( data) ));        
-                me._initializeData(data);
-                me.addToCache( data.__id, me );    
-                me.resolve(true);       
-                return;
-            }
-            } */
-
             me.resolve(true);
           });
         } else {

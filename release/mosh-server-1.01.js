@@ -8818,7 +8818,7 @@
                       b_hot_pending = false;
                       return;
                     }
-                    console.log("R: diff had something to send");
+                    // console.log("R: diff had something to send");
                     // only send the diff directly to client               
 
                     // me._hot[c[1][4]]
@@ -8841,9 +8841,9 @@
                         diff_list.push(cmd);
                       }
                     }
-                    console.log("--> sending DIFF to the client process");
-                    console.log(JSON.stringify(diff_list, null, 2));
-                    me.trigger("diff", diff_list);
+                    // console.log("--> sending DIFF to the client process");
+                    // console.log(JSON.stringify(diff_list, null, 2));
+                    if (diff_list.length > 0) me.trigger("diff", diff_list);
                   }, 1);
                 });
               }
@@ -10063,7 +10063,7 @@
 
                 o.on("diff", function (cmdList) {
                   bDiffOn = true;
-                  console.log("Trying diff ", cmdList);
+                  // console.log("Trying diff ",cmdList);
                   try {
                     cmdList.forEach(function (cmd) {
                       var chData = me._serverState.data;
@@ -10071,7 +10071,7 @@
                       if (cmdRes === true) {
                         toShadowList.push([0, cmd]);
                       }
-                      console.log(cmdRes);
+                      // console.log(cmdRes);
                     });
                     // o.patchShadowCmds( list );
                   } catch (e) {

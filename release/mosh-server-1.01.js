@@ -8648,11 +8648,35 @@
                 this._readyCallback = null;
               },
               patchShadowCmds: function patchShadowCmds(listOfCmds) {
+                console.log("Patching shadow commands");
                 this._clientData.patch(listOfCmds);
               },
               patchShadowCmd: function patchShadowCmd(cmd) {
                 console.log("Patching client with " + cmd);
                 this._clientData.patch([cmd]);
+              },
+              sendCommands: function sendCommands(cmdList) {
+                var client = this._serverData._client;
+                var socket = this._serverData._socket;
+
+                // the current client status
+                // TODO: should be self-correcting
+                var me = this,
+                    remoteList = [];
+                cmdList.forEach(function (c) {
+                  if (c[0]) remoteList.push(c[1]);
+                  me._clientData.patch(c[1]);
+                });
+
+                if (remoteList.length > 0) {
+                  socket.send("channelCommand", {
+                    channelId: client._channelId,
+                    cmd: "sendCmds",
+                    data: {
+                      commands: remoteList
+                    }
+                  });
+                }
               },
               applyToShadow: function applyToShadow(cmd) {
                 var client = this._serverData._client;
@@ -9955,12 +9979,12 @@
                     toShadowList = [];
                 chData.on("cmd", function (d) {
                   if (bDiffOn) return; // do not re-send the diff commands
-                  toShadowList.push(d.cmd);
+                  toShadowList.push([1, d.cmd]);
                   // o.applyToShadow(d.cmd);
                 });
 
                 later().onFrame(function () {
-                  o.patchShadowCmds(toShadowList.slice());
+                  o.sendCommands(toShadowList.slice());
                   toShadowList.length = 0;
                 });
 
@@ -9972,7 +9996,7 @@
                       var chData = me._serverState.data;
                       var cmdRes = chData.execCmd(cmd);
                       if (cmdRes === true) {
-                        toShadowList.push(cmd);
+                        toShadowList.push([0, cmd]);
                       }
                       console.log(cmdRes);
                     });

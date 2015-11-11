@@ -2106,6 +2106,15 @@
       };
 
       /**
+       * @param float t
+       */
+      _myTrait_.closeChannel = function (t) {
+        this._socket.send("exitChannel", {
+          channelId: this._channelId
+        }).then(function () {});
+      };
+
+      /**
        * @param float name
        * @param float description
        * @param float baseData
@@ -9121,6 +9130,17 @@
             }
           });
 
+          socket.on("exitChannel", function (cmd, responseFn) {
+            if (cmd.channelId && me.removeSocketFromCh(cmd.channelId, socket)) {
+              // the channel should be archived here...
+              ctrl = _channelController(cmd.channelId, fileSystem, me);
+              if (ctrl) {
+                ctrl.closeChannel();
+              }
+            }
+            responseFn();
+          });
+
           // messages to the channel from the socket
           socket.on("channelCommand", function (cmd, responseFn) {
 
@@ -11990,6 +12010,13 @@
        */
       _myTrait_.channel = function (t) {
         return this._client;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.closeChannel = function (t) {
+        this._client.closeChannel();
       };
 
       /**
@@ -20077,6 +20104,8 @@
     define(__amdDefs__);
   }
 }).call(new Function("return this")());
+
+// OK.
 
 // result( { result : false,  text : "Login failed"} );
 

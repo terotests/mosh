@@ -8671,6 +8671,28 @@
       };
 
       /**
+       * @param Function cb  - When ready
+       */
+      _myTrait_.cleanChannels = function (cb) {
+
+        console.log("--- cleaning all channels ---");
+        var me = this;
+        var start = _promise(),
+            p = start;
+
+        for (var n in this._openChannels) {
+          if (this._openChannels.hasOwnProperty(n)) {
+            var ch = this._openChannels[n];
+            p = p.then(function () {
+              return ch.closeChannel();
+            });
+          }
+        }
+        p.then(cb);
+        start.resolve(true);
+      };
+
+      /**
        * @param String name  - Name of the command
        * @param float fn
        */
@@ -8712,6 +8734,11 @@
                 if (!this._readyCallback) return;
                 this._readyCallback();
                 this._readyCallback = null;
+              },
+              close: function close() {
+                if (this._serverData && this._serverData.closeChannel) {
+                  this._serverData.closeChannel();
+                }
               },
               patchShadowCmds: function patchShadowCmds(listOfCmds) {
                 console.log("Patching shadow commands");
@@ -8928,6 +8955,7 @@
         this._server = serverSocket;
         this._auth = authManager;
         this._channelSockets = {};
+        this._openChannels = {};
 
         if (options.marx) {
           this._marx = options.marx;
@@ -8969,6 +8997,7 @@
                 ctrl.then(function () {
                   if (ctrl._groupACL(socket, "r")) {
                     socket.join(cData.channelId);
+                    me._openChannels[ctrl.getID()] = ctrl;
                     me.addSocketToCh(cData.channelId, socket);
                     socket.__channels.push(cData.channelId);
                     responseFn({
@@ -9136,6 +9165,7 @@
               ctrl = _channelController(cmd.channelId, fileSystem, me);
               if (ctrl) {
                 ctrl.closeChannel();
+                delete me._openChannels[ctrl.getID()];
               }
             }
             responseFn();
@@ -9298,6 +9328,7 @@
         if (_instances[id]) {
           return _instances[id];
         } else {
+          this._instanceId = id;
           _instances[id] = this;
         }
       });
@@ -10078,6 +10109,7 @@
             var rep = me._chManager.createReplClass();
 
             new rep().then(function (o) {
+              me._replicator = o;
               o.connect({
                 clientData: withData,
                 url: "http://localhost:7777",
@@ -10259,7 +10291,14 @@
       _myTrait_.closeChannel = function (t) {
 
         var data = this._serverState.data.getData();
-        this._model.writeFile(".hibernated", data);
+        return this._model.writeFile(".hibernated", data);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getID = function (t) {
+        return this._instanceId;
       };
 
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();

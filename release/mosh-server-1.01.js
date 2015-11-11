@@ -8722,6 +8722,7 @@
                 this._serverData.then(function () {
 
                   console.log("REPLICA : Got the connection");
+                  var bHasData = false;
                   // if no clientdata specified
                   if (!options.clientData) {
                     var rawData = theData.getData(true);
@@ -8735,8 +8736,6 @@
                     console.log("REPLICA : using options.clientData");
                     me._clientData = _data(options.clientData);
                   }
-
-                  var bHasData = false;
 
                   // listen to changes from the server...
                   var chServerData = me._serverData.getChannelData();
@@ -8753,6 +8752,8 @@
                     me._readyCallback = null;
                   }
                   console.log("REPLICA : all done");
+
+                  bHasData = true;
 
                   // if we have skipped some data, b_hot_pending tells us that we are not
                   // finished yet with processing of the server data

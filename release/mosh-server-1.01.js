@@ -8789,7 +8789,8 @@
                         diff_list.push(cmd);
                       }
                     }
-
+                    console.log("--> sending DIFF to the client process");
+                    console.log(JSON.stringify(diff_list, null, 2));
                     me.trigger("diff", diff_list);
                   });
                 });

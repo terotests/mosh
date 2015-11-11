@@ -6310,6 +6310,8 @@
           var obj = this._find(a[4]),
               prop = a[1];
           var oldValue = obj.data[prop];
+
+          if (oldValue == a[2]) return true;
           a[3] = oldValue;
         }
 

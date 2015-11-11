@@ -8641,7 +8641,7 @@
             processWorkers: {
               init: function init() {
                 console.log("Replicator object created");
-                me._hot = {};
+                this._hot = {};
               },
               clientReady: function clientReady() {
                 if (!this._readyCallback) return;

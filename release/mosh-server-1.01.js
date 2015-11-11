@@ -8764,9 +8764,10 @@
                     if (!b_hot_pending && !bHasData) return;
                     bHasData = false;
 
+                    console.log("R: has data, running diff");
                     var diff = me._clientData.diff(theData);
                     if (diff.length == 0) return;
-
+                    console.log("R: diff had something to sendf");
                     // only send the diff directly to client               
 
                     // me._hot[c[1][4]]

@@ -9959,7 +9959,7 @@
                   // o.applyToShadow(d.cmd);
                 });
 
-                later().onFrame(1 / 10, function () {
+                later().onFrame(function () {
                   o.patchShadowCmds(toShadowList.slice());
                   toShadowList.length = 0;
                 });

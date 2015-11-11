@@ -8665,10 +8665,13 @@
                     remoteList = [];
                 cmdList.forEach(function (c) {
                   if (c[0]) remoteList.push(c[1]);
-                  me._clientData.patch(c[1]);
+                  console.log("patching " + c[1]);
+                  me._clientData.patch([c[1]]);
                 });
 
                 if (remoteList.length > 0) {
+                  console.log("sendCommands");
+                  console.log(remoteList);
                   socket.send("channelCommand", {
                     channelId: client._channelId,
                     cmd: "sendCmds",
@@ -9984,7 +9987,7 @@
                 });
 
                 later().onFrame(function () {
-                  o.sendCommands(toShadowList.slice());
+                  if (toShadowList.length > 0) o.sendCommands(toShadowList.slice());
                   toShadowList.length = 0;
                 });
 

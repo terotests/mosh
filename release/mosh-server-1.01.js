@@ -8698,6 +8698,7 @@
                     // send the raw data to server
                     // whenReady(rawData);
                   } else {
+                    console.log("REPLICA : using options.clientData");
                     me._clientData = _data(options.clientData);
                   }
 
@@ -10153,7 +10154,7 @@
           me.resolve(true);
 
           // changed from "startSync"
-          me._replica = me._startReplica();
+          me._replica = me._startReplica(data);
         });
 
         this._initCmds();

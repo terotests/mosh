@@ -8647,6 +8647,9 @@
                 this._readyCallback();
                 this._readyCallback = null;
               },
+              patchShadowCmds: function patchShadowCmds(listOfCmds) {
+                this._clientData.patch(listOfCmds);
+              },
               patchShadowCmd: function patchShadowCmd(cmd) {
                 console.log("Patching client with " + cmd);
                 this._clientData.patch([cmd]);
@@ -9948,10 +9951,17 @@
                 var bDiffOn = false;
 
                 // if channel has new data and currently not patching...
-                var chData = me._serverState.data;
+                var chData = me._serverState.data,
+                    toShadowList = [];
                 chData.on("cmd", function (d) {
                   if (bDiffOn) return; // do not re-send the diff commands
-                  o.applyToShadow(d.cmd);
+                  toShadowList.push(d.cmd);
+                  // o.applyToShadow(d.cmd);
+                });
+
+                later().onFrame(1 / 10, function () {
+                  o.patchShadowCmds(toShadowList.slice());
+                  toShadowList.length = 0;
                 });
 
                 o.on("diff", function (cmdList) {
@@ -9962,10 +9972,11 @@
                       var chData = me._serverState.data;
                       var cmdRes = chData.execCmd(cmd);
                       if (cmdRes === true) {
-                        o.patchShadowCmd(cmd);
+                        toShadowList.push(cmd);
                       }
                       console.log(cmdRes);
                     });
+                    // o.patchShadowCmds( list );
                   } catch (e) {
                     console.log(e.message);
                   }

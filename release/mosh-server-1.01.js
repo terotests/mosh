@@ -9915,9 +9915,9 @@
       };
 
       /**
-       * @param float t
+       * @param Object withData  - The initial data sent to client
        */
-      _myTrait_._startReplica = function (t) {
+      _myTrait_._startReplica = function (withData) {
         var me = this;
 
         return _promise(function (result) {
@@ -9936,6 +9936,7 @@
 
             new rep().then(function (o) {
               o.connect({
+                clientData: withData,
                 url: "http://localhost:7777",
                 db: "http://localhost:1234/galaxy/umos/model/piece/positions"
               }, function (rawData) {
@@ -9943,7 +9944,17 @@
                 console.log("***** replicator connected ******");
                 console.log(JSON.stringify(rawData));
 
+                var bDiffOn = false;
+
+                // if channel has new data and currently not patching...
+                var chData = me._serverState.data;
+                chData.on("cmd", function (d) {
+                  if (bDiffOn) return; // do not re-send the diff commands
+                  o.applyToShadow(d.cmd);
+                });
+
                 o.on("diff", function (cmdList) {
+                  bDiffOn = true;
                   console.log("Trying diff ", cmdList);
                   try {
                     cmdList.forEach(function (cmd) {
@@ -9957,6 +9968,7 @@
                   } catch (e) {
                     console.log(e.message);
                   }
+                  bDiffOn = false;
                 });
               });
             });

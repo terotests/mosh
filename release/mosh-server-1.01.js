@@ -6309,7 +6309,7 @@
           var obj = this._find(a[4]),
               prop = a[1];
           var oldValue = obj.data[prop];
-          a[2] = oldValue;
+          a[3] = oldValue;
         }
 
         if (a[0] == 7) {

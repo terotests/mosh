@@ -8641,6 +8641,7 @@
             processWorkers: {
               init: function init() {
                 console.log("Replicator object created");
+                me._hot = {};
               },
               clientReady: function clientReady() {
                 if (!this._readyCallback) return;
@@ -8659,6 +8660,8 @@
                 var client = this._serverData._client;
                 var socket = this._serverData._socket;
 
+                var ms = new Date().getTime();
+
                 // the current client status
                 // TODO: should be self-correcting
                 var me = this,
@@ -8667,6 +8670,7 @@
                   if (c[0]) remoteList.push(c[1]);
                   console.log("patching " + c[1]);
                   me._clientData.patch([c[1]]);
+                  me._hot[c[1][4]] = ms; // the ID marked as "hot"
                 });
 
                 if (remoteList.length > 0) {
@@ -8749,17 +8753,43 @@
                     me._readyCallback = null;
                   }
                   console.log("REPLICA : all done");
+
+                  // if we have skipped some data, b_hot_pending tells us that we are not
+                  // finished yet with processing of the server data
+                  var b_hot_pending = false;
                   setInterval(function () {
 
                     if (!me._clientData) return;
-                    if (!bHasData) return;
+                    if (!b_hot_pending && !bHasData) return;
                     bHasData = false;
 
                     var diff = me._clientData.diff(theData);
                     if (diff.length == 0) return;
 
                     // only send the diff directly to client               
-                    me.trigger("diff", diff);
+
+                    // me._hot[c[1][4]]
+                    var msNow = new Date().getTime();
+                    var diff_list = [];
+                    b_hot_pending = false;
+                    for (var i = 0; i < diff.length; i++) {
+                      var cmd = diff[i],
+                          testId = cmd[4];
+                      if (me._hot[testId]) {
+                        var ms_hot = msNow - me._hot[testId];
+                        if (ms_hot < 1000) {
+                          b_hot_pending = true;
+                          continue;
+                        } else {
+                          delete me._hot[testId];
+                          diff_list.push(cmd);
+                        }
+                      } else {
+                        diff_list.push(cmd);
+                      }
+                    }
+
+                    me.trigger("diff", diff_list);
                   }, 500);
                 });
               }

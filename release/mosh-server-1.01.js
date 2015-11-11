@@ -8683,9 +8683,11 @@
         for (var n in this._openChannels) {
           if (this._openChannels.hasOwnProperty(n)) {
             var ch = this._openChannels[n];
-            p = p.then(function () {
-              return ch.closeChannel();
-            });
+            (function (ch) {
+              p = p.then(function () {
+                return ch.closeChannel();
+              });
+            })(ch);
           }
         }
         p.then(cb);

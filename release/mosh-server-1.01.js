@@ -8668,14 +8668,14 @@
                     remoteList = [];
                 cmdList.forEach(function (c) {
                   if (c[0]) remoteList.push(c[1]);
-                  console.log("patching " + c[1]);
+                  // console.log("patching "+c[1]);
                   me._clientData.patch([c[1]]);
                   me._hot[c[1][4]] = ms; // the ID marked as "hot"
                 });
 
                 if (remoteList.length > 0) {
-                  console.log("sendCommands");
-                  console.log(remoteList);
+                  // console.log("sendCommands");
+                  // console.log(remoteList);               
                   socket.send("channelCommand", {
                     channelId: client._channelId,
                     cmd: "sendCmds",
@@ -8757,7 +8757,7 @@
                   // if we have skipped some data, b_hot_pending tells us that we are not
                   // finished yet with processing of the server data
                   var b_hot_pending = false;
-                  setInterval(function () {
+                  later().onFrame(function () {
 
                     if (!me._clientData) return;
                     if (!b_hot_pending && !bHasData) return;
@@ -8790,7 +8790,7 @@
                     }
 
                     me.trigger("diff", diff_list);
-                  }, 500);
+                  });
                 });
               }
             },
@@ -9065,16 +9065,8 @@
               return;
             }
 
-            // console.log("Command "+JSON.stringify(cmd));
-
-            console.time("cmd_emit_done");
-
-            var ms = new Date().getTime();
-
             // the command for the channel controller...
             ctrl.run(cmd, function (resp) {
-              var msEnd = new Date().getTime();
-              console.log("Command " + cmd.cmd + " took " + (msEnd - ms));
               if (responseFn) responseFn(resp);
             }, socket);
           });
@@ -9399,18 +9391,12 @@
             //console.log(" has something to sent to the clients ");
             //console.log(JSON.stringify(data));
 
-            console.time("emit_start");
-
             if (!updObj) updObj = me._broadcastSocket.to(me._channelId);
 
             var currentJournalSize = me._model.getJournalSize();
             data.journalSize = currentJournalSize;
 
             updObj.emit("s2c_" + me._channelId, data);
-
-            // broadcast to the socket "room"
-            console.timeEnd("emit_start");
-            console.timeEnd("cmd_emit_done");
 
             var updStartMsEnd = new Date().getTime();
             // the server's connection to the remote client goes here...

@@ -6208,6 +6208,7 @@
             if (rv !== true) {
               console.log("ERROR " + JSON.stringify(a));
               console.log(JSON.stringify(rv));
+              console.trace("_safeExec::cmd_err");
             }
 
             if (rv === true && !isRedo) {

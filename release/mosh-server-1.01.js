@@ -6296,6 +6296,54 @@
       };
 
       /**
+       * @param Array a  - Command to execute as action
+       * @param float isRemote
+       * @param float isRedo
+       */
+      _myTrait_.execCmdAsAction = function (a, isRemote, isRedo) {
+
+        var a = a.slice();
+
+        // fix the old value problem for "set value"
+        if (a[0] == 4) {
+          var obj = this._find(a[4]),
+              prop = a[1];
+          var oldValue = obj.data[prop];
+          a[2] = oldValue;
+        }
+
+        if (a[0] == 7) {
+          var parentObj = this._find(a[4]),
+              insertedObj = this._find(a[2]),
+              toIndex = parseInt(a[1]),
+              index = parentObj.data.length; // might check if valid...
+
+          if (parentObj && insertedObj) {
+            a[1] = index;
+          }
+        }
+        if (a[0] == 12) {
+          var obj = this._find(a[4]),
+              len = obj.data.length,
+              targetObj;
+
+          if (!obj) return {
+            error: 2,
+            cmd: 1,
+            text: "Object with ID (" + a[4] + ") did not exist"
+          };
+          var oldIndex = null,
+              i;
+          var targetObj = this._find(a[1]);
+          i = oldIndex = obj.data.indexOf(targetObj);
+
+          if (oldIndex >= 0) a[3] = oldIndex;
+        }
+
+        return this.execCmd(a, isRemote, isRedo);
+      };
+
+      /**
        * @param Int i
        */
       _myTrait_.getJournalCmd = function (i) {
@@ -9844,7 +9892,7 @@
 
               // now, it's simple, we just try to apply all the comands
               for (var i = 0; i < list.length; i++) {
-                var cmdRes = chData.execCmd(list[i]);
+                var cmdRes = chData.execCmdAsAction(list[i]);
                 if (cmdRes !== true) {
                   break;
                 }
@@ -9882,7 +9930,7 @@
               // now, it's simple, we just try to apply all the comands
               for (var i = 0; i < clientFrame.c.length; i++) {
                 var c = clientFrame.c[i];
-                var cmdRes = chData.execCmd(c);
+                var cmdRes = chData.execCmdAsAction(c);
                 // handle errors, if necessary...
                 if (cmdRes !== true) {}
               }

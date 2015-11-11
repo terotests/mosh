@@ -10290,6 +10290,7 @@
        */
       _myTrait_.closeChannel = function (t) {
 
+        console.log("Hibernating " + this._channelId);
         var data = this._serverState.data.getData();
         return this._model.writeFile(".hibernated", data);
       };

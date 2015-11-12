@@ -9179,6 +9179,8 @@
 
             // TODO: add authentication, skip it for now, simply a cll to authhandler
 
+            console.log("Received 'joinChannel' for " + cData.channelId);
+
             // Initialize the channel
             fileSystem.findPath(cData.channelId).then(function (fold) {
               if (fold) {

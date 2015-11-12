@@ -2174,38 +2174,40 @@
         //   
         // debugger;
         var wClass = this._dataWorkerClass();
-        var ob = new wClass();
 
-        ob.then(function (o) {
+        if (wClass) {
+          var ob = new wClass();
 
-          o.on("myMsg", function (d) {
-            console.log(d);
+          ob.then(function (o) {
+
+            o.on("myMsg", function (d) {
+              console.log(d);
+            });
+
+            o.connect({
+              url: "http://54.165.147.161:7777",
+              db: "http://localhost:1234/replica/pieces",
+              protocolVersion: 2
+            }, function (theData) {
+              console.log("The worker send response");
+              console.log(theData);
+            });
           });
 
-          o.connect({
-            url: "http://54.165.147.161:7777",
-            db: "http://localhost:1234/replica/pieces",
-            protocolVersion: 2
-          }, function (theData) {
-            console.log("The worker send response");
-            console.log(theData);
-          });
-        });
-
-        return;
+          return;
+        }
 
         // ---- the code below works, but we want to create a web worker  
         this._connCnt = 0;
-
-        console.log("Initializing protocol v2");
+        // console.log("Initializing protocol v2");
 
         socket.on("connect", function () {
           me._connCnt++;
           socket.send("joinChannel", {
             channelId: me._channelId
           }).then(function (data) {
-            console.log("Protocol v2 got response for joinChannel");
-            console.log(data);
+            //console.log("Protocol v2 got response for joinChannel");
+            //console.log(data);
 
             var mainData = me._transformObjToNs(JSON.parse(data.start.data), me._ns);
 

@@ -9190,17 +9190,21 @@
                   clientProtocol: 2
                 });
                 ctrl.then(function () {
-
+                  console.log("\u001b[36m", "Channel Controller inited", "\u001b[0m");
                   socket.join(cData.channelId);
                   me._openChannels[ctrl.getID()] = ctrl;
                   me.addSocketToCh(cData.channelId, socket);
                   socket.__channels.push(cData.channelId);
+
+                  console.log("\u001b[36m", "Ready to send response", "\u001b[0m");
 
                   responseFn({
                     success: true,
                     channelId: cData.channelId,
                     start: ctrl.getStartupData()
                   });
+
+                  console.log("\u001b[36m", "Response was sent", "\u001b[0m");
                 });
               } else {
                 responseFn({

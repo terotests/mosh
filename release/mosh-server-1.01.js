@@ -10106,11 +10106,14 @@
        */
       _myTrait_._oldConstructor = function (t) {
         // Then, construct the channel model from the data
+
+        var me = this;
+
         this._model.readBuildTree().then(function (r) {
 
           // the build tree
           var mainData = r.pop();
-          var chData = _channelData(channelId + fileSystem.id(), mainData, []);
+          var chData = _channelData(me.getID(), mainData, []);
           var list = r.pop();
 
           // NOW, here is a problem, the in-memory channel "journal" should be truncated

@@ -1976,6 +1976,26 @@
           }).then(function (data) {
             console.log("Protocol v2 got response for joinChannel");
             console.log(data);
+
+            var mainData = me._transformObjToNs(data.start.data, me._ns);
+
+            var chData = _channelData(me._id, mainData, []);
+
+            // the state management
+            me._clientState = {
+              data: chData, // The channel data object
+              client: me, // The channel client object (for Namespace conversion )
+              needsRefresh: false, // true if client is out of sync and needs to reload
+              version: data.start.version,
+              last_update: [0, data.start.journal], // last succesfull server update
+              last_sent: [0, data.start.journal] // last range sent to the server
+
+            };
+            me._data = chData;
+            me.resolve({
+              result: true,
+              channelId: channelId
+            });
           });
         });
 

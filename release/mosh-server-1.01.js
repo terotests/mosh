@@ -10785,6 +10785,7 @@
 
         var settings = this._model._settings;
         var chData = this._serverState.data;
+        var dataStart = this._serverState.dataStart; // .line and .version
         var journal_len = chData._journal.length;
 
         var fullData = chData.getData();

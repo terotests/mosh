@@ -1875,7 +1875,8 @@
                     username: "Tero",
                     password: "teropw"
                   },
-                  ioLib: realSocket
+                  ioLib: realSocket,
+                  protocolVersion: protocolVersion
                 });
                 // console.log("REPLICA : _data ok");
                 this._serverData = theData;
@@ -2171,8 +2172,7 @@
             socket = this._socket;
 
         //   
-
-        debugger;
+        // debugger;
         var wClass = this._dataWorkerClass();
 
         new wClass().then(function (o) {
@@ -2183,7 +2183,8 @@
 
           o.connect({
             url: "http://54.165.147.161:7777",
-            db: "http://localhost:1234/replica/pieces"
+            db: "http://localhost:1234/replica/pieces",
+            protocolVersion: 2
           }, function (theData) {
             console.log("The worker send response");
             console.log(theData);

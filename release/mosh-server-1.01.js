@@ -10818,7 +10818,7 @@
 
         // options.fast = next generation faster loading of the channel data
         if (options.clientProtocol == 2) {
-
+          console.log("\u001b[36m", "Trying protocol v2.0", "\u001b[0m");
           var model = this._model;
           model.then(function () {
 
@@ -10831,6 +10831,7 @@
                 console.log("\u001b[36m", "Starting Protocol v2.0", "\u001b[0m");
                 me._startFromHibernate(hFile);
               } else {
+                console.log("\u001b[35m", "The Hibernation file was invalid", "\u001b[0m");
                 me._oldConstructor();
               }
             });

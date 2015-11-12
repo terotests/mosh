@@ -1994,7 +1994,7 @@
             me._data = chData;
             me.resolve({
               result: true,
-              channelId: channelId
+              channelId: me._channelId
             });
           });
         });

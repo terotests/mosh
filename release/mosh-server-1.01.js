@@ -9432,7 +9432,7 @@
             // TODO: add authentication, skip it for now, simply a cll to authhandler
 
             console.log("Received 'joinChannel' for " + cData.channelId);
-
+            console.time("join_time");
             // Initialize the channel
             fileSystem.findPath(cData.channelId).then(function (fold) {
               if (fold) {
@@ -9456,7 +9456,7 @@
                       channelId: cData.channelId,
                       start: ctrl.getStartupData()
                     });
-
+                    console.timeEnd("join_time");
                     console.log("\u001b[36m", "Response was sent", "\u001b[0m");
                   } catch (e) {
                     console.log("\u001b[35m", e.message, "\u001b[0m");

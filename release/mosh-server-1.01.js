@@ -9198,13 +9198,17 @@
 
                   console.log("\u001b[36m", "Ready to send response", "\u001b[0m");
 
-                  responseFn({
-                    success: true,
-                    channelId: cData.channelId,
-                    start: ctrl.getStartupData()
-                  });
+                  try {
+                    responseFn({
+                      success: true,
+                      channelId: cData.channelId,
+                      start: ctrl.getStartupData()
+                    });
 
-                  console.log("\u001b[36m", "Response was sent", "\u001b[0m");
+                    console.log("\u001b[36m", "Response was sent", "\u001b[0m");
+                  } catch (e) {
+                    console.log("\u001b[35m", e.message, "\u001b[0m");
+                  }
                 });
               } else {
                 responseFn({
@@ -10734,7 +10738,7 @@
 
         console.log("Hibernating " + this._channelId);
 
-        this._closing = true;
+        // this._closing = true;
 
         var serverState = this._serverState,
             model = this._model;

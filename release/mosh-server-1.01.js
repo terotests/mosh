@@ -1865,6 +1865,9 @@
                 // console.log("The replicator is connecting to "+options.db);
                 // if(typeof(ioLib)=="undefined") console.log("REPLICA ioLib not defined")
 
+                this.trigger("myMsg", "Connecting");
+                this.trigger("myMsg", options);
+
                 var realSocket = io(options.url);
                 // console.log("REPLICA : realSocket ok");
                 var theData = _data(options.db, {
@@ -2173,6 +2176,11 @@
         var wClass = this._dataWorkerClass();
 
         new wClass().then(function (o) {
+
+          o.on("myMsg", function (d) {
+            console.log(d);
+          });
+
           o.connect({
             url: "http://54.165.147.161:7777",
             db: "http://localhost:1234/replica/pieces"

@@ -8151,6 +8151,13 @@
       });
 
       /**
+       * @param String fileName  - The filename to check
+       */
+      _myTrait_.isFile = function (fileName) {
+        return this._folder.isFile(fileName);
+      };
+
+      /**
        * @param float channelId
        * @param float version
        * @param float journalLine
@@ -8986,6 +8993,37 @@
           var ctrl; // the channel controller
 
           if (!socket.__channels) socket.__channels = [];
+
+          // fast join + get channel data...
+          socket.on("joinChannel", function (cData, responseFn) {
+
+            if (_authExtension) {
+              try {
+                _authExtension(cData, function (success, userid, groups) {
+                  if (success === true) {
+                    var UID = userid;
+                    console.log("custom authentication into ", groups);
+                    socket.setAuthInfo(UID, groups);
+                    responseFn({
+                      success: true,
+                      userId: socket.getUserId(),
+                      groups: groups
+                    });
+                  } else {
+                    responseFn({
+                      success: false,
+                      userId: null
+                    });
+                  }
+                });
+              } catch (e) {
+                responseFn({
+                  success: false,
+                  userId: null
+                });
+              }
+            }
+          });
 
           socket.on("requestChannel", function (cData, responseFn) {
 
@@ -10066,6 +10104,53 @@
       /**
        * @param float t
        */
+      _myTrait_._oldConstructor = function (t) {
+        // Then, construct the channel model from the data
+        this._model.readBuildTree().then(function (r) {
+
+          // the build tree
+          var mainData = r.pop();
+          var chData = _channelData(channelId + fileSystem.id(), mainData, []);
+          var list = r.pop();
+
+          // NOW, here is a problem, the in-memory channel "journal" should be truncated
+          while (list) {
+            chData._journalPointer = 0;
+            chData._journal.length = 0; // <-- the journal length, last will be spared
+            list.forEach(function (c) {
+              chData.execCmd(c);
+            });
+            list = r.pop();
+          }
+          // The state of the server - what should be the "last_update" ? 
+          me._serverState = {
+            model: me._model, // model of the server state, if truncate needed
+            data: chData, // The channel data object set here
+            version: me._model._settings.version, // the version of the channel model
+            last_update: [0, chData.getJournalLine()], // the range of last commands sent to the client
+            _done: {} // hash of handled packet ID's
+          };
+
+          var data = chData.getData();
+          if (data.__acl) {
+            me._acl = nfs4_acl(data.__acl);
+          }
+
+          // The channel policy might replace the transaction manager...
+          me._policy = _chPolicy();
+
+          me._updateLoop(); // start the update loop
+          me._chData = chData;
+          me.resolve(true);
+
+          // changed from "startSync"
+          me._replica = me._startReplica(data);
+        });
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_._sendUnsentToMaster = function (t) {
         // the server's connection to the remote client goes here...
         var me = this;
@@ -10088,6 +10173,44 @@
             me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync));
           }
         }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._startFromHibernate = function (t) {
+
+        var me = this;
+
+        // Then, construct the channel model from the data
+        this._model.readFile(".hibernate").then(function (mainData) {
+
+          var chData = _channelData(me.getID(), mainData, []);
+
+          // intialize the server state
+          me._serverState = {
+            model: me._model, // model of the server state, if truncate needed
+            data: chData, // The channel data object set here
+            version: me._model._settings.version, // the version of the channel model
+            last_update: [0, chData.getJournalLine()], // the range of last commands sent to the client
+            _done: {} // hash of handled packet ID's
+          };
+
+          var data = chData.getData();
+          if (data.__acl) {
+            me._acl = nfs4_acl(data.__acl);
+          }
+
+          // The channel policy might replace the transaction manager...
+          me._policy = _chPolicy();
+
+          me._updateLoop(); // start the update loop
+          me._chData = chData;
+          me.resolve(true);
+
+          // changed from "startSync"
+          me._replica = me._startReplica(data);
+        });
       };
 
       /**
@@ -10294,7 +10417,13 @@
 
         console.log("Hibernating " + this._channelId);
         var data = this._serverState.data.getData();
-        return this._model.writeFile(".hibernated", data);
+
+        // Channel model version + _settings
+        // _settings
+        var settings = this._model._settings;
+
+        // Hibernate to the version + journal line
+        return this._model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);
       };
 
       /**
@@ -10306,58 +10435,33 @@
 
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
       if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
-      _myTrait_.__traitInit.push(function (channelId, fileSystem, chManager) {
+      _myTrait_.__traitInit.push(function (channelId, fileSystem, chManager, options) {
 
         this._channelId = channelId;
         this._commands = sequenceStepper(channelId + fileSystem.id());
         this._chManager = chManager;
+        this._fileSystem = fileSystem;
 
         // important point: the file system is passed here to the local channel model
         this._model = _localChannelModel(channelId, fileSystem);
 
         var me = this;
 
-        // Then, construct the channel model from the data
-        this._model.readBuildTree().then(function (r) {
+        options = options || {};
 
-          // the build tree
-          var mainData = r.pop();
-          var chData = _channelData(channelId + fileSystem.id(), mainData, []);
-          var list = r.pop();
+        if (options.fast) {
 
-          // NOW, here is a problem, the in-memory channel "journal" should be truncated
-          while (list) {
-            chData._journalPointer = 0;
-            chData._journal.length = 0; // <-- the journal length, last will be spared
-            list.forEach(function (c) {
-              chData.execCmd(c);
-            });
-            list = r.pop();
-          }
-          // The state of the server - what should be the "last_update" ? 
-          me._serverState = {
-            model: me._model, // model of the server state, if truncate needed
-            data: chData, // The channel data object set here
-            version: me._model._settings.version, // the version of the channel model
-            last_update: [0, chData.getJournalLine()], // the range of last commands sent to the client
-            _done: {} // hash of handled packet ID's
-          };
-
-          var data = chData.getData();
-          if (data.__acl) {
-            me._acl = nfs4_acl(data.__acl);
-          }
-
-          // The channel policy might replace the transaction manager...
-          me._policy = _chPolicy();
-
-          me._updateLoop(); // start the update loop
-          me._chData = chData;
-          me.resolve(true);
-
-          // changed from "startSync"
-          me._replica = me._startReplica(data);
-        });
+          // fast startup
+          this._model.isFile(".hibernate").then(function (is_file) {
+            if (is_file) {
+              me._startFromHibernate();
+            } else {
+              me._oldConstructor();
+            }
+          });
+        } else {
+          this._oldConstructor();
+        }
 
         this._initCmds();
       });

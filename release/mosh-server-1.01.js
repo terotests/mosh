@@ -1961,6 +1961,173 @@
       /**
        * @param float t
        */
+      _myTrait_._initProtocol2 = function (t) {
+        var me = this,
+            socket = this._socket;
+
+        this._connCnt = 0;
+
+        console.log("Initializing protocol v2");
+
+        socket.on("connect", function () {
+          me._connCnt++;
+          socket.send("joinChannel", {
+            channelId: me._channelId
+          }).then(function (data) {
+            console.log("Protocol v2 got response for joinChannel");
+            console.log(data);
+          });
+        });
+
+        // the first big data coming from the server...
+        /*
+        me._state = {
+        data : chData,              // The channel data object
+        client : me,                // The channel client object (for Namespace conversion )
+        needsRefresh : false,       // true if client is out of sync and needs to reload
+        version : me._channelStatus.version,               
+        last_update : [0, chData.getJournalLine()],  // last succesfull server update
+        last_sent : [0, chData.getJournalLine()]     // last range sent to the server
+        };
+        */
+
+        socket.on("cmds_" + this._channelId, function (cmd) {
+
+          // just don't accept any msgs
+          if (me._disconnected) return;
+
+          console.log("protocal v2 got command");
+          console.log(cmd);
+
+          /*
+          var cmdPacket = {
+          cmd : "s2c",
+          cmds : chData._journal.slice(),  // send all the journal lines
+          big : big_update,
+          start : start,
+          end : end,
+          version : settings.version
+          };
+          // Big update
+          if(big_update) {
+          cmdPacket.data = chData.getData();
+          serverState.dataStart.version = settings.version;
+          }
+          */
+        });
+        return;
+
+        // ------ the old initialization code is below -----
+
+        /*
+        this._onFrameLoop( socket, myNamespace );
+        this._incoming(socket, myNamespace);
+        this._connCnt = 0;
+        socket.on("disconnect", function() {
+        me._connected = false;
+        })
+        socket.on("connect", function() {
+        console.log("*** socket reconnect for "+channelId+" *** ");
+        console.log("Connection count "+me._connCnt);
+        me._connCnt++;
+        // Authenticate...
+        if(options.auth) {
+        socket.send("auth", {   userId :    options.auth.username, 
+                            password :  options.auth.password 
+                        }).then( function(resp) {
+        
+        if(resp.userId) {
+            
+            me._userId = resp.userId;
+            me._logged = true;
+        } else {
+            me._logged = false;
+            return false;
+        }
+        // ask to join the channel with this socket...
+        return socket.send("requestChannel", {
+                    channelId : channelId,
+                    initWithData  : options.initWithData
+            });
+        })
+        .then( function(resp) {
+        // this channel client has been connected to the server ok
+        if( resp && resp.channelId == channelId ) {
+            
+            me._connected = true;
+            // The next step: to load the channel information for the
+            // local objects to consume
+            
+            if(me._connCnt > 1) {
+                // if reconnecting to the other server, ask upgrade only, not the whole
+                // build tree...
+                me._onReconnect();
+                return false;
+            }
+             return socket.send("channelCommand", {
+                        channelId : channelId,
+                        cmd : "readBuildTree",
+                        data : ""
+                });                  
+            
+        } else {
+            return false;
+        }
+        })
+        .then( function(respData) {
+         
+        if(respData) {
+            
+            var resp = respData.build;
+            
+            // ? should we be updating this or is this just one-time info
+            me._channelStatus = respData.status;
+             // The build tree is here now...
+            // Should you transform the objects to other namespaces...?
+            
+            var mainData = resp.pop();
+             // The data is here... but transforming?
+            mainData = me._transformObjToNs( mainData, myNamespace );
+             var chData = _channelData( me._id, mainData, [] );
+            var list = resp.pop();
+             // should be updating the client
+            // var res = me._policy.deltaServerToClient( cmd, me._clientState);
+            while(list) {
+                chData._journalPointer = 0;
+                chData._journal.length = 0; // <-- the journal length, last will be spared
+                list.forEach( function(c) {
+                    chData.execCmd(me._transformCmdToNs(c, myNamespace), true);
+                });
+                list = resp.pop();
+            }                
+            
+            // the state management
+            me._clientState = {
+                data : chData,              // The channel data object
+                client : me,                // The channel client object (for Namespace conversion )
+                needsRefresh : false,       // true if client is out of sync and needs to reload
+                version : me._channelStatus.version,               
+                last_update : [0, chData.getJournalLine()],  // last succesfull server update
+                last_sent : [0, chData.getJournalLine()]     // last range sent to the server
+            
+            };
+                          
+            me._data = chData;
+            me._createTransaction();
+            me.resolve({ result : true, channelId : channelId });
+            
+        } else {
+            me.resolve({ result : false, text : "Authorization or connection failed" });
+        }
+        })
+        }
+        });
+        */
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_._isNodeJs = function (t) {
         return new Function("try { return this === global; } catch(e) { return false; }")();
       };
@@ -2401,8 +2568,13 @@
         this._id = channelId + socket.getId();
         var me = this;
 
-        if (options.connectFn) {
-          options.connectFn.apply(this, []);
+        if (options.protocolVersion == 2) {
+          // options.connectFn.apply(this, []);
+
+          console.log("Initializing protocol v2");
+
+          this._initProtocol2();
+
           return;
         }
 
@@ -6599,6 +6771,14 @@
       };
 
       /**
+       * @param float t
+       */
+      _myTrait_.resetJournal = function (t) {
+        this._journalPointer = 0;
+        this._journal.length = 0;
+      };
+
+      /**
        * This function reverses a given command. There may be cases when the command parameters make the command itself non-reversable. It is the responsibility of the framework to make sure all commands remain reversable.
        * @param float a
        */
@@ -8997,32 +9177,41 @@
           // fast join + get channel data...
           socket.on("joinChannel", function (cData, responseFn) {
 
-            if (_authExtension) {
-              try {
-                _authExtension(cData, function (success, userid, groups) {
-                  if (success === true) {
-                    var UID = userid;
-                    console.log("custom authentication into ", groups);
-                    socket.setAuthInfo(UID, groups);
-                    responseFn({
-                      success: true,
-                      userId: socket.getUserId(),
-                      groups: groups
-                    });
-                  } else {
-                    responseFn({
-                      success: false,
-                      userId: null
-                    });
-                  }
+            // TODO: add authentication, skip it for now, simply a cll to authhandler
+
+            // Initialize the channel
+            fileSystem.findPath(cData.channelId).then(function (fold) {
+              if (fold) {
+
+                // require first to authenticate, at least read access to join
+                ctrl = _channelController(cData.channelId, fileSystem, me, {
+                  clientProtocol: 2
                 });
-              } catch (e) {
+                ctrl.then(function () {
+
+                  socket.join(cData.channelId);
+                  me._openChannels[ctrl.getID()] = ctrl;
+                  me.addSocketToCh(cData.channelId, socket);
+                  socket.__channels.push(cData.channelId);
+
+                  responseFn({
+                    success: true,
+                    channelId: cData.channelId,
+                    start: ctrl.getStartupData()
+                  });
+                });
+              } else {
                 responseFn({
                   success: false,
-                  userId: null
+                  channelId: null
                 });
               }
-            }
+            }).fail(function () {
+              responseFn({
+                success: false,
+                channelId: null
+              });
+            });
           });
 
           socket.on("requestChannel", function (cData, responseFn) {
@@ -10104,6 +10293,97 @@
       /**
        * @param float t
        */
+      _myTrait_._ngClientUpdate = function (t) {
+
+        var updObj,
+            me = this;
+
+        if (!me._serverState) return;
+
+        var model = this._model;
+        var settings = model._settings;
+        var chData = this._serverState.data;
+        var serverState = me._serverState;
+        var dataStart = serverState.dataStart; // .line and .version
+        var journal_len = chData._journal.length;
+
+        // hFile = ".hibernated."+settings.version+"."+settings.journalLine;
+
+        // send data to clients which have requested full data
+        if (me._serverState.upgrade) {
+          // send data + current position of the servers (Version,Journal)
+          for (var n in me._serverState.upgrade) {
+            if (me._serverState.upgrade.hasOwnProperty(n)) {
+              var info = me._serverState.upgrade[n];
+              if (info.socket) {
+                var fullData = chData.getData();
+                info.socket.emit("full_" + me._channelId, {
+                  version: settings.version,
+                  journal: journal_len + dataStart.line,
+                  data: fullData
+                });
+                delete me._serverState.upgrade[n]; // make sure not handled again
+              }
+            }
+          }
+        }
+
+        if (!serverState.last_update) serverState.last_update = [];
+
+        // last_update : [1, 30]
+        var start = serverState.last_update[1] || 0;
+        var end = journal_len + dataStart.line;
+
+        // if last end is same as last journal line, do nothing
+        if (start == end && serverState.last_sent_version == settings.version) return;
+
+        // the version number has changed, send all data to all client to re-sync them
+        var big_update = false;
+        if (serverState.last_sent_version != settings.version) {
+          big_update = true;
+        }
+
+        // sending these lines now:
+        serverState.last_update[0] = start;
+        serverState.last_update[1] = end;
+        serverState.last_sent_version = settings.version;
+
+        // TODO send also the last update + possibly information if we are
+        // upgrading the version? How to handle the version upgrade in this case?
+
+        var cmdPacket = {
+          cmd: "s2c",
+          cmds: chData._journal.slice(), // send all the journal lines
+          big: big_update,
+          start: start,
+          end: end,
+          version: settings.version
+        };
+
+        // Big update
+        if (big_update) {
+          cmdPacket.data = chData.getData();
+          serverState.dataStart.version = settings.version;
+        }
+
+        // Then, move the data start pointer forward
+        serverState.dataStart.line += journal_len;
+
+        // and reset the journal position to 0, truncates the in-memory journal
+        chData.resetJournal();
+
+        if (me._broadcastSocket) {
+          var updObj = me._broadcastSocket.to(me._channelId);
+          updObj.emit("cmds_" + me._channelId, cmdPacket);
+
+          // and finally, write dat to the journa l
+          serverState.lastJournalPromise = me._model.writeToJournal(cmdPacket.cmds);
+        }
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_._oldConstructor = function (t) {
         // Then, construct the channel model from the data
 
@@ -10179,25 +10459,41 @@
       };
 
       /**
-       * @param float t
+       * @param String hFile  - The hibernation filename
        */
-      _myTrait_._startFromHibernate = function (t) {
+      _myTrait_._startFromHibernate = function (hFile) {
 
         var me = this;
+        var model = this._model;
 
+        console.log("\u001b[36m", "Reading hibernated file", "\u001b[0m");
         // Then, construct the channel model from the data
-        this._model.readFile(".hibernate").then(function (mainData) {
+        model.readFile(hFile).then(function (mainData) {
 
+          // one might just send the data to clients using the model
           var chData = _channelData(me.getID(), mainData, []);
+
+          console.log("\u001b[36m", "Channel data inited", "\u001b[0m");
+
+          var settings = model._settings;
 
           // intialize the server state
           me._serverState = {
-            model: me._model, // model of the server state, if truncate needed
+            model: model, // model of the server state, if truncate needed
             data: chData, // The channel data object set here
-            version: me._model._settings.version, // the version of the channel model
-            last_update: [0, chData.getJournalLine()], // the range of last commands sent to the client
+            dataStart: {
+              line: settings.journalLine,
+              version: settings.version
+            },
+            version: settings.version, // the version of the channel model
+            last_sent_version: settings.version, // number of last major version
+            last_update: [0, settings.journalLine], // the range of last commands sent to the client
             _done: {} // hash of handled packet ID's
           };
+
+          // -- continue from here --
+          // TODO: check that hibernate will hibernate correct version
+          // TODO: check the _ngClientUpdate
 
           var data = chData.getData();
           if (data.__acl) {
@@ -10207,7 +10503,7 @@
           // The channel policy might replace the transaction manager...
           me._policy = _chPolicy();
 
-          me._updateLoop(); // start the update loop
+          me._updateLoop2(); // start the update loop
           me._chData = chData;
           me.resolve(true);
 
@@ -10409,6 +10705,18 @@
       /**
        * @param float t
        */
+      _myTrait_._updateLoop2 = function (t) {
+
+        console.log("\u001b[36m", "_updateLoop2 started", "\u001b[0m");
+        var me = this;
+        later().onFrame(function () {
+          me._ngClientUpdate();
+        });
+      };
+
+      /**
+       * @param float t
+       */
       _myTrait_.channelId = function (t) {
         return this._channelId;
       };
@@ -10419,14 +10727,38 @@
       _myTrait_.closeChannel = function (t) {
 
         console.log("Hibernating " + this._channelId);
-        var data = this._serverState.data.getData();
+
+        this._closing = true;
+
+        var serverState = this._serverState,
+            model = this._model;
+
+        var data = serverState.data.getData();
+
+        // serverState.lastJournalPromise
 
         // Channel model version + _settings
         // _settings
-        var settings = this._model._settings;
+        var settings = model._settings;
+
+        // TODO: make sure we are really hibernating the the right version
+        // of the data, could be that the version to be written to file has not
+        // yet updatedfilesystem
+
+        // TODO: disallow possible pending writes to the chData object which might
+        // modify the settings.version + settings.journaLine
+
+        // TODO: if there is a pending filewrite to the system, you might wait for
+        // that to complete before
+
+        if (serverState.lastJournalPromise) {
+          return serverState.lastJournalPromise.then(function () {
+            return model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);
+          });
+        }
 
         // Hibernate to the version + journal line
-        return this._model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);
+        return model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);
       };
 
       /**
@@ -10434,6 +10766,28 @@
        */
       _myTrait_.getID = function (t) {
         return this._instanceId;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.getStartupData = function (t) {
+
+        var updObj,
+            me = this;
+        if (!me._serverState) return;
+
+        var settings = this._model._settings;
+        var chData = this._serverState.data;
+        var journal_len = chData._journal.length;
+
+        var fullData = chData.getData();
+
+        return {
+          version: settings.version,
+          journal: journal_len + dataStart.line,
+          data: fullData
+        };
       };
 
       if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
@@ -10446,21 +10800,33 @@
         this._fileSystem = fileSystem;
 
         // important point: the file system is passed here to the local channel model
+        // to enable singleton models using the fileSystem ID value together with the
+        // channel ID value.
+
         this._model = _localChannelModel(channelId, fileSystem);
-
         var me = this;
-
         options = options || {};
 
-        if (options.fast) {
+        this._options = options;
 
-          // fast startup
-          this._model.isFile(".hibernate").then(function (is_file) {
-            if (is_file) {
-              me._startFromHibernate();
-            } else {
-              me._oldConstructor();
-            }
+        // options.fast = next generation faster loading of the channel data
+        if (options.clientProtocol == 2) {
+
+          var model = this._model;
+          model.then(function () {
+
+            var settings = model._settings,
+                hFile = ".hibernated." + settings.version + "." + settings.journalLine;
+
+            // if the hibernated channel does exist then start from it   
+            model.isFile(hFile).then(function (is_file) {
+              if (is_file) {
+                console.log("\u001b[36m", "Starting Protocol v2.0", "\u001b[0m");
+                me._startFromHibernate(hFile);
+              } else {
+                me._oldConstructor();
+              }
+            });
           });
         } else {
           this._oldConstructor();
@@ -10477,9 +10843,11 @@
       _myTrait_.run = function (cmd, responseFn, socket) {
 
         // 1. selecting the command to be run here...
-        var fn = this._cmds[cmd.cmd];
+        var fn = this._cmds[cmd.cmd],
+            me = this;
         if (fn) {
           this._commands.addCommands(function (contFn) {
+            if (me._closing) return;
             console.log("#" + cmd.cmd);
             fn(cmd, function (result) {
               responseFn(result);
@@ -12379,6 +12747,7 @@
             // the data must have ID's and all...
             opts.initWithData = this._wrapToData(options.initWithData);
           }
+          if (options.protocolVersion) opts.protocolVersion = options.protocolVersion;
           if (options.connectFn) opts.connectFn = options.connectFn;
 
           this._client = channelClient(req.fullPath, this._socket, opts);

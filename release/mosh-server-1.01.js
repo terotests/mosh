@@ -9495,6 +9495,7 @@
                       success: true,
                       channelId: cData.channelId
                     });
+                    console.timeEnd("join_time");
                   } else {
                     responseFn({
                       success: false,
@@ -9595,7 +9596,7 @@
           });
 
           socket.on("auth", function (cData, responseFn) {
-
+            console.time("join_time");
             if (_authExtension) {
               try {
                 _authExtension(cData, function (success, userid, groups) {

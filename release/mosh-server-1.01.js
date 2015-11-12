@@ -1697,6 +1697,7 @@
     (function (_myTrait_) {
       var _instanceCache;
       var _dmp;
+      var _repClass;
 
       // Initialize static variables here...
 
@@ -1767,6 +1768,207 @@
             ]                               
         }
         */
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._dataWorkerClass = function (t) {
+
+        console.log("_dataWorkerClass");
+
+        if (typeof Marx == "undefined") return;
+
+        var self = this;
+        var marx = Marx();
+
+        // Create the data worker class to open up connection from inside the Web Worker
+        if (!_repClass && marx) {
+          _repClass = marx.createClass({
+            requires: {
+              js: [{
+                url: "https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.7/socket.io.min.js"
+              }, {
+                url: "http://tp.treeni.fi/static/mosh-server-1.01.js?v=6"
+              }]
+            },
+            processWorkers: {
+              init: function init() {
+                // console.log("Replicator object created");
+                this._hot = {};
+              },
+              clientReady: function clientReady() {
+                if (!this._readyCallback) return;
+                this._readyCallback();
+                this._readyCallback = null;
+              },
+              close: function close() {
+                if (this._serverData && this._serverData.closeChannel) {
+                  this._serverData.closeChannel();
+                }
+              },
+              patchShadowCmds: function patchShadowCmds(listOfCmds) {
+                // console.log("Patching shadow commands");
+                this._clientData.patch(listOfCmds);
+              },
+              patchShadowCmd: function patchShadowCmd(cmd) {
+                // console.log("Patching client with "+cmd);               
+                this._clientData.patch([cmd]);
+              },
+              sendCommands: function sendCommands(cmdList) {
+                var client = this._serverData._client;
+                var socket = this._serverData._socket;
+
+                var ms = new Date().getTime();
+
+                // the current client status
+                // TODO: should be self-correcting
+                var me = this,
+                    remoteList = [];
+                cmdList.forEach(function (c) {
+                  if (c[0]) remoteList.push(c[1]);
+                  // console.log("patching "+c[1]);
+                  me._clientData.patch([c[1]]);
+                  me._hot[c[1][4]] = ms; // the ID marked as "hot"
+                });
+
+                if (remoteList.length > 0) {
+                  // console.log("sendCommands");
+                  // console.log(remoteList);               
+                  socket.send("channelCommand", {
+                    channelId: client._channelId,
+                    cmd: "sendCmds",
+                    data: {
+                      commands: remoteList
+                    }
+                  });
+                }
+              },
+              applyToShadow: function applyToShadow(cmd) {
+                var client = this._serverData._client;
+                var socket = this._serverData._socket;
+
+                // the current client status
+                // TODO: should be self-correcting
+                this._clientData._client.addCommand(cmd);
+
+                socket.send("channelCommand", {
+                  channelId: client._channelId,
+                  cmd: "sendCmds",
+                  data: {
+                    commands: [client._transformCmdFromNs(cmd)]
+                  }
+                });
+              },
+              connect: function connect(options, whenReady) {
+
+                // console.log("The replicator is connecting to "+options.db);
+                // if(typeof(ioLib)=="undefined") console.log("REPLICA ioLib not defined")
+
+                var realSocket = io(options.url);
+                // console.log("REPLICA : realSocket ok");
+                var theData = _data(options.db, {
+                  auth: {
+                    username: "Tero",
+                    password: "teropw"
+                  },
+                  ioLib: realSocket
+                });
+                // console.log("REPLICA : _data ok");
+                this._serverData = theData;
+                this._readyCallback = whenReady;
+
+                var me = this;
+                this._serverData.then(function () {
+
+                  // console.log("REPLICA : Got the connection");
+                  var bHasData = false;
+                  // if no clientdata specified
+                  if (!options.clientData) {
+                    var rawData = theData.getData(true);
+
+                    var clientData = theData.localFork();
+                    me._clientData = clientData;
+
+                    // send the raw data to server
+                    // whenReady(rawData);
+                  } else {
+                    // console.log("REPLICA : using options.clientData");
+                    me._clientData = _data(options.clientData);
+                  }
+
+                  // listen to changes from the server...
+                  var chServerData = me._serverData.getChannelData();
+                  chServerData.on("cmd", function (d) {
+                    bHasData = true;
+                  });
+
+                  if (options.clientData) {
+                    whenReady();
+                    me._readyCallback = null;
+                  } else {
+                    // console.log("REPLICA : about to call whenReady with raw data");
+                    whenReady(rawData);
+                    me._readyCallback = null;
+                  }
+                  bHasData = true;
+
+                  // if we have skipped some data, b_hot_pending tells us that we are not
+                  // finished yet with processing of the server data
+                  var b_hot_pending = false;
+                  setInterval(function () {
+
+                    if (!me._clientData) return;
+                    if (!b_hot_pending && !bHasData) return;
+                    bHasData = false;
+
+                    // console.log("R: has data, running diff");
+                    var diff = me._clientData.diff(theData);
+                    if (diff.length == 0) {
+                      b_hot_pending = false;
+                      return;
+                    }
+                    // console.log("R: diff had something to send");
+                    // only send the diff directly to client               
+
+                    // me._hot[c[1][4]]
+                    var msNow = new Date().getTime();
+                    var diff_list = [];
+                    b_hot_pending = false;
+                    for (var i = 0; i < diff.length; i++) {
+                      var cmd = diff[i],
+                          testId = cmd[4];
+                      if (me._hot[testId]) {
+                        var ms_hot = msNow - me._hot[testId];
+                        if (ms_hot < 1000) {
+                          b_hot_pending = true;
+                          continue;
+                        } else {
+                          delete me._hot[testId];
+                          diff_list.push(cmd);
+                        }
+                      } else {
+                        diff_list.push(cmd);
+                      }
+                    }
+                    // console.log("--> sending DIFF to the client process");
+                    // console.log(JSON.stringify(diff_list, null, 2));
+                    if (diff_list.length > 0) me.trigger("diff", diff_list);
+                  }, 1);
+                });
+              }
+            },
+            // local process methods for the replicated data
+            methods: {
+
+              getDataObj: function getDataObj() {
+                return this._myData;
+              }
+            }
+          });
+        }
+
+        return _repClass;
       };
 
       /**
@@ -1965,6 +2167,24 @@
         var me = this,
             socket = this._socket;
 
+        //   
+
+        debugger;
+        var wClass = this._dataWorkerClass();
+
+        new wClass().then(function (o) {
+          o.connect({
+            url: "http://54.165.147.161:7777",
+            db: "http://localhost:1234/replica/pieces"
+          }, function (theData) {
+            console.log("The worker send response");
+            console.log(theData);
+          });
+        });
+
+        return;
+
+        // ---- the code below works, but we want to create a web worker  
         this._connCnt = 0;
 
         console.log("Initializing protocol v2");

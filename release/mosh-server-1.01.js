@@ -1977,7 +1977,7 @@
             console.log("Protocol v2 got response for joinChannel");
             console.log(data);
 
-            var mainData = me._transformObjToNs(data.start.data, me._ns);
+            var mainData = me._transformObjToNs(JSON.parse(data.start.data), me._ns);
 
             var chData = _channelData(me._id, mainData, []);
 

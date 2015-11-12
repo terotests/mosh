@@ -2174,8 +2174,9 @@
         //   
         // debugger;
         var wClass = this._dataWorkerClass();
+        var ob = new wClass();
 
-        new wClass().then(function (o) {
+        ob.then(function (o) {
 
           o.on("myMsg", function (d) {
             console.log(d);

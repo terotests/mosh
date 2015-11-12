@@ -1876,7 +1876,7 @@
                     password: "teropw"
                   },
                   ioLib: realSocket,
-                  protocolVersion: protocolVersion
+                  protocolVersion: options.protocolVersion
                 });
                 // console.log("REPLICA : _data ok");
                 this._serverData = theData;

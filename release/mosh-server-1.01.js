@@ -10558,8 +10558,6 @@
               // now, it's simple, we just try to apply all the comands
               for (var i = 0; i < list.length; i++) {
                 console.log("executing " + list[i]);
-                console.log(chData);
-                console.log(chData.getData());
                 var cmdRes = chData.execCmdAsAction(list[i]);
                 if (cmdRes !== true) {
                   console.log("\u001b[33m", cmdRes, "\u001b[0m");
@@ -10708,9 +10706,8 @@
 
         // if last end is same as last journal line, do nothing
         if (start == end && serverState.last_sent_version == settings.version) {
-          console.log("_ngClientUpdate - nothing to send");
-          console.log("Journal length " + journal_len);
-          console.log("Start, end ", start, end);
+
+          // TODO: Add a trigger here
           return;
         }
 
@@ -10752,8 +10749,7 @@
         chData.resetJournal();
 
         if (me._broadcastSocket) {
-
-          console.log("ngUpdate, broadcasting to sockets");
+          // TODO: trigger here..
 
           var updObj = me._broadcastSocket.to(me._channelId);
           updObj.emit("cmds_" + me._channelId, cmdPacket);

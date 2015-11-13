@@ -1780,7 +1780,9 @@
         if (typeof Marx == "undefined") return;
 
         var self = this;
-        var marx = Marx();
+        var marx = Marx({
+          processCnt: 1
+        });
 
         // Create the data worker class to open up connection from inside the Web Worker
         if (!_repClass && marx) {

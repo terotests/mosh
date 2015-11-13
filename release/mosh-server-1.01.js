@@ -2189,8 +2189,32 @@
               db: "http://localhost:1234/replica/pieces",
               protocolVersion: 2
             }, function (theData) {
+
               console.log("The worker send response");
               console.log(theData);
+
+              // TODO : Channel status ???
+              me._channelStatus = {};
+              var mainData = me._transformObjToNs(theData, me._ns);
+
+              var chData = _channelData(me._id, mainData, []);
+
+              // the state management
+              me._clientState = {
+                data: chData, // The channel data object
+                client: me, // The channel client object (for Namespace conversion )
+                needsRefresh: false, // true if client is out of sync and needs to reload
+                version: me._channelStatus.version,
+                last_update: [0, chData.getJournalLine()], // last succesfull server update
+                last_sent: [0, chData.getJournalLine()] // last range sent to the server
+
+              };
+
+              me._data = chData;
+              me.resolve({
+                result: true,
+                channelId: channelId
+              });
             });
           });
 

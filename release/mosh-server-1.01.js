@@ -10830,6 +10830,7 @@
         // Then, construct the channel model from the data
         model.readFile(hFile).then(function (mainData) {
 
+          mainData = JSON.parse(mainData);
           // one might just send the data to clients using the model
           var chData = _channelData(me.getID(), mainData, []);
 

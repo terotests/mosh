@@ -2220,7 +2220,9 @@
 
               var toShadowList = [];
               chData.on("cmd", function (d) {
-                if (bDiffOn) return; // do not re-send the diff commands
+                if (bDiffOn) return; // do not re-send the diff
+                console.log("cData cmd");
+                console.log(d);
                 toShadowList.push([1, d.cmd]);
               });
 

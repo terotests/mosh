@@ -1839,13 +1839,18 @@
                 if (remoteList.length > 0) {
                   // console.log("sendCommands");
                   // console.log(remoteList);               
-                  socket.send("channelCommand", {
-                    channelId: client._channelId,
-                    cmd: "sendCmds",
-                    data: {
-                      commands: remoteList
-                    }
-                  });
+                  try {
+                    socket.send("channelCommand", {
+                      channelId: client._channelId,
+                      cmd: "sendCmds",
+                      data: {
+                        commands: remoteList
+                      }
+                    });
+                    this.trigger("myMsg", "should have sent some data");
+                  } catch (e) {
+                    this.trigger("myMsg", e.message);
+                  }
                 }
               },
               applyToShadow: function applyToShadow(cmd) {

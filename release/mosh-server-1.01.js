@@ -10534,6 +10534,7 @@
                   console.log("\u001b[33m", cmdRes, "\u001b[0m");
                   break;
                 }
+                console.log(chData._journal.length);
               }
               result(true);
             } catch (e) {

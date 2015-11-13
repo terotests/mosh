@@ -10520,7 +10520,7 @@
               result(null);
               return;
             }
-
+            if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
             try {
 
               var chData = me._serverState.data;
@@ -10673,6 +10673,8 @@
         // if last end is same as last journal line, do nothing
         if (start == end && serverState.last_sent_version == settings.version) return;
 
+        console.log("ngUpdate, something to send");
+
         // the version number has changed, send all data to all client to re-sync them
         var big_update = false;
         if (serverState.last_sent_version != settings.version) {
@@ -10709,6 +10711,9 @@
         chData.resetJournal();
 
         if (me._broadcastSocket) {
+
+          console.log("ngUpdate, broadcasting to sockets");
+
           var updObj = me._broadcastSocket.to(me._channelId);
           updObj.emit("cmds_" + me._channelId, cmdPacket);
 

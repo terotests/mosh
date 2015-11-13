@@ -2254,8 +2254,11 @@
                     if (cmdRes === true) {
                       toShadowList.push([0, cmd]);
                     }
+                    console.log(cmdRes);
                   });
-                } catch (e) {}
+                } catch (e) {
+                  console.log(e.message);
+                }
                 bDiffOn = false;
               });
             });

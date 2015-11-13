@@ -1826,6 +1826,7 @@
                 var me = this,
                     remoteList = [];
                 cmdList.forEach(function (c) {
+                  c[1] = client._transformCmdFromNs(c[1]);
                   if (c[0]) remoteList.push(c[1]);
                   // console.log("patching "+c[1]);
                   me._clientData.patch([c[1]]);

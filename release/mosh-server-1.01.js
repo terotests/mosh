@@ -1816,6 +1816,9 @@
                 this._clientData.patch([cmd]);
               },
               sendCommands: function sendCommands(cmdList) {
+
+                this.trigger("sendCommands", cmdList);
+
                 var client = this._serverData._client;
                 var socket = this._serverData._socket;
 
@@ -1832,7 +1835,7 @@
                   me._clientData.patch([c[1]]);
                   me._hot[c[1][4]] = ms; // the ID marked as "hot"
                 });
-
+                this.trigger("remoteList", remoteList);
                 if (remoteList.length > 0) {
                   // console.log("sendCommands");
                   // console.log(remoteList);               

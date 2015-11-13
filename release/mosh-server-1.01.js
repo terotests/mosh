@@ -2281,6 +2281,7 @@
             // the state management
             me._clientState = {
               data: chData, // The channel data object
+              chData: chData,
               client: me, // The channel client object (for Namespace conversion )
               needsRefresh: false, // true if client is out of sync and needs to reload
               version: data.start.version,
@@ -2316,13 +2317,14 @@
           console.log("protocal v2 got command");
           console.log(cmd);
 
+          var state = me._clientState;
           var list = [];
           cmd.cmds.forEach(function (serverCmd) {
             list.push(me._transformCmdToNs(serverCmd));
           });
 
           list.forEach(function (cmd) {
-            me.execCmd(cmd, true);
+            state.chData.execCmd(cmd, true);
           });
 
           /*

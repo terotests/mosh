@@ -10539,6 +10539,7 @@
               result(true);
             } catch (e) {
               // in this version, NO PROBLEMO!
+              console.log("\u001b[33m", e.message, "\u001b[0m");
               result(e.message);
             }
           },

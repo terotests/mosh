@@ -2316,6 +2316,15 @@
           console.log("protocal v2 got command");
           console.log(cmd);
 
+          var list = [];
+          cmd.cmds.forEach(function (serverCmd) {
+            list.push(me._transformCmdToNs(serverCmd));
+          });
+
+          list.forEach(function (cmd) {
+            me.execCmd(cmd, true);
+          });
+
           /*
           var cmdPacket = {
           cmd : "s2c",

@@ -11091,7 +11091,7 @@
         console.log("\u001b[36m", "_updateLoop2 started", "\u001b[0m");
         var me = this;
         // slow interval
-        later().every(2, function () {
+        later().onFrame(function () {
           me._ngClientUpdate();
         });
       };

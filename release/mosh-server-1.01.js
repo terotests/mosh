@@ -9731,6 +9731,9 @@
           // messages to the channel from the socket
           socket.on("channelCommand", function (cmd, responseFn) {
 
+            console.log("Channel command ");
+            console.log(cmd);
+
             if (!socket.getUserId()) {
               responseFn({
                 success: false,
@@ -11829,9 +11832,6 @@
        * @param float name
        */
       _myTrait_.get = function (name) {
-
-        console.log("Calling get for " + name);
-        console.log("docData " + JSON.stringify(this._docData));
 
         return this._client.get(this._docData.__id, name);
       };

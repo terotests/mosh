@@ -10634,7 +10634,10 @@
         var updObj,
             me = this;
 
-        if (!me._serverState) return;
+        if (!me._serverState) {
+          console.log("_ngClientUpdate no server state");
+          return;
+        }
 
         var model = this._model;
         var settings = model._settings;
@@ -10671,7 +10674,12 @@
         var end = journal_len + dataStart.line;
 
         // if last end is same as last journal line, do nothing
-        if (start == end && serverState.last_sent_version == settings.version) return;
+        if (start == end && serverState.last_sent_version == settings.version) {
+          console.log("_ngClientUpdate - nothing to send");
+          console.log("Journal length " + journal_len);
+          console.log("Start, end ", start, end);
+          return;
+        }
 
         console.log("ngUpdate, something to send");
 
@@ -11050,7 +11058,8 @@
 
         console.log("\u001b[36m", "_updateLoop2 started", "\u001b[0m");
         var me = this;
-        later().onFrame(function () {
+        // slow interval
+        later().every(2, function () {
           me._ngClientUpdate();
         });
       };

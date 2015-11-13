@@ -6812,6 +6812,13 @@
         if (a[0] == 4) {
           var obj = this._find(a[4]),
               prop = a[1];
+
+          if (!obj) {
+            console.log("Could not find the object " + a[4]);
+            return {
+              text: "Error, object not found"
+            };
+          }
           var oldValue = obj.data[prop];
 
           if (oldValue == a[2]) return true;
@@ -10529,6 +10536,8 @@
               // now, it's simple, we just try to apply all the comands
               for (var i = 0; i < list.length; i++) {
                 console.log("executing " + list[i]);
+                console.log(chData);
+                console.log(chData.getData());
                 var cmdRes = chData.execCmdAsAction(list[i]);
                 if (cmdRes !== true) {
                   console.log("\u001b[33m", cmdRes, "\u001b[0m");

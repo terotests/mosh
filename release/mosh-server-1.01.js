@@ -10835,6 +10835,8 @@
 
           console.log("\u001b[36m", "Channel data inited", "\u001b[0m");
 
+          console.log(chData);
+
           var settings = model._settings;
 
           // intialize the server state

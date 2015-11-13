@@ -2215,6 +2215,33 @@
                 result: true,
                 channelId: me._channelId
               });
+
+              var bDiffOn = false;
+
+              var toShadowList = [];
+              chData.on("cmd", function (d) {
+                if (bDiffOn) return; // do not re-send the diff commands
+                toShadowList.push([1, d.cmd]);
+              });
+
+              later().onFrame(function () {
+                if (toShadowList.length > 0) o.sendCommands(toShadowList.slice());
+                toShadowList.length = 0;
+              });
+
+              o.on("diff", function (cmdList) {
+                bDiffOn = true;
+                try {
+                  cmdList.forEach(function (cmd) {
+                    var chData = me._serverState.data;
+                    var cmdRes = chData.execCmd(cmd);
+                    if (cmdRes === true) {
+                      toShadowList.push([0, cmd]);
+                    }
+                  });
+                } catch (e) {}
+                bDiffOn = false;
+              });
             });
           });
 

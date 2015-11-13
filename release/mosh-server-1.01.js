@@ -2197,14 +2197,16 @@
               url: "http://54.165.147.161:7777",
               db: "http://localhost:1234/replica/pieces",
               protocolVersion: 2
-            }, function (theData) {
+            }, function (rawData) {
 
               console.log("The worker send response");
-              console.log(theData);
+              console.log(rawData);
 
               // TODO : Channel status ???
               me._channelStatus = {};
-              var mainData = me._transformObjToNs(theData, me._ns);
+              var mainData = me._transformObjToNs(rawData, me._ns);
+              console.log("Main data");
+              console.log(mainData);
 
               var chData = _channelData(me._id, mainData, []);
 
@@ -2249,7 +2251,7 @@
                   cmdList.forEach(function (cmd) {
                     var myCmd = me._transformCmdToNs(cmd);
                     console.log("DIFF ", myCmd);
-                    var chData = me._serverState.data;
+                    var chData = me._clientState.data;
                     var cmdRes = chData.execCmd(myCmd);
                     if (cmdRes === true) {
                       toShadowList.push([0, cmd]);

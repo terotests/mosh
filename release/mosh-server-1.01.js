@@ -2247,9 +2247,10 @@
                 bDiffOn = true;
                 try {
                   cmdList.forEach(function (cmd) {
-                    console.log("DIFF ", cmd);
+                    var myCmd = me._transformCmdToNs(cmd);
+                    console.log("DIFF ", myCmd);
                     var chData = me._serverState.data;
-                    var cmdRes = chData.execCmd(cmd);
+                    var cmdRes = chData.execCmd(myCmd);
                     if (cmdRes === true) {
                       toShadowList.push([0, cmd]);
                     }

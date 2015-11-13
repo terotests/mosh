@@ -2247,6 +2247,7 @@
                 bDiffOn = true;
                 try {
                   cmdList.forEach(function (cmd) {
+                    console.log("DIFF ", cmd);
                     var chData = me._serverState.data;
                     var cmdRes = chData.execCmd(cmd);
                     if (cmdRes === true) {
@@ -2323,9 +2324,13 @@
             list.push(me._transformCmdToNs(serverCmd));
           });
 
-          list.forEach(function (cmd) {
-            state.chData.execCmd(cmd, true);
-          });
+          try {
+            list.forEach(function (cmd) {
+              console.log(state.chData.execCmd(cmd, true));
+            });
+          } catch (e) {
+            console.log("ERROR " + e.message);
+          }
 
           /*
           var cmdPacket = {

@@ -9512,7 +9512,7 @@
                   me._openChannels[ctrl.getID()] = ctrl;
                   me.addSocketToCh(cData.channelId, socket);
                   socket.__channels.push(cData.channelId);
-
+                  socket.setAuthInfo([777], ["users"]);
                   console.log("\u001b[36m", "Ready to send response", "\u001b[0m");
 
                   try {
@@ -9735,6 +9735,7 @@
             console.log(cmd);
 
             if (!socket.getUserId()) {
+              console.log("ERROR: no userid");
               responseFn({
                 success: false,
                 reason: "socket is not authenticated."
@@ -9743,13 +9744,14 @@
             }
 
             if (!socket.isInRoom(cmd.channelId)) {
+              console.log("ERROR: not in room");
               responseFn({
                 success: false,
                 reason: "not in room"
               });
               return;
             }
-
+            console.log("ok to run ");
             // the command for the channel controller...
             ctrl.run(cmd, function (resp) {
               if (responseFn) responseFn(resp);

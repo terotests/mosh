@@ -10516,6 +10516,7 @@
 
             console.log("sendCmds command ");
             if (!me._groupACL(socket, "w", cmd)) {
+              console.log("permission denied");
               result(null);
               return;
             }
@@ -10527,8 +10528,10 @@
 
               // now, it's simple, we just try to apply all the comands
               for (var i = 0; i < list.length; i++) {
+                console.log("executing " + list[i]);
                 var cmdRes = chData.execCmdAsAction(list[i]);
                 if (cmdRes !== true) {
+                  console.log("\u001b[33m", cmdRes, "\u001b[0m");
                   break;
                 }
               }

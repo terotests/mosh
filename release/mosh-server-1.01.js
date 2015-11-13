@@ -1817,7 +1817,7 @@
               },
               sendCommands: function sendCommands(cmdList) {
 
-                this.trigger("sendCommands", cmdList);
+                this.trigger("myMsg", cmdList);
 
                 var client = this._serverData._client;
                 var socket = this._serverData._socket;
@@ -1835,7 +1835,7 @@
                   me._clientData.patch([c[1]]);
                   me._hot[c[1][4]] = ms; // the ID marked as "hot"
                 });
-                this.trigger("remoteList", remoteList);
+                this.trigger("myMsg", remoteList);
                 if (remoteList.length > 0) {
                   // console.log("sendCommands");
                   // console.log(remoteList);               
@@ -2231,7 +2231,10 @@
               });
 
               later().onFrame(function () {
-                if (toShadowList.length > 0) o.sendCommands(toShadowList.slice());
+                if (toShadowList.length > 0) {
+                  console.log("-> should call sendCommands");
+                  o.sendCommands(toShadowList.slice());
+                }
                 toShadowList.length = 0;
               });
 

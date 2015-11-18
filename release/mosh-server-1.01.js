@@ -5777,6 +5777,8 @@
 
         _doingRemote = isRemote;
 
+        this._setModTime(obj);
+
         var tmpCmd = [4, prop, obj.data[prop], null, a[4], a[5], a[6]];
         this._cmd(tmpCmd, obj, null);
 
@@ -5942,6 +5944,8 @@
         obj.data[prop] = newValue[0]; // the new value for the data property
         _doingRemote = isRemote;
 
+        this._setModTime(obj);
+
         // from the listeners point of view this is only object property change
         var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6]];
         this._cmd(tmpCmd, obj, null);
@@ -6032,6 +6036,9 @@
 
         obj.data.splice(i, 1);
         obj.data.splice(targetIndex, 0, targetObj);
+
+        this._setModTime(obj);
+
         this._cmd(a, null, a[1]);
 
         return true;
@@ -6097,6 +6104,8 @@
 
         insertedObj.__p = parentObj.__id;
 
+        this._setModTime(parentObj);
+
         // remove from orphans
         var ii = this._data.__orphan.indexOf(insertedObj);
         if (ii >= 0) {
@@ -6158,6 +6167,7 @@
         // now the object is in the array...
         parentObj.data.splice(index, 1);
 
+        this._setModTime(parentObj);
         // removed at should not be necessary because journal has the data
         // removedItem.__removedAt = index;
 
@@ -6258,6 +6268,9 @@
 
         obj.data[prop] = a[2]; // value is now set...
 
+        // update the modificatino time flag
+        this._setModTime(obj);
+
         if (!this._options.disableWorkers) this._cmd(a, obj, null);
 
         // Saving the write to root document
@@ -6311,6 +6324,7 @@
         obj.data[prop] = setObj; // value is now set...
         setObj.__p = obj.__id; // The parent relationship
 
+        this._setModTime(obj);
         this._cmd(a, null, a[2]);
 
         var ii = this._data.__orphan.indexOf(setObj);
@@ -6353,6 +6367,7 @@
 
         delete obj.data[prop];
         // if(!isRemote) this.writeCommand(a);
+        this._setModTime(obj);
 
         return true;
       };
@@ -6780,6 +6795,22 @@
             cmd: a,
             text: "Exception raised " + txt
           };
+        }
+      };
+
+      /**
+       * @param Object obj  - Data Object to set the modification time to
+       */
+      _myTrait_._setModTime = function (obj) {
+        var ms = new Date().getTime();
+        obj.__modTime = ms;
+        obj.__treeTime = ms;
+
+        var o = this._find(obj.__p);
+
+        while (o) {
+          o.__treeTime = ms;
+          var o = this._find(o.__p);
         }
       };
 
@@ -12468,6 +12499,175 @@
         options); // Options for the worker
 
         return this;
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _eventOn;
+      var _bindLock;
+
+      // Initialize static variables here...
+
+      /**
+       * @param float dataObj
+       * @param float obj
+       * @param float parentPlain
+       * @param float parentObserver
+       */
+      _myTrait_._es7Observe = function (dataObj, obj, parentPlain, parentObserver) {
+
+        if (!dataObj.getData) return dataObj;
+
+        var obj = dataObj.getData();
+
+        if (!this.isObject(obj) && !this.isArray(obj)) return obj;
+
+        var plain,
+            me = this;
+        var dataCh = dataObj._client.getChannelData();
+
+        var moshId = Symbol("_mosh_id_");
+
+        if (dataObj.isArray()) {
+
+          // The new array to observe
+          plain = [];
+
+          var myObserver = function myObserver(changes) {
+            var bLock = false;
+
+            changes.forEach(function (ch) {
+              if (bLock) return;
+              bLock = true;
+              if (ch.type == "update") {}
+              if (ch.type == "splice") {
+                // TODO: handle removes
+                ch.removed.forEach(function (oldObj) {
+                  if (!oldObj[moshId]) {
+                    return;
+                  }
+                  try {
+                    var id = oldObj[moshId];
+                    var dataObj = _data(id);
+                    // we should have this object
+                    if (dataObj.isFulfilled()) {
+                      if (!dataObj.parent()) {
+                        return;
+                      }
+                      me._atObserveEvent(true);
+                      dataObj.remove();
+                      me._atObserveEvent(false);
+                    }
+                  } catch (e) {}
+                });
+                // inserts
+                var objCnt = ch.addedCount;
+                var i = ch.index;
+                while (objCnt--) {
+                  var newObj = ch.object[i];
+                  /*
+                    if(newObj.__oid && plain[i].__oid && ( newObj.__oid() ==  plain[i].__oid()) ) {
+                        i++;
+                        continue;
+                    }
+                    */
+                  dataObj.push(newObj, i);
+                  i++;
+                }
+              }
+              bLock = false;
+            });
+          };
+
+          var len = obj.data.length;
+          for (var i = 0; i < len; i++) {
+            var o = dataObj.at(i);
+            // console.log("item ", o );
+            (function (o) {
+              plain[i] = me._es7Observe(o, null, plain, myObserver);
+              plain[moshId] = o.getID();
+            })(o);
+          }
+
+          dataCh.createWorker("_obs_7", // worker ID
+          [7, "*", null, null, dataObj.getID()], // filter
+          {
+            target: plain,
+            parentObserver: myObserver
+          });
+
+          Array.observe(plain, myObserver);
+        } else {
+          // The new object to observe
+          plain = {};
+          plain[moshId] = dataObj.getID();
+
+          dataCh.createWorker("_obs_8", // worker ID
+          [8, "*", null, null, dataObj.getID()], // filter
+          {
+            target: parentPlain,
+            parentObserver: parentObserver
+          });
+          dataCh.createWorker("_obs_12", // worker ID
+          [12, "*", null, null, dataObj.getID()], // filter
+          {
+            target: parentPlain,
+            parentObserver: parentObserver
+          });
+          for (var n in obj.data) {
+            if (obj.data.hasOwnProperty(n)) {
+              if (this.isObject(obj.data[n])) {
+                plain[n] = this._es7Observe(dataObj[n], null, plain);
+              } else {
+                plain[n] = obj.data[n];
+              }
+              // "_obs_4"
+              dataCh.createWorker("_obs_4", // worker ID
+              [4, n, null, null, dataObj.getID()], // filter
+              {
+                target: plain
+              });
+            }
+          }
+          Object.observe(plain, function (changes) {
+
+            var bLock = false;
+            changes.forEach(function (ch) {
+              if (bLock) return;
+              bLock = true;
+              if (ch.type == "add") {
+                var newValue = ch.object[ch.name];
+                dataObj.set(ch.name, newValue);
+              }
+              if (ch.type == "update") {
+                var newValue = ch.object[ch.name];
+                dataObj.set(ch.name, newValue);
+              }
+              if (ch.type == "delete") {
+                dataObj.unset(ch.name);
+              }
+              bLock = false;
+            });
+          });
+        }
+
+        return plain;
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_._setBindLock = function (t) {
+        _bindLock = t;
+      };
+
+      /**
+       * @param float parentPlain
+       * @param float parentObserver
+       */
+      _myTrait_.toObservable = function (parentPlain, parentObserver) {
+
+        return this._es7Observe(this, null, parentPlain, parentObserver);
       };
     })(this);
 
@@ -21028,6 +21228,8 @@ this._chManager = chManager;
 */
 
 // console.log("Strange... no emit value in ", this._parent);
+
+// The update type is not supported
 
 // objectCache[data.__id] = this;
 

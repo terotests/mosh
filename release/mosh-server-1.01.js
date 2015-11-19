@@ -1886,8 +1886,8 @@
                     username: "Tero",
                     password: "teropw"
                   },
-                  ioLib: realSocket,
-                  protocolVersion: options.protocolVersion
+                  ioLib: realSocket
+                  // protocolVersion : options.protocolVersion
                 });
                 // console.log("REPLICA : _data ok");
                 this._serverData = theData;

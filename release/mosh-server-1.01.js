@@ -9297,12 +9297,69 @@
               }, {
                 name: "socket.io-client",
                 assignTo: "ioLib"
+              }, {
+                name: "fs",
+                assignTo: "fs"
               }]
             },
             processWorkers: {
               init: function init() {
                 console.log("Replicator object created");
                 this._hot = {};
+              },
+              initChannel: function initChannel(channelPath) {
+                this._chPath = channelPath;
+                this._collectFile = channelPath + "/.replica_collect";
+                this._sendFile = channelPath + "/.replica_send";
+
+                var me = this;
+
+                var isFile = function isFile(fName) {
+                  return fs.statSync(fName).isFile();
+                };
+
+                var txtToArray = function txtToArray(str) {
+                  if (!str || typeof str != "string") return [];
+                  var a = str.split("\n");
+                  var res = [];
+                  a.forEach(function (line) {
+                    if (line.trim().length == 0) return;
+                    res.push(JSON.parse(line));
+                  });
+                  return res;
+                };
+                // every 5 seconds check the status of the "collectFile"...
+                later().every(0.1, function () {
+                  if (!me._dataIsReady || !me._serverData || !me._serverData._client.isConnected()) {
+                    return;
+                  }
+
+                  var client = me._serverData._client;
+                  var socket = me._serverData._socket;
+
+                  if (isFile(me._collectFile) && !isFile(me._sendFile)) {
+
+                    console.log("Found something to send -> renaming collectFile to sendFile");
+                    // 1. move the collect file into sending file
+                    fs.renameSync(me._collectFile, me._sendFile);
+
+                    // 2. read the data from the system and send to the sever
+                    var str = fs.readFileSync(me._sendFile);
+                    console.log("About to send ", str);
+                    socket.send("channelCommand", {
+                      channelId: client._channelId,
+                      cmd: "sendCmds",
+                      data: {
+                        commands: txtToArray(str)
+                      }
+                    }, function () {
+                      // --> should wait for the response here ...
+                      console.log("Got response for sendFile");
+                      fs.unlink(me._sendFile);
+                    });
+                  }
+                  // if the _sendFile exists for some time, should re-send the data
+                });
               },
               clientReady: function clientReady() {
                 if (!this._readyCallback) return;
@@ -9322,9 +9379,45 @@
                 console.log("Patching client with " + cmd);
                 this._clientData.patch([cmd]);
               },
-
+              writeForSending: function writeForSending(list) {
+                if (!this._collectFile) {
+                  console.log("ERROR : this._collectFile was not initialized");
+                  return;
+                }
+                var str = "",
+                    cnt = 0;
+                list.forEach(function (r) {
+                  str += JSON.stringify(r) + "\n";
+                  cnt++;
+                });
+                fs.appendFile(this._collectFile, str, function (err) {});
+              },
+              /*
+              fs.appendFile(filePath, data, function (err) {
+              if (err) {
+               fail( err );
+               return;
+              }
+              result({result:true, text:"File written"});            
+              });            
+              */
               // not enought to keep the replication "up to date"
               sendCommands: function sendCommands(cmdList) {
+
+                var me = this,
+                    remoteList = [];
+                cmdList.forEach(function (c) {
+                  if (c[0]) remoteList.push(c[1]);
+                  // console.log("patching "+c[1]);
+                  me._clientData.patch([c[1]]);
+                  me._hot[c[1][4]] = ms; // the ID marked as "hot"
+                });
+
+                if (remoteList.length > 0) {
+                  this.writeForSending(remoteList);
+                }
+                return;
+                // --- the old send commands is below...
 
                 // If data is not loaded or
                 if (!this._dataIsReady || !this._serverData || !this._serverData._client.isConnected()) {
@@ -11090,6 +11183,9 @@
               // done "later"
 
               me._replicator = o;
+
+              // start the replicating loop at the process
+              o.initChannel(__dirname + "/" + me._channelId);
 
               // intialize the command sending to the replication service immediately
               var bDiffOn = false;

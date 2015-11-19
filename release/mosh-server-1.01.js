@@ -9412,6 +9412,9 @@
               // not enought to keep the replication "up to date"
               sendCommands: function sendCommands(cmdList) {
 
+                console.log("sendCommands");
+                console.log(cmdList);
+
                 var me = this,
                     remoteList = [];
                 cmdList.forEach(function (c) {
@@ -9422,6 +9425,7 @@
                 });
 
                 if (remoteList.length > 0) {
+                  console.log("calling writeForSending");
                   this.writeForSending(remoteList);
                 }
                 return;

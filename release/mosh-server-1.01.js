@@ -9322,7 +9322,17 @@
                 console.log("Patching client with " + cmd);
                 this._clientData.patch([cmd]);
               },
+
+              // not enought to keep the replication "up to date"
               sendCommands: function sendCommands(cmdList) {
+
+                // If data is not loaded or
+                if (!this._dataIsReady || !this._serverData || !this._serverData._client.isConnected()) {
+                  console.log("\u001b[36m", "******* unsent commands, might write to disk *******", "\u001b[0m");
+                  console.log(cmdList);
+                  return;
+                }
+
                 var client = this._serverData._client;
                 var socket = this._serverData._socket;
 
@@ -9341,7 +9351,10 @@
 
                 if (remoteList.length > 0) {
                   // console.log("sendCommands");
-                  // console.log(remoteList);               
+                  // console.log(remoteList);       
+
+                  //if(client.isConnected()) {}
+
                   socket.send("channelCommand", {
                     channelId: client._channelId,
                     cmd: "sendCmds",
@@ -9385,6 +9398,7 @@
                 this._readyCallback = whenReady;
 
                 var me = this;
+                this._dataIsReady = false;
                 this._serverData.then(function () {
 
                   console.log("REPLICA : Got the connection");
@@ -9420,6 +9434,7 @@
                   console.log("REPLICA : all done");
 
                   bHasData = true;
+                  me._dataIsReady = true;
 
                   // if we have skipped some data, b_hot_pending tells us that we are not
                   // finished yet with processing of the server data
@@ -10953,10 +10968,10 @@
 
           me._updateLoop(); // start the update loop
           me._chData = chData;
-          me.resolve(true);
 
-          // changed from "startSync"
-          me._replica = me._startReplica(data);
+          me._startReplica(data).then(function () {
+            me.resolve(true);
+          });
         });
       };
 
@@ -11050,12 +11065,14 @@
       _myTrait_._startReplica = function (withData) {
         var me = this;
 
+        // The replication order must be correct of course, start immediately the replication
+        // server and only after that the channel init is done...
         return _promise(function (result) {
           // --> test also if the channel has a master server
           me._model.readFile(".replica").then(function (data) {
 
             if (!data) {
-              console.log("No replica found");
+              console.log("No replica data found");
               result(false);
               return;
             }
@@ -11068,7 +11085,52 @@
             // repData.db  == the database address at the replication server
 
             new rep().then(function (o) {
+
+              // important piece to have, the connection to the replication server can be
+              // done "later"
+
               me._replicator = o;
+
+              // intialize the command sending to the replication service immediately
+              var bDiffOn = false;
+
+              // if channel has new data and currently not patching...
+              var chData = me._serverState.data,
+                  toShadowList = [];
+
+              // when channel has connected, collect commands
+              chData.on("cmd", function (d) {
+                if (bDiffOn) return; // do not re-send the diff commands
+                toShadowList.push([1, d.cmd]);
+              });
+
+              later().onFrame(function () {
+                if (toShadowList.length > 0) o.sendCommands(toShadowList.slice());
+                toShadowList.length = 0;
+              });
+
+              // when you get a "diff" from the replicator process, run it against local data
+              o.on("diff", function (cmdList) {
+                bDiffOn = true;
+                try {
+                  cmdList.forEach(function (cmd) {
+                    var chData = me._serverState.data;
+                    var cmdRes = chData.execCmd(cmd);
+                    if (cmdRes === true) {
+                      // if it is successfull update the local shadow version of the process
+                      toShadowList.push([0, cmd]);
+                    }
+                  });
+                } catch (e) {
+                  console.log("ERROR " + e.message);
+                }
+                bDiffOn = false;
+              });
+
+              result(true); // <- at this point ready so start sending the commands
+
+              // Then connect to the remote server if available
+              // NOTE: the server may not be available during the connect
               o.connect({
                 clientData: withData,
                 url: repData.url,
@@ -11076,45 +11138,9 @@
               }, function (rawData) {
 
                 console.log("Replica started and connected ");
-
-                var bDiffOn = false;
-
-                // if channel has new data and currently not patching...
-                var chData = me._serverState.data,
-                    toShadowList = [];
-
-                // when channel has connected, collect commands
-                chData.on("cmd", function (d) {
-                  if (bDiffOn) return; // do not re-send the diff commands
-                  toShadowList.push([1, d.cmd]);
-                });
-
-                later().onFrame(function () {
-                  if (toShadowList.length > 0) o.sendCommands(toShadowList.slice());
-                  toShadowList.length = 0;
-                });
-
-                // when you get a "diff" from the replicator process, run it against local data
-                o.on("diff", function (cmdList) {
-                  bDiffOn = true;
-                  try {
-                    cmdList.forEach(function (cmd) {
-                      var chData = me._serverState.data;
-                      var cmdRes = chData.execCmd(cmd);
-                      if (cmdRes === true) {
-                        // if it is successfull update the local shadow version of the process
-                        toShadowList.push([0, cmd]);
-                      }
-                    });
-                  } catch (e) {
-                    console.log("ERROR " + e.message);
-                  }
-                  bDiffOn = false;
-                });
                 console.log("initializing the _startReplica done");
               });
             });
-            result(true);
           });
         });
       };
@@ -21346,6 +21372,9 @@ this._channelId = channelId;
 this._commands = sequenceStepper(channelId);
 this._chManager = chManager;
 */
+// me.resolve(true);
+// changed from "startSync"
+// me._replica = me._startReplica(data);
 
 // console.log("Strange... no emit value in ", this._parent);
 

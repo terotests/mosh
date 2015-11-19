@@ -9344,7 +9344,7 @@
 
                   var client = me._serverData._client;
                   var socket = me._serverData._socket;
-
+                  console.log("-- checking data -- ");
                   if (isFile(me._collectFile) && !isFile(me._sendFile)) {
 
                     console.log("Found something to send -> renaming collectFile to sendFile");

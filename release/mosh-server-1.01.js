@@ -9461,7 +9461,10 @@
                     }
                     // console.log("--> sending DIFF to the client process");
                     // console.log(JSON.stringify(diff_list, null, 2));
-                    if (diff_list.length > 0) me.trigger("diff", diff_list);
+                    if (diff_list.length > 0) {
+                      console.log("replicator got data ", diff_list);
+                      me.trigger("diff", diff_list);
+                    }
                   }, 1);
                 });
               }

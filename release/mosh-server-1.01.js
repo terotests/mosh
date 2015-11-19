@@ -9315,7 +9315,11 @@
                 var me = this;
 
                 var isFile = function isFile(fName) {
-                  return fs.statSync(fName).isFile();
+                  try {
+                    return fs.statSync(fName).isFile();
+                  } catch (e) {
+                    return false;
+                  }
                 };
 
                 var txtToArray = function txtToArray(str) {

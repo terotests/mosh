@@ -9338,13 +9338,13 @@
                 // every 5 seconds check the status of the "collectFile"...
                 setInterval(function () {
                   if (!me._dataIsReady || !me._serverData || !me._serverData._client.isConnected()) {
-                    console.log("not connected to the remote server");
+
                     return;
                   }
 
                   var client = me._serverData._client;
                   var socket = me._serverData._socket;
-                  console.log("-- checking data -- ");
+
                   if (isFile(me._collectFile) && !isFile(me._sendFile)) {
 
                     console.log("Found something to send -> renaming collectFile to sendFile");
@@ -9360,11 +9360,13 @@
                       data: {
                         commands: txtToArray(str)
                       }
+                    }).then(function () {
+                      console.log("-- returned -- ");
+                      fs.unlink(me._sendFile);
                     });
-                    fs.unlink(me._sendFile);
                   }
                   // if the _sendFile exists for some time, should re-send the data
-                }, 2000);
+                }, 100);
               },
               clientReady: function clientReady() {
                 if (!this._readyCallback) return;

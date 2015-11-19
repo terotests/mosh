@@ -9360,11 +9360,8 @@
                       data: {
                         commands: txtToArray(str)
                       }
-                    }, function () {
-                      // --> should wait for the response here ...
-                      console.log("Got response for sendFile");
-                      fs.unlink(me._sendFile);
                     });
+                    fs.unlink(me._sendFile);
                   }
                   // if the _sendFile exists for some time, should re-send the data
                 }, 2000);

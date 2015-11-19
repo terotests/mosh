@@ -8352,6 +8352,12 @@
               newChann.then(function () {
                 return newChann.writeFile("file.2", JSON.stringify(chData));
               }).then(function () {
+                if (chSettings.replica) {
+                  return newChann.writeFile(".replica", chSettings.replica);
+                } else {
+                  return true;
+                }
+              }).then(function () {
                 return newChann.set(obj);
               }).then(function () {
                 response({
@@ -9910,26 +9916,44 @@
               chData: replChannel.getData(true),
               _userId: "replica",
               name: "replicated",
-              channelId: options.channelId
+              channelId: options.channelId,
+              replica: {
+                url: options.url,
+                db: options.db
+              }
             }).then(function (r) {
               console.log("Channel created");
-              if (!r.result) {
-                responseFn({
-                  success: false,
-                  channelId: null
-                });
-                return;
-              }
-              ctrl = _channelController(options.channelId, fileSystem, me);
-              ctrl.then(function () {
-                console.log("Writing .replica");
-                ctrl._model.writeFile(".replica", repData).then(function () {
-                  responseFn({
-                    success: true,
-                    channelId: options.channelId
-                  });
-                });
+              responseFn({
+                success: true,
+                channelId: options.channelId
               });
+              /*
+                if(!r.result) {
+                    console.log("Create channel result == false");
+                    console.log(r);
+                    responseFn({ success : false, channelId: null});
+                    return;
+                }
+                console.log("Writing .replica data "+repData);
+                model.writeFile(options.channelId+"/.replica", repData)
+                    .then(
+                        function() {
+                            responseFn({ success : true, channelId: options.channelId});
+                        });
+                */
+              /*        
+                ctrl = _channelController( options.channelId, fileSystem, me );
+                ctrl.then( 
+                    function() {
+                        console.log("Writing .replica");
+                        ctrl._model.writeFile(".replica", repData)
+                            .then( 
+                                function() {
+                                    responseFn({ success : true, channelId: options.channelId});
+                                });
+                        
+                        
+                    });  */
             });
           });
         });
@@ -11028,6 +11052,7 @@
           me._model.readFile(".replica").then(function (data) {
 
             if (!data) {
+              console.log("No replica found");
               result(false);
               return;
             }

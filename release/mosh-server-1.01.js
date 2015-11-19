@@ -9329,7 +9329,7 @@
                   return res;
                 };
                 // every 5 seconds check the status of the "collectFile"...
-                later().every(0.1, function () {
+                setInterval(function () {
                   if (!me._dataIsReady || !me._serverData || !me._serverData._client.isConnected()) {
                     return;
                   }
@@ -9359,7 +9359,7 @@
                     });
                   }
                   // if the _sendFile exists for some time, should re-send the data
-                });
+                }, 200);
               },
               clientReady: function clientReady() {
                 if (!this._readyCallback) return;

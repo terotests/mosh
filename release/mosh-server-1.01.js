@@ -9352,7 +9352,7 @@
                     fs.renameSync(me._collectFile, me._sendFile);
 
                     // 2. read the data from the system and send to the sever
-                    var str = fs.readFileSync(me._sendFile);
+                    var str = fs.readFileSync(me._sendFile, "utf8");
                     console.log("About to send ", str);
                     socket.send("channelCommand", {
                       channelId: client._channelId,

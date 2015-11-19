@@ -9908,7 +9908,7 @@
             var model = _localChannelModel(null, me._fileSystem);
             model.createChannel({
               chData: replChannel.getData(true),
-              _userId: "",
+              _userId: "replica",
               name: "replicated",
               channelId: options.channelId
             }).then(function (r) {

@@ -9308,6 +9308,9 @@
                 this._hot = {};
               },
               initChannel: function initChannel(channelPath) {
+
+                console.log("Initializing " + channelPath);
+
                 this._chPath = channelPath;
                 this._collectFile = channelPath + "/.replica_collect";
                 this._sendFile = channelPath + "/.replica_send";
@@ -9335,6 +9338,7 @@
                 // every 5 seconds check the status of the "collectFile"...
                 setInterval(function () {
                   if (!me._dataIsReady || !me._serverData || !me._serverData._client.isConnected()) {
+                    console.log("not connected to the remote server");
                     return;
                   }
 
@@ -9363,7 +9367,7 @@
                     });
                   }
                   // if the _sendFile exists for some time, should re-send the data
-                }, 200);
+                }, 2000);
               },
               clientReady: function clientReady() {
                 if (!this._readyCallback) return;

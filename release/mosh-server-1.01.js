@@ -9524,6 +9524,7 @@
         this._auth = authManager;
         this._channelSockets = {};
         this._openChannels = {};
+        this._fileSystem = fileSystem;
 
         if (options.marx) {
           this._marx = options.marx;
@@ -9870,6 +9871,96 @@
        */
       _myTrait_.setCmdLookup = function (fn) {
         _cmdLookup = fn;
+      };
+
+      /**
+       * @param Object options  - Replication options
+       */
+      _myTrait_.startReplicating = function (options) {
+
+        // options.url  =
+        // options.db   =
+        // options.channelId = directory where to replicate the data
+        // options.auth = authentication object...
+
+        console.log("*** start replicating ***");
+        console.log(options);
+
+        var ioLib = require("socket.io-client");
+        var realSocket = ioLib.connect(options.url);
+
+        var replChannel = _data(options.db, {
+          auth: {
+            username: "Tero",
+            password: "teropw"
+          },
+          ioLib: realSocket
+        });
+
+        var repData = JSON.stringify({
+          url: options.url,
+          db: options.db
+        });
+        var me = this;
+        return _promise(function (responseFn) {
+          replChannel.then(function () {
+            console.log("Connected to replicated channel");
+            var model = _localChannelModel(null, me._fileSystem);
+            model.createChannel({
+              chData: replChannel.getData(true),
+              _userId: "",
+              name: "replicated",
+              channelId: options.channelId
+            }).then(function (r) {
+              console.log("Channel created");
+              if (!r.result) {
+                responseFn({
+                  success: false,
+                  channelId: null
+                });
+                return;
+              }
+              ctrl = _channelController(options.channelId, fileSystem, me);
+              ctrl.then(function () {
+                console.log("Writing .replica");
+                ctrl._model.writeFile(".replica", repData).then(function () {
+                  responseFn({
+                    success: true,
+                    channelId: options.channelId
+                  });
+                });
+              });
+            });
+          });
+        });
+
+        /*
+        var model = _localChannelModel( null, fileSystem );
+        model.createChannel({
+        chData : withData,
+        _userId : socket.getUserId(),
+        name : "autocreated",
+        channelId : cData.channelId
+        }).then( function(r) {
+        if(!r.result) {
+        responseFn({ success : false, channelId: null});
+        return;
+        }
+        ctrl = _channelController( cData.channelId, fileSystem, me );
+        ctrl.then( 
+        function() {
+            if(ctrl._groupACL(socket, "r")) {
+                console.log("** autocreated a channel **" + cData.channelId);
+                socket.join(cData.channelId);
+                me.addSocketToCh(  cData.channelId, socket );
+                socket.__channels.push( cData.channelId );
+                responseFn({ success : true, channelId: cData.channelId});
+            } else {
+                responseFn({ success : false, channelId: null});
+            }
+        });                            
+        });
+        */
       };
     })(this);
   };
@@ -10937,35 +11028,37 @@
           me._model.readFile(".replica").then(function (data) {
 
             if (!data) {
-              console.log("-> no replication data found");
               result(false);
               return;
             }
 
-            console.log("replication data was found");
+            var repData = JSON.parse(data);
 
             var rep = me._chManager.createReplClass();
+
+            // repData.url == the address + port of the replication server
+            // repData.db  == the database address at the replication server
 
             new rep().then(function (o) {
               me._replicator = o;
               o.connect({
                 clientData: withData,
-                url: "http://localhost:7777",
-                db: "http://localhost:1234/galaxy/umos/model/piece/positions"
+                url: repData.url,
+                db: repData.db
               }, function (rawData) {
-                console.log("***** replicator connected ******");
-                console.log("***** replicator connected ******");
-                console.log(JSON.stringify(rawData));
+
+                console.log("Replica started and connected ");
 
                 var bDiffOn = false;
 
                 // if channel has new data and currently not patching...
                 var chData = me._serverState.data,
                     toShadowList = [];
+
+                // when channel has connected, collect commands
                 chData.on("cmd", function (d) {
                   if (bDiffOn) return; // do not re-send the diff commands
                   toShadowList.push([1, d.cmd]);
-                  // o.applyToShadow(d.cmd);
                 });
 
                 later().onFrame(function () {
@@ -10973,29 +11066,26 @@
                   toShadowList.length = 0;
                 });
 
+                // when you get a "diff" from the replicator process, run it against local data
                 o.on("diff", function (cmdList) {
                   bDiffOn = true;
-                  // console.log("Trying diff ",cmdList);
                   try {
                     cmdList.forEach(function (cmd) {
                       var chData = me._serverState.data;
                       var cmdRes = chData.execCmd(cmd);
                       if (cmdRes === true) {
+                        // if it is successfull update the local shadow version of the process
                         toShadowList.push([0, cmd]);
                       }
-                      // console.log(cmdRes);
                     });
-                    // o.patchShadowCmds( list );
                   } catch (e) {
-                    console.log(e.message);
+                    console.log("ERROR " + e.message);
                   }
                   bDiffOn = false;
                 });
                 console.log("initializing the _startReplica done");
               });
             });
-
-            console.log(data);
             result(true);
           });
         });

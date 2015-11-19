@@ -11344,7 +11344,9 @@
         this._options = options;
 
         // options.fast = next generation faster loading of the channel data
-        if (options.clientProtocol == 2) {
+        // if(options.clientProtocol == 2) {
+
+        if (false) {
           console.log("\u001b[36m", "Trying protocol v2.0", "\u001b[0m");
           var model = this._model;
           model.then(function () {

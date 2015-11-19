@@ -11202,7 +11202,7 @@
               me._replicator = o;
 
               // start the replicating loop at the process
-              o.initChannel(__dirname + "/" + me._channelId);
+              o.initChannel(__dirname + "/sandbox/" + me._channelId);
 
               // intialize the command sending to the replication service immediately
               var bDiffOn = false;

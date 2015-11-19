@@ -9388,6 +9388,8 @@
                 this._clientData.patch([cmd]);
               },
               writeForSending: function writeForSending(list) {
+                console.log("@writeForSending");
+                console.log(list);
                 if (!this._collectFile) {
                   console.log("ERROR : this._collectFile was not initialized");
                   return;
@@ -9398,6 +9400,9 @@
                   str += JSON.stringify(r) + "\n";
                   cnt++;
                 });
+
+                console.log("Ready to write to " + this._collectFile);
+
                 fs.appendFile(this._collectFile, str, function (err) {});
               },
               /*

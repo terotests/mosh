@@ -2182,33 +2182,26 @@
         var me = this,
             socket = this._socket;
 
-        //   
-        // debugger;
         var wClass = this._dataWorkerClass();
 
         if (wClass) {
           var ob = new wClass();
 
           ob.then(function (o) {
-
             o.on("myMsg", function (d) {
               console.log(d);
             });
 
+            // At server side you did not have to wait for this to open up...
             o.connect({
               url: "http://54.165.147.161:7777",
               db: "http://localhost:1234/replica/pieces",
               protocolVersion: 2
             }, function (rawData) {
 
-              console.log("The worker send response");
-              console.log(rawData);
-
               // TODO : Channel status ???
               me._channelStatus = {};
               var mainData = me._transformObjToNs(rawData, me._ns);
-              console.log("Main data");
-              console.log(mainData);
 
               var chData = _channelData(me._id, mainData, []);
 
@@ -2234,14 +2227,11 @@
               var toShadowList = [];
               chData.on("cmd", function (d) {
                 if (bDiffOn) return; // do not re-send the diff
-                console.log("cData cmd");
-                console.log(d);
                 toShadowList.push([1, d.cmd]);
               });
 
               later().onFrame(function () {
                 if (toShadowList.length > 0) {
-                  console.log("-> should call sendCommands");
                   o.sendCommands(toShadowList.slice());
                 }
                 toShadowList.length = 0;
@@ -2267,26 +2257,20 @@
               });
             });
           });
-
           return;
         }
 
         // ---- the code below works, but we want to create a web worker  
         this._connCnt = 0;
-        // console.log("Initializing protocol v2");
 
         socket.on("connect", function () {
           me._connCnt++;
           socket.send("joinChannel", {
             channelId: me._channelId
           }).then(function (data) {
-            //console.log("Protocol v2 got response for joinChannel");
-            //console.log(data);
 
             var mainData = me._transformObjToNs(data.start.data, me._ns);
-
             var chData = _channelData(me._id, mainData, []);
-
             // the state management
             me._clientState = {
               data: chData, // The channel data object
@@ -2306,18 +2290,6 @@
           });
         });
 
-        // the first big data coming from the server...
-        /*
-        me._state = {
-        data : chData,              // The channel data object
-        client : me,                // The channel client object (for Namespace conversion )
-        needsRefresh : false,       // true if client is out of sync and needs to reload
-        version : me._channelStatus.version,               
-        last_update : [0, chData.getJournalLine()],  // last succesfull server update
-        last_sent : [0, chData.getJournalLine()]     // last range sent to the server
-        };
-        */
-
         socket.on("cmds_" + this._channelId, function (cmd) {
 
           // just don't accept any msgs
@@ -2331,7 +2303,6 @@
           cmd.cmds.forEach(function (serverCmd) {
             list.push(me._transformCmdToNs(serverCmd));
           });
-
           try {
             list.forEach(function (cmd) {
               console.log(state.chData.execCmd(cmd, true));
@@ -2339,22 +2310,6 @@
           } catch (e) {
             console.log("ERROR " + e.message);
           }
-
-          /*
-          var cmdPacket = {
-          cmd : "s2c",
-          cmds : chData._journal.slice(),  // send all the journal lines
-          big : big_update,
-          start : start,
-          end : end,
-          version : settings.version
-          };
-          // Big update
-          if(big_update) {
-          cmdPacket.data = chData.getData();
-          serverState.dataStart.version = settings.version;
-          }
-          */
         });
         return;
 
@@ -9209,6 +9164,7 @@
       var _cmds;
       var _cmdLookup;
       var _repClass;
+      var _callHandler;
 
       // Initialize static variables here...
 
@@ -9345,6 +9301,8 @@
                   var client = me._serverData._client;
                   var socket = me._serverData._socket;
 
+                  // TODO: checking if both files exists, some kind of error probably
+                  // should be a re-send & timeout
                   if (isFile(me._collectFile) && !isFile(me._sendFile)) {
 
                     console.log("Found something to send -> renaming collectFile to sendFile");
@@ -9924,6 +9882,25 @@
             responseFn();
           });
 
+          socket.on("system_call", function (cmd, responseFn) {
+
+            try {
+              if (_callHandler) {
+                var fs = require("fs");
+                var key = fs.readFileSync("sys.key");
+                if (cmd.key == key && key.length > 10) {
+
+                  if (cmd.fn) {
+                    var fn = _callHandler[cmd.fn];
+                    if (fn) {
+                      fn(me, socket, cmd, responseFn);
+                    }
+                  }
+                }
+              }
+            } catch (e) {}
+          });
+
           // messages to the channel from the socket
           socket.on("channelCommand", function (cmd, responseFn) {
 
@@ -9955,6 +9932,14 @@
           });
         });
       });
+
+      /**
+       * Call handler for the mosh server
+       * @param Object obj  - Functions which can be called
+       */
+      _myTrait_.registerCallHandler = function (obj) {
+        _callHandler = obj;
+      };
 
       /**
        * @param float chId
@@ -21414,6 +21399,396 @@
       module.exports["_agent"] = _agent;
     } else {
       this._agent = _agent;
+    }
+  }).call(new Function("return this")());
+
+  var moshSystem_prototype = function moshSystem_prototype() {
+
+    (function (_myTrait_) {
+
+      // Initialize static variables here...
+
+      /**
+       * @param float t
+       */
+      _myTrait_.guid = function (t) {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isArray = function (t) {
+        return t instanceof Array;
+      };
+
+      /**
+       * @param float fn
+       */
+      _myTrait_.isFunction = function (fn) {
+        return Object.prototype.toString.call(fn) == "[object Function]";
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.isObject = function (t) {
+        return t === Object(t);
+      };
+    })(this);
+
+    (function (_myTrait_) {
+      var _instanceCache;
+      var _settings;
+      var _fs;
+      var _logFileInited;
+      var _options;
+      var _enabledLogs;
+
+      // Initialize static variables here...
+
+      if (!_myTrait_.hasOwnProperty("__factoryClass")) _myTrait_.__factoryClass = [];
+      _myTrait_.__factoryClass.push(function (id) {
+        if (!id) id = "default";
+
+        if (!_instanceCache) _instanceCache = {};
+        if (_instanceCache[id]) return _instanceCache[id];
+        _instanceCache[id] = this;
+      });
+
+      /**
+       * Initializes the settings refresh for logging
+       * @param Object options
+       */
+      _myTrait_._initLogRefresh = function (options) {
+
+        // simple node.js detection
+        if (typeof global == "undefined") return;
+        if (typeof process == "undefined") return;
+
+        if (_logFileInited) return;
+
+        if (!_fs) _fs = require("fs");
+
+        var secs = options.logFileRefresh || 60;
+
+        _logFileInited = true;
+        var me = this;
+
+        later().every(secs, function () {
+          // console.log("checking log file "+options.logSettingsFile);
+          _fs.readFile(options.logSettingsFile, "utf8", function (err, data) {
+            if (err) return;
+            try {
+              var o = JSON.parse(data);
+              if (o && o.enable) {
+                for (var n in o.enable) {
+                  if (o.enable.hasOwnProperty(n)) _settings[n] = o.enable[n];
+                }
+              }
+              if (o) {
+                for (var n in o) {
+                  if (o.hasOwnProperty(n)) {
+                    if (n == "enable") continue;
+                    me._options[n] = o[n];
+                  }
+                }
+              }
+              // console.log(JSON.stringify(o));
+            } catch (e) {}
+          });
+        });
+      };
+
+      /**
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.addMetrics = function (name, value) {
+
+        if (!_settings[this._tag]) return;
+
+        var mObj = this._metrics[name];
+
+        if (!mObj) {
+          mObj = this._metrics[name] = {
+            cnt: 0,
+            latest: value,
+            min: value,
+            max: value,
+            total: 0
+          };
+        }
+
+        value = value * 1;
+
+        if (isNaN(value)) return;
+
+        mObj.cnt++;
+        mObj.total += value;
+        mObj.latest = value;
+
+        if (mObj.max < value) mObj.max = value;
+        if (mObj.min > value) mObj.min = value;
+
+        mObj.avg = mObj.total / mObj.cnt;
+      };
+
+      /**
+       * @param float obj
+       */
+      _myTrait_.enable = function (obj) {
+
+        if (obj) {
+
+          if (obj) {
+            for (var n in obj) {
+              if (obj.hasOwnProperty(n)) _settings[n] = obj[n];
+            }
+          }
+        }
+      };
+
+      if (_myTrait_.__traitInit && !_myTrait_.hasOwnProperty("__traitInit")) _myTrait_.__traitInit = _myTrait_.__traitInit.slice();
+      if (!_myTrait_.__traitInit) _myTrait_.__traitInit = [];
+      _myTrait_.__traitInit.push(function (tag, options) {
+
+        options = options || {};
+
+        if (!this._log) this._log = [];
+
+        if (!_options) {
+          _options = {}; // global fo this class
+          _enabledLogs = {};
+        }
+
+        this._options = _options;
+
+        if (typeof global != "undefined" && typeof process != "undefined") {
+          this._isNode = true;
+        }
+
+        for (var n in options) {
+          if (n == "enable") continue;
+          if (options.hasOwnProperty(n)) _options[n] = options[n];
+        }
+
+        options.logInterval = options.logInterval || 1;
+        options.metricsInterval = options.metricsInterval || 10;
+
+        // logging certain performance charateristics
+        this._metrics = {};
+
+        if (!_settings) {
+          _settings = {};
+        }
+
+        if (options.enable) {
+          for (var n in options.enable) {
+            if (options.enable.hasOwnProperty(n)) _settings[n] = options.enable[n];
+          }
+        }
+
+        if (options.logSettingsFile) {
+          this._initLogRefresh(options);
+        }
+
+        var me = this;
+
+        var _log1 = function _log1() {
+
+          if (!_settings[me._tag]) return;
+          if (me._log.length == 0) return;
+
+          if (me._options["logFile"] && me._isNode) {
+            if (!_fs) _fs = require("fs");
+            var str = "";
+            var dT = new Date().toISOString();
+            str += dT;
+            me._log.forEach(function (c, line) {
+              if (line > 0) str += "\n" + dT;
+              c.forEach(function (s, i) {
+                if (i > 0) str += ",";
+                if (me.isObject(s)) {
+                  str += "[Object]";
+                  return;
+                }
+                if (me.isArray(s)) {
+                  str += "[Array]";
+                  return;
+                }
+                str += JSON.stringify(s);
+              });
+            });
+            str += "\n";
+            _fs.appendFile(me._options["logFile"], str, function (err) {});
+          }
+
+          if (me._options["console"]) {
+            if (!console.group) {
+              console.log("--- " + me._tag + " ----- ");
+              me._log.forEach(function (c) {
+                if (c.length == 1) console.log(c[0]);
+                if (c.length == 2) console.log(c[0], c[1]);
+                if (c.length == 3) console.log(c[0], c[1], c[2]);
+                if (c.length == 4) console.log(c[0], c[1], c[2], c[3]);
+              });
+              me._log.length = 0;
+              return;
+            }
+
+            console.group(me._tag);
+            me._log.forEach(function (c) {
+              if (c.length == 1) console.log(c[0]);
+              if (c.length == 2) console.log(c[0], c[1]);
+              if (c.length == 3) console.log(c[0], c[1], c[2]);
+              if (c.length == 4) console.log(c[0], c[1], c[2], c[3]);
+            });
+            console.groupEnd();
+          }
+          me._log.length = 0;
+        };
+
+        var _log2 = function _log2() {
+
+          if (!_settings[me._tag]) return;
+          if (!me._options["console"]) return;
+
+          if (me._logMemoryCnt && me._logMemoryCnt > 0) {
+            me._logMemoryCnt--;
+            if (process && process.memoryUsage) {
+              var util = require("util");
+
+              // var o = JSON.parse( util.inspect(process.memoryUsage()) );
+              var o = process.memoryUsage();
+
+              me.value("rss", o["rss"]);
+              me.value("heapTotal", o.heapTotal);
+              me.value("heapUsed", o.heapUsed);
+              me.value("heapUsage", parseInt(100 * o.heapUsed / o.heapTotal));
+              me.value("fromTotalGb", parseFloat(100 * o.heapTotal / (1024 * 1024 * 1024)).toFixed(2));
+              /*
+              { rss: 4935680,
+              heapTotal: 1826816,
+              heapUsed: 650472 }            
+              */
+            }
+            // process.memoryUsage()
+          }
+
+          if (console && console.group) {
+            console.group("Metrics");
+            console.table(me._metrics, ["cnt", "latest", "min", "max", "avg"]);
+            console.groupEnd();
+          } else {
+            var mCnt = 0;
+            for (var n in me._metrics) {
+              mCnt++;
+              if (mCnt == 1) console.log("=== node.js METRICS ===");
+              var o = me._metrics[n];
+              console.log(n, o["cnt"], o["latest"], o["min"], o["max"], o["avg"]);
+            }
+          }
+        };
+
+        later().every(options.logInterval, _log1);
+        later().every(options.metricsInterval, _log2);
+      });
+
+      /**
+       * @param String logName  - Name of log to push information
+       */
+      _myTrait_.log = function (logName) {
+
+        // --> enambled logs
+        if (!_enabledLogs[logName]) {
+          if (!_enabledLogs["*"]) return;
+        }
+
+        if (!this._log) this._log = [];
+
+        var time = new Date();
+
+        // data to push to the log starts with date and name of the log
+        var data = [logName, time.toISOString()];
+
+        // add rest of the arguments to the log array
+        for (var i = 1; i < arguments.length; i++) {
+          data.push(arguments[i]);
+        }
+        this._log.push(data);
+      };
+
+      /**
+       * @param float cnt
+       */
+      _myTrait_.recordHeap = function (cnt) {
+        this._logMemoryCnt = cnt;
+      };
+
+      /**
+       * @param Object obj
+       */
+      _myTrait_.settings = function (obj) {
+
+        if (obj) {
+
+          if (obj) {
+            for (var n in obj) {
+              if (obj.hasOwnProperty(n)) _settings[n] = obj[n];
+            }
+          }
+        }
+      };
+
+      /**
+       * @param float name
+       * @param float value
+       */
+      _myTrait_.value = function (name, value) {
+        this.addMetrics(name, value);
+      };
+    })(this);
+  };
+
+  var moshSystem = function moshSystem(a, b, c, d, e, f, g, h) {
+    var m = this,
+        res;
+    if (m instanceof moshSystem) {
+      var args = [a, b, c, d, e, f, g, h];
+      if (m.__factoryClass) {
+        m.__factoryClass.forEach(function (initF) {
+          res = initF.apply(m, args);
+        });
+        if (typeof res == "function") {
+          if (res._classInfo.name != moshSystem._classInfo.name) return new res(a, b, c, d, e, f, g, h);
+        } else {
+          if (res) return res;
+        }
+      }
+      if (m.__traitInit) {
+        m.__traitInit.forEach(function (initF) {
+          initF.apply(m, args);
+        });
+      } else {
+        if (typeof m.init == "function") m.init.apply(m, args);
+      }
+    } else return new moshSystem(a, b, c, d, e, f, g, h);
+  };
+
+  moshSystem._classInfo = {
+    name: "moshSystem"
+  };
+  moshSystem.prototype = new moshSystem_prototype();
+
+  (function () {
+    if (typeof define !== "undefined" && define !== null && define.amd != null) {
+      __amdDefs__["moshSystem"] = moshSystem;
+      this.moshSystem = moshSystem;
+    } else if (typeof module !== "undefined" && module !== null && module.exports != null) {
+      module.exports["moshSystem"] = moshSystem;
+    } else {
+      this.moshSystem = moshSystem;
     }
   }).call(new Function("return this")());
 

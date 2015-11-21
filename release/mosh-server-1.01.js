@@ -11421,7 +11421,9 @@
         var id = this.getID();
         delete _instances[id];
 
-        if (this._replicator) {}
+        if (this._replicator) {
+          if (this._replicator.terminate) this._replicator.terminate();
+        }
 
         // TODO: make sure we are really hibernating the the right version
         // of the data, could be that the version to be written to file has not

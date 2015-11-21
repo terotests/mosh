@@ -11398,7 +11398,7 @@
        */
       _myTrait_.closeChannel = function (t) {
 
-        console.log("Hibernating " + this._channelId);
+        console.log("## new version of close - Hibernating " + this._channelId);
 
         // this._closing = true;
 

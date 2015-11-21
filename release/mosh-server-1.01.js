@@ -9465,7 +9465,7 @@
                 var realSocket = ioLib.connect(options.url);
                 console.log("REPLICA : realSocket ok");
 
-                this._realSocket = realSockect;
+                this._realSocket = realSocket;
 
                 var theData = _data(options.db, {
                   auth: {

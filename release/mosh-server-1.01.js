@@ -11435,6 +11435,8 @@
         // TODO: if there is a pending filewrite to the system, you might wait for
         // that to complete before
 
+        console.log("## new version of close - almost done ##");
+
         if (serverState.lastJournalPromise) {
           return serverState.lastJournalPromise.then(function () {
             return model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);

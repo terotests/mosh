@@ -9718,18 +9718,27 @@
 
                 // require first to authenticate, at least read access to join
                 ctrl = _channelController(cData.channelId, fileSystem, me);
+                ctrl.addSocket(socket);
+
                 ctrl.then(function () {
                   if (ctrl._groupACL(socket, "r")) {
                     socket.join(cData.channelId);
                     me._openChannels[ctrl.getID()] = ctrl;
                     me.addSocketToCh(cData.channelId, socket);
                     socket.__channels.push(cData.channelId);
+
+                    // only the instance is important, not outside references to it
+
+                    socket.__chInst = socket.__chInst || [];
+                    socket.__chInst.push(ctrl);
+
                     responseFn({
                       success: true,
                       channelId: cData.channelId
                     });
                     console.timeEnd("join_time");
                   } else {
+                    ctrl.removeSocket(socket);
                     responseFn({
                       success: false,
                       channelId: null
@@ -9777,17 +9786,23 @@
                           return;
                         }
                         ctrl = _channelController(cData.channelId, fileSystem, me);
+                        ctrl.addSocket(socket);
                         ctrl.then(function () {
                           if (ctrl._groupACL(socket, "r")) {
                             console.log("** autocreated a channel **" + cData.channelId);
                             socket.join(cData.channelId);
                             me.addSocketToCh(cData.channelId, socket);
                             socket.__channels.push(cData.channelId);
+
+                            // the instances of the socket...
+                            socket.__chInst = socket.__chInst || [];
+                            socket.__chInst.push(ctrl);
                             responseFn({
                               success: true,
                               channelId: cData.channelId
                             });
                           } else {
+                            ctrl.removeSocket(socket);
                             responseFn({
                               success: false,
                               channelId: null
@@ -9886,12 +9901,14 @@
 
           socket.on("exitChannel", function (cmd, responseFn) {
             if (cmd.channelId && me.removeSocketFromCh(cmd.channelId, socket)) {
-              // the channel should be archived here...
-              ctrl = _channelController(cmd.channelId, fileSystem, me);
-              if (ctrl) {
-                ctrl.closeChannel();
-                delete me._openChannels[ctrl.getID()];
-              }
+
+              // exit the socket from the instances where it exists
+              socket.__chInst.forEach(function (ctrl) {
+                if (ctrl._channelId == cmd.channelId) {
+                  // remove socket should close the channel permanently
+                  ctrl.removeSocket(socket);
+                }
+              });
             }
             responseFn();
           });
@@ -11387,6 +11404,15 @@
       };
 
       /**
+       * @param Object socket  - Socket to add to channel
+       */
+      _myTrait_.addSocket = function (socket) {
+        var i = this._socketList.indexOf(socket);
+
+        if (!(i >= 0)) this._socketList.push(socket);
+      };
+
+      /**
        * @param float t
        */
       _myTrait_.channelId = function (t) {
@@ -11398,9 +11424,12 @@
        */
       _myTrait_.closeChannel = function (t) {
 
+        // prevent closing channel two times...
+        if (this._closing) return;
+
         console.log("## new version of close - Hibernating " + this._channelId);
 
-        // this._closing = true;
+        this._closing = true;
 
         if (this.__updateFn) {
           later().removeFrameFn(this.__updateFn);
@@ -11488,6 +11517,8 @@
         this._chManager = chManager;
         this._fileSystem = fileSystem;
 
+        this._socketList = [];
+
         // important point: the file system is passed here to the local channel model
         // to enable singleton models using the fileSystem ID value together with the
         // channel ID value.
@@ -11526,6 +11557,20 @@
 
         this._initCmds();
       });
+
+      /**
+       * @param Object socket  - Socket to remove
+       */
+      _myTrait_.removeSocket = function (socket) {
+
+        var i = this._socketList.indexOf(socket);
+        this._socketList.splice(i, 1);
+
+        if (this._socketList.length === 0) {
+          console.log("## number of sockets dropped to zero --- removing channel ##");
+          this.closeChannel();
+        }
+      };
 
       /**
        * @param float cmd
@@ -21932,6 +21977,14 @@
 // this.writeCommand(a);
 
 //    this.writeCommand(a);
+/*
+// the channel should be archived here...
+ctrl = _channelController( cmd.channelId, fileSystem, me );
+if(ctrl) {
+  ctrl.closeChannel();
+  delete me._openChannels[ctrl.getID()];
+}
+*/
 /*
 this._channelId = channelId;
 this._commands = sequenceStepper(channelId);

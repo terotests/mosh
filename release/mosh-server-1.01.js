@@ -9263,6 +9263,17 @@
                 console.log("Replicator object created");
                 this._hot = {};
               },
+              terminate: function terminate() {
+                console.log("### replica terminating ###");
+                try {
+                  if (this._repInteval) clearInterval(this._repInteval);
+                  if (this._syncInterval) clearInterval(this._syncInterval);
+                  if (this._realSocket) this._realSocket.disconnect();
+                  console.log("### replica terminate OK ###");
+                } catch (e) {
+                  console.log("### Terminate Failed ###");
+                }
+              },
               initChannel: function initChannel(channelPath) {
 
                 console.log("Initializing " + channelPath);
@@ -9292,7 +9303,7 @@
                   return res;
                 };
                 // every 5 seconds check the status of the "collectFile"...
-                setInterval(function () {
+                this._repInteval = setInterval(function () {
                   if (!me._dataIsReady || !me._serverData || !me._serverData._client.isConnected()) {
 
                     return;
@@ -9453,6 +9464,9 @@
                 if (typeof ioLib == "undefined") console.log("REPLICA ioLib not defined");
                 var realSocket = ioLib.connect(options.url);
                 console.log("REPLICA : realSocket ok");
+
+                this._realSocket = realSockect;
+
                 var theData = _data(options.db, {
                   auth: {
                     username: "Tero",
@@ -9506,7 +9520,7 @@
                   // if we have skipped some data, b_hot_pending tells us that we are not
                   // finished yet with processing of the server data
                   var b_hot_pending = false;
-                  setInterval(function () {
+                  me._syncInterval = setInterval(function () {
 
                     if (!me._clientData) return;
                     if (!b_hot_pending && !bHasData) return;
@@ -11352,9 +11366,10 @@
         // on the server load - the function is not required to be run if there is no activity
         // and it should be removed if the client exits from the channel.
         var me = this;
-        later().onFrame(function () {
+        this.__updateFn = function () {
           me._doClientUpdate();
-        });
+        };
+        later().onFrame(this.__updateFn);
       };
 
       /**
@@ -11364,10 +11379,11 @@
 
         console.log("\u001b[36m", "_updateLoop2 started", "\u001b[0m");
         var me = this;
-        // slow interval
-        later().onFrame(function () {
+
+        this.__updateFn = function () {
           me._ngClientUpdate();
-        });
+        };
+        later().onFrame(this.__updateFn);
       };
 
       /**
@@ -11386,6 +11402,10 @@
 
         // this._closing = true;
 
+        if (this.__updateFn) {
+          later().removeFrameFn(this.__updateFn);
+        }
+
         var serverState = this._serverState,
             model = this._model;
 
@@ -11396,6 +11416,12 @@
         // Channel model version + _settings
         // _settings
         var settings = model._settings;
+
+        // remove also the channel instance from the "_instances" array
+        var id = this.getID();
+        delete _instances[id];
+
+        if (this._replicator) {}
 
         // TODO: make sure we are really hibernating the the right version
         // of the data, could be that the version to be written to file has not
@@ -21747,6 +21773,52 @@
        */
       _myTrait_.value = function (name, value) {
         this.addMetrics(name, value);
+      };
+
+      /**
+       * Goes through all the channels in the system
+       * @param Function fn  - callback function
+       * @param Function whenDone  - callback when done
+       */
+      _myTrait_.walkChannels = function (fn, whenDone) {
+        var fs = require("fs");
+        var path = require("path");
+
+        var rootDir = __dirname + "/sandbox";
+
+        var walk = function walk(dir, done) {
+          var results = [];
+          fs.readdir(dir, function (err, list) {
+
+            if (err) return done(err);
+
+            var pending = list.length;
+            if (!pending) return done(null, results);
+            list.forEach(function (file) {
+              file = path.resolve(dir, file);
+              fs.stat(file, function (err, stat) {
+                if (stat && stat.isDirectory()) {
+                  var chId = file.replace(rootDir, "");
+                  var chData = {
+                    dirName: file,
+                    channelId: chId
+                  };
+                  fn(chData);
+
+                  walk(file, function (err, res) {
+                    results = results.concat(res);
+                    if (! --pending) done(null, results);
+                  });
+                } else {
+                  results.push(file);
+                  if (! --pending) done(null, results);
+                }
+              });
+            });
+          });
+        };
+
+        walk(rootDir, whenDone);
       };
     })(this);
   };

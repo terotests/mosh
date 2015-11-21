@@ -9907,6 +9907,11 @@
                 if (ctrl._channelId == cmd.channelId) {
                   // remove socket should close the channel permanently
                   ctrl.removeSocket(socket);
+                  var cc = me._openChannels[ctrl.getID()];
+                  if (cc._closing) {
+                    delete me._openChannels[ctrl.getID()];
+                  }
+                  // if(me._openChannels[ctrl.getID()])
                 }
               });
             }

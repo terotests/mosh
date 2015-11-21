@@ -11409,8 +11409,6 @@
         var serverState = this._serverState,
             model = this._model;
 
-        var data = serverState.data.getData();
-
         // serverState.lastJournalPromise
 
         // Channel model version + _settings
@@ -11437,14 +11435,18 @@
 
         console.log("## new version of close - almost done ##");
 
-        if (serverState.lastJournalPromise) {
-          return serverState.lastJournalPromise.then(function () {
-            return model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);
-          });
-        }
+        if (serverState && serverState.data && model) {
+          var data = serverState.data.getData();
 
-        // Hibernate to the version + journal line
-        return model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);
+          if (serverState.lastJournalPromise) {
+            return serverState.lastJournalPromise.then(function () {
+              return model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);
+            });
+          }
+
+          // Hibernate to the version + journal line
+          return model.writeFile(".hibernated." + settings.version + "." + settings.journalLine, data);
+        }
       };
 
       /**

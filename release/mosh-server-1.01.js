@@ -9875,7 +9875,7 @@
             // console.log("TODO: remove the channel so that it will not leak memory");
             // me.removeSocketFromCh(  socket );
 
-            me._logStatus.socket_leave_connect_cnt++;
+            me._logStatus.socket_leave_cnt++;
             console.log("Socket is in " + socket.__channels.length + " channels ");
             socket.__channels.forEach(function (chId) {
               if (me.removeSocketFromCh(chId, socket)) {

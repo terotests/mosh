@@ -9641,6 +9641,32 @@
         this._openChannels = {};
         this._fileSystem = fileSystem;
 
+        // initialize the status of the server
+        this._logStatus = {
+          login_cnt: 0,
+          successful_login_cnt: 0,
+          failed_login_cnt: 0,
+
+          socket_connect_cnt: 0,
+          socket_leave_cnt: 0,
+
+          channel_cmd_cnt: 0,
+          channel_error_cnt: 0,
+          invalid_cmd_cnt: 0,
+          invalid_channel_cnt: 0,
+          request_channel_cnt: 0,
+          sys_call_cnt: 0,
+
+          fatal_error_cnt: 0,
+          uptime: 0
+        };
+
+        var start_ms = new Date().getTime();
+        setInterval(function () {
+          this._logStatus.uptime = new Date().getTime() - start_ms;
+        }, 1000);
+
+        // channel_error_cnt : 0,
         if (options.marx) {
           this._marx = options.marx;
         } else {
@@ -9662,6 +9688,11 @@
         // The server which manages the client connections is here..
 
         this._server.on("connect", function (socket) {
+
+          me._logStatus.socket_connect_cnt++;
+
+          // invalid_channel_cnt
+          // me._logStatus.invalid_channel_cnt++;
 
           // keeps track of channels the socket is registered into   
           var _socketChannels = [];
@@ -9706,12 +9737,14 @@
                   }
                 });
               } else {
+                me._logStatus.invalid_channel_cnt++;
                 responseFn({
                   success: false,
                   channelId: null
                 });
               }
             }).fail(function () {
+              me._logStatus.invalid_channel_cnt++;
               responseFn({
                 success: false,
                 channelId: null
@@ -9841,6 +9874,8 @@
             // console.log("--- channel manager got disconnect to the service pool ---- ");
             // console.log("TODO: remove the channel so that it will not leak memory");
             // me.removeSocketFromCh(  socket );
+
+            me._logStatus.socket_leave_connect_cnt++;
             console.log("Socket is in " + socket.__channels.length + " channels ");
             socket.__channels.forEach(function (chId) {
               if (me.removeSocketFromCh(chId, socket)) {
@@ -9855,10 +9890,12 @@
 
           socket.on("auth", function (cData, responseFn) {
             console.time("join_time");
+            me._logStatus.login_cnt++;
             if (_authExtension) {
               try {
                 _authExtension(cData, function (success, userid, groups) {
                   if (success === true) {
+                    me._logStatus.successful_login_cnt++;
                     var UID = userid;
                     console.log("custom authentication into ", groups);
                     socket.setAuthInfo(UID, groups);
@@ -9868,6 +9905,7 @@
                       groups: groups
                     });
                   } else {
+                    me._logStatus.failed_login_cnt++;
                     responseFn({
                       success: false,
                       userId: null
@@ -9884,6 +9922,7 @@
               if (authManager) {
                 authManager.login(cData.userId, cData.password).then(function (res) {
                   if (res.result === true) {
+                    me._logStatus.successful_login_cnt++;
                     var UID = res.userId;
                     var groups = res.groups;
                     console.log("AUTH groups ", res.groups);
@@ -9894,6 +9933,7 @@
                       groups: res.groups
                     });
                   } else {
+                    me._logStatus.failed_login_cnt++;
                     responseFn({
                       success: false,
                       userId: null
@@ -9953,7 +9993,12 @@
             console.log("Channel command ");
             console.log(cmd);
 
+            me._logStatus.channel_cmd_cnt++;
+
+            // channel_error_cnt
+
             if (!socket.getUserId()) {
+              me._logStatus.channel_error_cnt++;
               console.log("ERROR: no userid");
               responseFn({
                 success: false,
@@ -9963,6 +10008,7 @@
             }
 
             if (!socket.isInRoom(cmd.channelId)) {
+              me._logStatus.channel_error_cnt++;
               console.log("ERROR: not in room");
               responseFn({
                 success: false,
@@ -10842,6 +10888,7 @@
               }
               result(true);
             } catch (e) {
+              me._chManager._logStatus.channel_error_cnt++;
               console.log("chCmd failed with " + e.message);
               result(false);
             }
@@ -10866,6 +10913,7 @@
                 console.log("executing " + list[i]);
                 var cmdRes = chData.execCmdAsAction(list[i]);
                 if (cmdRes !== true) {
+                  me._chManager._logStatus.invalid_cmd_cnt++;
                   console.log("\u001b[33m", cmdRes, "\u001b[0m");
                   break;
                 }
@@ -10874,6 +10922,7 @@
               result(true);
             } catch (e) {
               // in this version, NO PROBLEMO!
+              me._chManager._logStatus.channel_error_cnt++;
               console.log("\u001b[33m", e.message, "\u001b[0m");
               result(e.message);
             }
@@ -10907,9 +10956,13 @@
                 var c = clientFrame.c[i];
                 var cmdRes = chData.execCmdAsAction(c);
                 // handle errors, if necessary...
-                if (cmdRes !== true) {}
+                if (cmdRes !== true) {
+                  me._chManager._logStatus.invalid_cmd_cnt++;
+                }
               }
-            } catch (e) {}
+            } catch (e) {
+              me._chManager._logStatus.channel_error_cnt++;
+            }
 
             if (!me._broadcastSocket && socket.getUserId) me._broadcastSocket = socket;
             result(res);

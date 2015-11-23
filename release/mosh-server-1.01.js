@@ -5732,7 +5732,7 @@
 
         _doingRemote = isRemote;
 
-        this._setModTime(obj);
+        this._setModTime(obj, a[5]);
 
         var tmpCmd = [4, prop, obj.data[prop], null, a[4], a[5], a[6]];
         this._cmd(tmpCmd, obj, null);
@@ -5899,7 +5899,7 @@
         obj.data[prop] = newValue[0]; // the new value for the data property
         _doingRemote = isRemote;
 
-        this._setModTime(obj);
+        this._setModTime(obj, a[5]);
 
         // from the listeners point of view this is only object property change
         var tmpCmd = [4, prop, obj.data[prop], oldValue, a[4], a[5], a[6]];
@@ -5992,7 +5992,7 @@
         obj.data.splice(i, 1);
         obj.data.splice(targetIndex, 0, targetObj);
 
-        this._setModTime(obj);
+        this._setModTime(obj, a[5]);
 
         this._cmd(a, null, a[1]);
 
@@ -6059,7 +6059,7 @@
 
         insertedObj.__p = parentObj.__id;
 
-        this._setModTime(parentObj);
+        this._setModTime(parentObj, a[5]);
 
         // remove from orphans
         var ii = this._data.__orphan.indexOf(insertedObj);
@@ -6122,7 +6122,7 @@
         // now the object is in the array...
         parentObj.data.splice(index, 1);
 
-        this._setModTime(parentObj);
+        this._setModTime(parentObj, a[5]);
         // removed at should not be necessary because journal has the data
         // removedItem.__removedAt = index;
 
@@ -6224,7 +6224,7 @@
         obj.data[prop] = a[2]; // value is now set...
 
         // update the modificatino time flag
-        this._setModTime(obj);
+        this._setModTime(obj, a[5]);
 
         if (!this._options.disableWorkers) this._cmd(a, obj, null);
 
@@ -6279,7 +6279,7 @@
         obj.data[prop] = setObj; // value is now set...
         setObj.__p = obj.__id; // The parent relationship
 
-        this._setModTime(obj);
+        this._setModTime(obj, a[5]);
         this._cmd(a, null, a[2]);
 
         var ii = this._data.__orphan.indexOf(setObj);
@@ -6322,7 +6322,7 @@
 
         delete obj.data[prop];
         // if(!isRemote) this.writeCommand(a);
-        this._setModTime(obj);
+        this._setModTime(obj, a[5]);
 
         return true;
       };
@@ -6755,9 +6755,10 @@
 
       /**
        * @param Object obj  - Data Object to set the modification time to
+       * @param float timeStamp
        */
-      _myTrait_._setModTime = function (obj) {
-        var ms = new Date().getTime();
+      _myTrait_._setModTime = function (obj, timeStamp) {
+        var ms = timeStamp || new Date().getTime();
         obj.__modTime = ms;
         obj.__treeTime = ms;
 
@@ -11606,6 +11607,48 @@
             }, socket);
           });
         }
+      };
+
+      /**
+       * @param float t
+       */
+      _myTrait_.snapshot = function (t) {
+        var me = this;
+
+        var fullData = me._serverState.data.getData();
+
+        if (fullData.__orphan) {
+          fullData.__orphan.length = 0;
+        }
+
+        // first, save all the unsaved changes and refresh the clients with unsent data
+        me._doClientUpdate();
+
+        // then, create new version of the main file
+        me._model.snapshot(fullData).then(function (r) {
+
+          // the _serverState data must be also upgraded...
+          me._serverState.version++; // ????
+          me._serverState.data._journal.length = 0;
+          me._serverState.last_update[0] = 0;
+          me._serverState.last_update[1] = 0;
+
+          if (me._masterSync) {
+            me._masterSync = [me._serverState.version, 0];
+            me._model.folder().writeFile("master-sync", JSON.stringify(me._masterSync)).then(function () {
+              me._askChUpgrade(me._channelId);
+              result({
+                ok: true
+              });
+            });
+          } else {
+            // ask channels to upgrade to the latest version of data
+            me._askChUpgrade(me._channelId);
+            result({
+              ok: true
+            });
+          }
+        });
       };
     })(this);
   };

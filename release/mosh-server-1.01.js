@@ -10730,13 +10730,10 @@
             if (!cmd.data.__acl) {
               var fullData = me._serverState.data.getData();
               if (!fullData || !fullData.__acl) {
-                console.log("called createChannel - no actual data");
-                result({
-                  ok: false
-                });
-                return;
+                cmd.data.__acl = fullData.__acl = "A:g:users@:rwx\nA:g:admins@:rwxadtTnNcCy";
+              } else {
+                cmd.data.__acl = fullData.__acl;
               }
-              cmd.data.__acl = fullData.__acl;
             }
 
             console.log("ready to create channel");

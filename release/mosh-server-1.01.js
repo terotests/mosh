@@ -11070,12 +11070,12 @@
           var chData = _channelData(me.getID(), mainData, []);
           var list = r.pop();
 
-          // NOW, here is a problem, the in-memory channel "journal" should be truncated
+          // execute the journal commands to get the actual data for the channel
           while (list) {
             chData._journalPointer = 0;
             chData._journal.length = 0; // <-- the journal length, last will be spared
             list.forEach(function (c) {
-              chData.execCmd(c);
+              chData.execCmdAsAction(c);
             });
             list = r.pop();
           }

@@ -2061,10 +2061,10 @@
               me._transformObjToNs(cmd.data);
 
               var diff = diffEngine().compareFiles(myData, cmd.data);
-              console.log("Diff obj , myData, cmd.data");
-              console.log(diff);
-              console.log(myData);
-              console.log(cmd.data);
+              //console.log("Diff obj , myData, cmd.data");
+              //console.log(diff);
+              //console.log(myData);
+              //console.log(cmd.data);
 
               // run the commands for the local data
               var dd = me._clientState.data;
@@ -2072,13 +2072,13 @@
 
               dd.setClearCreated(true);
               diff.cmds.forEach(function (c) {
-                console.log("Diff cmd ", c);
+                //console.log("Diff cmd ", c);
                 if (errCnt > 0) return;
                 var r;
                 /// dd.execCmd(c, true); // the point is just to change the data to something else
                 if (!((r = dd.execCmd(c, true)) === true)) {
-                  console.error("Full error ", r);
-                  console.log("Return value from failed cmd: ", r);
+                  //console.error("Full error ", r);
+                  //console.log("Return value from failed cmd: ",r);
                   errCnt++;
                 }
               });
@@ -2090,7 +2090,7 @@
                 me._clientState.needsRefresh = false;
                 me._clientState.needsFullRefresh = false;
 
-                console.log("** full update should have gone ok ** ");
+                // console.log("** full update should have gone ok ** ");
                 dd._journal.length = 0;
                 dd._journal.push.apply(dd._journal, cmd.journal);
                 me._clientState.needsRefresh = false;

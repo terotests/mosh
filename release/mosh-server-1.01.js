@@ -9663,7 +9663,7 @@
 
         var start_ms = new Date().getTime();
         setInterval(function () {
-          this._logStatus.uptime = new Date().getTime() - start_ms;
+          me._logStatus.uptime = new Date().getTime() - start_ms;
         }, 1000);
 
         // channel_error_cnt : 0,

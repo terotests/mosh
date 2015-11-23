@@ -9600,6 +9600,15 @@
       };
 
       /**
+       * @param String channelId  - Channel
+       */
+      _myTrait_.getChannel = function (channelId) {
+
+        var ctrl = _channelController(channelId, this._fileSystem, this);
+        return ctrl;
+      };
+
+      /**
        * @param float t
        */
       _myTrait_.getServerSocket = function (t) {

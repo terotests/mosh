@@ -10712,11 +10712,16 @@
             }
           },
           createChannel: function createChannel(cmd, result, socket) {
+
+            console.log("called createChannel");
+
             if (!me._groupACL(socket, "w", cmd)) {
+              console.log("called createChannel - no write access");
               result(null);
               return;
             }
             if (!cmd.data) {
+              console.log("called createChannel - no data");
               result({
                 ok: false
               });
@@ -10725,6 +10730,7 @@
             if (!cmd.data.__acl) {
               var fullData = me._serverState.data.getData();
               if (!fullData || !fullData.__acl) {
+                console.log("called createChannel - no actual data");
                 result({
                   ok: false
                 });
@@ -10732,6 +10738,9 @@
               }
               cmd.data.__acl = fullData.__acl;
             }
+
+            console.log("ready to create channel");
+
             cmd.data._userId = socket.getUserId();
             me._model.createChannel(cmd.data).then(function (r) {
               result(r);

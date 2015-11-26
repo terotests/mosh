@@ -9752,6 +9752,9 @@
             });
           });
 
+          // Search request for a trie channel...
+          socket.on("search", function (cData, responseFn) {});
+
           socket.on("requestChannel", function (cData, responseFn) {
 
             // Request channel -> possible also autocreate channels, if they don't exist
@@ -10960,7 +10963,7 @@
               // now, it's simple, we just try to apply all the comands
               for (var i = 0; i < clientFrame.c.length; i++) {
                 var c = clientFrame.c[i];
-                var cmdRes = chData.execCmdAsAction(c);
+                var cmdRes = chData.execCmd(c);
                 // handle errors, if necessary...
                 if (cmdRes !== true) {
                   me._chManager._logStatus.invalid_cmd_cnt++;

@@ -2689,10 +2689,6 @@
        * @param float name
        */
       _myTrait_.get = function (name) {
-
-        console.log("Calling get for " + name);
-        console.log("docData " + JSON.stringify(this._docData));
-
         return this._client.get(this._docData.__id, name);
       };
 
